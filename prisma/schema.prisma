@@ -1,15 +1,351 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// User model for authentication
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  profile       Profile?
+  sessions      Session[]
+  referrals     Referral[] @relation("ReferrerUser")
+  taxReturns    TaxReturn[]
+  documents     Document[]
+  payments      Payment[]
+  appointments  Appointment[]
+  notifications Notification[]
+}
+
+// Session model for Lucia Auth
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+}
+
+// Profile with role-based access
+model Profile {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  role        Role      @default(CLIENT)
+  firstName   String?
+  lastName    String?
+  phone       String?
+  address     String?
+  city        String?
+  state       String?
+  zipCode     String?
+  dateOfBirth DateTime?
+  ssn         String?   // Encrypted
+  
+  // For referrers
+  vanitySlug  String?   @unique
+  referralCode String?  @unique
+  commissionRate Float? @default(0.1)
+  
+  // For preparers
+  preparerId  String?   @unique
+  licenseNumber String?
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([role])
+  @@index([vanitySlug])
+}
+
+// Role enum
+enum Role {
+  CLIENT
+  REFERRER
+  PREPARER
+  ADMIN
+}
+
+// Referral tracking
+model Referral {
+  id          String    @id @default(cuid())
+  referrerId  String
+  referrer    User      @relation("ReferrerUser", fields: [referrerId], references: [id])
+  
+  clientEmail String
+  clientName  String?
+  status      ReferralStatus @default(PENDING)
+  
+  // Commission tracking
+  commissionAmount Float?
+  commissionPaid   Boolean @default(false)
+  paidAt          DateTime?
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([referrerId])
+  @@index([status])
+}
+
+enum ReferralStatus {
+  PENDING
+  CONTACTED
+  CONVERTED
+  CANCELLED
+}
+
+// Tax Return management
+model TaxReturn {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  
+  year        Int
+  type        TaxReturnType
+  status      TaxReturnStatus @default(NOT_STARTED)
+  
+  // Financial data
+  grossIncome Float?
+  taxableIncome Float?
+  federalTax  Float?
+  stateTax    Float?
+  refundAmount Float?
+  amountDue   Float?
+  
+  // Important dates
+  filedDate   DateTime?
+  dueDate     DateTime?
+  
+  // Assigned preparer
+  preparerId  String?
+  
+  documents   Document[]
+  payments    Payment[]
+  notes       Note[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@unique([userId, year])
+  @@index([status])
+  @@index([year])
+}
+
+enum TaxReturnType {
+  INDIVIDUAL_1040
+  BUSINESS_1120
+  PARTNERSHIP_1065
+  S_CORP_1120S
+  NONPROFIT_990
+  ESTATE_1041
+}
+
+enum TaxReturnStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  REVIEW
+  READY_TO_FILE
+  FILED
+  ACCEPTED
+  REJECTED
+  AMENDED
+}
+
+// Document storage
+model Document {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  taxReturnId String?
+  taxReturn   TaxReturn? @relation(fields: [taxReturnId], references: [id])
+  
+  name        String
+  type        DocumentType
+  category    String?
+  
+  // Cloudflare R2 storage
+  r2Key       String    @unique
+  r2Url       String
+  fileSize    Int
+  mimeType    String
+  
+  // Security
+  encrypted   Boolean   @default(true)
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([taxReturnId])
+  @@index([type])
+}
+
+enum DocumentType {
+  W2
+  FORM_1099
+  FORM_1098
+  BANK_STATEMENT
+  RECEIPT
+  INVOICE
+  TAX_RETURN
+  OTHER
+}
+
+// Payment processing with Square
+model Payment {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  taxReturnId String?
+  taxReturn   TaxReturn? @relation(fields: [taxReturnId], references: [id])
+  
+  amount      Float
+  currency    String    @default("USD")
+  status      PaymentStatus @default(PENDING)
+  
+  // Square integration
+  squarePaymentId String? @unique
+  squareOrderId   String?
+  paymentMethod   PaymentMethod?
+  
+  description String?
+  
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  CASH_APP
+  ACH_TRANSFER
+  CHECK
+  CASH
+}
+
+// Appointment scheduling
+model Appointment {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  
+  preparerId  String?
+  
+  title       String
+  description String?
+  
+  startTime   DateTime
+  endTime     DateTime
+  
+  type        AppointmentType
+  status      AppointmentStatus @default(SCHEDULED)
+  
+  // Meeting details
+  location    String?
+  meetingUrl  String?
+  
+  notes       Note[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([startTime])
+  @@index([status])
+}
+
+enum AppointmentType {
+  CONSULTATION
+  TAX_PREP
+  REVIEW
+  FILING
+  FOLLOW_UP
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+// Notes and communications
+model Note {
+  id          String    @id @default(cuid())
+  
+  content     String
+  isInternal  Boolean   @default(false)
+  
+  taxReturnId String?
+  taxReturn   TaxReturn? @relation(fields: [taxReturnId], references: [id])
+  
+  appointmentId String?
+  appointment Appointment? @relation(fields: [appointmentId], references: [id])
+  
+  createdBy   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([taxReturnId])
+  @@index([appointmentId])
+}
+
+// Notifications
+model Notification {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  
+  title       String
+  message     String
+  type        NotificationType
+  
+  read        Boolean   @default(false)
+  readAt      DateTime?
+  
+  // Optional action link
+  actionUrl   String?
+  
+  createdAt   DateTime  @default(now())
+  
+  @@index([userId, read])
+  @@index([createdAt])
+}
+
+enum NotificationType {
+  TAX_DEADLINE
+  DOCUMENT_REQUEST
+  PAYMENT_DUE
+  APPOINTMENT_REMINDER
+  STATUS_UPDATE
+  GENERAL
 }
