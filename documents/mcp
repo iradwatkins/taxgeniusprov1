@@ -1,0 +1,59 @@
+{
+  "claude.mcp": {
+    "servers": {
+      "playwright": {
+        "command": "npx",
+        "args": ["@modelcontextprotocol/server-playwright"],
+        "capabilities": { "tools": true, "resources": true }
+      },
+      "shadcn-ui": {
+        "command": "npx", 
+        "args": ["shadcn-ui-mcp"],
+        "capabilities": { "tools": true, "prompts": true }
+      },
+      "exa": {
+        "command": "npx",
+        "args": ["@modelcontextprotocol/server-exa"],
+        "env": { "EXA_API_KEY": "your-exa-api-key" },
+        "capabilities": { "tools": true }
+      },
+      "firecrawl": {
+        "command": "npx",
+        "args": ["@modelcontextprotocol/server-firecrawl"], 
+        "env": { "FIRECRAWL_API_KEY": "your-firecrawl-api-key" },
+        "capabilities": { "tools": true }
+      },
+      "ref-tools": {
+        "command": "npx",
+        "args": ["@modelcontextprotocol/server-ref"],
+        "capabilities": { "tools": true, "prompts": true }
+      },
+      "context7": {
+        "command": "npx",
+        "args": ["@modelcontextprotocol/server-context"],
+        "capabilities": { "tools": true }
+      },
+      "git": {
+        "command": "npx",
+        "args": ["@modelcontextprotocol/server-git"],
+        "capabilities": { "tools": true }
+      },
+      "github": {
+        "command": "npx",
+        "args": ["@modelcontextprotocol/server-github"],
+        "capabilities": { "tools": true }
+      },
+      "filesystem": {
+        "command": "npx",
+        "args": ["@modelcontextprotocol/server-filesystem"],
+        "capabilities": { "tools": true }
+      },
+      "postgresql": {
+        "command": "npx",
+        "args": ["@modelcontextprotocol/server-postgresql"],
+        "env": { "DATABASE_URL": "your-postgres-connection-string" },
+        "capabilities": { "tools": true }
+      }
+    }
+  }
+}

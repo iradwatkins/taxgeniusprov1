@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({ 
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: "--font-sans",
 });
 
 export const metadata: Metadata = {
-  title: "Tax Genius Pro - Professional Tax Management",
-  description: "Complete tax preparation and management platform",
+  title: "Tax Genius Pro - Professional Tax Management Platform",
+  description: "Complete tax preparation, document management, and client portal solution for tax professionals and individuals",
+  keywords: "tax preparation, tax management, tax software, tax filing, document management, client portal",
+  openGraph: {
+    title: "Tax Genius Pro - Professional Tax Management Platform",
+    description: "Streamline your tax preparation process with our comprehensive platform",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -23,9 +24,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} font-sans antialiased min-h-screen`}
       >
         {children}
       </body>
