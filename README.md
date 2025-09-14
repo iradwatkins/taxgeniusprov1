@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tax Genius Pro - Professional Tax Management Platform
 
-## Getting Started
+## 🚀 Overview
 
-First, run the development server:
+Tax Genius Pro is a comprehensive tax preparation and management platform designed for tax professionals, referrers, and clients. Built with modern web technologies and featuring a Progressive Web App (PWA) architecture.
+
+## ✨ Features
+
+### **For Clients**
+- 📄 Document upload with drag-and-drop
+- 📊 Tax return status tracking
+- 💬 Secure messaging with preparers
+- 💳 Payment processing
+- 📱 Mobile-responsive interface
+
+### **For Tax Preparers**
+- 👥 Client management dashboard
+- 📑 Document review system
+- 🔄 Tax return workflow
+- 💰 Commission tracking
+- 📈 Performance metrics
+
+### **For Referrers**
+- 🎯 Referral tracking dashboard
+- 💵 Commission management
+- 🔗 Vanity URL creation
+- 🏆 Contest participation
+- 📊 Real-time analytics
+
+## 🛠️ Technology Stack
+
+- **Frontend:** Next.js 15.5.3, React 19, TypeScript
+- **Styling:** Tailwind CSS, shadcn/ui
+- **Database:** PostgreSQL with Prisma ORM
+- **Authentication:** Lucia Auth with magic links
+- **Payments:** Square SDK
+- **Real-time:** Socket.io
+- **Email:** SendGrid
+- **Storage:** Cloudflare R2
+- **Caching:** Redis
+- **PWA:** next-pwa with service workers
+
+## 📦 Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/yourusername/taxgeniuspro.git
+
+# Install dependencies
+npm install --legacy-peer-deps
+
+# Set up environment variables
+cp .env.example .env
+
+# Run database migrations
+npx prisma migrate dev
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔐 Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a `.env` file with the following variables:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+DATABASE_URL=postgresql://...
+NEXTAUTH_SECRET=your-secret
+REDIS_URL=redis://...
+SENDGRID_API_KEY=your-api-key
+SQUARE_ACCESS_TOKEN=your-token
+R2_BUCKET_NAME=your-bucket
+```
 
-## Learn More
+## 🚀 Deployment
 
-To learn more about Next.js, take a look at the following resources:
+The application is configured for deployment on any Node.js hosting platform:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# Build for production
+npm run build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Start production server
+npm start
+```
 
-## Deploy on Vercel
+For PM2 deployment:
+```bash
+pm2 start npm --name taxgeniuspro -- start
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📱 PWA Features
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Installable:** Add to home screen on mobile and desktop
+- **Offline Support:** Works without internet connection
+- **Push Notifications:** Real-time updates
+- **Background Sync:** Automatic document upload when online
+
+## 🔄 Development Workflow
+
+1. **Sprint Planning:** Features organized in sprints
+2. **Implementation:** Following TypeScript best practices
+3. **Testing:** Component and integration testing
+4. **Deployment:** Automated with PM2
+
+## 📝 License
+
+Private and Confidential - All Rights Reserved
+
+## 🤝 Support
+
+For support, email support@taxgenius.com
+
+---
+
+**Built with ❤️ by the Tax Genius Pro Team**
