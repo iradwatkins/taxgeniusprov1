@@ -151,13 +151,13 @@ export default function Home() {
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-8">
-              <Link href="#features" className="text-gray-700 hover:text-blue-600 transition-colors">
+              <Link href="#features" className="text-muted-foreground hover:text-primary transition-colors">
                 Features
               </Link>
-              <Link href="#pricing" className="text-gray-700 hover:text-blue-600 transition-colors">
+              <Link href="#pricing" className="text-muted-foreground hover:text-primary transition-colors">
                 Pricing
               </Link>
-              <Link href="#testimonials" className="text-gray-700 hover:text-blue-600 transition-colors">
+              <Link href="#testimonials" className="text-muted-foreground hover:text-primary transition-colors">
                 Testimonials
               </Link>
               <Link href="/login">
@@ -186,10 +186,10 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               className="md:hidden mt-4 pb-4 space-y-4"
             >
-              <Link href="#features" className="block text-gray-700 hover:text-blue-600">
+              <Link href="#features" className="block text-muted-foreground hover:text-primary">
                 Features
               </Link>
-              <Link href="#pricing" className="block text-gray-700 hover:text-blue-600">
+              <Link href="#pricing" className="block text-muted-foreground hover:text-primary">
                 Pricing
               </Link>
               <Link href="/login" className="block">
