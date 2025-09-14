@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: ["class"],
+  darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -12,46 +12,28 @@ const config: Config = {
       center: true,
       padding: "2rem",
       screens: {
+        "sm": "640px",
+        "md": "768px",
+        "lg": "1024px",
+        "xl": "1280px",
         "2xl": "1400px",
       },
     },
     extend: {
-      backgroundColor: {
-        /* Using CSS variables defined in globals.css with OKLCH color space */
-        border: "var(--border)",
-        input: "var(--input)",
-        ring: "var(--ring)",
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        primary: "var(--primary)",
-        "primary-foreground": "var(--primary-foreground)",
-        secondary: "var(--secondary)",
-        "secondary-foreground": "var(--secondary-foreground)",
-        destructive: "var(--destructive)",
-        "destructive-foreground": "var(--destructive-foreground)",
-        muted: "var(--muted)",
-        "muted-foreground": "var(--muted-foreground)",
-        accent: "var(--accent)",
-        "accent-foreground": "var(--accent-foreground)",
-        popover: "var(--popover)",
-        "popover-foreground": "var(--popover-foreground)",
-        card: "var(--card)",
-        "card-foreground": "var(--card-foreground)",
-        /* Chart colors */
-        "chart-1": "var(--chart-1)",
-        "chart-2": "var(--chart-2)",
-        "chart-3": "var(--chart-3)",
-        "chart-4": "var(--chart-4)",
-        "chart-5": "var(--chart-5)",
-        /* Sidebar colors */
-        sidebar: "var(--sidebar)",
-        "sidebar-foreground": "var(--sidebar-foreground)",
-        "sidebar-primary": "var(--sidebar-primary)",
-        "sidebar-primary-foreground": "var(--sidebar-primary-foreground)",
-        "sidebar-accent": "var(--sidebar-accent)",
-        "sidebar-accent-foreground": "var(--sidebar-accent-foreground)",
-        "sidebar-border": "var(--sidebar-border)",
-        "sidebar-ring": "var(--sidebar-ring)",
+      screens: {
+        '3xl': '1600px',
+        '4xl': '1920px',
+        '5xl': '2560px',
+      },
+      fontSize: {
+        '10xl': ['10rem', { lineHeight: '1' }],
+        '11xl': ['12rem', { lineHeight: '1' }],
+        '12xl': ['14rem', { lineHeight: '1' }],
+      },
+      maxWidth: {
+        '8xl': '90rem',
+        '9xl': '100rem',
+        '10xl': '120rem',
       },
       colors: {
         /* Using CSS variables defined in globals.css with OKLCH color space */
@@ -144,10 +126,48 @@ const config: Config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "fade-in": {
+          "0%": {
+            opacity: "0",
+          },
+          "100%": {
+            opacity: "1",
+          },
+        },
+        "slide-in-from-bottom": {
+          "0%": {
+            transform: "translateY(100%)",
+          },
+          "100%": {
+            transform: "translateY(0)",
+          },
+        },
+        "scale-in": {
+          "0%": {
+            transform: "scale(0.95)",
+          },
+          "100%": {
+            transform: "scale(1)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "fade-in": "fade-in 0.2s ease-out",
+        "slide-in-from-bottom": "slide-in-from-bottom 0.3s ease-out",
+        "scale-in": "scale-in 0.2s ease-out",
+      },
+      typography: {
+        DEFAULT: {
+          css: {
+            maxWidth: 'none',
+            color: 'var(--foreground)',
+            '[data-theme="dark"] &': {
+              color: 'var(--foreground)',
+            },
+          },
+        },
       },
     },
   },

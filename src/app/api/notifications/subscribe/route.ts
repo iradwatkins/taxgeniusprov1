@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSession } from '@/lib/auth'
+import { validateRequest } from '@/lib/auth'
 import { NotificationService } from '@/lib/services/notification.service'
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session?.userId) {
+    const { user } = await validateRequest()
+    if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -23,11 +23,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Save subscription to database
-    await NotificationService.subscribeToPush(session.userId, subscription)
+    await NotificationService.subscribeToPush(user.id, subscription)
 
     // Send welcome notification
     await NotificationService.send({
-      userId: session.userId,
+      userId: user.id,
       type: 'SYSTEM',
       title: 'Notifications Enabled',
       message: 'You\'ll now receive important updates about your tax returns.',

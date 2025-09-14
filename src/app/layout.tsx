@@ -6,6 +6,7 @@ import { Toaster as Sonner } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Providers } from '@/lib/providers'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 
 const inter = Inter({
   subsets: ["latin"],
@@ -52,11 +53,13 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Providers>
-            <TooltipProvider>
-              {children}
-              <Toaster />
-              <Sonner />
-            </TooltipProvider>
+            <ErrorBoundary>
+              <TooltipProvider>
+                {children}
+                <Toaster />
+                <Sonner />
+              </TooltipProvider>
+            </ErrorBoundary>
           </Providers>
         </ThemeProvider>
       </body>

@@ -1,258 +1,335 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
+import { Separator } from '@/components/ui/separator'
+import {
+  Mail,
+  Lock,
+  ArrowRight,
+  Globe,
+  AlertCircle,
+  Smartphone,
+  Loader2
+} from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
-  const { toast } = useToast()
+  const [language, setLanguage] = useState<'en' | 'es'>('en')
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [magicLinkSent, setMagicLinkSent] = useState(false)
-
-  // Form states
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [phone, setPhone] = useState('')
+  const [magicLinkSent, setMagicLinkSent] = useState(false)
 
-  const handleMagicLink = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError('')
-
-    try {
-      const response = await fetch('/api/auth/magic-link', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to send magic link')
+  const content = {
+    en: {
+      title: "Welcome Back!",
+      subtitle: "Get your cash advance in minutes",
+      urgentBadge: "🔥 1,247 people logged in today",
+      tabs: {
+        email: "Email",
+        phone: "Phone"
+      },
+      emailLabel: "Email Address",
+      emailPlaceholder: "you@example.com",
+      passwordLabel: "Password",
+      passwordPlaceholder: "Enter your password",
+      phoneLabel: "Phone Number",
+      phonePlaceholder: "(555) 123-4567",
+      forgotPassword: "Forgot password?",
+      loginButton: "Login & Get Cash",
+      magicLinkButton: "Send Magic Link",
+      magicLinkSent: "Check your email! Login link sent.",
+      googleButton: "Continue with Google",
+      orDivider: "OR",
+      noAccount: "Don't have an account?",
+      signUp: "Sign up and get $7,000",
+      terms: "By logging in, you agree to our Terms and Privacy Policy",
+      errors: {
+        required: "All fields are required",
+        invalid: "Invalid email or password"
       }
-
-      setMagicLinkSent(true)
-      toast({
-        title: 'Magic link sent!',
-        description: 'Check your email for the login link.',
-      })
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
-    } finally {
-      setIsLoading(false)
+    },
+    es: {
+      title: "¡Bienvenido de Nuevo!",
+      subtitle: "Obtén tu adelanto en minutos",
+      urgentBadge: "🔥 1,247 personas iniciaron sesión hoy",
+      tabs: {
+        email: "Correo",
+        phone: "Teléfono"
+      },
+      emailLabel: "Correo Electrónico",
+      emailPlaceholder: "tu@ejemplo.com",
+      passwordLabel: "Contraseña",
+      passwordPlaceholder: "Ingresa tu contraseña",
+      phoneLabel: "Número de Teléfono",
+      phonePlaceholder: "(555) 123-4567",
+      forgotPassword: "¿Olvidaste tu contraseña?",
+      loginButton: "Iniciar Sesión y Obtener Efectivo",
+      magicLinkButton: "Enviar Enlace Mágico",
+      magicLinkSent: "¡Revisa tu correo! Enlace enviado.",
+      googleButton: "Continuar con Google",
+      orDivider: "O",
+      noAccount: "¿No tienes cuenta?",
+      signUp: "Regístrate y obtén $7,000",
+      terms: "Al iniciar sesión, aceptas nuestros Términos y Política de Privacidad",
+      errors: {
+        required: "Todos los campos son requeridos",
+        invalid: "Correo o contraseña inválidos"
+      }
     }
   }
 
-  const handlePasswordLogin = async (e: React.FormEvent) => {
+  const t = content[language]
+
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    setError('')
 
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to login')
-      }
-
-      toast({
-        title: 'Welcome back!',
-        description: 'You have successfully logged in.',
-      })
-
-      // Redirect based on user role
-      router.push('/dashboard')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong')
-    } finally {
+    // Simulate API call
+    setTimeout(() => {
       setIsLoading(false)
-    }
+      router.push('/dashboard/client')
+    }, 1500)
+  }
+
+  const handleMagicLink = async () => {
+    setIsLoading(true)
+
+    // Simulate sending magic link
+    setTimeout(() => {
+      setIsLoading(false)
+      setMagicLinkSent(true)
+    }, 1000)
+  }
+
+  const handleGoogleLogin = () => {
+    // TODO: Implement Google OAuth
+    window.location.href = '/api/auth/google'
+  }
+
+  const handlePhoneLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    // Simulate SMS verification
+    setTimeout(() => {
+      setIsLoading(false)
+      router.push('/auth/verify-phone')
+    }, 1500)
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-accent/10 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
-          <CardDescription className="text-center">
-            Sign in to your Tax Genius account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+    <Card className="border-2 shadow-xl">
+      <CardHeader className="space-y-4">
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-2xl font-bold">{t.title}</CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}
+            className="flex items-center gap-1"
+          >
+            <Globe className="w-4 h-4" />
+            {language === 'en' ? 'ES' : 'EN'}
+          </Button>
+        </div>
+        <CardDescription className="text-base">{t.subtitle}</CardDescription>
 
-          {magicLinkSent ? (
-            <div className="text-center space-y-4">
-              <div className="p-4 bg-primary/10 rounded-lg">
-                <Mail className="h-12 w-12 mx-auto text-primary mb-2" />
-                <h3 className="font-semibold">Check your email!</h3>
-                <p className="text-sm text-muted-foreground mt-2">
-                  We've sent a magic link to <strong>{email}</strong>
-                </p>
-                <p className="text-xs text-muted-foreground mt-2">
-                  The link will expire in 15 minutes
-                </p>
+        {/* Urgency Signal */}
+        <Alert className="bg-accent dark:bg-accent border-accent-foreground">
+          <AlertDescription className="text-sm font-medium">
+            {t.urgentBadge}
+          </AlertDescription>
+        </Alert>
+      </CardHeader>
+
+      <CardContent className="space-y-6">
+        {/* Google Login */}
+        <Button
+          variant="outline"
+          className="w-full h-12 text-base"
+          onClick={handleGoogleLogin}
+          disabled={isLoading}
+        >
+          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+            <path
+              fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+            />
+            <path
+              fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+            />
+            <path
+              fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+            />
+          </svg>
+          {t.googleButton}
+        </Button>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <Separator />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              {t.orDivider}
+            </span>
+          </div>
+        </div>
+
+        {/* Email/Phone Tabs */}
+        <Tabs defaultValue="email" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="email" className="flex items-center gap-2">
+              <Mail className="w-4 h-4" />
+              {t.tabs.email}
+            </TabsTrigger>
+            <TabsTrigger value="phone" className="flex items-center gap-2">
+              <Smartphone className="w-4 h-4" />
+              {t.tabs.phone}
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Email Login */}
+          <TabsContent value="email" className="space-y-4 mt-4">
+            <form onSubmit={handleEmailLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">{t.emailLabel}</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder={t.emailPlaceholder}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-12"
+                  required
+                />
               </div>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setMagicLinkSent(false)
-                  setEmail('')
-                }}
-                className="w-full"
-              >
-                Try a different email
-              </Button>
-            </div>
-          ) : (
-            <Tabs defaultValue="magic-link" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="magic-link">Magic Link</TabsTrigger>
-                <TabsTrigger value="password">Password</TabsTrigger>
-              </TabsList>
 
-              <TabsContent value="magic-link" className="space-y-4">
-                <form onSubmit={handleMagicLink}>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="magic-email">Email</Label>
-                      <Input
-                        id="magic-email"
-                        type="email"
-                        placeholder="name@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        disabled={isLoading}
-                      />
-                    </div>
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Sending...
-                        </>
-                      ) : (
-                        <>
-                          <Mail className="mr-2 h-4 w-4" />
-                          Send Magic Link
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </form>
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                      No password needed
-                    </span>
-                  </div>
-                </div>
-                <p className="text-sm text-center text-muted-foreground">
-                  We'll send you a secure login link to your email
-                </p>
-              </TabsContent>
-
-              <TabsContent value="password" className="space-y-4">
-                <form onSubmit={handlePasswordLogin}>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="password-email">Email</Label>
-                      <Input
-                        id="password-email"
-                        type="email"
-                        placeholder="name@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        disabled={isLoading}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Password</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        disabled={isLoading}
-                      />
-                    </div>
-                    <Button
-                      type="submit"
-                      className="w-full"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Signing in...
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="mr-2 h-4 w-4" />
-                          Sign In
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </form>
-                <div className="text-center">
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label htmlFor="password">{t.passwordLabel}</Label>
                   <Link
                     href="/auth/forgot-password"
                     className="text-sm text-primary hover:underline"
                   >
-                    Forgot your password?
+                    {t.forgotPassword}
                   </Link>
                 </div>
-              </TabsContent>
-            </Tabs>
-          )}
-        </CardContent>
-        <CardFooter>
-          <div className="w-full text-center">
-            <p className="text-sm text-muted-foreground">
-              Don't have an account?{' '}
-              <Link href="/auth/signup" className="text-primary hover:underline font-medium">
-                Sign up
-              </Link>
-            </p>
-          </div>
-        </CardFooter>
-      </Card>
-    </div>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder={t.passwordPlaceholder}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-12"
+                  required
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full h-12 text-base bg-primary text-primary-foreground hover:bg-primary/90"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    {t.loginButton}
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </>
+                )}
+              </Button>
+
+              <div className="text-center">
+                <Button
+                  type="button"
+                  variant="link"
+                  onClick={handleMagicLink}
+                  disabled={isLoading || !email}
+                  className="text-primary"
+                >
+                  {t.magicLinkButton}
+                </Button>
+              </div>
+
+              {magicLinkSent && (
+                <Alert className="bg-green-50 dark:bg-green-950/20 border-green-200">
+                  <AlertCircle className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-600">
+                    {t.magicLinkSent}
+                  </AlertDescription>
+                </Alert>
+              )}
+            </form>
+          </TabsContent>
+
+          {/* Phone Login */}
+          <TabsContent value="phone" className="space-y-4 mt-4">
+            <form onSubmit={handlePhoneLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="phone">{t.phoneLabel}</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder={t.phonePlaceholder}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="h-12"
+                  required
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full h-12 text-base bg-primary text-primary-foreground hover:bg-primary/90"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    {t.loginButton}
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </>
+                )}
+              </Button>
+            </form>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+
+      <CardFooter className="flex flex-col space-y-4">
+        <div className="text-center text-sm">
+          <span className="text-muted-foreground">{t.noAccount} </span>
+          <Link
+            href="/auth/signup"
+            className="text-primary font-semibold hover:underline"
+          >
+            {t.signUp}
+          </Link>
+        </div>
+
+        <p className="text-xs text-center text-muted-foreground">
+          {t.terms}
+        </p>
+      </CardFooter>
+    </Card>
   )
 }

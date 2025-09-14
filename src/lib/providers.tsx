@@ -1,9 +1,18 @@
 'use client'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt'
+import dynamic from 'next/dynamic'
+
+// Dynamically import DevTools to prevent chunk loading errors
+const ReactQueryDevtools = dynamic(
+  () => import('@tanstack/react-query-devtools').then(mod => ({ default: mod.ReactQueryDevtools })),
+  {
+    ssr: false,
+    loading: () => null
+  }
+)
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -22,7 +31,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <PWAInstallPrompt />
       {children}
-      {process.env.NODE_ENV === 'development' && <ReactQueryDevtools />}
+      {process.env.NODE_ENV === 'development' && (
+        <Suspense fallback={null}>
+          <ReactQueryDevtools />
+        </Suspense>
+      )}
     </QueryClientProvider>
   )
 }

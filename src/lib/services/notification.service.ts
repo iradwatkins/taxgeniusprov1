@@ -1,4 +1,4 @@
-import { db } from '@/lib/db'
+import { prisma as db } from '@/lib/db'
 import { NotificationType, NotificationChannel } from '@prisma/client'
 import { EmailService } from './email.service'
 import { RealtimeService } from './realtime.service'

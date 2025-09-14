@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSession } from '@/lib/auth'
+import { validateRequest } from '@/lib/auth'
 import { NotificationService } from '@/lib/services/notification.service'
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getSession(request)
-    if (!session?.userId) {
+    const { user } = await validateRequest()
+    if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Remove subscription from database
-    await NotificationService.unsubscribeFromPush(session.userId, endpoint)
+    await NotificationService.unsubscribeFromPush(user.id, endpoint)
 
     return NextResponse.json({
       success: true,

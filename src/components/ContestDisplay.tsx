@@ -48,7 +48,7 @@ export const ContestDisplay: React.FC<ContestDisplayProps> = ({
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Crown className="h-5 w-5 text-yellow-500" />
+        return <Crown className="h-5 w-5 text-accent-foreground" />
       case 2:
         return <Medal className="h-5 w-5 text-gray-400" />
       case 3:
@@ -157,14 +157,14 @@ export const ContestDisplay: React.FC<ContestDisplayProps> = ({
 
           {/* Prize Information */}
           {activeContest.prize_description && (
-            <div className="p-3 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-950/30 dark:to-orange-950/30 border border-yellow-200 dark:border-yellow-800 rounded-md">
+            <div className="p-3 bg-accent dark:bg-accent border border-accent-foreground rounded-md">
               <div className="flex items-start gap-2">
-                <Gift className="h-4 w-4 text-yellow-600 dark:text-yellow-500 mt-0.5" />
+                <Gift className="h-4 w-4 text-accent-foreground mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100">
+                  <p className="text-sm font-medium text-accent-foreground">
                     Prizes
                   </p>
-                  <div className="text-sm text-yellow-800 dark:text-yellow-200 whitespace-pre-line">
+                  <div className="text-sm text-muted-foreground whitespace-pre-line">
                     {activeContest.prize_description}
                   </div>
                 </div>

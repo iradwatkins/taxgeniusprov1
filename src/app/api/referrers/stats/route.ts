@@ -1,26 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth'
 import { ReferrerService } from '@/lib/services/referrer.service'
+import { withErrorHandler, createServiceUnavailableError } from '@/lib/api-error-handler'
 
-export async function GET(request: NextRequest) {
+export const GET = withErrorHandler(async function(request: NextRequest) {
+  const { profile } = await requireRole('REFERRER')
+
   try {
-    const { profile } = await requireRole('REFERRER')
-
     const stats = await ReferrerService.getReferrerStats(profile.id)
-
     return NextResponse.json(stats)
   } catch (error) {
-    if (error instanceof Error && error.message === 'Unauthorized') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-    if (error instanceof Error && error.message === 'Insufficient permissions') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    // If ReferrerService fails (likely Redis or DB issue), provide fallback
+    console.warn('ReferrerService failed, using fallback:', error)
 
-    console.error('Error fetching referrer stats:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    // Throw service unavailable error that will be handled by withErrorHandler
+    throw createServiceUnavailableError('Statistics service')
   }
-}
+})

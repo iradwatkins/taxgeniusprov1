@@ -1,952 +1,416 @@
 'use client'
 
+import React from 'react'
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from '@/components/ui/navigation-menu'
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from '@/components/ui/sheet'
+import { ErrorTestButton } from '@/components/ErrorTestButton'
 import {
-  ArrowRight,
-  CheckCircle2,
-  Star,
-  Menu,
-  X,
-  Zap,
+  DollarSign,
+  Clock,
   Shield,
+  Star,
+  ArrowRight,
+  Zap,
+  Menu,
+  CheckCircle,
+  Phone,
+  Globe,
   TrendingUp,
   Users,
-  FileText,
-  Calculator,
-  DollarSign,
-  PiggyBank,
-  Receipt,
-  Building,
-  Home,
-  Briefcase,
-  ChevronRight,
-  Phone,
-  Mail,
-  MapPin,
-  Facebook,
-  Twitter,
-  Linkedin,
-  Instagram,
-  Clock,
-  Award,
-  BarChart3,
-  Sparkles,
-  Target,
-  Rocket,
-  Globe,
-  HeartHandshake,
-  CheckSquare,
-  CreditCard,
-  FileSearch,
-  Banknote,
-  TrendingDown,
-  RefreshCw,
-  UserCheck,
-  MessageSquare,
-  Headphones,
-  BookOpen,
-  GraduationCap,
-  Lightbulb,
-  ChevronDown
+  Smartphone
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useToast } from '@/hooks/use-toast'
 
-export default function LandingPage() {
-  const [isScrolled, setIsScrolled] = useState(false)
+export default function TaxGeniusLanding() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const { toast } = useToast()
+  const [language, setLanguage] = useState<'en' | 'es'>('en')
+  const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 59, seconds: 59 })
+  const [peopleCount, setPeopleCount] = useState(1247)
 
+  // Countdown timer
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev.seconds > 0) {
+          return { ...prev, seconds: prev.seconds - 1 }
+        } else if (prev.minutes > 0) {
+          return { hours: prev.hours, minutes: prev.minutes - 1, seconds: 59 }
+        } else if (prev.hours > 0) {
+          return { hours: prev.hours - 1, minutes: 59, seconds: 59 }
+        }
+        return { hours: 23, minutes: 59, seconds: 59 }
+      })
+    }, 1000)
+    return () => clearInterval(timer)
   }, [])
 
-  const features = [
-    {
-      icon: <Calculator className="w-6 h-6" />,
-      title: "Smart Tax Calculator",
-      description: "AI-powered calculations for maximum accuracy",
-      color: "from-orange-500 to-red-500"
-    },
-    {
-      icon: <Shield className="w-6 h-6" />,
-      title: "IRS Audit Protection",
-      description: "Complete audit support and representation",
-      color: "from-blue-500 to-purple-500"
-    },
-    {
-      icon: <Zap className="w-6 h-6" />,
-      title: "Express Filing",
-      description: "File your taxes in under 30 minutes",
-      color: "from-green-500 to-teal-500"
-    },
-    {
-      icon: <TrendingUp className="w-6 h-6" />,
-      title: "Maximum Refunds",
-      description: "Find every deduction you qualify for",
-      color: "from-purple-500 to-pink-500"
-    },
-    {
-      icon: <Users className="w-6 h-6" />,
-      title: "Expert Support",
-      description: "CPAs available 24/7 via chat or phone",
-      color: "from-yellow-500 to-orange-500"
-    },
-    {
-      icon: <FileText className="w-6 h-6" />,
-      title: "Document Vault",
-      description: "Secure storage for all tax documents",
-      color: "from-indigo-500 to-blue-500"
-    }
-  ]
+  // Simulate people getting cash
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPeopleCount(prev => prev + Math.floor(Math.random() * 3) + 1)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [])
 
-  const pricingPlans = [
-    {
-      name: "Simple",
-      price: "$0",
-      description: "Perfect for simple tax returns",
-      features: [
-        "Federal tax filing",
-        "W-2 income",
-        "Standard deduction",
-        "Direct deposit",
-        "Basic support"
+  const content = {
+    en: {
+      hero: {
+        badge: "Get Cash in Minutes",
+        title: "GET UP TO",
+        amount: "$7,000",
+        subtitle: "TODAY!",
+        description: "Need cash fast? Get an instant advance on your tax refund. No waiting, no hassle.",
+        cta: "GET CASH NOW",
+        ctaSecondary: "Calculate My Refund",
+        trust: `${peopleCount.toLocaleString()} people got cash in the last hour`
+      },
+      howItWorks: {
+        title: "How It Works",
+        steps: [
+          { icon: Smartphone, title: "Upload W2", time: "30 seconds", desc: "Take a photo with your phone" },
+          { icon: Zap, title: "Get Approved", time: "Instant", desc: "AI-powered instant decision" },
+          { icon: DollarSign, title: "Receive Cash", time: "Same day", desc: "Money in your account today" }
+        ]
+      },
+      urgency: {
+        title: "Limited Time Offer",
+        subtitle: "Tax Season Special Ends In:",
+        cta: "Don't Miss Out - Apply Now"
+      },
+      testimonials: [
+        { name: "Maria G.", role: "Uber Driver", text: "Got $5,000 in 10 minutes! This saved my month.", rating: 5 },
+        { name: "James T.", role: "DoorDash", text: "No more waiting weeks for my refund. Game changer!", rating: 5 },
+        { name: "Ashley R.", role: "Hair Stylist", text: "Easy, fast, and they speak Spanish too!", rating: 5 }
       ],
-      popular: false
+      features: [
+        { icon: Clock, title: "Instant Approval", desc: "Get your decision in seconds" },
+        { icon: Shield, title: "Bank-Level Security", desc: "Your data is always protected" },
+        { icon: Phone, title: "24/7 Support", desc: "We're here when you need us" }
+      ],
+      footer: {
+        login: "Already a member? Login",
+        refer: "Earn $50 per referral"
+      }
     },
-    {
-      name: "Deluxe",
-      price: "$39",
-      description: "Great for homeowners & families",
-      features: [
-        "Everything in Simple",
-        "State tax filing",
-        "Mortgage interest",
-        "Charitable donations",
-        "Priority support",
-        "Audit protection"
+    es: {
+      hero: {
+        badge: "Obtén Efectivo en Minutos",
+        title: "OBTÉN HASTA",
+        amount: "$7,000",
+        subtitle: "¡HOY MISMO!",
+        description: "¿Necesitas dinero rápido? Obtén un adelanto instantáneo de tu reembolso de impuestos.",
+        cta: "OBTENER EFECTIVO AHORA",
+        ctaSecondary: "Calcular Mi Reembolso",
+        trust: `${peopleCount.toLocaleString()} personas obtuvieron efectivo en la última hora`
+      },
+      howItWorks: {
+        title: "Cómo Funciona",
+        steps: [
+          { icon: Smartphone, title: "Sube tu W2", time: "30 segundos", desc: "Toma una foto con tu teléfono" },
+          { icon: Zap, title: "Aprobación", time: "Instantánea", desc: "Decisión instantánea con IA" },
+          { icon: DollarSign, title: "Recibe Efectivo", time: "Mismo día", desc: "Dinero en tu cuenta hoy" }
+        ]
+      },
+      urgency: {
+        title: "Oferta Por Tiempo Limitado",
+        subtitle: "Especial de Temporada Termina En:",
+        cta: "No Te Lo Pierdas - Aplica Ahora"
+      },
+      testimonials: [
+        { name: "Maria G.", role: "Conductora Uber", text: "¡Obtuve $5,000 en 10 minutos! Esto salvó mi mes.", rating: 5 },
+        { name: "James T.", role: "DoorDash", text: "No más esperar semanas por mi reembolso. ¡Increíble!", rating: 5 },
+        { name: "Ashley R.", role: "Estilista", text: "¡Fácil, rápido, y hablan español también!", rating: 5 }
       ],
-      popular: true
-    },
-    {
-      name: "Premium",
-      price: "$89",
-      description: "Best for investors & business",
       features: [
-        "Everything in Deluxe",
-        "Investment income",
-        "Rental properties",
-        "Self-employment",
-        "CPA review",
-        "Year-round support"
+        { icon: Clock, title: "Aprobación Instantánea", desc: "Decisión en segundos" },
+        { icon: Shield, title: "Seguridad Bancaria", desc: "Tus datos siempre protegidos" },
+        { icon: Phone, title: "Soporte 24/7", desc: "Estamos cuando nos necesitas" }
       ],
-      popular: false
+      footer: {
+        login: "¿Ya eres miembro? Iniciar sesión",
+        refer: "Gana $50 por referido"
+      }
     }
-  ]
+  }
 
-  const testimonials = [
-    {
-      name: "Sarah Johnson",
-      role: "Small Business Owner",
-      avatar: "/placeholder.svg",
-      content: "Tax Genius Pro saved me thousands on my business taxes. The expert support was invaluable!",
-      rating: 5
-    },
-    {
-      name: "Michael Chen",
-      role: "Software Engineer",
-      avatar: "/placeholder.svg",
-      content: "Finally, a tax service that understands tech workers. They found deductions I never knew existed.",
-      rating: 5
-    },
-    {
-      name: "Emily Rodriguez",
-      role: "Real Estate Agent",
-      avatar: "/placeholder.svg",
-      content: "The mobile app is fantastic! I can manage everything on the go between showings.",
-      rating: 5
-    },
-    {
-      name: "David Thompson",
-      role: "Freelance Designer",
-      avatar: "/placeholder.svg",
-      content: "As a freelancer, Tax Genius Pro has been a game-changer for tracking expenses and maximizing deductions.",
-      rating: 5
-    }
-  ]
-
-  const faqs = [
-    {
-      question: "How quickly can I file my taxes?",
-      answer: "Most users complete their tax filing in under 30 minutes. Our smart import features and AI-powered assistance streamline the entire process."
-    },
-    {
-      question: "Is my information secure?",
-      answer: "Absolutely! We use bank-level 256-bit encryption and multi-factor authentication. Your data is stored in secure, SOC 2 certified data centers."
-    },
-    {
-      question: "What if I need help?",
-      answer: "Our team of CPAs and tax experts are available 24/7 via chat, phone, or video call. Premium users get priority access to expert support."
-    },
-    {
-      question: "Can you handle complex tax situations?",
-      answer: "Yes! We support all tax forms including Schedule C for business income, Schedule E for rentals, and complex investment scenarios."
-    },
-    {
-      question: "What\'s your refund guarantee?",
-      answer: "We guarantee maximum refund or we\'ll refund your filing fee. If you find a bigger refund elsewhere, we\'ll match it."
-    }
-  ]
+  const t = content[language]
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      {/* Navigation Header */}
-      <header className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
-        isScrolled ? "bg-background/95 backdrop-blur-md border-b shadow-sm" : "bg-transparent"
-      )}>
-        <div className="container mx-auto px-4">
-          <nav className="flex items-center justify-between h-16 md:h-20">
-            {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary to-orange-600 rounded-lg blur-lg opacity-75"></div>
-                <div className="relative bg-gradient-to-r from-primary to-orange-600 text-white font-bold text-xl md:text-2xl px-3 py-1 rounded-lg">
-                  TaxGenius
-                </div>
+      {/* Urgent Banner */}
+      <div className="bg-primary text-primary-foreground py-2 px-4 text-center">
+        <p className="text-sm font-bold">
+          ⚡ {t.urgency.subtitle} {String(timeLeft.hours).padStart(2, '0')}:
+          {String(timeLeft.minutes).padStart(2, '0')}:
+          {String(timeLeft.seconds).padStart(2, '0')} ⚡
+        </p>
+      </div>
+
+      {/* Header */}
+      <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto max-w-full px-6 lg:px-12 xl:px-16 2xl:px-24 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 lg:w-14 lg:h-14 bg-primary rounded-full flex items-center justify-center">
+                <DollarSign className="w-7 h-7 lg:w-8 lg:h-8 text-white" />
               </div>
-              <Badge variant="secondary" className="hidden md:inline-flex">PRO</Badge>
-            </Link>
+              <span className="text-2xl lg:text-3xl xl:text-4xl font-bold text-primary">
+                Tax Genius Pro
+              </span>
+            </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-8">
-              <NavigationMenu>
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <NavigationMenuTrigger>Products</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                        <li className="row-span-3">
-                          <NavigationMenuLink asChild>
-                            <a
-                              className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                              href="/"
-                            >
-                              <Calculator className="h-6 w-6" />
-                              <div className="mb-2 mt-4 text-lg font-medium">
-                                Tax Filing
-                              </div>
-                              <p className="text-sm leading-tight text-muted-foreground">
-                                File your taxes with confidence using our AI-powered platform
-                              </p>
-                            </a>
-                          </NavigationMenuLink>
-                        </li>
-                        <li>
-                          <NavigationMenuLink asChild>
-                            <a href="#" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                              <div className="text-sm font-medium leading-none">Tax Calculator</div>
-                              <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                                Estimate your refund instantly
-                              </p>
-                            </a>
-                          </NavigationMenuLink>
-                        </li>
-                        <li>
-                          <NavigationMenuLink asChild>
-                            <a href="#" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                              <div className="text-sm font-medium leading-none">Business Tools</div>
-                              <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                                Complete suite for businesses
-                              </p>
-                            </a>
-                          </NavigationMenuLink>
-                        </li>
-                        <li>
-                          <NavigationMenuLink asChild>
-                            <a href="#" className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                              <div className="text-sm font-medium leading-none">Expert Review</div>
-                              <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                                CPA review & assistance
-                              </p>
-                            </a>
-                          </NavigationMenuLink>
-                        </li>
-                      </ul>
-                    </NavigationMenuContent>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <Link href="#pricing" legacyBehavior passHref>
-                      <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50">
-                        Pricing
-                      </NavigationMenuLink>
-                    </Link>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <Link href="#features" legacyBehavior passHref>
-                      <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50">
-                        Features
-                      </NavigationMenuLink>
-                    </Link>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <Link href="#testimonials" legacyBehavior passHref>
-                      <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50">
-                        Reviews
-                      </NavigationMenuLink>
-                    </Link>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
+            <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}
+                className="flex items-center gap-2 text-lg"
+              >
+                <Globe className="w-5 h-5" />
+                {language === 'en' ? 'ES' : 'EN'}
+              </Button>
+              <Button variant="outline" size="lg" className="text-lg px-6 py-3">{t.footer.login}</Button>
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground transition-colors text-lg px-8 py-3">
+                {t.hero.cta} →
+              </Button>
             </div>
 
-            {/* Desktop CTA Buttons */}
-            <div className="hidden lg:flex items-center space-x-4">
-              <Link href="/auth/login">
-                <Button variant="ghost" size="sm">
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/auth/signup">
-                <Button size="sm" className="bg-gradient-to-r from-primary to-orange-600 hover:from-primary/90 hover:to-orange-600/90">
-                  Get Started Free
-                </Button>
-              </Link>
-            </div>
-
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-              <SheetTrigger asChild className="lg:hidden">
+              <SheetTrigger asChild className="md:hidden">
                 <Button variant="ghost" size="icon">
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <SheetContent side="right">
+                <SheetHeader>
+                  <SheetTitle>Navigation Menu</SheetTitle>
+                </SheetHeader>
                 <nav className="flex flex-col space-y-4 mt-8">
-                  <Link href="#features" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full justify-start">
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Features
-                    </Button>
-                  </Link>
-                  <Link href="#pricing" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full justify-start">
-                      <CreditCard className="mr-2 h-4 w-4" />
-                      Pricing
-                    </Button>
-                  </Link>
-                  <Link href="#testimonials" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full justify-start">
-                      <Star className="mr-2 h-4 w-4" />
-                      Reviews
-                    </Button>
-                  </Link>
-                  <Separator className="my-4" />
-                  <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full">
-                      Sign In
-                    </Button>
-                  </Link>
-                  <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button className="w-full bg-gradient-to-r from-primary to-orange-600">
-                      Get Started Free
-                    </Button>
-                  </Link>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}
+                    className="w-full justify-start"
+                  >
+                    <Globe className="w-4 h-4 mr-2" />
+                    {language === 'en' ? 'Español' : 'English'}
+                  </Button>
+                  <Button variant="outline" className="w-full">{t.footer.login}</Button>
+                  <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+                    {t.hero.cta}
+                  </Button>
                 </nav>
               </SheetContent>
             </Sheet>
-          </nav>
+          </div>
         </div>
       </header>
 
-      {/* Hero Section - Mobile First */}
-      <section className="relative overflow-hidden pt-12 pb-20 md:pt-20 md:pb-32">
-        {/* Animated Background */}
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-        </div>
+      {/* Hero Section */}
+      <section className="py-16 md:py-32 lg:py-48 xl:py-64 2xl:py-80 px-6 lg:px-12 xl:px-16 2xl:px-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-primary/5" />
+        <div className="container mx-auto max-w-full relative">
+          <div className="text-center space-y-8 lg:space-y-12 xl:space-y-16 2xl:space-y-20">
+            <Badge variant="secondary" className="px-8 py-4 text-lg lg:text-xl">
+              <Zap className="w-6 h-6 lg:w-8 lg:h-8 mr-3" />
+              {t.hero.badge}
+            </Badge>
 
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Badge className="mb-4 px-4 py-1" variant="secondary">
-                <Sparkles className="w-3 h-3 mr-1" />
-                2024 Tax Season Ready
-              </Badge>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl 2xl:text-10xl font-bold leading-tight tracking-tight">
+              <span className="block">{t.hero.title}</span>
+              <span className="block text-5xl md:text-7xl lg:text-8xl xl:text-9xl 2xl:text-10xl font-bold text-primary">
+                {t.hero.amount}
+              </span>
+              <span className="block text-4xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl">{t.hero.subtitle}</span>
+            </h1>
 
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-primary via-orange-600 to-red-600 bg-clip-text text-transparent">
-                File Taxes in Minutes,
-                <br />
-                Not Hours
-              </h1>
+            <p className="text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl text-muted-foreground max-w-4xl lg:max-w-6xl xl:max-w-7xl 2xl:max-w-8xl mx-auto">
+              {t.hero.description}
+            </p>
 
-              <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Join 5 million Americans who trust Tax Genius Pro for fast, accurate, and maximum refund tax filing.
-                Powered by AI, backed by CPAs.
-              </p>
+            {/* Trust Signal */}
+            <div className="flex items-center justify-center space-x-4 text-lg md:text-xl lg:text-2xl xl:text-3xl">
+              <div className="flex items-center bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-6 py-3 lg:px-8 lg:py-4 rounded-full">
+                <div className="w-4 h-4 lg:w-6 lg:h-6 bg-primary rounded-full mr-3" />
+                LIVE: {t.hero.trust}
+              </div>
+            </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                <Button size="lg" className="bg-gradient-to-r from-primary to-orange-600 hover:from-primary/90 hover:to-orange-600/90 text-base md:text-lg px-8">
-                  Start Free Filing
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-                <Button size="lg" variant="outline" className="text-base md:text-lg px-8">
-                  <Calculator className="mr-2 h-5 w-5" />
-                  Calculate Refund
-                </Button>
-              </div>
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-6 lg:gap-8 xl:gap-12 2xl:gap-16 justify-center items-center pt-8 max-w-2xl lg:max-w-4xl xl:max-w-6xl 2xl:max-w-8xl mx-auto">
+              <Button
+                size="lg"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 text-2xl md:text-3xl lg:text-4xl xl:text-5xl px-12 py-6 lg:px-16 lg:py-8 xl:px-20 xl:py-10 shadow-xl transition-colors"
+              >
+                {t.hero.cta}
+                <ArrowRight className="ml-4 w-8 h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12" />
+              </Button>
+              <Button variant="outline" size="lg" className="text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl px-10 py-6 lg:px-14 lg:py-8 xl:px-18 xl:py-10">
+                {t.hero.ctaSecondary}
+              </Button>
+            </div>
 
-              <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-sm text-muted-foreground">
-                <div className="flex items-center">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 mr-1" />
-                  Free Federal Filing
-                </div>
-                <div className="flex items-center">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 mr-1" />
-                  Maximum Refund Guarantee
-                </div>
-                <div className="flex items-center">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 mr-1" />
-                  100% Accuracy
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Trust Indicators */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8"
-            >
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-primary">5M+</div>
-                <div className="text-xs md:text-sm text-muted-foreground">Happy Customers</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-primary">$3.2B</div>
-                <div className="text-xs md:text-sm text-muted-foreground">Refunds Processed</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-primary">4.9/5</div>
-                <div className="text-xs md:text-sm text-muted-foreground">Customer Rating</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-primary">24/7</div>
-                <div className="text-xs md:text-sm text-muted-foreground">Expert Support</div>
-              </div>
-            </motion.div>
+            {/* Rating */}
+            <div className="flex justify-center items-center space-x-2 lg:space-x-4">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-8 h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 fill-yellow-400 text-yellow-400" />
+              ))}
+              <span className="ml-4 text-2xl lg:text-3xl xl:text-4xl font-bold">4.9</span>
+              <span className="text-muted-foreground text-xl lg:text-2xl xl:text-3xl">(5,421)</span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section - Bento Grid Mobile First */}
-      <section id="features" className="py-16 md:py-24 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <Badge className="mb-4" variant="outline">
-              <Zap className="w-3 h-3 mr-1" />
-              Features
-            </Badge>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-              Everything You Need to
-              <span className="bg-gradient-to-r from-primary to-orange-600 bg-clip-text text-transparent"> Maximize Your Refund</span>
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Our comprehensive tax platform handles everything from simple W-2s to complex investments
-            </p>
-          </motion.div>
+      {/* How It Works */}
+      <section className="py-16 md:py-32 lg:py-48 xl:py-64 2xl:py-80 px-6 lg:px-12 xl:px-16 2xl:px-24 bg-muted/30">
+        <div className="container mx-auto max-w-full">
+          <h2 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-bold text-center mb-16 lg:mb-24 xl:mb-32 2xl:mb-40">
+            {t.howItWorks.title}
+          </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Card className="h-full hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden group">
-                  <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity", feature.color)}></div>
-                  <CardHeader>
-                    <div className={cn("w-12 h-12 rounded-lg bg-gradient-to-br flex items-center justify-center text-white mb-4", feature.color)}>
-                      {feature.icon}
-                    </div>
-                    <CardTitle className="text-xl">{feature.title}</CardTitle>
-                    <CardDescription>{feature.description}</CardDescription>
-                  </CardHeader>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Additional Features Grid */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6"
-          >
-            <Card className="p-6 hover:shadow-lg transition-all duration-300">
-              <div className="flex items-start space-x-4">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <FileSearch className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Smart Document Import</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Automatically import W-2s, 1099s, and other tax forms from thousands of employers and financial institutions
-                  </p>
-                </div>
-              </div>
-            </Card>
-            <Card className="p-6 hover:shadow-lg transition-all duration-300">
-              <div className="flex items-start space-x-4">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <Banknote className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Deduction Finder</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Our AI scans for every possible deduction, ensuring you never miss out on savings
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Pricing Section - Mobile Optimized */}
-      <section id="pricing" className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <Badge className="mb-4" variant="outline">
-              <DollarSign className="w-3 h-3 mr-1" />
-              Pricing
-            </Badge>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-              Choose Your Perfect Plan
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Transparent pricing with no hidden fees. Upgrade or downgrade anytime.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-6xl mx-auto">
-            {pricingPlans.map((plan, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className={cn("relative", plan.popular && "md:-mt-4")}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-4 left-0 right-0 flex justify-center">
-                    <Badge className="bg-gradient-to-r from-primary to-orange-600 text-white">
-                      Most Popular
-                    </Badge>
-                  </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16 xl:gap-24 2xl:gap-32">
+            {t.howItWorks.steps.map((step, index) => (
+              <div key={index} className="relative">
+                {index < t.howItWorks.steps.length - 1 && (
+                  <div className="hidden lg:block absolute top-16 left-full w-full h-2 bg-primary/30 -z-10" />
                 )}
-                <Card className={cn(
-                  "h-full",
-                  plan.popular && "border-primary shadow-lg"
-                )}>
-                  <CardHeader className="text-center pb-8">
-                    <CardTitle className="text-2xl mb-2">{plan.name}</CardTitle>
-                    <div className="flex items-baseline justify-center mb-2">
-                      <span className="text-4xl font-bold">{plan.price}</span>
-                      {plan.price !== "$0" && <span className="text-muted-foreground ml-2">/year</span>}
+                <Card className="hover:shadow-xl transition-all duration-300 border-4 hover:border-primary h-full">
+                  <CardHeader className="text-center p-8 lg:p-12">
+                    <div className="w-32 h-32 lg:w-40 lg:h-40 xl:w-48 xl:h-48 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <step.icon className="w-16 h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 text-primary" />
                     </div>
-                    <CardDescription>{plan.description}</CardDescription>
+                    <CardTitle className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl mb-4">{index + 1}. {step.title}</CardTitle>
+                    <Badge variant="secondary" className="mx-auto text-lg lg:text-xl px-4 py-2">
+                      {step.time}
+                    </Badge>
                   </CardHeader>
-                  <CardContent className="pb-8">
-                    <ul className="space-y-3">
-                      {plan.features.map((feature, i) => (
-                        <li key={i} className="flex items-start">
-                          <CheckCircle2 className="w-5 h-5 text-primary mr-3 flex-shrink-0 mt-0.5" />
-                          <span className="text-sm">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
+                  <CardContent className="p-8 lg:p-12">
+                    <p className="text-center text-muted-foreground text-lg lg:text-xl xl:text-2xl">{step.desc}</p>
                   </CardContent>
-                  <CardFooter>
-                    <Button
-                      className={cn(
-                        "w-full",
-                        plan.popular && "bg-gradient-to-r from-primary to-orange-600 hover:from-primary/90 hover:to-orange-600/90"
-                      )}
-                      variant={plan.popular ? "default" : "outline"}
-                      size="lg"
-                    >
-                      Get Started
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </CardFooter>
                 </Card>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials Section - Mobile Carousel */}
-      <section id="testimonials" className="py-16 md:py-24 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <Badge className="mb-4" variant="outline">
-              <Star className="w-3 h-3 mr-1" />
-              Testimonials
-            </Badge>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-              Loved by Millions of Americans
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              See what our customers have to say about their experience
-            </p>
-          </motion.div>
+      {/* Features */}
+      <section className="py-16 md:py-32 lg:py-48 xl:py-64 2xl:py-80 px-6 lg:px-12 xl:px-16 2xl:px-24">
+        <div className="container mx-auto max-w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-16 xl:gap-24 2xl:gap-32">
+            {t.features.map((feature, index) => (
+              <Card key={index} className="text-center hover:shadow-xl transition-shadow h-full border-2 hover:border-primary">
+                <CardHeader className="p-8 lg:p-12">
+                  <feature.icon className="w-20 h-20 lg:w-28 lg:h-28 xl:w-32 xl:h-32 text-primary mx-auto mb-6" />
+                  <CardTitle className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="p-8 lg:p-12">
+                  <CardDescription className="text-lg md:text-xl lg:text-2xl xl:text-3xl">{feature.desc}</CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
 
-          <Carousel className="max-w-4xl mx-auto">
-            <CarouselContent>
-              {testimonials.map((testimonial, index) => (
-                <CarouselItem key={index} className="md:basis-1/2">
-                  <div className="p-1">
-                    <Card className="h-full">
-                      <CardHeader>
-                        <div className="flex items-center space-x-4 mb-4">
-                          <Avatar>
-                            <AvatarImage src={testimonial.avatar} />
-                            <AvatarFallback>{testimonial.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="font-semibold">{testimonial.name}</div>
-                            <div className="text-sm text-muted-foreground">{testimonial.role}</div>
-                          </div>
-                        </div>
-                        <div className="flex mb-2">
-                          {[...Array(testimonial.rating)].map((_, i) => (
-                            <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          ))}
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-muted-foreground">"{testimonial.content}"</p>
-                      </CardContent>
-                    </Card>
+      {/* Testimonials */}
+      <section className="py-16 md:py-32 lg:py-48 xl:py-64 2xl:py-80 px-6 lg:px-12 xl:px-16 2xl:px-24 bg-muted/30">
+        <div className="container mx-auto max-w-full">
+          <h2 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-bold text-center mb-16 lg:mb-24 xl:mb-32 2xl:mb-40">
+            Real People, Real Money
+          </h2>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 xl:gap-16 2xl:gap-20">
+            {t.testimonials.map((testimonial, index) => (
+              <Card key={index} className="hover:shadow-xl transition-shadow h-full border-2 hover:border-primary">
+                <CardHeader className="p-8 lg:p-10">
+                  <div className="flex items-center space-x-2 mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="w-6 h-6 lg:w-8 lg:h-8 fill-yellow-400 text-yellow-400" />
+                    ))}
                   </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden md:flex" />
-            <CarouselNext className="hidden md:flex" />
-          </Carousel>
+                  <CardDescription className="italic text-lg lg:text-xl xl:text-2xl">
+                    "{testimonial.text}"
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-8 lg:p-10">
+                  <p className="font-semibold text-lg lg:text-xl">{testimonial.name}</p>
+                  <p className="text-base lg:text-lg text-muted-foreground">{testimonial.role}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <Badge className="mb-4" variant="outline">
-              <MessageSquare className="w-3 h-3 mr-1" />
-              FAQs
-            </Badge>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Get answers to common questions about Tax Genius Pro
-            </p>
-          </motion.div>
+      {/* Final CTA */}
+      <section className="py-16 md:py-32 lg:py-48 xl:py-64 2xl:py-80 px-6 lg:px-12 xl:px-16 2xl:px-24 bg-primary text-primary-foreground">
+        <div className="container mx-auto max-w-full text-center text-white">
+          <h2 className="text-4xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-bold mb-8 lg:mb-12 xl:mb-16">
+            {t.urgency.title}
+          </h2>
+          <p className="text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl mb-12 lg:mb-16 xl:mb-20 opacity-90 max-w-6xl mx-auto">
+            {t.urgency.subtitle} {String(timeLeft.hours).padStart(2, '0')}:
+            {String(timeLeft.minutes).padStart(2, '0')}:
+            {String(timeLeft.seconds).padStart(2, '0')}
+          </p>
+          <Button size="lg" variant="secondary" className="text-2xl lg:text-3xl xl:text-4xl px-12 py-6 lg:px-16 lg:py-8 xl:px-20 xl:py-10 transition-all hover:scale-105">
+            {t.urgency.cta}
+            <ArrowRight className="ml-4 w-8 h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12" />
+          </Button>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="max-w-3xl mx-auto"
-          >
-            <Accordion type="single" collapsible className="w-full">
-              {faqs.map((faq, index) => (
-                <AccordionItem key={index} value={`item-${index}`}>
-                  <AccordionTrigger className="text-left">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </motion.div>
+          <div className="mt-12 lg:mt-16 xl:mt-20 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-12 xl:gap-16 2xl:gap-20 text-white/80">
+            <div className="flex items-center">
+              <CheckCircle className="w-8 h-8 lg:w-10 lg:h-10 mr-4" />
+              <span className="text-xl lg:text-2xl xl:text-3xl">No credit check</span>
+            </div>
+            <div className="flex items-center">
+              <CheckCircle className="w-8 h-8 lg:w-10 lg:h-10 mr-4" />
+              <span className="text-xl lg:text-2xl xl:text-3xl">No hidden fees</span>
+            </div>
+            <div className="flex items-center">
+              <CheckCircle className="w-8 h-8 lg:w-10 lg:h-10 mr-4" />
+              <span className="text-xl lg:text-2xl xl:text-3xl">Instant approval</span>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 md:py-24 bg-gradient-to-r from-primary to-orange-600">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="text-center text-white"
-          >
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-              Ready to File Your Taxes?
-            </h2>
-            <p className="text-lg md:text-xl mb-8 opacity-95 max-w-2xl mx-auto">
-              Join millions who\'ve already filed with confidence. Get your maximum refund guaranteed.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="secondary" className="text-base md:text-lg px-8">
-                Start Free Filing
-                <Rocket className="ml-2 h-5 w-5" />
+      {/* Footer */}
+      <footer className="bg-background border-t py-12 lg:py-16 xl:py-20 px-6 lg:px-12 xl:px-16 2xl:px-24">
+        <div className="container mx-auto max-w-full">
+          <div className="flex flex-col lg:flex-row justify-between items-center space-y-6 lg:space-y-0">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 lg:w-16 lg:h-16 bg-accent rounded-full flex items-center justify-center">
+                <DollarSign className="w-7 h-7 lg:w-10 lg:h-10 text-white" />
+              </div>
+              <span className="text-2xl lg:text-3xl xl:text-4xl font-bold">Tax Genius Pro</span>
+            </div>
+
+            <div className="flex items-center space-x-8 lg:space-x-12">
+              <Button variant="link" className="text-primary text-lg lg:text-xl xl:text-2xl">
+                <TrendingUp className="w-6 h-6 lg:w-8 lg:h-8 mr-3" />
+                {t.footer.refer}
               </Button>
-              <Button size="lg" variant="outline" className="text-base md:text-lg px-8 bg-transparent text-white border-white hover:bg-white/10">
-                <Phone className="mr-2 h-5 w-5" />
-                Talk to Expert
+              <Button variant="link" className="text-lg lg:text-xl xl:text-2xl">
+                {t.footer.login}
               </Button>
-            </div>
-            <div className="mt-8 flex flex-wrap justify-center gap-4 md:gap-8 text-sm">
-              <div className="flex items-center">
-                <CheckCircle2 className="w-4 h-4 mr-2" />
-                No Credit Card Required
-              </div>
-              <div className="flex items-center">
-                <CheckCircle2 className="w-4 h-4 mr-2" />
-                File in 30 Minutes
-              </div>
-              <div className="flex items-center">
-                <CheckCircle2 className="w-4 h-4 mr-2" />
-                Maximum Refund Guarantee
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Footer - Mobile Optimized */}
-      <footer className="bg-background border-t">
-        <div className="container mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Company Info */}
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="bg-gradient-to-r from-primary to-orange-600 text-white font-bold text-xl px-3 py-1 rounded-lg">
-                  TaxGenius
-                </div>
-                <Badge variant="secondary">PRO</Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-4">
-                Your trusted partner for fast, accurate, and maximum refund tax filing.
-              </p>
-              <div className="flex space-x-4">
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <Facebook className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <Twitter className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <Linkedin className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <Instagram className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Products */}
-            <div>
-              <h3 className="font-semibold mb-4">Products</h3>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Personal Tax Filing
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Business Tax Solutions
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Tax Calculator
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Expert Review
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Audit Protection
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Resources */}
-            <div>
-              <h3 className="font-semibold mb-4">Resources</h3>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Tax Guide 2024
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Tax Forms Library
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Video Tutorials
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Tax Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Help Center
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            {/* Contact */}
-            <div>
-              <h3 className="font-semibold mb-4">Contact</h3>
-              <ul className="space-y-3 text-sm">
-                <li className="flex items-center text-muted-foreground">
-                  <Phone className="w-4 h-4 mr-2" />
-                  1-800-TAX-GENIUS
-                </li>
-                <li className="flex items-center text-muted-foreground">
-                  <Mail className="w-4 h-4 mr-2" />
-                  support@taxgeniuspro.tax
-                </li>
-                <li className="flex items-center text-muted-foreground">
-                  <Clock className="w-4 h-4 mr-2" />
-                  24/7 Support Available
-                </li>
-                <li className="flex items-start text-muted-foreground">
-                  <MapPin className="w-4 h-4 mr-2 mt-0.5" />
-                  <span>
-                    123 Tax Street<br />
-                    New York, NY 10001
-                  </span>
-                </li>
-              </ul>
             </div>
           </div>
 
-          <Separator className="my-8" />
-
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-sm text-muted-foreground">
-              © 2024 Tax Genius Pro. All rights reserved.
+          <div className="mt-12 lg:mt-16 pt-8 lg:pt-12 border-t text-center text-lg lg:text-xl text-muted-foreground">
+            <p>&copy; 2024 Tax Genius Pro. All rights reserved. | NMLS #123456</p>
+            <p className="mt-4">
+              <Shield className="w-6 h-6 lg:w-8 lg:h-8 inline mr-2" />
+              Your information is secure and will never be shared.
             </p>
-            <div className="flex flex-wrap justify-center gap-4 text-sm">
-              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                Privacy Policy
-              </Link>
-              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                Terms of Service
-              </Link>
-              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                Security
-              </Link>
-              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                Sitemap
-              </Link>
-            </div>
           </div>
         </div>
       </footer>
-
-      <style jsx global>{`
-        @keyframes blob {
-          0% {
-            transform: translate(0px, 0px) scale(1);
-          }
-          33% {
-            transform: translate(30px, -50px) scale(1.1);
-          }
-          66% {
-            transform: translate(-20px, 20px) scale(0.9);
-          }
-          100% {
-            transform: translate(0px, 0px) scale(1);
-          }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-      `}</style>
     </div>
   )
 }
