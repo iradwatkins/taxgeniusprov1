@@ -29,8 +29,7 @@ import {
   Shield,
   Zap,
   TrendingUp,
-  Calculator,
-  Lock
+  Calculator
 } from 'lucide-react'
 
 interface ApplicationData {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -27,8 +27,7 @@ import {
   MessageCircle,
   Link2,
   Sparkles,
-  Zap,
-  Loader2
+  Zap
 } from 'lucide-react'
 
 interface ReferrerData {
@@ -42,7 +41,7 @@ interface ReferrerData {
   earnings: number
 }
 
-function ReferralContent() {
+export default function ReferralPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const referralCode = searchParams.get('code') || searchParams.get('ref') || ''
@@ -531,23 +530,5 @@ function ReferralContent() {
         </div>
       </div>
     </div>
-  )
-}
-
-export default function ReferralPage() {
-  return (
-    <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center">
-        <Card className="w-full max-w-4xl">
-          <CardContent className="p-8">
-            <div className="flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    }>
-      <ReferralContent />
-    </Suspense>
   )
 }

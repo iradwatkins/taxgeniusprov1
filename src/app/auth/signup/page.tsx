@@ -1,383 +1,412 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Progress } from '@/components/ui/progress'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   ArrowRight,
-  Globe,
+  Mail,
+  User,
+  Building,
+  Phone,
+  MapPin,
   AlertCircle,
   Loader2,
-  DollarSign,
-  Zap,
-  CheckCircle,
-  Users
+  CheckCircle
 } from 'lucide-react'
 
 export default function SignupPage() {
   const router = useRouter()
-  const [language, setLanguage] = useState<'en' | 'es'>('en')
-  const [isLoading, setIsLoading] = useState(false)
   const [step, setStep] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
 
-  // Form data
   const [formData, setFormData] = useState({
+    email: '',
     firstName: '',
     lastName: '',
-    email: '',
     phone: '',
-    password: '',
-    referralCode: ''
+    company: '',
+    address: '',
+    city: '',
+    state: '',
+    zip: '',
+    agreeToTerms: false,
+    subscribeToNewsletter: false
   })
 
-  const content = {
-    en: {
-      title: "Get Your $7,000 Today!",
-      subtitle: "Join 5,000+ people who got cash this week",
-      urgentBadge: "⚡ Limited time: $0 fees until April 15",
-      steps: {
-        1: "Basic Info",
-        2: "Contact",
-        3: "Get Cash"
-      },
-      firstName: "First Name",
-      firstNamePlaceholder: "John",
-      lastName: "Last Name",
-      lastNamePlaceholder: "Doe",
-      email: "Email Address",
-      emailPlaceholder: "you@example.com",
-      phone: "Phone Number",
-      phonePlaceholder: "(555) 123-4567",
-      password: "Create Password",
-      passwordPlaceholder: "At least 8 characters",
-      referralCode: "Referral Code (Optional)",
-      referralPlaceholder: "Enter code for $50 bonus",
-      continueButton: "Continue",
-      signUpButton: "Sign Up & Get Cash",
-      googleButton: "Sign up with Google",
-      orDivider: "OR GET STARTED INSTANTLY",
-      benefits: [
-        "Instant approval decision",
-        "No credit check required",
-        "Money in account same day",
-        "No hidden fees"
-      ],
-      existingAccount: "Already have an account?",
-      login: "Login here",
-      terms: "By signing up, you agree to our Terms and Privacy Policy"
-    },
-    es: {
-      title: "¡Obtén $7,000 Hoy!",
-      subtitle: "Únete a 5,000+ personas que obtuvieron efectivo esta semana",
-      urgentBadge: "⚡ Tiempo limitado: $0 comisiones hasta el 15 de abril",
-      steps: {
-        1: "Información Básica",
-        2: "Contacto",
-        3: "Obtener Efectivo"
-      },
-      firstName: "Nombre",
-      firstNamePlaceholder: "Juan",
-      lastName: "Apellido",
-      lastNamePlaceholder: "Pérez",
-      email: "Correo Electrónico",
-      emailPlaceholder: "tu@ejemplo.com",
-      phone: "Número de Teléfono",
-      phonePlaceholder: "(555) 123-4567",
-      password: "Crear Contraseña",
-      passwordPlaceholder: "Al menos 8 caracteres",
-      referralCode: "Código de Referido (Opcional)",
-      referralPlaceholder: "Ingresa código para $50 de bono",
-      continueButton: "Continuar",
-      signUpButton: "Registrarse y Obtener Efectivo",
-      googleButton: "Registrarse con Google",
-      orDivider: "O COMIENZA INSTANTÁNEAMENTE",
-      benefits: [
-        "Decisión de aprobación instantánea",
-        "No requiere verificación de crédito",
-        "Dinero en cuenta el mismo día",
-        "Sin cargos ocultos"
-      ],
-      existingAccount: "¿Ya tienes cuenta?",
-      login: "Inicia sesión aquí",
-      terms: "Al registrarte, aceptas nuestros Términos y Política de Privacidad"
-    }
-  }
-
-  const t = content[language]
-
-  const handleGoogleSignup = () => {
-    window.location.href = '/api/auth/google'
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
 
-    if (step < 3) {
-      setStep(step + 1)
+    if (!formData.agreeToTerms) {
+      setError('You must agree to the terms and conditions')
       return
     }
 
     setIsLoading(true)
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create account')
+      }
+
+      setSuccess(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+    } finally {
       setIsLoading(false)
-      router.push('/apply')
-    }, 1500)
+    }
   }
 
-  const updateFormData = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+  const nextStep = () => {
+    if (step === 1 && !formData.email) {
+      setError('Please enter your email')
+      return
+    }
+    setError('')
+    setStep(step + 1)
   }
 
-  const progress = (step / 3) * 100
+  const prevStep = () => {
+    setError('')
+    setStep(step - 1)
+  }
 
   return (
-    <Card className="border-2 shadow-xl">
-      <CardHeader className="space-y-4">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-white" />
-            </div>
-            <CardTitle className="text-2xl font-bold">{t.title}</CardTitle>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}
-            className="flex items-center gap-1"
-          >
-            <Globe className="w-4 h-4" />
-            {language === 'en' ? 'ES' : 'EN'}
-          </Button>
-        </div>
-
-        <CardDescription className="text-base">{t.subtitle}</CardDescription>
-
-        {/* Urgency Badge */}
-        <Alert className="bg-accent dark:bg-accent border-accent-foreground">
-          <Zap className="h-4 w-4 text-accent-foreground" />
-          <AlertDescription className="text-sm font-medium text-accent-foreground">
-            {t.urgentBadge}
-          </AlertDescription>
-        </Alert>
-
-        {/* Progress Bar */}
-        <div className="space-y-2">
-          <Progress value={progress} className="h-2" />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            {Object.entries(t.steps).map(([num, label]) => (
-              <span
-                key={num}
-                className={step >= parseInt(num) ? 'text-primary font-semibold' : ''}
-              >
-                {num}. {label}
-              </span>
-            ))}
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="space-y-6">
-        {/* Google Signup */}
-        <Button
-          variant="outline"
-          className="w-full h-12 text-base"
-          onClick={handleGoogleSignup}
-          disabled={isLoading}
-          type="button"
-        >
-          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-            <path
-              fill="#4285F4"
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-            />
-            <path
-              fill="#34A853"
-              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-            />
-            <path
-              fill="#FBBC05"
-              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-            />
-            <path
-              fill="#EA4335"
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-            />
-          </svg>
-          {t.googleButton}
-        </Button>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <Separator />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              {t.orDivider}
-            </span>
-          </div>
-        </div>
-
-        {/* Multi-step Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {step === 1 && (
-            <>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">{t.firstName}</Label>
-                  <Input
-                    id="firstName"
-                    placeholder={t.firstNamePlaceholder}
-                    value={formData.firstName}
-                    onChange={(e) => updateFormData('firstName', e.target.value)}
-                    className="h-12"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">{t.lastName}</Label>
-                  <Input
-                    id="lastName"
-                    placeholder={t.lastNamePlaceholder}
-                    value={formData.lastName}
-                    onChange={(e) => updateFormData('lastName', e.target.value)}
-                    className="h-12"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="referral">{t.referralCode}</Label>
-                <Input
-                  id="referral"
-                  placeholder={t.referralPlaceholder}
-                  value={formData.referralCode}
-                  onChange={(e) => updateFormData('referralCode', e.target.value)}
-                  className="h-12"
-                />
-              </div>
-            </>
-          )}
-
-          {step === 2 && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="email">{t.email}</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder={t.emailPlaceholder}
-                  value={formData.email}
-                  onChange={(e) => updateFormData('email', e.target.value)}
-                  className="h-12"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">{t.phone}</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder={t.phonePlaceholder}
-                  value={formData.phone}
-                  onChange={(e) => updateFormData('phone', e.target.value)}
-                  className="h-12"
-                  required
-                />
-              </div>
-            </>
-          )}
-
-          {step === 3 && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="password">{t.password}</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder={t.passwordPlaceholder}
-                  value={formData.password}
-                  onChange={(e) => updateFormData('password', e.target.value)}
-                  className="h-12"
-                  required
-                  minLength={8}
-                />
-              </div>
-
-              {/* Benefits */}
-              <div className="space-y-2 p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
-                {t.benefits.map((benefit, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
-                    <span className="text-sm">{benefit}</span>
+    <Card className="w-full max-w-md">
+      {!success ? (
+        <>
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
+            <CardDescription className="text-center">
+              Step {step} of 3 - {step === 1 ? 'Email' : step === 2 ? 'Personal Info' : 'Complete Signup'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {step === 1 && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="name@example.com"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        className="pl-9"
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
                   </div>
-                ))}
+                </>
+              )}
+
+              {step === 2 && (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="firstName">First Name</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          id="firstName"
+                          name="firstName"
+                          placeholder="John"
+                          value={formData.firstName}
+                          onChange={handleInputChange}
+                          className="pl-9"
+                          required
+                          disabled={isLoading}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <Input
+                        id="lastName"
+                        name="lastName"
+                        placeholder="Doe"
+                        value={formData.lastName}
+                        onChange={handleInputChange}
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        placeholder="(555) 123-4567"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        className="pl-9"
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="company">Company (Optional)</Label>
+                    <div className="relative">
+                      <Building className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="company"
+                        name="company"
+                        placeholder="Acme Inc."
+                        value={formData.company}
+                        onChange={handleInputChange}
+                        className="pl-9"
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {step === 3 && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Address</Label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="address"
+                        name="address"
+                        placeholder="123 Main St"
+                        value={formData.address}
+                        onChange={handleInputChange}
+                        className="pl-9"
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="city">City</Label>
+                      <Input
+                        id="city"
+                        name="city"
+                        placeholder="New York"
+                        value={formData.city}
+                        onChange={handleInputChange}
+                        disabled={isLoading}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="state">State</Label>
+                        <Input
+                          id="state"
+                          name="state"
+                          placeholder="NY"
+                          value={formData.state}
+                          onChange={handleInputChange}
+                          maxLength={2}
+                          disabled={isLoading}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="zip">ZIP</Label>
+                        <Input
+                          id="zip"
+                          name="zip"
+                          placeholder="10001"
+                          value={formData.zip}
+                          onChange={handleInputChange}
+                          disabled={isLoading}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="terms"
+                        name="agreeToTerms"
+                        checked={formData.agreeToTerms}
+                        onCheckedChange={(checked) =>
+                          setFormData(prev => ({ ...prev, agreeToTerms: checked as boolean }))
+                        }
+                        disabled={isLoading}
+                      />
+                      <Label
+                        htmlFor="terms"
+                        className="text-sm font-normal cursor-pointer"
+                      >
+                        I agree to the{' '}
+                        <Link href="/terms" className="text-primary hover:underline">
+                          Terms and Conditions
+                        </Link>
+                      </Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="newsletter"
+                        name="subscribeToNewsletter"
+                        checked={formData.subscribeToNewsletter}
+                        onCheckedChange={(checked) =>
+                          setFormData(prev => ({ ...prev, subscribeToNewsletter: checked as boolean }))
+                        }
+                        disabled={isLoading}
+                      />
+                      <Label
+                        htmlFor="newsletter"
+                        className="text-sm font-normal cursor-pointer"
+                      >
+                        Send me tax tips and updates
+                      </Label>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              <div className="flex gap-2">
+                {step > 1 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={prevStep}
+                    disabled={isLoading}
+                  >
+                    Back
+                  </Button>
+                )}
+                {step < 3 ? (
+                  <Button
+                    type="button"
+                    className="flex-1"
+                    onClick={nextStep}
+                    disabled={isLoading}
+                  >
+                    Continue
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    className="flex-1"
+                    disabled={isLoading || !formData.agreeToTerms}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating Account...
+                      </>
+                    ) : (
+                      <>
+                        Create Account
+                        <CheckCircle className="ml-2 h-4 w-4" />
+                      </>
+                    )}
+                  </Button>
+                )}
               </div>
-            </>
-          )}
+            </form>
 
-          <Button
-            type="submit"
-            className="w-full h-12 text-base bg-primary text-primary-foreground hover:bg-primary/90"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <>
-                {step === 3 ? t.signUpButton : t.continueButton}
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </>
-            )}
-          </Button>
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <Separator />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or
+                </span>
+              </div>
+            </div>
 
-          {step > 1 && (
             <Button
-              type="button"
-              variant="ghost"
+              variant="outline"
               className="w-full"
-              onClick={() => setStep(step - 1)}
+              onClick={() => router.push('/auth/login')}
+              disabled={isLoading}
             >
-              ← Back
+              Already have an account? Sign In
             </Button>
-          )}
-        </form>
-
-        {/* Live counter */}
-        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-          <div className="w-2 h-2 bg-primary rounded-full" />
-          <Users className="w-4 h-4" />
-          <span>247 people signing up now</span>
-        </div>
-      </CardContent>
-
-      <CardFooter className="flex flex-col space-y-4">
-        <div className="text-center text-sm">
-          <span className="text-muted-foreground">{t.existingAccount} </span>
-          <Link
-            href="/auth/login"
-            className="text-primary font-semibold hover:underline"
-          >
-            {t.login}
+          </CardContent>
+        </>
+      ) : (
+        <CardContent className="py-8">
+          <div className="space-y-4 text-center">
+            <div className="flex justify-center">
+              <div className="rounded-full bg-green-100 p-3">
+                <CheckCircle className="h-8 w-8 text-green-600" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Account Created!</h3>
+              <p className="text-sm text-muted-foreground">
+                We've sent a verification email to <strong>{formData.email}</strong>
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Please check your email and click the link to verify your account.
+              </p>
+            </div>
+            <Button
+              className="w-full"
+              onClick={() => router.push('/auth/login')}
+            >
+              Go to Login
+            </Button>
+          </div>
+        </CardContent>
+      )}
+      {!success && (
+        <CardFooter className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
+          <Link href="/privacy" className="hover:underline">
+            Privacy Policy
           </Link>
-        </div>
-
-        <p className="text-xs text-center text-muted-foreground">
-          {t.terms}
-        </p>
-      </CardFooter>
+          <span>•</span>
+          <Link href="/terms" className="hover:underline">
+            Terms of Service
+          </Link>
+        </CardFooter>
+      )}
     </Card>
   )
 }

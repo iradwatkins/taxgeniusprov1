@@ -142,3 +142,6 @@ export function useMarkNotificationActioned() {
     },
   })
 }
+// Export aliases for backward compatibility
+export const useMarkNotificationAsRead = useMarkNotificationRead
+export const useMarkNotificationAsActioned = useMarkNotificationActioned
