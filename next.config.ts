@@ -1,9 +1,7 @@
 import type { NextConfig } from "next";
 import withPWA from 'next-pwa';
-import redirects from './wordpress-extraction/redirects.json';
 
 const nextConfig: NextConfig = {
-  output: "standalone",
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -25,7 +23,43 @@ const nextConfig: NextConfig = {
     ],
   },
   async redirects() {
-    return redirects;
+    return [
+      {
+        source: '/home',
+        destination: '/',
+        permanent: true
+      },
+      {
+        source: '/about-us',
+        destination: '/about',
+        permanent: true
+      },
+      {
+        source: '/services-offered',
+        destination: '/services',
+        permanent: true
+      },
+      {
+        source: '/get-quote',
+        destination: '/pricing',
+        permanent: true
+      },
+      {
+        source: '/contact-us',
+        destination: '/contact',
+        permanent: true
+      },
+      {
+        source: '/affiliate-dashboard',
+        destination: '/dashboard/referrer',
+        permanent: true
+      },
+      {
+        source: '/tax-services',
+        destination: '/services',
+        permanent: true
+      }
+    ];
   },
 };
 
