@@ -10,6 +10,20 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdn.taxgenius.tax',
+        pathname: '/wp-migration/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'taxgenius.tax',
+        pathname: '/wp-content/uploads/**',
+      },
+    ],
+  },
   async redirects() {
     return redirects;
   },

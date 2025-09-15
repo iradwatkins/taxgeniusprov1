@@ -19,7 +19,7 @@ export function HeroSection({
   subtitle = "Expert tax preparation, planning, and advice to maximize your refund",
   ctaText = "Get Started",
   ctaLink = "/onboarding",
-  imageUrl = "/migrated-assets/tax-genius-icon.png"
+  imageUrl = "/wp-images/tax-genius-hero.svg"
 }: HeroSectionProps) {
   return (
     <section className="relative min-h-[600px] flex items-center">
