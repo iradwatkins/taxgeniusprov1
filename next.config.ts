@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import withPWA from 'next-pwa';
+import redirects from './wordpress-extraction/redirects.json';
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -8,6 +9,9 @@ const nextConfig: NextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true,
+  },
+  async redirects() {
+    return redirects;
   },
 };
 

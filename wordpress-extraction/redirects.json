@@ -1,0 +1,37 @@
+[
+  {
+    "source": "/home",
+    "destination": "/",
+    "permanent": true
+  },
+  {
+    "source": "/about-us",
+    "destination": "/about",
+    "permanent": true
+  },
+  {
+    "source": "/services-offered",
+    "destination": "/services",
+    "permanent": true
+  },
+  {
+    "source": "/get-quote",
+    "destination": "/pricing",
+    "permanent": true
+  },
+  {
+    "source": "/contact-us",
+    "destination": "/contact",
+    "permanent": true
+  },
+  {
+    "source": "/affiliate-dashboard",
+    "destination": "/dashboard/referrer",
+    "permanent": true
+  },
+  {
+    "source": "/tax-services",
+    "destination": "/services",
+    "permanent": true
+  }
+]

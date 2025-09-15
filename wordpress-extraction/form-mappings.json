@@ -1,0 +1,30 @@
+{
+  "contact": {
+    "fields": [
+      "name",
+      "email",
+      "phone",
+      "message"
+    ],
+    "model": "ContactSubmission"
+  },
+  "appointment": {
+    "fields": [
+      "name",
+      "email",
+      "phone",
+      "preferredDate",
+      "serviceType"
+    ],
+    "model": "AppointmentRequest"
+  },
+  "referral": {
+    "fields": [
+      "referrerName",
+      "referrerEmail",
+      "clientName",
+      "clientEmail"
+    ],
+    "model": "Referral"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "timestamp": "2025-09-15T15:04:43.318Z",
+  "wordpress": {
+    "version": "6.8.2",
+    "theme": "hello-elementor",
+    "plugins": 23,
+    "mediaAssets": 74
+  },
+  "nextjs": {
+    "version": "15.5.3",
+    "database": "PostgreSQL with Prisma",
+    "hosting": "VPS Port 3005",
+    "storage": "Cloudflare R2"
+  },
+  "migrations": {
+    "media": "Pending",
+    "content": "Pending",
+    "forms": "Pending",
+    "users": "Not Required (new system)",
+    "seo": "Redirects configured"
+  }
+}

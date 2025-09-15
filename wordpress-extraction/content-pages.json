@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "about",
+    "title": "About Tax Genius",
+    "content": "Professional tax preparation services",
+    "seoDescription": "Learn about Tax Genius professional tax services"
+  },
+  {
+    "slug": "services",
+    "title": "Our Services",
+    "content": "Comprehensive tax preparation and planning",
+    "seoDescription": "Tax preparation, planning, and consulting services"
+  },
+  {
+    "slug": "pricing",
+    "title": "Pricing",
+    "content": "Transparent pricing for tax services",
+    "seoDescription": "Affordable tax preparation pricing"
+  },
+  {
+    "slug": "contact",
+    "title": "Contact Us",
+    "content": "Get in touch with our tax experts",
+    "seoDescription": "Contact Tax Genius for tax preparation services"
+  }
+]

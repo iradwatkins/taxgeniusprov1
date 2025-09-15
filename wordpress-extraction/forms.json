@@ -1,0 +1,18 @@
+[
+  {
+    "type": "fluentform",
+    "detected": true
+  },
+  {
+    "type": "contact-form-7",
+    "detected": true
+  },
+  {
+    "type": "wpcf7",
+    "detected": true
+  },
+  {
+    "type": "elementor.*form",
+    "detected": true
+  }
+]

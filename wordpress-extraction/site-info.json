@@ -1,0 +1,44 @@
+{
+  "SiteURL": "https://taxgenius.tax",
+  "HomeURL": "https://taxgenius.tax",
+  "Plugin": {
+    "Version": "6.75"
+  },
+  "WordPress": {
+    "Version": "6.8.2",
+    "Content": "/home/u872830304/domains/taxgenius.tax/public_html/wp-content"
+  },
+  "Database": {
+    "Version": "10.11.10-MariaDB-log"
+  },
+  "PHP": {
+    "Version": "8.2.28"
+  },
+  "Plugins": [
+    "fluent-smtp/fluent-smtp.php",
+    "lpagery/lpagery.php",
+    "code-snippets-pro/code-snippets.php",
+    "connect-polylang-elementor/connect-polylang-elementor.php",
+    "duplicate-content-addon-for-polylang/duplicate-content-addon-for-polylang.php",
+    "duracelltomi-google-tag-manager/duracelltomi-google-tag-manager-for-wordpress.php",
+    "elementor-pro/elementor-pro.php",
+    "elementor/elementor.php",
+    "elementskit-lite/elementskit-lite.php",
+    "elementskit/elementskit.php",
+    "essential-addons-elementor/essential_adons_elementor.php",
+    "essential-addons-for-elementor-lite/essential_adons_elementor.php",
+    "fluent-booking-pro/fluent-booking-pro.php",
+    "fluent-booking/fluent-booking.php",
+    "fluent-crm/fluent-crm.php",
+    "fluentcampaign-pro/fluentcampaign-pro.php",
+    "fluentform/fluentform.php",
+    "fluentformpro/fluentformpro.php",
+    "fluentforms-pdf/fluentforms-pdf.php",
+    "litespeed-cache/litespeed-cache.php",
+    "polylang-pro/polylang.php",
+    "slim-seo/slim-seo.php",
+    "wp-bulk-delete/wp-bulk-delete.php"
+  ],
+  "Template": "hello-elementor",
+  "Stylesheet": "hello-elementor"
+}

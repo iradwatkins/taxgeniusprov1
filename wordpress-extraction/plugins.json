@@ -1,0 +1,117 @@
+[
+  {
+    "name": "fluent-smtp",
+    "path": "fluent-smtp/fluent-smtp.php",
+    "status": "active"
+  },
+  {
+    "name": "lpagery",
+    "path": "lpagery/lpagery.php",
+    "status": "active"
+  },
+  {
+    "name": "code-snippets-pro",
+    "path": "code-snippets-pro/code-snippets.php",
+    "status": "active"
+  },
+  {
+    "name": "connect-polylang-elementor",
+    "path": "connect-polylang-elementor/connect-polylang-elementor.php",
+    "status": "active"
+  },
+  {
+    "name": "duplicate-content-addon-for-polylang",
+    "path": "duplicate-content-addon-for-polylang/duplicate-content-addon-for-polylang.php",
+    "status": "active"
+  },
+  {
+    "name": "duracelltomi-google-tag-manager",
+    "path": "duracelltomi-google-tag-manager/duracelltomi-google-tag-manager-for-wordpress.php",
+    "status": "active"
+  },
+  {
+    "name": "elementor-pro",
+    "path": "elementor-pro/elementor-pro.php",
+    "status": "active"
+  },
+  {
+    "name": "elementor",
+    "path": "elementor/elementor.php",
+    "status": "active"
+  },
+  {
+    "name": "elementskit-lite",
+    "path": "elementskit-lite/elementskit-lite.php",
+    "status": "active"
+  },
+  {
+    "name": "elementskit",
+    "path": "elementskit/elementskit.php",
+    "status": "active"
+  },
+  {
+    "name": "essential-addons-elementor",
+    "path": "essential-addons-elementor/essential_adons_elementor.php",
+    "status": "active"
+  },
+  {
+    "name": "essential-addons-for-elementor-lite",
+    "path": "essential-addons-for-elementor-lite/essential_adons_elementor.php",
+    "status": "active"
+  },
+  {
+    "name": "fluent-booking-pro",
+    "path": "fluent-booking-pro/fluent-booking-pro.php",
+    "status": "active"
+  },
+  {
+    "name": "fluent-booking",
+    "path": "fluent-booking/fluent-booking.php",
+    "status": "active"
+  },
+  {
+    "name": "fluent-crm",
+    "path": "fluent-crm/fluent-crm.php",
+    "status": "active"
+  },
+  {
+    "name": "fluentcampaign-pro",
+    "path": "fluentcampaign-pro/fluentcampaign-pro.php",
+    "status": "active"
+  },
+  {
+    "name": "fluentform",
+    "path": "fluentform/fluentform.php",
+    "status": "active"
+  },
+  {
+    "name": "fluentformpro",
+    "path": "fluentformpro/fluentformpro.php",
+    "status": "active"
+  },
+  {
+    "name": "fluentforms-pdf",
+    "path": "fluentforms-pdf/fluentforms-pdf.php",
+    "status": "active"
+  },
+  {
+    "name": "litespeed-cache",
+    "path": "litespeed-cache/litespeed-cache.php",
+    "status": "active"
+  },
+  {
+    "name": "polylang-pro",
+    "path": "polylang-pro/polylang.php",
+    "status": "active"
+  },
+  {
+    "name": "slim-seo",
+    "path": "slim-seo/slim-seo.php",
+    "status": "active"
+  },
+  {
+    "name": "wp-bulk-delete",
+    "path": "wp-bulk-delete/wp-bulk-delete.php",
+    "status": "active"
+  }
+]
