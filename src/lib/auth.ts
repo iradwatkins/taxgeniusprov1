@@ -1,93 +1,111 @@
-import { Lucia } from 'lucia';
-import { PrismaAdapter } from '@lucia-auth/adapter-prisma';
-import { prisma } from './db';
-import { cookies } from 'next/headers';
-import { cache } from 'react';
-import type { Session, User } from 'lucia';
+import { auth, currentUser } from '@clerk/nextjs/server';
 
-const adapter = new PrismaAdapter(prisma.session, prisma.user);
+/**
+ * User role types for Tax Genius platform
+ */
+export type UserRole = 'client' | 'preparer' | 'referrer' | 'admin';
 
-export const lucia = new Lucia(adapter, {
-  sessionCookie: {
-    expires: false,
-    attributes: {
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/'
-    }
-  },
-  getUserAttributes: (attributes) => {
-    return {
-      email: attributes.email,
-      emailVerified: attributes.emailVerified
-    };
-  }
-});
+/**
+ * Get the current user's role from Clerk metadata
+ * @returns User role or null if not authenticated
+ */
+export async function getUserRole(): Promise<UserRole | null> {
+  const user = await currentUser();
+  if (!user) return null;
 
-declare module 'lucia' {
-  interface Register {
-    Lucia: typeof lucia;
-    DatabaseUserAttributes: DatabaseUserAttributes;
-  }
+  return (user.publicMetadata?.role as UserRole) || null;
 }
 
-interface DatabaseUserAttributes {
-  email: string;
-  emailVerified: Date | null;
+/**
+ * Check if current user has a specific role
+ * @param role - Role to check
+ * @returns True if user has the role
+ */
+export async function hasRole(role: UserRole): Promise<boolean> {
+  const userRole = await getUserRole();
+  return userRole === role;
 }
 
-export const validateRequest = cache(
-  async (): Promise<{ user: User; session: Session } | { user: null; session: null }> => {
-    const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
-    if (!sessionId) {
-      return {
-        user: null,
-        session: null
-      };
-    }
-
-    const result = await lucia.validateSession(sessionId);
-
-    try {
-      if (result.session && result.session.fresh) {
-        const sessionCookie = lucia.createSessionCookie(result.session.id);
-        cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
-      }
-      if (!result.session) {
-        const sessionCookie = lucia.createBlankSessionCookie();
-        cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
-      }
-    } catch {
-      // Next.js throws when you attempt to set cookie when rendering page
-    }
-
-    return result;
-  }
-);
-
-export async function getUser() {
-  const { user } = await validateRequest();
-  return user;
+/**
+ * Check if current user is an admin
+ * @returns True if user is admin
+ */
+export async function isAdmin(): Promise<boolean> {
+  return hasRole('admin');
 }
 
+/**
+ * Get the authenticated session from Clerk
+ * @returns Auth session or null if not authenticated
+ */
+export async function getSession() {
+  return auth();
+}
+
+/**
+ * Get the authenticated user from Clerk
+ * @returns User object or null if not authenticated
+ */
+export async function getAuthenticatedUser() {
+  return currentUser();
+}
+
+/**
+ * Require authentication - throws if not authenticated
+ * @returns Authenticated user
+ */
 export async function requireAuth() {
-  const { user } = await validateRequest();
+  const user = await currentUser();
   if (!user) {
     throw new Error('Unauthorized');
   }
   return user;
 }
 
-export async function requireRole(requiredRole: 'CLIENT' | 'REFERRER' | 'PREPARER' | 'ADMIN') {
+/**
+ * Require specific role - throws if user doesn't have the role
+ * @param requiredRole - Required role
+ * @returns Authenticated user with role
+ */
+export async function requireRole(requiredRole: UserRole) {
   const user = await requireAuth();
+  const userRole = user.publicMetadata?.role as UserRole;
 
-  const profile = await prisma.profile.findUnique({
-    where: { userId: user.id }
-  });
-
-  if (!profile || profile.role !== requiredRole) {
+  if (userRole !== requiredRole) {
     throw new Error('Insufficient permissions');
   }
 
-  return { user, profile };
+  return { user, role: userRole };
+}
+
+/**
+ * Get the dashboard URL based on user role
+ * @param role - User role
+ * @returns Dashboard URL for the role
+ */
+export function getDashboardUrl(role: UserRole): string {
+  const dashboardUrls: Record<UserRole, string> = {
+    client: '/dashboard/client',
+    preparer: '/dashboard/preparer',
+    referrer: '/dashboard/referrer',
+    admin: '/dashboard/admin',
+  };
+
+  return dashboardUrls[role];
+}
+
+/**
+ * Update user role in Clerk metadata
+ * This should be called server-side only
+ * @param userId - Clerk user ID
+ * @param role - Role to assign
+ */
+export async function updateUserRole(userId: string, role: UserRole): Promise<void> {
+  const { clerkClient } = await import('@clerk/nextjs/server');
+
+  await clerkClient.users.updateUserMetadata(userId, {
+    publicMetadata: {
+      role,
+    },
+  });
 }

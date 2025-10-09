@@ -1,7 +1,6 @@
 import { Server as HTTPServer } from 'http'
 import { Server as SocketIOServer, Socket } from 'socket.io'
 import { prisma } from '@/lib/db'
-import { lucia } from '@/lib/auth'
 import { cache } from '@/lib/redis'
 
 let io: SocketIOServer | null = null

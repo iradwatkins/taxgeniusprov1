@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { validateRequest } from '@/lib/auth'
+import { currentUser } from '@clerk/nextjs/server'
 import { NotificationService } from '@/lib/services/notification.service'
 
 export async function POST(request: NextRequest) {
   try {
-    const { user } = await validateRequest()
+    const user = await currentUser()
     if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
