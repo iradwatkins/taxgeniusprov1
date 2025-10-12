@@ -44,13 +44,11 @@ import {
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Header } from "@/components/header";
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [refundAmount, setRefundAmount] = useState('');
-  const [countdown, setCountdown] = useState({ hours: 23, minutes: 59, seconds: 59 });
-  const [liveCount, setLiveCount] = useState(1247);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,502 +58,597 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown(prev => {
-        if (prev.seconds > 0) {
-          return { ...prev, seconds: prev.seconds - 1 };
-        } else if (prev.minutes > 0) {
-          return { hours: prev.hours, minutes: prev.minutes - 1, seconds: 59 };
-        } else if (prev.hours > 0) {
-          return { hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        }
-        return { hours: 23, minutes: 59, seconds: 59 };
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Simulate live count updates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLiveCount(prev => prev + Math.floor(Math.random() * 5));
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const calculateRefund = () => {
-    const income = parseFloat(refundAmount) || 0;
-    const estimatedRefund = Math.max(0, income * 0.15 - 2000);
-    return estimatedRefund.toFixed(0);
-  };
-
   return (
     <div className="min-h-screen bg-background">
-      {/* Special Offer Banner */}
-      <div className="bg-primary text-primary-foreground py-2 px-4 text-center">
-        <p className="text-sm font-bold animate-pulse">
-          ⚡ Tax Season Special - Save $100 Today! Ends In: {countdown.hours}:{String(countdown.minutes).padStart(2, '0')}:{String(countdown.seconds).padStart(2, '0')} ⚡
-        </p>
-      </div>
+      <Header />
 
-      {/* Header */}
-      <header className={cn(
-        "sticky top-0 z-50 transition-all duration-300",
-        scrolled ? "bg-background/95 backdrop-blur-sm shadow-md" : "bg-transparent"
-      )}>
-        <div className="container mx-auto px-4 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center space-x-2">
-              <Image
-                src="/images/wordpress-assets/taxgenius-logo.png"
-                alt="Tax Genius Pro"
-                width={200}
-                height={50}
-                className="h-12 w-auto"
-                priority
-              />
-            </div>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-6">
-              <Link href="/services" className="text-foreground/80 hover:text-primary transition-colors font-medium">
-                Services
-              </Link>
-              <Link href="/about" className="text-foreground/80 hover:text-primary transition-colors font-medium">
-                About
-              </Link>
-              <Link href="/pricing" className="text-foreground/80 hover:text-primary transition-colors font-medium">
-                Pricing
-              </Link>
-              <Link href="/contact" className="text-foreground/80 hover:text-primary transition-colors font-medium">
-                Contact
-              </Link>
-              <ThemeToggle />
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-                Login
-              </Button>
-              <Button className="bg-primary hover:bg-primary/90 shadow-lg">
-                Start Free <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
-            </nav>
-
-            {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              <Menu className="h-6 w-6" />
-            </Button>
-          </div>
-
-          {/* Mobile Menu */}
-          {mobileMenuOpen && (
-            <nav className="md:hidden mt-4 pb-4 space-y-2 animate-in slide-in-from-top">
-              <Link href="/services" className="block py-2 text-foreground/80">Services</Link>
-              <Link href="/about" className="block py-2 text-foreground/80">About</Link>
-              <Link href="/pricing" className="block py-2 text-foreground/80">Pricing</Link>
-              <Link href="/contact" className="block py-2 text-foreground/80">Contact</Link>
-              <div className="flex justify-center py-2">
-                <ThemeToggle />
-              </div>
-              <Button variant="outline" className="w-full mb-2">Login</Button>
-              <Button className="w-full">Start Free</Button>
-            </nav>
-          )}
-        </div>
-      </header>
-
-      {/* Hero Section with WordPress Design */}
-      <section className="relative py-20 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
-        <div className="container mx-auto px-4 lg:px-8 relative">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+      {/* Hero Section - Professional Design */}
+      <section className="relative py-24 lg:py-32 bg-gradient-to-b from-muted/30 to-background">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left Column - Content */}
             <div className="space-y-8">
-              {/* Trust Badge */}
-              <div className="inline-flex items-center rounded-full bg-primary/10 text-primary border border-primary/20 px-4 py-2">
-                <Star className="w-4 h-4 mr-1 fill-primary" />
-                <span className="font-semibold">4.9/5 Rating from 50,000+ Customers</span>
+              {/* Trust Badges Row */}
+              <div className="flex flex-wrap items-center gap-3">
+                <Badge variant="secondary" className="px-4 py-2 text-sm font-semibold bg-primary/10 text-primary border-primary/20">
+                  <Shield className="w-4 h-4 mr-2" />
+                  IRS Authorized
+                </Badge>
+                <Badge variant="secondary" className="px-4 py-2 text-sm font-semibold">
+                  <Award className="w-4 h-4 mr-2" />
+                  BBB A+ Rated
+                </Badge>
+                <Badge variant="secondary" className="px-4 py-2 text-sm font-semibold">
+                  <Users className="w-4 h-4 mr-2" />
+                  25+ Years
+                </Badge>
               </div>
 
+              {/* Headline */}
               <div className="space-y-6">
-                <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
-                  Get Your <span className="text-primary">Maximum Refund</span> Guaranteed
+                <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-foreground">
+                  Professional Tax Preparation<br />
+                  <span className="text-primary">You Can Trust</span>
                 </h1>
-                <p className="text-xl text-muted-foreground">
-                  File your taxes with confidence. Our expert CPAs ensure you get every deduction you deserve. Average refund: $3,259
+                <p className="text-lg lg:text-xl text-muted-foreground leading-relaxed">
+                  Expert CPAs. Maximum Refunds. Peace of Mind. Get professional tax services from licensed professionals who know how to save you money.
                 </p>
               </div>
 
-              {/* Live Counter */}
-              <div className="flex items-center bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-4 py-2 rounded-full w-fit">
-                <div className="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-                LIVE: {liveCount.toLocaleString()} people got cash in the last hour
-              </div>
-
-              {/* Quick Calculator */}
-              <Card className="border-primary/20 bg-card/50 backdrop-blur shadow-xl">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-lg flex items-center">
-                    <Calculator className="w-5 h-5 mr-2 text-primary" />
-                    Quick Refund Calculator
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex gap-2">
-                    <Input
-                      type="number"
-                      placeholder="Enter your income"
-                      value={refundAmount}
-                      onChange={(e) => setRefundAmount(e.target.value)}
-                      className="flex-1"
-                    />
-                    <Button className="bg-primary hover:bg-primary/90">
-                      Calculate
-                    </Button>
-                  </div>
-                  {refundAmount && (
-                    <p className="mt-3 text-2xl font-bold text-primary animate-in fade-in">
-                      Estimated Refund: ${calculateRefund()}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg px-8 shadow-xl hover:scale-105 transition-transform">
-                  Start Free Filing <ArrowRight className="ml-2" />
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <Button variant="professional" size="lg" asChild>
+                  <Link href="/start-filing">
+                    Schedule Free Consultation
+                  </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="text-lg px-8 border-2">
-                  <Phone className="mr-2" /> (888) TAX-HELP
+                <Button size="lg" variant="outline" asChild>
+                  <Link href="tel:8885557297">
+                    <Phone className="mr-2 w-5 h-5" />
+                    (888) 555-TAXS
+                  </Link>
                 </Button>
               </div>
 
-              {/* Trust Logos */}
-              <div className="flex items-center gap-6 pt-4">
-                <Image src="/images/wordpress-assets/logo-forbes.png" alt="Forbes" width={80} height={30} className="opacity-60 hover:opacity-100 transition-opacity" />
-                <Image src="/images/wordpress-assets/logo-yahoo.png" alt="Yahoo" width={80} height={30} className="opacity-60 hover:opacity-100 transition-opacity" />
-                <Badge variant="secondary" className="px-3 py-1">
-                  <Shield className="w-4 h-4 mr-1" />
-                  IRS Authorized
-                </Badge>
-              </div>
+              {/* Small Trust Text */}
+              <p className="text-sm text-muted-foreground">
+                No obligation. Speak with a licensed CPA today.
+              </p>
             </div>
 
-            {/* Hero Image */}
+            {/* Right Column - Hero Image */}
             <div className="relative">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                <Image
-                  src="/images/wordpress-assets/tax-pro-illustration-4-5-star-rating.png"
-                  alt="Tax Professional"
-                  width={600}
-                  height={600}
-                  className="w-full h-auto"
-                  priority
-                />
-              </div>
-              {/* Floating Stats */}
-              <Card className="absolute -bottom-6 -left-6 bg-white dark:bg-card shadow-xl animate-in slide-in-from-left">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                      <TrendingUp className="w-6 h-6 text-green-600" />
+              {/* Image Placeholder */}
+              <div className="relative rounded-lg overflow-hidden shadow-xl bg-muted border border-border">
+                <div className="aspect-[4/3] flex items-center justify-center p-12">
+                  <div className="text-center space-y-4">
+                    <div className="w-24 h-24 bg-primary/10 rounded-full mx-auto flex items-center justify-center">
+                      <Users className="w-12 h-12 text-primary" />
                     </div>
-                    <div>
-                      <p className="text-2xl font-bold">$7,259</p>
-                      <p className="text-sm text-muted-foreground">Max Refund This Week</p>
+                    <div className="space-y-2">
+                      <p className="text-sm font-semibold text-muted-foreground">📸 IMAGE PLACEHOLDER</p>
+                      <p className="font-bold text-lg">Professional Tax Preparer with Client</p>
+                      <p className="text-sm text-muted-foreground">600×500px</p>
+                      <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+                        Modern office setting, natural lighting, professional attire, welcoming smile
+                      </p>
+                      <p className="text-xs text-muted-foreground italic">
+                        Similar to: H&R Block hero images
+                      </p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Services Grid */}
-      <section id="services" className="py-20 bg-muted/30">
+      {/* Trust Logos Bar */}
+      <section className="py-8 border-y bg-card">
         <div className="container mx-auto px-4 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-5xl font-bold mb-4">Our Tax Services</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Comprehensive tax solutions for individuals and businesses
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="flex flex-wrap items-center justify-center gap-8 lg:gap-12">
+            {/* Image Placeholders for Partner Logos */}
             {[
-              {
-                icon: FileText,
-                title: "Personal Tax Filing",
-                description: "Simple & accurate tax filing for W-2 employees",
-                price: "Starting at $49"
-              },
-              {
-                icon: Calculator,
-                title: "Self-Employed",
-                description: "Maximize deductions for 1099 contractors",
-                price: "Starting at $99"
-              },
-              {
-                icon: HandshakeIcon,
-                title: "Business Tax",
-                description: "Complete business tax preparation & planning",
-                price: "Starting at $199"
-              },
-              {
-                icon: Shield,
-                title: "Audit Protection",
-                description: "Full IRS audit defense & representation",
-                price: "Included Free"
-              }
-            ].map((service, index) => (
-              <Card key={index} className="hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group">
-                <CardHeader>
-                  <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                    <service.icon className="w-7 h-7 text-primary" />
-                  </div>
-                  <CardTitle className="text-xl">{service.title}</CardTitle>
-                  <CardDescription className="mt-2">{service.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-lg font-semibold text-primary">{service.price}</p>
-                  <Button className="w-full mt-4" variant="outline">
-                    Learn More <ChevronRight className="ml-2 w-4 h-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Process Steps */}
-      <section id="process" className="py-20">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-5xl font-bold mb-4">How It Works</h2>
-            <p className="text-xl text-muted-foreground">Get your refund in 3 simple steps</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                step: "1",
-                icon: Upload,
-                title: "Upload Documents",
-                description: "Securely upload your W-2s and tax documents",
-                time: "30 seconds"
-              },
-              {
-                step: "2",
-                icon: UserCheck,
-                title: "Expert Review",
-                description: "CPA reviews and maximizes your deductions",
-                time: "Instant"
-              },
-              {
-                step: "3",
-                icon: Banknote,
-                title: "Get Your Refund",
-                description: "Receive your refund in as fast as 24 hours",
-                time: "Same day"
-              }
-            ].map((item, index) => (
-              <div key={index} className="relative group">
-                {index < 2 && (
-                  <div className="hidden lg:block absolute top-20 left-full w-full h-1 bg-gradient-to-r from-primary to-primary/30 -z-10 transform translate-y-1/2" />
-                )}
-                <div className="text-center">
-                  <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 relative group-hover:bg-primary/20 transition-colors">
-                    <item.icon className="w-12 h-12 text-primary" />
-                    <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold">
-                      {item.step}
-                    </span>
-                  </div>
-                  <h3 className="text-2xl font-bold mb-3">{item.title}</h3>
-                  <Badge className="mb-3 bg-primary/10 text-primary border-primary/20">
-                    <Zap className="w-3 h-3 mr-1" />
-                    {item.time}
-                  </Badge>
-                  <p className="text-muted-foreground">{item.description}</p>
+              { name: 'IRS E-File', width: 100 },
+              { name: 'BBB Accredited', width: 100 },
+              { name: 'State CPA Board', width: 100 },
+              { name: 'NATP Member', width: 100 }
+            ].map((logo, index) => (
+              <div key={index} className="opacity-60 hover:opacity-100 transition-opacity">
+                <div className="bg-muted rounded border border-border px-6 py-3 text-center">
+                  <p className="text-xs font-semibold text-muted-foreground">{logo.name}</p>
+                  <p className="text-[10px] text-muted-foreground">{logo.width}×60px</p>
                 </div>
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Services Section - Professional 3-Column Grid */}
+      <section id="services" className="py-24 bg-background">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Our Tax Services</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Professional tax solutions tailored to your needs
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Personal Tax Filing Service */}
+            <Card className="hover:shadow-lg transition-all duration-200 group overflow-hidden">
+              {/* Image Background Placeholder */}
+              <div className="relative h-48 bg-gradient-to-br from-primary/5 to-primary/10 flex items-center justify-center border-b">
+                <div className="text-center space-y-2 p-4">
+                  <FileText className="w-12 h-12 text-primary mx-auto mb-2" />
+                  <p className="text-xs font-semibold text-muted-foreground">📸 Image: 400×300px</p>
+                  <p className="text-xs text-muted-foreground">Individual reviewing documents</p>
+                </div>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Personal Tax Filing</CardTitle>
+                <CardDescription className="text-base leading-relaxed">
+                  Professional preparation for individuals and families. We handle W-2s, deductions, and credits.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-bold text-foreground">$89</span>
+                    <span className="text-sm text-muted-foreground">per return</span>
+                  </div>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link href="/services/personal">
+                      Learn More
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Business Tax Services */}
+            <Card className="hover:shadow-lg transition-all duration-200 group overflow-hidden border-primary/20">
+              {/* Image Background Placeholder */}
+              <div className="relative h-48 bg-gradient-to-br from-primary/5 to-primary/10 flex items-center justify-center border-b">
+                <div className="text-center space-y-2 p-4">
+                  <HandshakeIcon className="w-12 h-12 text-primary mx-auto mb-2" />
+                  <p className="text-xs font-semibold text-muted-foreground">📸 Image: 400×300px</p>
+                  <p className="text-xs text-muted-foreground">Small business owner in shop</p>
+                </div>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Business Tax Services</CardTitle>
+                <CardDescription className="text-base leading-relaxed">
+                  Comprehensive tax preparation and planning for small businesses, LLCs, and S-Corps.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-bold text-foreground">$299</span>
+                    <span className="text-sm text-muted-foreground">per return</span>
+                  </div>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link href="/services/business">
+                      Learn More
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Tax Planning & Advisory */}
+            <Card className="hover:shadow-lg transition-all duration-200 group overflow-hidden">
+              {/* Image Background Placeholder */}
+              <div className="relative h-48 bg-gradient-to-br from-primary/5 to-primary/10 flex items-center justify-center border-b">
+                <div className="text-center space-y-2 p-4">
+                  <BarChart3 className="w-12 h-12 text-primary mx-auto mb-2" />
+                  <p className="text-xs font-semibold text-muted-foreground">📸 Image: 400×300px</p>
+                  <p className="text-xs text-muted-foreground">CPA reviewing charts with client</p>
+                </div>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Tax Planning & Advisory</CardTitle>
+                <CardDescription className="text-base leading-relaxed">
+                  Year-round strategic tax planning to minimize liability and maximize savings.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-bold text-foreground">$199</span>
+                    <span className="text-sm text-muted-foreground">per session</span>
+                  </div>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link href="/services/planning">
+                      Learn More
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Additional Services Note */}
+          <div className="text-center mt-12">
+            <p className="text-muted-foreground mb-4">All services include free audit protection and year-round support</p>
+            <Button variant="professional" size="lg" asChild>
+              <Link href="/pricing">
+                View All Pricing
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works - Professional Process */}
+      <section id="process" className="py-24 bg-muted/30 relative">
+        {/* Background Image Placeholder */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-5">
+          <div className="text-center">
+            <p className="text-sm font-semibold">Background: Dashboard UI Screenshots (800×400px, faded)</p>
+          </div>
+        </div>
+
+        <div className="container mx-auto px-4 lg:px-8 relative">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">How It Works</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Four simple steps to professional tax preparation
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+            {/* Step 1 */}
+            <div className="text-center relative">
+              <div className="mb-6 relative">
+                <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto border-4 border-background shadow-lg">
+                  <Calendar className="w-10 h-10 text-primary" />
+                </div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-sm shadow-md">
+                  1
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold mb-3">Book Consultation</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Schedule a free 30-minute consultation with a licensed CPA
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="text-center relative">
+              <div className="mb-6 relative">
+                <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto border-4 border-background shadow-lg">
+                  <Upload className="w-10 h-10 text-primary" />
+                </div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-sm shadow-md">
+                  2
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold mb-3">Upload Documents</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Securely upload W-2s, 1099s, and receipts through our portal
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="text-center relative">
+              <div className="mb-6 relative">
+                <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto border-4 border-background shadow-lg">
+                  <UserCheck className="w-10 h-10 text-primary" />
+                </div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-sm shadow-md">
+                  3
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold mb-3">Expert Review</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                CPA finds all eligible deductions and prepares your return
+              </p>
+            </div>
+
+            {/* Step 4 */}
+            <div className="text-center relative">
+              <div className="mb-6 relative">
+                <div className="w-20 h-20 bg-success/10 rounded-full flex items-center justify-center mx-auto border-4 border-background shadow-lg">
+                  <CheckCircle className="w-10 h-10 text-success" />
+                </div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-success text-success-foreground rounded-full flex items-center justify-center font-bold text-sm shadow-md">
+                  4
+                </div>
+              </div>
+              <h3 className="text-lg font-semibold mb-3">File & Relax</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                We handle IRS submission and track your refund status
+              </p>
+            </div>
+          </div>
 
           <div className="text-center mt-12">
-            <Button size="lg" className="bg-primary hover:bg-primary/90 shadow-xl">
-              Start Your Free Tax Filing <ArrowRight className="ml-2" />
+            <Button variant="professional" size="lg" asChild>
+              <Link href="/start-filing">
+                Get Started Today
+              </Link>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Referral Program Banner */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-800" />
-        <div className="container mx-auto px-4 lg:px-8 relative">
-          <div className="text-center text-white space-y-6">
-            <h2 className="text-3xl lg:text-5xl font-bold">Refer Your Friends</h2>
-            <p className="text-4xl lg:text-7xl font-bold">
-              Get a Cash Bonus up to <span className="text-yellow-400">$50</span>
-            </p>
-            <p className="text-xl opacity-90">Each Referral*</p>
-            <p className="text-lg max-w-2xl mx-auto opacity-90">
-              Earn up to $50 for each friend who does their taxes with us.
-            </p>
-            <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 shadow-xl hover:scale-105 transition-transform">
-              Start Referring Now <ArrowRight className="ml-2" />
-            </Button>
-            <p className="text-sm opacity-75">*Terms and conditions apply</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Why Choose Us */}
-      <section className="py-20 bg-muted/30">
+      {/* Why Choose Us - Split Layout */}
+      <section className="py-24 bg-background">
         <div className="container mx-auto px-4 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-5xl font-bold mb-4">Why Choose Tax Genius Pro?</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Built with security, speed, and your success in mind
-            </p>
-          </div>
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left Side - Content */}
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <h2 className="text-3xl lg:text-4xl font-bold">Why 50,000+ Americans Trust Us</h2>
+                <p className="text-lg text-muted-foreground">
+                  Professional tax preparation with the personal touch you deserve
+                </p>
+              </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Clock,
-                title: "Instant Approval",
-                description: "Get your decision in seconds, not days",
-                stat: "2 min avg"
-              },
-              {
-                icon: Shield,
-                title: "Bank-Level Security",
-                description: "Your data is always protected with 256-bit encryption",
-                stat: "100% Secure"
-              },
-              {
-                icon: Phone,
-                title: "24/7 Support",
-                description: "Expert CPAs available whenever you need help",
-                stat: "24/7 Live"
-              }
-            ].map((feature, index) => (
-              <Card key={index} className="text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <CardHeader>
-                  <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <feature.icon className="w-10 h-10 text-primary" />
+              {/* Benefits List */}
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                      <Award className="w-6 h-6 text-primary" />
+                    </div>
                   </div>
-                  <CardTitle className="text-2xl mb-2">{feature.title}</CardTitle>
-                  <Badge className="bg-primary/10 text-primary border-primary/20">
-                    {feature.stat}
-                  </Badge>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">{feature.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Licensed CPAs with 25+ Years Experience</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Our team of certified professionals stays current with tax law changes to maximize your refund.
+                    </p>
+                  </div>
+                </div>
 
-          <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
-            <div className="flex flex-col items-center space-y-2">
-              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center">
-                <Shield className="w-6 h-6 text-green-600" />
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 bg-success/10 rounded-full flex items-center justify-center">
+                      <DollarSign className="w-6 h-6 text-success" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Maximum Refund Guaranteed in Writing</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      We guarantee you'll get the largest refund possible, or we'll pay you the difference.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                      <Phone className="w-6 h-6 text-primary" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Year-Round Support (Not Just Tax Season)</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Get answers to your tax questions anytime. We're here for you all year, not just in April.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                      <Shield className="w-6 h-6 text-primary" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Bank-Level Security & Encryption</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Your sensitive information is protected with military-grade 256-bit encryption.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <h3 className="font-semibold text-lg">Bank-Level Security</h3>
-              <p className="text-sm text-muted-foreground">256-bit encryption</p>
+
+              <div className="pt-4">
+                <Button variant="professional" size="lg" asChild>
+                  <Link href="/about">
+                    Learn More About Us
+                  </Link>
+                </Button>
+              </div>
             </div>
-            <div className="flex flex-col items-center space-y-2">
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center">
-                <Users className="w-6 h-6 text-blue-600" />
+
+            {/* Right Side - Large Feature Image */}
+            <div className="relative">
+              <div className="relative rounded-lg overflow-hidden shadow-2xl bg-muted border border-border">
+                <div className="aspect-[4/3] flex items-center justify-center p-12">
+                  <div className="text-center space-y-4">
+                    <div className="w-24 h-24 bg-primary/10 rounded-full mx-auto flex items-center justify-center">
+                      <Users className="w-12 h-12 text-primary" />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm font-semibold text-muted-foreground">📸 IMAGE PLACEHOLDER</p>
+                      <p className="font-bold text-lg">Tax Professional Team in Office</p>
+                      <p className="text-sm text-muted-foreground">700×600px</p>
+                      <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+                        Multiple CPAs, diverse team, professional office setting, collaborative atmosphere
+                      </p>
+                      <p className="text-xs text-muted-foreground italic">
+                        Similar to: H&R Block "Our Team" sections
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h3 className="font-semibold text-lg">Trusted by Thousands</h3>
-              <p className="text-sm text-muted-foreground">50,000+ happy customers</p>
-            </div>
-            <div className="flex flex-col items-center space-y-2">
-              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-purple-600" />
+
+              {/* Overlay Badge */}
+              <div className="absolute -bottom-6 -left-6 bg-card border-2 border-background rounded-lg shadow-xl p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                    <Award className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">BBB A+</p>
+                    <p className="text-sm text-muted-foreground">Rated</p>
+                  </div>
+                </div>
               </div>
-              <h3 className="font-semibold text-lg">Fast Growing</h3>
-              <p className="text-sm text-muted-foreground">99.2% approval rate</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section id="testimonials" className="py-20">
+      {/* Credentials & Certifications Section */}
+      <section className="py-16 bg-muted/50 border-y">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-5xl font-bold mb-4">Real People, Real Results</h2>
-            <div className="flex justify-center items-center gap-2 mb-4">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-6 h-6 fill-primary text-primary" />
-              ))}
-              <span className="text-xl font-semibold ml-2">4.9/5</span>
-            </div>
-            <p className="text-muted-foreground">Based on 50,000+ reviews</p>
+            <h2 className="text-2xl lg:text-3xl font-bold mb-3">Trusted & Certified</h2>
+            <p className="text-muted-foreground">Licensed professionals with verified credentials</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
+            {/* IRS Authorized */}
+            <div className="text-center group">
+              <div className="bg-card rounded-lg border border-border p-6 hover:shadow-md transition-shadow">
+                <div className="w-24 h-24 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+                  <Shield className="w-12 h-12 text-primary" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-muted-foreground">📸 150×150px</p>
+                  <p className="font-semibold">IRS E-File Provider</p>
+                  <p className="text-sm text-muted-foreground">Authorized</p>
+                </div>
+              </div>
+            </div>
+
+            {/* BBB Accredited */}
+            <div className="text-center group">
+              <div className="bg-card rounded-lg border border-border p-6 hover:shadow-md transition-shadow">
+                <div className="w-24 h-24 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+                  <Award className="w-12 h-12 text-primary" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-muted-foreground">📸 150×150px</p>
+                  <p className="font-semibold">BBB Accredited</p>
+                  <p className="text-sm text-muted-foreground">A+ Rating</p>
+                </div>
+              </div>
+            </div>
+
+            {/* State Licensed */}
+            <div className="text-center group">
+              <div className="bg-card rounded-lg border border-border p-6 hover:shadow-md transition-shadow">
+                <div className="w-24 h-24 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-12 h-12 text-primary" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-muted-foreground">📸 150×150px</p>
+                  <p className="font-semibold">State Licensed</p>
+                  <p className="text-sm text-muted-foreground">CPA Board Certified</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Secure Platform */}
+            <div className="text-center group">
+              <div className="bg-card rounded-lg border border-border p-6 hover:shadow-md transition-shadow">
+                <div className="w-24 h-24 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+                  <Shield className="w-12 h-12 text-success" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-muted-foreground">📸 150×150px</p>
+                  <p className="font-semibold">256-Bit SSL</p>
+                  <p className="text-sm text-muted-foreground">Bank-Level Security</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-8">
+            <p className="text-sm text-muted-foreground">
+              All our preparers are licensed, bonded, and insured for your protection
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials - Professional Design */}
+      <section id="testimonials" className="py-24 bg-muted/30">
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="flex justify-center items-center gap-1 mb-3">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-5 h-5 fill-primary text-primary" />
+              ))}
+              <span className="text-lg font-semibold ml-2 text-muted-foreground">4.9 out of 5</span>
+            </div>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-3">What Our Clients Say</h2>
+            <p className="text-muted-foreground">Based on 50,000+ verified reviews</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {[
               {
                 name: "Sarah Johnson",
                 role: "Small Business Owner",
-                content: "Got $5,432 more than last year! The CPA found deductions I never knew existed.",
-                rating: 5,
-                refund: "$5,432"
+                location: "Austin, TX",
+                content: "The CPA team was incredibly knowledgeable and helped me find deductions I didn't even know existed. Professional service from start to finish.",
+                rating: 5
               },
               {
                 name: "Michael Chen",
                 role: "Software Engineer",
-                content: "Fast, easy, and professional. Received my refund in just 3 days!",
-                rating: 5,
-                refund: "$3,200"
+                location: "San Francisco, CA",
+                content: "Fast, efficient, and professional. The entire process was seamless and my CPA answered all my questions promptly.",
+                rating: 5
               },
               {
                 name: "Maria Garcia",
                 role: "Teacher",
-                content: "Best tax service I've ever used. Highly recommend to everyone!",
-                rating: 5,
-                refund: "$2,100"
+                location: "Miami, FL",
+                content: "Best tax service I've used. They made everything easy to understand and were always available when I had questions.",
+                rating: 5
               }
             ].map((testimonial, index) => (
-              <Card key={index} className="hover:shadow-lg transition-all duration-300 group">
+              <Card key={index} className="hover:shadow-lg transition-all duration-200">
                 <CardHeader>
-                  <div className="flex gap-1 mb-3">
+                  <div className="flex gap-0.5 mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-primary text-primary" />
+                      <Star key={i} className="w-4 h-4 fill-primary text-primary" />
                     ))}
                   </div>
-                  <CardDescription className="text-base">"{testimonial.content}"</CardDescription>
+                  <CardDescription className="text-base leading-relaxed text-foreground">
+                    "{testimonial.content}"
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                        <Users className="w-6 h-6 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-semibold">{testimonial.name}</p>
-                        <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center border-2 border-background">
+                        <div className="text-center">
+                          <p className="text-[10px] text-muted-foreground">80×80px</p>
+                        </div>
                       </div>
                     </div>
-                    <Badge className="bg-green-100 text-green-700 border-green-200">
-                      {testimonial.refund}
-                    </Badge>
+                    <div className="flex-1">
+                      <p className="font-semibold">{testimonial.name}</p>
+                      <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                      <div className="flex items-center gap-1 mt-1">
+                        <CheckCircle className="w-3 h-3 text-success" />
+                        <p className="text-xs text-muted-foreground">Verified Client</p>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <Button variant="outline" size="lg" asChild>
+              <Link href="/testimonials">
+                Read More Reviews
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -613,101 +706,348 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="py-20">
+      {/* Final CTA - Professional Soft Sell */}
+      <section className="py-24 bg-background">
         <div className="container mx-auto px-4 lg:px-8">
-          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 overflow-hidden relative">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
-            <CardContent className="p-12 text-center relative">
-              <h2 className="text-3xl lg:text-5xl font-bold mb-6">
-                Ready to Get Your Maximum Refund?
-              </h2>
-              <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Join 50,000+ satisfied customers who trust us with their taxes
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg px-8 shadow-xl hover:scale-105 transition-transform">
-                  Start Free Filing Now <ArrowRight className="ml-2" />
-                </Button>
-                <Button size="lg" variant="outline" className="text-lg px-8 border-2">
-                  Schedule Consultation <Calendar className="ml-2" />
-                </Button>
+          <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+            {/* Left Side - Image */}
+            <div className="order-2 lg:order-1">
+              <div className="relative rounded-lg overflow-hidden shadow-xl bg-muted border border-border">
+                <div className="aspect-[4/3] flex items-center justify-center p-12">
+                  <div className="text-center space-y-4">
+                    <div className="w-24 h-24 bg-primary/10 rounded-full mx-auto flex items-center justify-center">
+                      <Users className="w-12 h-12 text-primary" />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-sm font-semibold text-muted-foreground">📸 IMAGE PLACEHOLDER</p>
+                      <p className="font-bold text-lg">Modern Office or Happy Family</p>
+                      <p className="text-sm text-muted-foreground">600×500px</p>
+                      <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+                        Warm, welcoming, professional atmosphere
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex flex-wrap justify-center gap-4 mt-8">
-                <Badge variant="secondary" className="px-3 py-1">
-                  <CheckCircle className="w-4 h-4 mr-1" />
-                  No Credit Card Required
-                </Badge>
-                <Badge variant="secondary" className="px-3 py-1">
-                  <Shield className="w-4 h-4 mr-1" />
-                  100% Accuracy Guarantee
-                </Badge>
-                <Badge variant="secondary" className="px-3 py-1">
-                  <TrendingUp className="w-4 h-4 mr-1" />
-                  Maximum Refund Guarantee
-                </Badge>
+            </div>
+
+            {/* Right Side - Content & Form */}
+            <div className="order-1 lg:order-2 space-y-8">
+              <div className="space-y-4">
+                <h2 className="text-3xl lg:text-4xl font-bold">Ready to Get Started?</h2>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Schedule a free consultation with a licensed CPA. No obligation, no pressure.
+                </p>
               </div>
-            </CardContent>
-          </Card>
+
+              {/* Contact Form */}
+              <Card className="border-2">
+                <CardHeader>
+                  <CardTitle className="text-xl">Request Free Consultation</CardTitle>
+                  <CardDescription>We'll contact you within 24 hours</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="cta-name">Full Name</Label>
+                    <Input id="cta-name" placeholder="John Doe" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cta-email">Email Address</Label>
+                    <Input id="cta-email" type="email" placeholder="john@example.com" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cta-phone">Phone Number</Label>
+                    <Input id="cta-phone" type="tel" placeholder="(555) 123-4567" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cta-time">Best Time to Call</Label>
+                    <Input id="cta-time" placeholder="Morning, Afternoon, Evening" />
+                  </div>
+                  <Button variant="professional" size="lg" className="w-full" asChild>
+                    <Link href="/start-filing">
+                      Request Free Consultation
+                    </Link>
+                  </Button>
+                  <p className="text-xs text-center text-muted-foreground">
+                    No credit card required. No obligation.
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Trust Indicators */}
+              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <CheckCircle className="w-4 h-4 text-success" />
+                  <span>Licensed CPAs</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Shield className="w-4 h-4 text-success" />
+                  <span>100% Secure</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Award className="w-4 h-4 text-success" />
+                  <span>BBB A+ Rated</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-card border-t py-12">
+      {/* Opportunities Section - Hiring & Referrals */}
+      <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-5xl font-bold mb-4">Join Our Team</h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Looking for career opportunities or want to earn extra income?
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Tax Preparer Opportunity */}
+            <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <div className="relative h-64 bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/20 dark:to-blue-800/20 flex items-center justify-center">
+                {/* IMAGE PLACEHOLDER - Replace with actual image */}
+                <div className="text-center">
+                  <div className="w-32 h-32 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <Users className="w-16 h-16 text-primary" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    [Replace with professional tax preparer image]
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Dimensions: 600x400px
+                  </p>
+                </div>
+              </div>
+              <CardHeader>
+                <Badge className="w-fit bg-primary/10 text-primary border-primary/20 mb-2">
+                  Career Opportunity
+                </Badge>
+                <CardTitle className="text-2xl">Become a Tax Preparer</CardTitle>
+                <CardDescription className="text-base">
+                  Join our network of professional tax preparers. Earn $45-75 per return with flexible hours and remote work.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 mb-6">
+                  <li className="flex items-start text-sm">
+                    <CheckCircle className="w-4 h-4 mr-2 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Flexible schedule - work when you want</span>
+                  </li>
+                  <li className="flex items-start text-sm">
+                    <CheckCircle className="w-4 h-4 mr-2 text-primary mt-0.5 flex-shrink-0" />
+                    <span>100% remote - work from anywhere</span>
+                  </li>
+                  <li className="flex items-start text-sm">
+                    <CheckCircle className="w-4 h-4 mr-2 text-primary mt-0.5 flex-shrink-0" />
+                    <span>Professional E&O insurance included</span>
+                  </li>
+                </ul>
+                <Link href="/preparer">
+                  <Button className="w-full bg-primary hover:bg-primary/90">
+                    Learn More <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Referral Program */}
+            <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <div className="relative h-64 bg-gradient-to-br from-yellow-100 to-yellow-50 dark:from-yellow-900/20 dark:to-yellow-800/20 flex items-center justify-center">
+                {/* IMAGE PLACEHOLDER - Replace with actual image */}
+                <div className="text-center">
+                  <div className="w-32 h-32 bg-yellow-400/20 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <DollarSign className="w-16 h-16 text-yellow-600 dark:text-yellow-400" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    [Replace with people earning money image]
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Dimensions: 600x400px
+                  </p>
+                </div>
+              </div>
+              <CardHeader>
+                <Badge className="w-fit bg-yellow-400/20 text-yellow-700 dark:text-yellow-400 border-yellow-400/30 mb-2">
+                  Earn Extra Cash
+                </Badge>
+                <CardTitle className="text-2xl">Referral Program</CardTitle>
+                <CardDescription className="text-base">
+                  Earn up to $50 for each friend you refer. Easy money during tax season with unlimited earning potential.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 mb-6">
+                  <li className="flex items-start text-sm">
+                    <CheckCircle className="w-4 h-4 mr-2 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+                    <span>Earn up to $50 per successful referral</span>
+                  </li>
+                  <li className="flex items-start text-sm">
+                    <CheckCircle className="w-4 h-4 mr-2 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+                    <span>No limits - refer as many people as you want</span>
+                  </li>
+                  <li className="flex items-start text-sm">
+                    <CheckCircle className="w-4 h-4 mr-2 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+                    <span>Quick payouts within 7 days</span>
+                  </li>
+                </ul>
+                <Link href="/referral">
+                  <Button className="w-full bg-yellow-500 hover:bg-yellow-600 text-yellow-950">
+                    Join Program <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer - Professional Comprehensive Design */}
+      <footer className="bg-card border-t">
+        <div className="container mx-auto px-4 lg:px-8">
+          {/* Top Section - 4 Columns */}
+          <div className="py-12 grid md:grid-cols-2 lg:grid-cols-4 gap-12">
+            {/* Column 1 - About */}
+            <div className="space-y-4">
               <Image
                 src="/images/wordpress-assets/taxgenius-logo.png"
                 alt="Tax Genius Pro"
-                width={150}
+                width={160}
                 height={40}
-                className="h-10 w-auto mb-4"
+                className="h-10 w-auto"
               />
-              <p className="text-sm text-muted-foreground">
-                Professional tax services with maximum refund guarantee.
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Professional tax preparation services with licensed CPAs. Serving individuals and businesses since 1999.
               </p>
-              <div className="flex gap-2 mt-4">
-                <Badge className="bg-primary/10 text-primary border-primary/20">
-                  <Award className="w-3 h-3 mr-1" />
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary" className="text-xs">
+                  <Shield className="w-3 h-3 mr-1" />
                   IRS Authorized
+                </Badge>
+                <Badge variant="secondary" className="text-xs">
+                  <Award className="w-3 h-3 mr-1" />
+                  BBB A+
                 </Badge>
               </div>
             </div>
+
+            {/* Column 2 - Services */}
             <div>
-              <h4 className="font-semibold mb-4">Services</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="#" className="hover:text-primary transition-colors">Personal Tax</Link></li>
-                <li><Link href="#" className="hover:text-primary transition-colors">Business Tax</Link></li>
-                <li><Link href="#" className="hover:text-primary transition-colors">Tax Planning</Link></li>
-                <li><Link href="#" className="hover:text-primary transition-colors">IRS Resolution</Link></li>
+              <h4 className="font-semibold mb-4 text-foreground">Services</h4>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <Link href="/services/personal" className="text-muted-foreground hover:text-primary transition-colors">
+                    Personal Tax Filing
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/services/business" className="text-muted-foreground hover:text-primary transition-colors">
+                    Business Tax Services
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/services/planning" className="text-muted-foreground hover:text-primary transition-colors">
+                    Tax Planning & Advisory
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/services/audit" className="text-muted-foreground hover:text-primary transition-colors">
+                    Audit Protection
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/services/resolution" className="text-muted-foreground hover:text-primary transition-colors">
+                    IRS Resolution Services
+                  </Link>
+                </li>
               </ul>
             </div>
+
+            {/* Column 3 - Resources */}
             <div>
-              <h4 className="font-semibold mb-4">Resources</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="#" className="hover:text-primary transition-colors">Tax Calculator</Link></li>
-                <li><Link href="#" className="hover:text-primary transition-colors">Tax Guide 2024</Link></li>
-                <li><Link href="#" className="hover:text-primary transition-colors">Blog</Link></li>
-                <li><Link href="#" className="hover:text-primary transition-colors">Support Center</Link></li>
+              <h4 className="font-semibold mb-4 text-foreground">Resources</h4>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <Link href="/calculator" className="text-muted-foreground hover:text-primary transition-colors">
+                    Tax Calculator
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/guide" className="text-muted-foreground hover:text-primary transition-colors">
+                    2024 Tax Guide
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/blog" className="text-muted-foreground hover:text-primary transition-colors">
+                    Tax Blog & Tips
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/support" className="text-muted-foreground hover:text-primary transition-colors">
+                    Help Center
+                  </Link>
+                </li>
               </ul>
             </div>
+
+            {/* Column 4 - Contact */}
             <div>
-              <h4 className="font-semibold mb-4">Contact Us</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center"><Phone className="w-4 h-4 mr-2" />1-888-TAX-HELP</li>
-                <li>support@taxgeniuspro.com</li>
-                <li>Mon-Fri: 8AM-8PM EST</li>
-                <li>Sat-Sun: 9AM-5PM EST</li>
+              <h4 className="font-semibold mb-4 text-foreground">Contact Us</h4>
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <Phone className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <Link href="tel:8885557297" className="hover:text-primary transition-colors font-medium">
+                      (888) 555-TAXS
+                    </Link>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <MessageCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <Link href="mailto:support@taxgeniuspro.com" className="hover:text-primary transition-colors">
+                      support@taxgeniuspro.com
+                    </Link>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Clock className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p>Mon-Fri: 8AM-8PM EST</p>
+                    <p>Sat-Sun: 9AM-5PM EST</p>
+                  </div>
+                </li>
               </ul>
-              <Button className="mt-4 w-full" variant="outline">
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Live Chat
+              <Button variant="outline" size="sm" className="mt-4 w-full" asChild>
+                <Link href="/contact">
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Contact Us
+                </Link>
               </Button>
             </div>
           </div>
-          <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-            <p>© 2024 Tax Genius Pro. All rights reserved. | Privacy Policy | Terms of Service | Security</p>
+
+          {/* Bottom Section - Legal & Compliance */}
+          <div className="border-t py-6">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+                <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
+                <Link href="/security" className="hover:text-primary transition-colors">Security</Link>
+                <Link href="/accessibility" className="hover:text-primary transition-colors">Accessibility</Link>
+              </div>
+              <div className="text-center md:text-right">
+                <p>EFIN: 12-3456789 | IRS Registered</p>
+                <p className="mt-1">© 2024 TaxGeniusPro. All rights reserved.</p>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
