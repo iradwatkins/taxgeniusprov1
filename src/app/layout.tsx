@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { Providers } from '@/lib/providers'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { ClerkProvider } from '@clerk/nextjs'
+import { Footer } from '@/components/footer'
 
 const inter = Inter({
   subsets: ["latin"],
@@ -58,6 +59,7 @@ export default function RootLayout({
               <ErrorBoundary>
                 <TooltipProvider>
                   {children}
+                  <Footer />
                   <Toaster />
                   <Sonner />
                 </TooltipProvider>
