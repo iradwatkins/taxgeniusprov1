@@ -51,6 +51,9 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useToast } from '@/hooks/use-toast'
+import { MaterialsTable } from '@/components/analytics/MaterialsTable'
+import { ConversionFunnel } from '@/components/analytics/ConversionFunnel'
+import { SourceBreakdown } from '@/components/analytics/SourceBreakdown'
 
 // Types
 interface Client {
@@ -308,11 +311,12 @@ export default function PreparerDashboard() {
 
         {/* Main Content */}
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-7 lg:w-auto">
+          <TabsList className="grid w-full grid-cols-8 lg:w-auto">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="clients">Clients</TabsTrigger>
             <TabsTrigger value="workflow">Workflow</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="resources">Resources</TabsTrigger>
             <TabsTrigger value="store">Store</TabsTrigger>
             <TabsTrigger value="branding">Branding</TabsTrigger>
@@ -738,6 +742,48 @@ export default function PreparerDashboard() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-4">
+            {/* Client Source Tracking */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Client Source Tracking</CardTitle>
+                <CardDescription>Understand where your clients are coming from</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <SourceBreakdown dateRange="month" />
+              </CardContent>
+            </Card>
+
+            {/* My Marketing Materials Performance */}
+            <Card>
+              <CardContent className="pt-6">
+                <MaterialsTable limit={10} dateRange="all" />
+              </CardContent>
+            </Card>
+
+            {/* Conversion Performance */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <ConversionFunnel dateRange="month" />
+
+              {/* Referrer Partnership Performance */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Referrer Partnerships</CardTitle>
+                  <CardDescription>Top referrers sending you clients</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p className="text-sm">Referrer partnership data will appear here</p>
+                      <p className="text-xs mt-2">When referrers send you clients, you'll see their performance metrics</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="resources" className="space-y-4">
