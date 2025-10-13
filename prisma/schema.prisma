@@ -973,6 +973,10 @@ model MarketingLink {
   @@index([createdAt])
   @@index([creatorId, isActive])
   @@index([linkType, isActive])
+  // NEW: Performance indexes for Top 15 queries (Epic 6 - Story 6.3)
+  @@index([creatorType, isActive, returnsFiled(sort: Desc)])
+  @@index([isActive, returnsFiled(sort: Desc)])
+  @@index([createdAt, isActive])
   @@map("marketing_links")
 }
 
@@ -1017,6 +1021,9 @@ model LinkClick {
   @@index([intakeStartedAt])
   @@index([intakeCompletedAt])
   @@index([taxReturnCompletedAt])
+  // NEW: Performance indexes for Top 15 Locations query (Epic 6 - Story 6.3)
+  @@index([city, state, clickedAt])
+  @@index([clickedAt, city, state])
   @@map("link_clicks")
 }
 
