@@ -576,3 +576,170 @@ export function parseDateRange(range: string): DateRange {
 
   return { start, end: now }
 }
+
+/**
+ * Get platform-wide earnings statistics for Admin Earnings page
+ */
+export interface AdminEarningsStats {
+  totalRevenue: number
+  monthlyRevenue: number
+  totalCommissions: number
+  monthlyCommissions: number
+  averageCommission: number
+  totalPayouts: number
+  pendingPayouts: number
+}
+
+export async function getAdminEarningsStats(): Promise<AdminEarningsStats> {
+  const now = new Date()
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+
+  // Total revenue from completed payments
+  const totalRevenueResult = await prisma.payment.aggregate({
+    where: { status: 'COMPLETED' },
+    _sum: { amount: true },
+  })
+
+  // Revenue this month
+  const monthlyRevenueResult = await prisma.payment.aggregate({
+    where: {
+      status: 'COMPLETED',
+      createdAt: { gte: startOfMonth },
+    },
+    _sum: { amount: true },
+  })
+
+  // Commission stats
+  const commissionStats = await prisma.commission.aggregate({
+    _sum: { amount: true },
+    _avg: { amount: true },
+  })
+
+  const monthlyCommissions = await prisma.commission.aggregate({
+    where: { createdAt: { gte: startOfMonth } },
+    _sum: { amount: true },
+  })
+
+  // Payout stats
+  const totalPayoutsResult = await prisma.payoutRequest.aggregate({
+    where: { status: 'COMPLETED' },
+    _sum: { amount: true },
+  })
+
+  const pendingPayoutsResult = await prisma.payoutRequest.aggregate({
+    where: { status: 'PENDING' },
+    _sum: { amount: true },
+  })
+
+  return {
+    totalRevenue: Number(totalRevenueResult._sum.amount || 0),
+    monthlyRevenue: Number(monthlyRevenueResult._sum.amount || 0),
+    totalCommissions: Number(commissionStats._sum.amount || 0),
+    monthlyCommissions: Number(monthlyCommissions._sum.amount || 0),
+    averageCommission: Number(commissionStats._avg.amount || 0),
+    totalPayouts: Number(totalPayoutsResult._sum.amount || 0),
+    pendingPayouts: Number(pendingPayoutsResult._sum.amount || 0),
+  }
+}
+
+/**
+ * Get top earning users across all roles
+ */
+export interface TopEarner {
+  id: string
+  name: string
+  role: string
+  earnings: number
+  returns?: number
+  referrals?: number
+  leads?: number
+  trend: number
+}
+
+export async function getTopEarners(limit: number = 5): Promise<TopEarner[]> {
+  // Get commission earners grouped by user
+  const earners = await prisma.commission.groupBy({
+    by: ['referrerId'],
+    _sum: { amount: true },
+    _count: { id: true },
+    orderBy: { _sum: { amount: 'desc' } },
+    take: limit,
+  })
+
+  // Get user details
+  const userIds = earners.map((e) => e.referrerId)
+  const users = await prisma.profile.findMany({
+    where: { clerkUserId: { in: userIds } },
+    select: {
+      clerkUserId: true,
+      firstName: true,
+      lastName: true,
+      role: true,
+    },
+  })
+
+  // Calculate returns/referrals for each earner
+  const result: TopEarner[] = []
+
+  for (const earner of earners) {
+    const user = users.find((u) => u.clerkUserId === earner.referrerId)
+    if (!user) continue
+
+    // Count conversions for this user
+    const conversions = await prisma.referral.count({
+      where: {
+        referrerId: earner.referrerId,
+        status: 'COMPLETED',
+      },
+    })
+
+    result.push({
+      id: earner.referrerId,
+      name: `${user.firstName} ${user.lastName}`,
+      role: user.role.toLowerCase().replace('_', ' '),
+      earnings: Number(earner._sum.amount || 0),
+      returns: conversions,
+      referrals: earner._count.id,
+      trend: 0, // TODO: Calculate trend from previous period
+    })
+  }
+
+  return result
+}
+
+/**
+ * Get recent payout history
+ */
+export interface RecentPayout {
+  id: string
+  name: string
+  role: string
+  amount: number
+  date: string
+  status: string
+}
+
+export async function getRecentPayouts(limit: number = 5): Promise<RecentPayout[]> {
+  const payouts = await prisma.payoutRequest.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    include: {
+      profile: {
+        select: {
+          firstName: true,
+          lastName: true,
+          role: true,
+        },
+      },
+    },
+  })
+
+  return payouts.map((payout) => ({
+    id: payout.id,
+    name: `${payout.profile.firstName} ${payout.profile.lastName}`,
+    role: payout.profile.role.toLowerCase().replace('_', ' '),
+    amount: Number(payout.amount),
+    date: payout.createdAt.toISOString(),
+    status: payout.status.toLowerCase(),
+  }))
+}

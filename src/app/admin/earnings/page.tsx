@@ -29,6 +29,11 @@ import {
   ArrowDownRight,
   Wallet,
 } from 'lucide-react'
+import {
+  getAdminEarningsStats,
+  getTopEarners,
+  getRecentPayouts,
+} from '@/lib/services/admin-analytics.service'
 
 export const metadata = {
   title: 'Earnings Overview - Admin | Tax Genius Pro',
@@ -52,32 +57,10 @@ export default async function AdminEarningsPage() {
   const currentUserData = await currentUser()
   const isSuperAdmin = currentUserData?.publicMetadata?.role === 'super_admin'
 
-  // Mock data - Replace with actual database queries
-  const platformStats = {
-    totalRevenue: 145780,
-    monthlyRevenue: 28540,
-    totalCommissions: 42850,
-    monthlyCommissions: 8200,
-    averageCommission: 125,
-    totalPayouts: 38200,
-    pendingPayouts: 4650,
-  }
-
-  const topEarners = [
-    { id: '1', name: 'Sarah Johnson', role: 'tax_preparer', earnings: 8450, returns: 68, trend: 12 },
-    { id: '2', name: 'Michael Chen', role: 'referrer', earnings: 6230, referrals: 42, trend: 8 },
-    { id: '3', name: 'Emily Davis', role: 'tax_preparer', earnings: 5890, returns: 47, trend: 15 },
-    { id: '4', name: 'Robert Martinez', role: 'affiliate', earnings: 4320, leads: 103, trend: -3 },
-    { id: '5', name: 'Jennifer Lee', role: 'referrer', earnings: 3780, referrals: 28, trend: 22 },
-  ]
-
-  const recentPayouts = [
-    { id: '1', name: 'Sarah Johnson', role: 'tax_preparer', amount: 2450, date: '2024-02-01', status: 'completed' },
-    { id: '2', name: 'Michael Chen', role: 'referrer', amount: 1830, date: '2024-02-01', status: 'completed' },
-    { id: '3', name: 'Emily Davis', role: 'tax_preparer', amount: 1560, date: '2024-01-28', status: 'completed' },
-    { id: '4', name: 'Robert Martinez', role: 'affiliate', amount: 980, date: '2024-01-28', status: 'pending' },
-    { id: '5', name: 'Jennifer Lee', role: 'referrer', amount: 830, date: '2024-01-25', status: 'completed' },
-  ]
+  // Fetch real data from database
+  const platformStats = await getAdminEarningsStats()
+  const topEarners = await getTopEarners(5)
+  const recentPayouts = await getRecentPayouts(5)
 
   const getRoleBadge = (role: string) => {
     const badges = {
@@ -188,7 +171,7 @@ export default async function AdminEarningsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {topEarners.map((earner, index) => (
+              {topEarners.length > 0 ? topEarners.map((earner, index) => (
                 <div key={earner.id} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/60 text-white font-semibold">
@@ -204,21 +187,14 @@ export default async function AdminEarningsPage() {
                   <div className="text-right">
                     <p className="font-semibold">${earner.earnings.toLocaleString()}</p>
                     <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      {earner.trend > 0 ? (
-                        <>
-                          <ArrowUpRight className="h-3 w-3 text-green-500" />
-                          <span className="text-green-500">+{earner.trend}%</span>
-                        </>
-                      ) : (
-                        <>
-                          <ArrowDownRight className="h-3 w-3 text-red-500" />
-                          <span className="text-red-500">{earner.trend}%</span>
-                        </>
-                      )}
+                      {earner.returns && <span>{earner.returns} returns</span>}
+                      {earner.referrals && <span>{earner.referrals} referrals</span>}
                     </p>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <p className="text-sm text-muted-foreground text-center py-4">No earnings data yet</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -231,25 +207,29 @@ export default async function AdminEarningsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentPayouts.map((payout) => (
+              {recentPayouts.length > 0 ? recentPayouts.map((payout) => (
                 <div key={payout.id} className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">{payout.name}</p>
-                    <p className="text-sm text-muted-foreground">{payout.date}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(payout.date).toLocaleDateString()}
+                    </p>
                   </div>
                   <div className="text-right flex items-center gap-2">
                     <div>
                       <p className="font-semibold">${payout.amount.toLocaleString()}</p>
                       <Badge
                         variant={payout.status === 'completed' ? 'default' : 'secondary'}
-                        className={payout.status === 'completed' ? 'bg-green-100 text-green-700' : ''}
+                        className={payout.status === 'completed' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100' : ''}
                       >
                         {payout.status}
                       </Badge>
                     </div>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <p className="text-sm text-muted-foreground text-center py-4">No payout history yet</p>
+              )}
             </div>
           </CardContent>
         </Card>

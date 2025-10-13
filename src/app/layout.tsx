@@ -9,6 +9,7 @@ import { Providers } from '@/lib/providers'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { ClerkProvider } from '@clerk/nextjs'
 import { Footer } from '@/components/footer'
+import { GoogleAnalytics } from '@/components/GoogleAnalytics'
 
 const inter = Inter({
   subsets: ["latin"],
@@ -46,6 +47,9 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
+        <head>
+          <GoogleAnalytics />
+        </head>
         <body
           className={`${inter.variable} font-sans antialiased min-h-screen`}
         >

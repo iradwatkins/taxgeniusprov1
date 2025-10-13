@@ -157,148 +157,104 @@ export default function ClientDashboard() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [selectedTab, setSelectedTab] = useState('overview')
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear() - 1)
   const [uploadingFile, setUploadingFile] = useState(false)
   const [messageContent, setMessageContent] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null)
   const [filterStatus, setFilterStatus] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
-  const [notifications, setNotifications] = useState(3)
+  const [notifications, setNotifications] = useState(0)
   const [date, setDate] = useState<Date | undefined>(new Date())
 
-  // Enhanced mock data
-  const currentReturn: TaxReturn = {
-    id: '1',
-    taxYear: selectedYear,
-    status: 'IN_REVIEW',
-    refundAmount: 3847,
-    progress: 65,
-    documents: [
-      {
-        id: '1',
-        type: 'W2',
-        fileName: 'W2_2024_TechCorp.pdf',
-        fileUrl: '#',
-        fileSize: 245000,
-        uploadedAt: '2024-01-15T10:30:00Z',
-        status: 'verified'
-      },
-      {
-        id: '2',
-        type: 'FORM_1099',
-        fileName: '1099_INT_Chase_Bank.pdf',
-        fileUrl: '#',
-        fileSize: 189000,
-        uploadedAt: '2024-01-16T14:20:00Z',
-        status: 'verified'
-      },
-      {
-        id: '3',
-        type: 'RECEIPT',
-        fileName: 'Home_Office_Receipts.pdf',
-        fileUrl: '#',
-        fileSize: 512000,
-        uploadedAt: '2024-01-17T09:15:00Z',
-        status: 'pending'
-      }
-    ]
+  // Fetch real dashboard data
+  const { data: dashboardData, isLoading } = useQuery({
+    queryKey: ['client-dashboard', selectedYear],
+    queryFn: async () => {
+      const response = await fetch(`/api/client/dashboard?year=${selectedYear}`)
+      if (!response.ok) throw new Error('Failed to fetch dashboard data')
+      return response.json()
+    },
+  })
+
+  // Use real data or fallback to empty defaults
+  const currentReturn: TaxReturn | null = dashboardData?.currentReturn || null
+  const recentActivity: Activity[] = dashboardData?.recentActivity?.map((act: any) => ({
+    ...act,
+    icon: act.type === 'document' ? FileCheck : act.type === 'status' ? Activity : MessageSquare,
+    color: act.type === 'document' ? 'text-green-500' : act.type === 'status' ? 'text-blue-500' : 'text-purple-500',
+  })) || []
+
+  // Mock messages (TODO: Implement real messages API)
+  const messages: Message[] = []
+
+  // Show loading skeleton
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-8 space-y-6">
+        <Skeleton className="h-12 w-64" />
+        <Skeleton className="h-32 w-full" />
+        <div className="grid grid-cols-4 gap-4">
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
+        </div>
+      </div>
+    )
   }
 
-  const messages: Message[] = [
-    {
-      id: '1',
-      content: 'Hi! I\'ve reviewed your W2 and 1099 forms. Everything looks good so far. Could you provide receipts for your home office deductions?',
-      senderId: 'preparer1',
-      senderName: 'Sarah Johnson, CPA',
-      senderAvatar: '/placeholder.svg',
-      createdAt: '2024-01-16T15:00:00Z',
-      isFromPreparer: true,
-      read: true
-    },
-    {
-      id: '2',
-      content: 'Sure, I\'ll upload them now. I have receipts for my desk, chair, and monitor purchases.',
-      senderId: 'client1',
-      senderName: 'You',
-      createdAt: '2024-01-16T15:30:00Z',
-      isFromPreparer: false,
-      read: true
-    },
-    {
-      id: '3',
-      content: 'Perfect! I see the receipts. This qualifies for a $1,200 deduction. Your estimated refund has increased!',
-      senderId: 'preparer1',
-      senderName: 'Sarah Johnson, CPA',
-      senderAvatar: '/placeholder.svg',
-      createdAt: '2024-01-17T10:00:00Z',
-      isFromPreparer: true,
-      attachments: ['deduction_summary.pdf'],
-      read: false
-    }
-  ]
-
-  const recentActivity: Activity[] = [
-    {
-      id: '1',
-      type: 'document',
-      title: 'Document Verified',
-      description: 'W2_2024_TechCorp.pdf has been verified',
-      timestamp: '2 hours ago',
-      icon: FileCheck,
-      color: 'text-green-500'
-    },
-    {
-      id: '2',
-      type: 'status',
-      title: 'Status Updated',
-      description: 'Your return is now under review',
-      timestamp: '5 hours ago',
-      icon: Activity,
-      color: 'text-blue-500'
-    },
-    {
-      id: '3',
-      type: 'message',
-      title: 'New Message',
-      description: 'Sarah Johnson sent you a message',
-      timestamp: '1 day ago',
-      icon: MessageSquare,
-      color: 'text-purple-500'
-    }
-  ]
+  // If no tax return, show empty state
+  if (!currentReturn) {
+    return (
+      <TooltipProvider>
+        <div className="container mx-auto p-8 space-y-6 text-center">
+          <div className="py-12">
+            <FileX className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+            <h2 className="text-2xl font-bold mb-2">No Tax Return Found</h2>
+            <p className="text-muted-foreground mb-6">
+              You haven't started your {selectedYear} tax return yet.
+            </p>
+            <Button size="lg" onClick={() => window.location.href = '/start-filing'}>
+              Start Filing Now
+            </Button>
+          </div>
+        </div>
+      </TooltipProvider>
+    )
+  }
 
   const stats = [
     {
       title: 'Estimated Refund',
-      value: '$3,847',
-      change: '+$1,200',
-      changeType: 'increase' as const,
+      value: currentReturn.refundAmount ? `$${currentReturn.refundAmount.toLocaleString()}` : 'Pending',
+      change: currentReturn.refundAmount ? 'Estimated' : 'Calculating',
+      changeType: 'neutral' as const,
       icon: DollarSign,
       color: 'from-green-500 to-emerald-500'
     },
     {
       title: 'Documents',
-      value: '3 of 5',
-      change: '60% complete',
+      value: `${currentReturn.documents.length}`,
+      change: `${currentReturn.progress}% complete`,
       changeType: 'neutral' as const,
       icon: FileText,
       color: 'from-blue-500 to-cyan-500'
     },
     {
-      title: 'Days Until Filing',
-      value: '21',
-      change: 'On track',
+      title: 'Days Until Deadline',
+      value: dashboardData?.stats?.daysUntilDeadline || '0',
+      change: currentReturn.status === 'FILED' ? 'Filed' : 'On track',
       changeType: 'neutral' as const,
       icon: CalendarIcon,
       color: 'from-purple-500 to-pink-500'
     },
     {
-      title: 'Messages',
-      value: '1 new',
-      change: 'Reply needed',
+      title: 'Status',
+      value: currentReturn.status.replace('_', ' '),
+      change: 'Updated',
       changeType: 'neutral' as const,
-      icon: MessageSquare,
+      icon: Activity,
       color: 'from-orange-500 to-red-500'
     }
   ]

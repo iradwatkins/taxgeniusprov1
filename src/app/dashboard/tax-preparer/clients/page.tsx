@@ -31,7 +31,9 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
+  UserX,
 } from 'lucide-react'
+import { prisma } from '@/lib/prisma'
 
 export const metadata = {
   title: 'Clients | Tax Genius Pro',
@@ -45,6 +47,66 @@ async function isTaxPreparer() {
   return role === 'tax_preparer' || role === 'admin'
 }
 
+async function getPreparerClients(preparerId: string) {
+  // Get tax returns assigned to this preparer
+  const taxReturns = await prisma.taxReturn.findMany({
+    where: {
+      preparerId: preparerId,
+    },
+    include: {
+      profile: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          phone: true,
+        },
+      },
+      documents: {
+        select: {
+          id: true,
+        },
+      },
+    },
+    orderBy: {
+      updatedAt: 'desc',
+    },
+  })
+
+  // Transform to client format
+  return taxReturns.map((taxReturn) => ({
+    id: taxReturn.profile.id,
+    name: `${taxReturn.profile.firstName} ${taxReturn.profile.lastName}`,
+    email: taxReturn.profile.email,
+    phone: taxReturn.profile.phone || 'N/A',
+    status: 'Active',
+    returnStatus: mapTaxReturnStatus(taxReturn.status),
+    year: taxReturn.taxYear,
+    lastContact: taxReturn.updatedAt.toISOString().split('T')[0],
+    documents: taxReturn.documents.length,
+    missingDocs: 0, // TODO: Calculate based on required documents
+    taxReturnId: taxReturn.id,
+  }))
+}
+
+function mapTaxReturnStatus(status: string): string {
+  switch (status) {
+    case 'DRAFT':
+      return 'Not Started'
+    case 'IN_REVIEW':
+      return 'In Progress'
+    case 'FILED':
+      return 'Filed'
+    case 'ACCEPTED':
+      return 'Filed'
+    case 'REJECTED':
+      return 'Pending Review'
+    default:
+      return 'Not Started'
+  }
+}
+
 export default async function TaxPreparerClientsPage() {
   const userIsTaxPreparer = await isTaxPreparer()
 
@@ -52,69 +114,19 @@ export default async function TaxPreparerClientsPage() {
     redirect('/forbidden')
   }
 
-  // Mock clients data
-  const clients = [
-    {
-      id: '1',
-      name: 'John Anderson',
-      email: 'john.anderson@email.com',
-      phone: '+1 (555) 123-4567',
-      status: 'Active',
-      returnStatus: 'In Progress',
-      year: 2024,
-      lastContact: '2024-03-15',
-      documents: 8,
-      missingDocs: 2,
-    },
-    {
-      id: '2',
-      name: 'Maria Garcia',
-      email: 'maria.garcia@email.com',
-      phone: '+1 (555) 234-5678',
-      status: 'Active',
-      returnStatus: 'Filed',
-      year: 2024,
-      lastContact: '2024-03-14',
-      documents: 12,
-      missingDocs: 0,
-    },
-    {
-      id: '3',
-      name: 'David Chen',
-      email: 'david.chen@email.com',
-      phone: '+1 (555) 345-6789',
-      status: 'Active',
-      returnStatus: 'Pending Review',
-      year: 2024,
-      lastContact: '2024-03-13',
-      documents: 6,
-      missingDocs: 4,
-    },
-    {
-      id: '4',
-      name: 'Sarah Williams',
-      email: 'sarah.williams@email.com',
-      phone: '+1 (555) 456-7890',
-      status: 'Active',
-      returnStatus: 'In Progress',
-      year: 2024,
-      lastContact: '2024-03-12',
-      documents: 10,
-      missingDocs: 1,
-    },
-    {
-      id: '5',
-      name: 'Michael Brown',
-      email: 'michael.brown@email.com',
-      phone: '+1 (555) 567-8901',
-      status: 'Active',
-      returnStatus: 'Not Started',
-      year: 2024,
-      lastContact: '2024-03-11',
-      documents: 3,
-      missingDocs: 7,
-    },
-  ]
+  const user = await currentUser()
+
+  // Get preparer profile to get their ID
+  const preparerProfile = await prisma.profile.findUnique({
+    where: { clerkUserId: user!.id },
+  })
+
+  if (!preparerProfile) {
+    redirect('/forbidden')
+  }
+
+  // Get real clients data
+  const clients = await getPreparerClients(preparerProfile.id)
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -162,20 +174,37 @@ export default async function TaxPreparerClientsPage() {
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      {/* Empty State */}
+      {clients.length === 0 ? (
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Clients</CardTitle>
-            <Users className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{clients.length}</div>
-            <p className="text-xs text-muted-foreground">
-              All active clients
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <UserX className="h-16 w-16 text-muted-foreground mb-4" />
+            <h2 className="text-2xl font-bold mb-2">No Clients Yet</h2>
+            <p className="text-muted-foreground text-center mb-6 max-w-md">
+              You don't have any clients assigned to you yet. Clients will appear here once they're assigned to you by an admin or when they start a tax return.
             </p>
+            <Button>
+              <UserPlus className="w-4 h-4 mr-2" />
+              Contact Admin for Client Assignment
+            </Button>
           </CardContent>
         </Card>
+      ) : (
+        <>
+          {/* Stats Cards */}
+          <div className="grid gap-4 md:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Clients</CardTitle>
+                <Users className="h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{clients.length}</div>
+                <p className="text-xs text-muted-foreground">
+                  All active clients
+                </p>
+              </CardContent>
+            </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -335,6 +364,8 @@ export default async function TaxPreparerClientsPage() {
           </Table>
         </CardContent>
       </Card>
+        </>
+      )}
     </div>
   )
 }
