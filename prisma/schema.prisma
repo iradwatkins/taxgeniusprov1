@@ -886,12 +886,22 @@ model ClientIntake {
 enum LinkType {
   REFERRAL
   LANDING_PAGE
-  QR_CODE
+  QR_CODE        // Keep for backward compatibility
   SOCIAL_MEDIA
   EMAIL_CAMPAIGN
   BUSINESS_CARD
   FLYER
   CUSTOM
+
+  // NEW: Specific QR types (Epic 6 - Story 6.2)
+  QR_POSTER
+  QR_FLYER
+  QR_BUSINESS_CARD
+  QR_TABLE_TENT
+  QR_BANNER
+  DIGITAL_AD
+  SMS_LINK
+  WEBSITE_REFERRAL
 }
 
 model MarketingLink {
@@ -936,6 +946,17 @@ model MarketingLink {
   completeConversionRate Float? // (intakeCompletes / clicks) * 100
   filedConversionRate    Float? // (returnsFiled / clicks) * 100
 
+  // NEW: Material-specific fields (Epic 6 - Story 6.2)
+  location       String?  // Where material is placed/distributed
+  notes          String?  @db.Text // Distribution notes, renewal dates
+  qrCodeImageUrl String?  // Base64 data URL or storage URL of generated QR code
+  qrCodeFormat   String?  @default("PNG") // PNG, SVG, PDF
+
+  // NEW: Material lifecycle (Epic 6 - Story 6.2)
+  dateActivated  DateTime? // When material was first distributed
+  dateExpired    DateTime? // If material has expiration date
+  printCount     Int @default(0) // How many times QR was downloaded
+
   // Status
   isActive    Boolean  @default(true)
 
@@ -950,6 +971,8 @@ model MarketingLink {
   @@index([linkType])
   @@index([isActive])
   @@index([createdAt])
+  @@index([creatorId, isActive])
+  @@index([linkType, isActive])
   @@map("marketing_links")
 }
 
