@@ -1,0 +1,20 @@
+schema: 1
+story: '6.5'
+gate: CONCERNS
+status_reason: 'Export and comparison features operational but lack comprehensive unit/integration tests for production confidence.'
+reviewer: 'Claude Code (AI QA)'
+updated: '2025-10-13T00:00:00Z'
+top_issues:
+  - id: 'TEST-001'
+    severity: medium
+    finding: 'No unit tests for CSV/PDF export utilities'
+    suggested_action: 'Add test coverage for csv-export.ts and pdf-export.ts utilities'
+  - id: 'TEST-002'
+    severity: medium
+    finding: 'No integration tests for export API endpoints'
+    suggested_action: 'Add API tests for export workflows to ensure data integrity'
+  - id: 'MNT-001'
+    severity: low
+    finding: 'PDF generation could benefit from error boundary handling'
+    suggested_action: 'Add try-catch blocks around jsPDF operations for better error messages'
+waiver: { active: false }
