@@ -22,7 +22,8 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ArrowUpDown, Download, Eye } from 'lucide-react'
+import { ArrowUpDown, Eye } from 'lucide-react'
+import { ExportButton } from './ExportButton'
 
 interface MaterialsTableProps {
   limit?: number
@@ -54,11 +55,6 @@ export function MaterialsTable({
     }
   }
 
-  const handleExport = () => {
-    // TODO: Implement CSV export
-    console.log('Exporting materials...')
-  }
-
   if (isLoading) {
     return <TableSkeleton />
   }
@@ -87,10 +83,26 @@ export function MaterialsTable({
         <h3 className="text-lg font-semibold">
           {limit === 15 ? 'Top 15 Materials' : `Top ${limit} Materials`}
         </h3>
-        <Button variant="outline" size="sm" onClick={handleExport}>
-          <Download className="w-4 h-4 mr-2" />
-          Export CSV
-        </Button>
+        <ExportButton
+          data={materials.map(m => ({
+            id: m.id,
+            title: m.title,
+            type: m.type,
+            location: m.location || '',
+            clicks: m.metrics.clicks,
+            intakeStarts: m.metrics.intakeStarts,
+            intakeCompletes: m.metrics.intakeCompletes,
+            returnsFiled: m.metrics.returnsFiled,
+            conversionRate: m.metrics.conversionRate,
+            intakeConversionRate: m.metrics.intakeConversionRate,
+            completeConversionRate: m.metrics.completeConversionRate,
+            filedConversionRate: m.metrics.filedConversionRate,
+            lastActivity: m.lastActivity,
+            createdAt: m.createdAt
+          }))}
+          type="materials"
+          dateRange={dateRange}
+        />
       </div>
 
       <div className="border rounded-lg">
