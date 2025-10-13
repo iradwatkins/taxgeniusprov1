@@ -2,12 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Menu, ArrowRight } from 'lucide-react';
+import { Menu, ArrowRight, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { CartIcon } from '@/components/CartIcon';
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -42,17 +49,90 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-1">
-            <Link href="/services" className="px-4 py-2 text-foreground/80 hover:text-primary hover:bg-muted/50 rounded-md transition-colors font-medium text-sm">
-              Services
-            </Link>
-            <Link href="/store" className="px-4 py-2 text-foreground/80 hover:text-primary hover:bg-muted/50 rounded-md transition-colors font-medium text-sm">
-              Store
-            </Link>
+            {/* Services Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="px-4 py-2 text-foreground/80 hover:text-primary hover:bg-muted/50 rounded-md transition-colors font-medium text-sm flex items-center gap-1">
+                  Services
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuItem asChild>
+                  <Link href="/personal-tax-filing" className="cursor-pointer">
+                    Personal Tax Filing
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/business-tax" className="cursor-pointer">
+                    Business Tax Services
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/tax-planning" className="cursor-pointer">
+                    Tax Planning & Advisory
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/audit-protection" className="cursor-pointer">
+                    Audit Protection
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/irs-resolution" className="cursor-pointer">
+                    IRS Resolution Services
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/services" className="cursor-pointer font-semibold text-primary">
+                    View All Services →
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Resources Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="px-4 py-2 text-foreground/80 hover:text-primary hover:bg-muted/50 rounded-md transition-colors font-medium text-sm flex items-center gap-1">
+                  Resources
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuItem asChild>
+                  <Link href="/tax-guide" className="cursor-pointer">
+                    2024 Tax Guide
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/blog" className="cursor-pointer">
+                    Tax Blog & Tips
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/help" className="cursor-pointer">
+                    Help Center
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/tax-calculator" className="cursor-pointer">
+                    Tax Calculator
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/find-a-refund" className="cursor-pointer">
+                    Find My Refund
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <Link href="/about" className="px-4 py-2 text-foreground/80 hover:text-primary hover:bg-muted/50 rounded-md transition-colors font-medium text-sm">
               About
-            </Link>
-            <Link href="/pricing" className="px-4 py-2 text-foreground/80 hover:text-primary hover:bg-muted/50 rounded-md transition-colors font-medium text-sm">
-              Pricing
             </Link>
             <Link href="/contact" className="px-4 py-2 text-foreground/80 hover:text-primary hover:bg-muted/50 rounded-md transition-colors font-medium text-sm">
               Contact
@@ -85,12 +165,34 @@ export function Header() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <nav className="lg:hidden mt-4 pb-4 space-y-1 animate-in slide-in-from-top border-t pt-4">
-            <Link href="/services" className="block px-4 py-2 text-foreground/80 hover:bg-muted/50 rounded-md">Services</Link>
-            <Link href="/store" className="block px-4 py-2 text-foreground/80 hover:bg-muted/50 rounded-md">Store</Link>
-            <Link href="/about" className="block px-4 py-2 text-foreground/80 hover:bg-muted/50 rounded-md">About</Link>
-            <Link href="/pricing" className="block px-4 py-2 text-foreground/80 hover:bg-muted/50 rounded-md">Pricing</Link>
-            <Link href="/contact" className="block px-4 py-2 text-foreground/80 hover:bg-muted/50 rounded-md">Contact</Link>
-            <div className="flex items-center justify-center gap-4 py-3">
+            {/* Services Section */}
+            <div className="px-2 py-2">
+              <p className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Services</p>
+              <Link href="/personal-tax-filing" className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted/50 rounded-md">Personal Tax Filing</Link>
+              <Link href="/business-tax" className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted/50 rounded-md">Business Tax Services</Link>
+              <Link href="/tax-planning" className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted/50 rounded-md">Tax Planning & Advisory</Link>
+              <Link href="/audit-protection" className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted/50 rounded-md">Audit Protection</Link>
+              <Link href="/irs-resolution" className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted/50 rounded-md">IRS Resolution</Link>
+              <Link href="/services" className="block px-4 py-2 text-sm text-primary font-semibold hover:bg-muted/50 rounded-md">View All Services →</Link>
+            </div>
+
+            {/* Resources Section */}
+            <div className="px-2 py-2">
+              <p className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Resources</p>
+              <Link href="/tax-guide" className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted/50 rounded-md">2024 Tax Guide</Link>
+              <Link href="/blog" className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted/50 rounded-md">Tax Blog & Tips</Link>
+              <Link href="/help" className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted/50 rounded-md">Help Center</Link>
+              <Link href="/tax-calculator" className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted/50 rounded-md">Tax Calculator</Link>
+              <Link href="/find-a-refund" className="block px-4 py-2 text-sm text-foreground/80 hover:bg-muted/50 rounded-md">Find My Refund</Link>
+            </div>
+
+            {/* Main Links */}
+            <div className="border-t pt-2">
+              <Link href="/about" className="block px-4 py-2 text-foreground/80 hover:bg-muted/50 rounded-md">About</Link>
+              <Link href="/contact" className="block px-4 py-2 text-foreground/80 hover:bg-muted/50 rounded-md">Contact</Link>
+            </div>
+
+            <div className="flex items-center justify-center gap-4 py-3 border-t">
               <CartIcon />
               <ThemeToggle />
             </div>

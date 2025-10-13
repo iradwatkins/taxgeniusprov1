@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireRole } from '@/lib/auth'
+import { requireOneOfRoles } from '@/lib/auth'
 import { ReferrerService } from '@/lib/services/referrer.service'
 
 export async function GET(request: NextRequest) {
   try {
-    const { profile } = await requireRole('REFERRER')
+    // Allow both referrer and affiliate roles to access activity
+    const { profile } = await requireOneOfRoles(['referrer', 'affiliate'])
 
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '10')

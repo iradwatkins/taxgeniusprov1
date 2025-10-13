@@ -1,16 +1,192 @@
-import { SignUp } from '@clerk/nextjs'
+'use client';
+
+import { SignUp } from '@clerk/nextjs';
+import { useSearchParams } from 'next/navigation';
+import Image from 'next/image';
+import { DollarSign, Shield, Award, ArrowRight, CheckCircle, TrendingUp, Users } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Suspense } from 'react';
+
+function SignupContent() {
+  const searchParams = useSearchParams();
+  const role = searchParams.get('role') || 'client';
+
+  // Role-specific content
+  const roleContent = {
+    client: {
+      badge: 'Professional Tax Services',
+      icon: Shield,
+      heading: 'Get Your Taxes Done by Professionals',
+      subheading: 'Join 50,000+ satisfied customers who trust us for accurate, stress-free tax filing',
+      benefits: [
+        { icon: CheckCircle, text: 'Maximum refund guaranteed' },
+        { icon: Shield, text: 'IRS-certified CPAs' },
+        { icon: TrendingUp, text: 'Average refund: $3,259' },
+      ],
+      ctaText: 'Start Your Free Tax Filing',
+      imageSuggestion: 'Happy family receiving tax refund',
+      theme: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20',
+      accentColor: 'text-blue-600 dark:text-blue-400',
+    },
+    preparer: {
+      badge: 'Career Opportunity',
+      icon: Award,
+      heading: 'Build Your Tax Preparation Career',
+      subheading: 'Join our network of professional tax preparers. Flexible hours, remote work, earn $45-75 per return',
+      benefits: [
+        { icon: DollarSign, text: 'Earn up to $5,000/month' },
+        { icon: Users, text: '100% remote - work from anywhere' },
+        { icon: Shield, text: 'E&O insurance included' },
+      ],
+      ctaText: 'Start Your Application',
+      imageSuggestion: 'Professional tax preparer working confidently',
+      theme: 'from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-800/20',
+      accentColor: 'text-blue-600 dark:text-blue-400',
+    },
+    referrer: {
+      badge: '💰 Start Earning Today',
+      icon: DollarSign,
+      heading: 'Start Making Money Now!',
+      subheading: 'Earn up to $50 for each friend you refer. Easy money, unlimited potential. Join thousands earning extra cash!',
+      benefits: [
+        { icon: DollarSign, text: 'Up to $50 per referral - No limits!' },
+        { icon: TrendingUp, text: 'Get paid within 7 days' },
+        { icon: CheckCircle, text: 'Super easy - just share your link' },
+      ],
+      ctaText: 'Get Your Referral Link Now',
+      imageSuggestion: 'Excited people celebrating money earnings',
+      theme: 'from-yellow-50 to-orange-100 dark:from-yellow-900/20 dark:to-orange-800/20',
+      accentColor: 'text-yellow-600 dark:text-yellow-400',
+    },
+  };
+
+  const content = roleContent[role as keyof typeof roleContent] || roleContent.client;
+  const IconComponent = content.icon;
+
+  return (
+    <div className="min-h-screen grid lg:grid-cols-2">
+      {/* Left Side - Role-specific messaging with image */}
+      <div className={`relative bg-gradient-to-br ${content.theme} p-8 lg:p-16 flex flex-col justify-center`}>
+        <div className="max-w-lg mx-auto space-y-8">
+          <div>
+            <Badge className="mb-4 text-base px-4 py-2">
+              <IconComponent className="w-5 h-5 mr-2" />
+              {content.badge}
+            </Badge>
+
+            <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+              {content.heading}
+            </h1>
+
+            <p className="text-xl text-muted-foreground">
+              {content.subheading}
+            </p>
+          </div>
+
+          {/* Image Placeholder */}
+          <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-white/50 dark:bg-black/20 backdrop-blur">
+            <div className="aspect-video flex items-center justify-center p-12">
+              <div className="text-center">
+                <div className={`w-32 h-32 bg-white/80 dark:bg-black/40 rounded-full mx-auto mb-6 flex items-center justify-center`}>
+                  <IconComponent className={`w-16 h-16 ${content.accentColor}`} />
+                </div>
+                <p className="text-sm font-semibold text-muted-foreground mb-2">
+                  [Replace with image]
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {content.imageSuggestion}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Recommended: 800x450px
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Benefits */}
+          <div className="space-y-4">
+            {content.benefits.map((benefit, index) => (
+              <div key={index} className="flex items-start">
+                <benefit.icon className={`w-6 h-6 ${content.accentColor} mr-3 flex-shrink-0 mt-0.5`} />
+                <p className="text-lg">{benefit.text}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Trust indicators */}
+          <div className="pt-4 border-t">
+            <p className="text-sm text-muted-foreground mb-3">
+              {role === 'referrer'
+                ? '🔥 Join 10,000+ people already earning extra cash'
+                : role === 'preparer'
+                ? '✓ Trusted by 500+ professional tax preparers'
+                : '✓ Trusted by 50,000+ satisfied customers'
+              }
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Clerk SignUp Form */}
+      <div className="flex items-center justify-center p-8 bg-background">
+        <div className="w-full max-w-md space-y-6">
+          <div className="text-center mb-8">
+            <Image
+              src="/images/wordpress-assets/taxgenius-logo.png"
+              alt="Tax Genius Pro"
+              width={200}
+              height={50}
+              className="h-12 w-auto mx-auto mb-6"
+            />
+            <h2 className="text-2xl font-bold mb-2">{content.ctaText}</h2>
+            <p className="text-sm text-muted-foreground">
+              {role === 'referrer'
+                ? 'Create your account and start earning in minutes'
+                : role === 'preparer'
+                ? 'Create your professional account to get started'
+                : 'Create your account to begin filing'
+              }
+            </p>
+          </div>
+
+          <SignUp
+            appearance={{
+              elements: {
+                rootBox: 'w-full',
+                card: 'shadow-xl border-2 border-primary/10',
+                headerTitle: 'hidden',
+                headerSubtitle: 'hidden',
+                socialButtonsBlockButton: 'border-2 hover:bg-accent',
+                formButtonPrimary: `bg-primary hover:bg-primary/90 text-lg py-3 ${
+                  role === 'referrer' ? 'bg-yellow-500 hover:bg-yellow-600' : ''
+                }`,
+                footerActionLink: 'text-primary hover:text-primary/80',
+                formFieldInput__emailAddress: 'hidden',
+                formFieldInput__password: 'hidden',
+                formFieldLabel__emailAddress: 'hidden',
+                formFieldLabel__password: 'hidden',
+                identityPreviewEditButton: 'hidden',
+              },
+            }}
+            redirectUrl={role ? `?role=${role}` : undefined}
+          />
+
+          <div className="text-center text-sm text-muted-foreground">
+            Already have an account?{' '}
+            <a href={`/auth/login${role ? `?role=${role}` : ''}`} className="text-primary hover:underline font-semibold">
+              Sign in
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function SignupPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <SignUp
-        appearance={{
-          elements: {
-            rootBox: 'mx-auto',
-            card: 'shadow-xl',
-          },
-        }}
-      />
-    </div>
-  )
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <SignupContent />
+    </Suspense>
+  );
 }

@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
         hostname: 'taxgenius.tax',
         pathname: '/wp-content/uploads/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
     ],
   },
   async redirects() {

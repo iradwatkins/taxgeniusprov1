@@ -23,7 +23,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useMarketingMaterials } from '@/hooks/useReferrerData'
 import { useToast } from '@/hooks/use-toast'
-import type { MarketingMaterial } from '@/lib/supabase'
+import type { MarketingMaterial } from '@/lib/types'
 
 interface MarketingHubProps {
   referralUrl?: string
@@ -52,11 +52,11 @@ export const MarketingHub: React.FC<MarketingHubProps> = ({ referralUrl = 'https
     }
   }
 
-  const handleShareUrl = (platform: string, material: MarketingMaterial) => {
-    const shareText = material.ad_copy ? 
-      `${material.ad_copy} ${referralUrl}` : 
+  const handleShareUrl = (platform: string, material: any) => {
+    const shareText = material.adCopy ?
+      `${material.adCopy} ${referralUrl}` :
       `Check out Tax Genius! ${referralUrl}`
-    
+
     if (platform === 'twitter') {
       window.open(
         `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`,
@@ -65,7 +65,7 @@ export const MarketingHub: React.FC<MarketingHubProps> = ({ referralUrl = 'https
       )
     } else if (platform === 'facebook') {
       window.open(
-        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralUrl)}&quote=${encodeURIComponent(material.ad_copy || 'Check out Tax Genius!')}`,
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralUrl)}&quote=${encodeURIComponent(material.adCopy || 'Check out Tax Genius!')}`,
         '_blank',
         'width=600,height=400'
       )
@@ -82,7 +82,7 @@ export const MarketingHub: React.FC<MarketingHubProps> = ({ referralUrl = 'https
     document.body.removeChild(link)
   }
 
-  const renderMaterialCard = (material: MarketingMaterial) => (
+  const renderMaterialCard = (material: any) => (
     <Card key={material.id} className="border-border">
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
@@ -94,17 +94,17 @@ export const MarketingHub: React.FC<MarketingHubProps> = ({ referralUrl = 'https
           </div>
           <div className="flex items-center gap-1 ml-2">
             <Badge variant="outline" className="text-xs">
-              {material.material_type}
+              {material.materialType || material.material_type}
             </Badge>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Image Preview */}
-        {material.image_url && (
+        {material.imageUrl && (
           <div className="relative">
             <img
-              src={material.image_url}
+              src={material.imageUrl}
               alt={material.title}
               className="w-full h-32 object-cover rounded-md border"
             />
@@ -112,7 +112,7 @@ export const MarketingHub: React.FC<MarketingHubProps> = ({ referralUrl = 'https
               size="sm"
               variant="secondary"
               className="absolute top-2 right-2"
-              onClick={() => handleDownloadImage(material.image_url!, material.title)}
+              onClick={() => handleDownloadImage(material.imageUrl!, material.title)}
             >
               <Download className="h-3 w-3" />
             </Button>
@@ -120,16 +120,16 @@ export const MarketingHub: React.FC<MarketingHubProps> = ({ referralUrl = 'https
         )}
 
         {/* Ad Copy */}
-        {material.ad_copy && (
+        {material.adCopy && (
           <div className="space-y-2">
             <div className="p-3 bg-muted rounded-md">
-              <p className="text-sm">{material.ad_copy}</p>
+              <p className="text-sm whitespace-pre-line">{material.adCopy}</p>
             </div>
             <Button
               size="sm"
               variant="outline"
               className="w-full"
-              onClick={() => handleCopyText(material.ad_copy!, material.id)}
+              onClick={() => handleCopyText(material.adCopy!, material.id)}
             >
               {copiedId === material.id ? (
                 <Check className="h-4 w-4 mr-2 text-green-600" />
@@ -178,7 +178,7 @@ export const MarketingHub: React.FC<MarketingHubProps> = ({ referralUrl = 'https
   )
 
   const filterMaterialsByType = (type: string) => {
-    return materials?.filter(material => material.material_type === type) || []
+    return materials?.filter(material => material.materialType === type) || []
   }
 
   if (isLoading) {

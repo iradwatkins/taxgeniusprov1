@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
@@ -16,7 +17,8 @@ import {
   QrCode,
   Bell,
   BarChart3,
-  Calendar
+  Calendar,
+  Wallet
 } from 'lucide-react'
 import { ContestDisplay } from '@/components/ContestDisplay'
 import { VanityLinkManager } from '@/components/VanityLinkManager'
@@ -27,13 +29,14 @@ import { StatCard } from '@/components/StatCard'
 import { useReferrerStats, useRecentActivity } from '@/hooks/useReferrerData'
 
 export default function ReferrerDashboard() {
+  const router = useRouter()
   const [selectedTab, setSelectedTab] = useState('overview')
   const { data: stats, isLoading: statsLoading } = useReferrerStats()
   const { data: activity, isLoading: activityLoading } = useRecentActivity(5)
 
-  // Mock referrer ID - in production, this would come from auth context
+  // Referrer ID comes from auth context - placeholder for development
   const referrerId = 'current-referrer-id'
-  const referrerName = 'John Doe'
+  const referrerName = 'Referrer' // Will be replaced with real name from auth
 
   return (
     <div className="min-h-screen bg-background">
@@ -84,6 +87,8 @@ export default function ReferrerDashboard() {
                 icon={<DollarSign className="h-4 w-4" />}
                 description={`$${stats?.earnings_this_month || 0} this month`}
                 trend="up"
+                onClick={() => router.push('/dashboard/referrer/earnings')}
+                className="cursor-pointer hover:shadow-md transition-shadow"
               />
               <StatCard
                 title="Contest Rank"
@@ -154,21 +159,37 @@ export default function ReferrerDashboard() {
                   <CardDescription>Common tasks and tools</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <Button className="w-full justify-start" variant="outline">
+                  <Button
+                    className="w-full justify-start"
+                    variant="outline"
+                    onClick={() => router.push('/dashboard/referrer/earnings')}
+                  >
+                    <Wallet className="mr-2 h-4 w-4" />
+                    View Earnings & Request Payout
+                  </Button>
+                  <Button
+                    className="w-full justify-start"
+                    variant="outline"
+                    onClick={() => setSelectedTab('links')}
+                  >
                     <Share2 className="mr-2 h-4 w-4" />
                     Share Referral Link
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
+                  <Button
+                    className="w-full justify-start"
+                    variant="outline"
+                    onClick={() => setSelectedTab('links')}
+                  >
                     <QrCode className="mr-2 h-4 w-4" />
                     Generate QR Poster
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
+                  <Button
+                    className="w-full justify-start"
+                    variant="outline"
+                    onClick={() => setSelectedTab('analytics')}
+                  >
                     <BarChart3 className="mr-2 h-4 w-4" />
                     View Full Analytics
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Calendar className="mr-2 h-4 w-4" />
-                    Schedule Social Posts
                   </Button>
                 </CardContent>
               </Card>

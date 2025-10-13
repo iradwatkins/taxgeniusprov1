@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Shield, Award, Phone, Clock, Globe, MessageCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export function Footer() {
   return (
@@ -174,11 +175,15 @@ export function Footer() {
         {/* Bottom Section - Legal & Compliance */}
         <div className="border-t py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <div className="flex flex-wrap justify-center md:justify-start gap-4">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
               <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
               <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
               <Link href="/security" className="hover:text-primary transition-colors">Security</Link>
               <Link href="/accessibility" className="hover:text-primary transition-colors">Accessibility</Link>
+              <div className="flex items-center gap-2">
+                <span>Theme:</span>
+                <ThemeToggle />
+              </div>
             </div>
             <div className="text-center md:text-right">
               <p>EFIN: 12-3456789 | IRS Registered</p>

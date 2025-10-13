@@ -3,7 +3,7 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 /**
  * User role types for Tax Genius platform
  */
-export type UserRole = 'client' | 'preparer' | 'referrer' | 'admin';
+export type UserRole = 'super_admin' | 'admin' | 'client' | 'tax_preparer' | 'referrer' | 'affiliate';
 
 /**
  * Get the current user's role from Clerk metadata
@@ -27,11 +27,20 @@ export async function hasRole(role: UserRole): Promise<boolean> {
 }
 
 /**
- * Check if current user is an admin
- * @returns True if user is admin
+ * Check if current user is a super admin
+ * @returns True if user is super_admin
+ */
+export async function isSuperAdmin(): Promise<boolean> {
+  return hasRole('super_admin');
+}
+
+/**
+ * Check if current user is an admin (includes super_admin)
+ * @returns True if user is admin or super_admin
  */
 export async function isAdmin(): Promise<boolean> {
-  return hasRole('admin');
+  const userRole = await getUserRole();
+  return userRole === 'admin' || userRole === 'super_admin';
 }
 
 /**
@@ -85,13 +94,41 @@ export async function requireRole(requiredRole: UserRole) {
  */
 export function getDashboardUrl(role: UserRole): string {
   const dashboardUrls: Record<UserRole, string> = {
-    client: '/dashboard/client',
-    preparer: '/dashboard/preparer',
-    referrer: '/dashboard/referrer',
+    super_admin: '/dashboard/admin',
     admin: '/dashboard/admin',
+    client: '/dashboard/client',
+    tax_preparer: '/dashboard/tax-preparer',
+    referrer: '/dashboard/referrer',
+    affiliate: '/dashboard/affiliate',
   };
 
   return dashboardUrls[role];
+}
+
+/**
+ * Check if user has access to the store
+ * Tax preparers, affiliates, admins, and super admins can access the store
+ * @returns True if user has store access
+ */
+export async function hasStoreAccess(): Promise<boolean> {
+  const userRole = await getUserRole();
+  return userRole === 'tax_preparer' || userRole === 'affiliate' || userRole === 'admin' || userRole === 'super_admin';
+}
+
+/**
+ * Require one of multiple roles - throws if user doesn't have any of the specified roles
+ * @param allowedRoles - Array of allowed roles
+ * @returns Authenticated user with role
+ */
+export async function requireOneOfRoles(allowedRoles: UserRole[]) {
+  const user = await requireAuth();
+  const userRole = user.publicMetadata?.role as UserRole;
+
+  if (!allowedRoles.includes(userRole)) {
+    throw new Error('Insufficient permissions');
+  }
+
+  return { user, role: userRole, profile: { id: user.id } };
 }
 
 /**

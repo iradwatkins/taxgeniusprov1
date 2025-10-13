@@ -14,14 +14,19 @@ const roles: { value: UserRole; label: string; description: string }[] = [
     description: 'I need tax preparation services',
   },
   {
-    value: 'preparer',
+    value: 'tax_preparer',
     label: 'Tax Preparer',
-    description: 'I prepare taxes for clients',
+    description: 'I prepare taxes and want customized marketing materials',
+  },
+  {
+    value: 'affiliate',
+    label: 'Affiliate Marketer',
+    description: 'I want to market tax services and earn referral commissions',
   },
   {
     value: 'referrer',
     label: 'Referrer',
-    description: 'I refer clients to tax preparers',
+    description: 'I refer clients to Tax Genius Pro',
   },
 ]
 
@@ -47,10 +52,12 @@ export default function SelectRolePage() {
 
       // Redirect to role-specific dashboard
       const dashboardUrls: Record<UserRole, string> = {
-        client: '/dashboard/client',
-        preparer: '/dashboard/preparer',
-        referrer: '/dashboard/referrer',
+        super_admin: '/dashboard/admin',
         admin: '/dashboard/admin',
+        client: '/dashboard/client',
+        tax_preparer: '/dashboard/tax-preparer',
+        referrer: '/dashboard/referrer',
+        affiliate: '/dashboard/affiliate',
       }
 
       router.push(dashboardUrls[selectedRole])
@@ -71,7 +78,7 @@ export default function SelectRolePage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {roles.map((role) => (
               <button
                 key={role.value}

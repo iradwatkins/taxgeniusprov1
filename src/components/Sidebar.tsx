@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { 
-  Home, 
-  Upload, 
-  Users, 
-  Trophy, 
-  DollarSign, 
-  QrCode, 
-  Link as LinkIcon, 
+import {
+  Home,
+  Upload,
+  Users,
+  Trophy,
+  DollarSign,
+  QrCode,
+  Link as LinkIcon,
   FileText,
   Settings,
   LogOut,
   Menu,
-  X
+  X,
+  GraduationCap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -58,6 +59,7 @@ const getNavItems = (role: UserRole): NavItem[] => {
         ...baseItems,
         { label: "Client List", href: "/dashboard/preparer/clients", icon: Users },
         { label: "Documents", href: "/dashboard/preparer/documents", icon: FileText },
+        { label: "Academy", href: "/app/academy", icon: GraduationCap },
         { label: "Settings", href: "/dashboard/preparer/settings", icon: Settings },
       ];
     default:

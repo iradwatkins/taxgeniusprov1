@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # Main PostgreSQL database for taxgeniuspro
+  postgres-main:
+    image: postgres:16-alpine
+    container_name: taxgeniuspro-postgres-main
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: template1
+    ports:
+      - "51214:5432"
+    volumes:
+      - taxgeniuspro-postgres-main-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Shadow database for Prisma migrations (development)
+  postgres-shadow:
+    image: postgres:16-alpine
+    container_name: taxgeniuspro-postgres-shadow
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: template1
+    ports:
+      - "51215:5432"
+    volumes:
+      - taxgeniuspro-postgres-shadow-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  taxgeniuspro-postgres-main-data:
+    driver: local
+  taxgeniuspro-postgres-shadow-data:
+    driver: local
