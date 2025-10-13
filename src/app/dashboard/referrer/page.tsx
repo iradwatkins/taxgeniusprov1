@@ -27,6 +27,9 @@ import { MarketingHub } from '@/components/MarketingHub'
 import { NotificationBell } from '@/components/NotificationBell'
 import { StatCard } from '@/components/StatCard'
 import { useReferrerStats, useRecentActivity } from '@/hooks/useReferrerData'
+import { MaterialsTable } from '@/components/analytics/MaterialsTable'
+import { ConversionFunnel } from '@/components/analytics/ConversionFunnel'
+import { SourceBreakdown } from '@/components/analytics/SourceBreakdown'
 
 export default function ReferrerDashboard() {
   const router = useRouter()
@@ -225,6 +228,28 @@ export default function ReferrerDashboard() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Top 5 Materials Preview */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Top 5 Performing Materials</CardTitle>
+                    <CardDescription>Your best marketing materials this month</CardDescription>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedTab('analytics')}
+                  >
+                    View All
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <MaterialsTable limit={5} dateRange="month" />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="links" className="space-y-4">
@@ -244,18 +269,18 @@ export default function ReferrerDashboard() {
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-4">
+            {/* Top 15 Materials Table */}
             <Card>
-              <CardHeader>
-                <CardTitle>Analytics Dashboard</CardTitle>
-                <CardDescription>Detailed performance metrics and insights</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-center py-12 text-muted-foreground">
-                  <BarChart3 className="h-12 w-12 mr-4" />
-                  <p>Advanced analytics coming soon...</p>
-                </div>
+              <CardContent className="pt-6">
+                <MaterialsTable limit={15} dateRange="all" />
               </CardContent>
             </Card>
+
+            {/* Funnel and Source Breakdown */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <ConversionFunnel dateRange="month" />
+              <SourceBreakdown dateRange="month" />
+            </div>
           </TabsContent>
         </Tabs>
       </div>
