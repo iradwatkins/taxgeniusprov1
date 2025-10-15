@@ -3,7 +3,7 @@
 import { UserButton, useUser } from '@clerk/nextjs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Bell, Menu } from 'lucide-react'
+import { Bell, Menu, Eye } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Moon, Sun } from 'lucide-react'
 import {
@@ -12,16 +12,33 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { RoleSwitcher } from '@/components/admin/RoleSwitcher'
+import { UserRole } from '@/lib/permissions'
 
 interface DashboardHeaderProps {
   onMenuClick?: () => void
+  actualRole?: UserRole
+  effectiveRole?: UserRole
+  isViewingAsOtherRole?: boolean
 }
 
-export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
+export function DashboardHeader({
+  onMenuClick,
+  actualRole,
+  effectiveRole,
+  isViewingAsOtherRole = false,
+}: DashboardHeaderProps) {
   const { user } = useUser()
   const { theme, setTheme } = useTheme()
 
-  const role = user?.publicMetadata?.role as string | undefined
+  // ALWAYS trust server props if provided (prevents flickering from stale Clerk cache)
+  // Only fall back to client-side user data if server didn't provide props
+  const role = effectiveRole ?? (user?.publicMetadata?.role as UserRole | undefined)
+  const realRole = actualRole ?? (user?.publicMetadata?.role as UserRole | undefined)
+
+  // If we have server props, don't let client data override them during hydration
+  const displayRole = (effectiveRole !== undefined) ? effectiveRole : role
+  const displayRealRole = (actualRole !== undefined) ? actualRole : realRole
 
   const getRoleBadgeColor = (role?: string) => {
     switch (role) {
@@ -76,6 +93,15 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
 
         {/* Right Side Actions */}
         <div className="flex items-center gap-2">
+          {/* Role Switcher - Only for admins */}
+          {(displayRealRole === 'super_admin' || displayRealRole === 'admin') && (
+            <RoleSwitcher
+              actualRole={displayRealRole}
+              effectiveRole={displayRole || 'client'}
+              isViewingAsOtherRole={isViewingAsOtherRole}
+            />
+          )}
+
           {/* Dark Mode Toggle */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -113,9 +139,10 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
               </p>
               <Badge
                 variant="secondary"
-                className={`mt-1 text-xs ${getRoleBadgeColor(role)}`}
+                className={`mt-1 text-xs flex items-center gap-1 ${getRoleBadgeColor(displayRole)}`}
               >
-                {formatRole(role)}
+                {isViewingAsOtherRole && <Eye className="h-3 w-3" />}
+                {formatRole(displayRole)}
               </Badge>
             </div>
 

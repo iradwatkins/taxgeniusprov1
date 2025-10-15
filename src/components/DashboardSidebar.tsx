@@ -70,6 +70,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { label: 'Calendar / Appointments', href: '/admin/calendar', icon: Calendar, permission: 'calendar', section: '👥 Management' },
   { label: 'Address Book', href: '/admin/address-book', icon: BookOpen, permission: 'addressBook', section: '👥 Management' },
   { label: 'Client File Centers', href: '/admin/file-center', icon: FolderOpen, permission: 'clientFileCenter', section: '👥 Management' },
+  { label: 'Payouts', href: '/admin/payouts', icon: DollarSign, permission: 'payouts', section: '👥 Management' },
 
   // 📊 Analytics Section (Admin only)
   { label: 'Analytics Overview', href: '/admin/analytics', icon: BarChart3, permission: 'analytics', section: '📊 Analytics', roles: ['admin', 'super_admin'] },
@@ -99,11 +100,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { label: 'Content Generator', href: '/admin/content-generator', icon: Sparkles, permission: 'contentGenerator', section: '📢 Marketing' },
   { label: 'Contest', href: '/dashboard/referrer/contest', icon: Trophy, permission: 'contest', section: '📢 Marketing' },
   { label: 'Marketing Tools', href: '/dashboard/referrer/marketing', icon: QrCode, permission: 'marketing', section: '📢 Marketing' },
-
-  // 🛍️ Store Section
-  { label: 'Store', href: '/store', icon: Package, permission: 'store', section: '🛍️ Store' },
-  { label: 'Payouts', href: '/admin/payouts', icon: DollarSign, permission: 'payouts', section: '🛍️ Store' },
-  { label: 'Earnings', href: '/dashboard/earnings', icon: DollarSign, permission: 'earnings', section: '🛍️ Store' },
+  { label: 'Store', href: '/store', icon: Package, permission: 'store', section: '📢 Marketing' },
 
   // ⚙️ System Controls Section
   { label: 'User Management', href: '/admin/users', icon: Users, permission: 'users', section: '⚙️ System Controls' },
@@ -114,9 +111,6 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { label: 'Quick Share Links', href: '/admin/quick-share', icon: Link2, permission: 'quickShareLinks', section: '🔗 Quick Share Tools' },
   { label: 'Tax Prep Referral Link', href: '/admin/quick-share#referral', icon: Share2, permission: 'quickShareLinks', section: '🔗 Quick Share Tools' },
   { label: 'Tax Prep Share Link', href: '/admin/quick-share#share', icon: Share2, permission: 'quickShareLinks', section: '🔗 Quick Share Tools' },
-
-  // Other role-specific items (these don't appear separately for admin)
-  { label: 'Client List', href: '/dashboard/tax-preparer/clients', icon: Users, permission: 'clients', section: '👥 Management' },
 ]
 
 // Dashboard routes by role (for redirecting to correct dashboard)
@@ -137,7 +131,9 @@ export function DashboardSidebar({
   className,
 }: DashboardSidebarProps) {
   const [internalCollapsed, setInternalCollapsed] = useState(false)
-  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({})
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
+    '⚙️ System Controls': true, // Keep System Controls collapsed by default
+  })
   const pathname = usePathname()
 
   // Use controlled state if provided, otherwise use internal state
@@ -253,7 +249,7 @@ export function DashboardSidebar({
             // Define section order for consistent display
             <div className="space-y-4">
               {['🧩 Admin Side Navigation', '👥 Management', '📊 Analytics', '🎓 Learning Center',
-               '📢 Marketing', '🛍️ Store', '⚙️ System Controls', '🔗 Quick Share Tools'].map((sectionName, sectionIndex) => {
+               '📢 Marketing', '⚙️ System Controls', '🔗 Quick Share Tools'].map((sectionName, sectionIndex) => {
                 const items = groupedItems[sectionName];
                 if (!items || items.length === 0) return null;
 
@@ -322,7 +318,7 @@ export function DashboardSidebar({
                     )}
 
                     {/* Add separator between sections (except last) */}
-                    {sectionIndex < 7 && !isCollapsed && (
+                    {sectionIndex < 6 && !isCollapsed && (
                       <div className="mt-2 border-b border-border/30" />
                     )}
                   </div>

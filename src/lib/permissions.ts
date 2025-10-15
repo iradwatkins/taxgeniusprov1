@@ -97,7 +97,7 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     documents: true,
     store: true,
     academy: true,
-    earnings: true,
+    earnings: false, // Removed from all dashboards
     settings: true,
     marketing: true,
     uploadDocuments: true,
@@ -111,9 +111,9 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     clientFileCenter: true,
     googleAnalytics: true,
     referralsAnalytics: true,
-    learningCenter: true,
+    learningCenter: false, // Removed from all dashboards
     marketingHub: true,
-    quickShareLinks: true,
+    quickShareLinks: false, // Removed from all dashboards
     alerts: true,
   },
   admin: {
@@ -129,7 +129,7 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     settings: true,
     // Client Management - some restricted
     clientsStatus: true,
-    clients: true,
+    clients: false, // Removed client list access
     clientFileCenter: false, // Restricted - contains sensitive client files
     documents: false, // Restricted - sensitive documents
     uploadDocuments: false,
@@ -143,52 +143,59 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     // Growth & Marketing - available
     referralsStatus: true,
     contest: false,
-    quickShareLinks: true,
+    quickShareLinks: false, // Removed from all dashboards
     // Content & Learning - available
-    learningCenter: true,
+    learningCenter: false, // Removed from all dashboards
     academy: true,
     // Marketing Materials - available
     marketingHub: true,
     marketing: true,
     // Financial - some restricted
     payouts: true,
-    earnings: true,
+    earnings: false, // Removed from all dashboards
     store: true,
   },
   tax_preparer: {
     // Tax preparers see client-focused features
     dashboard: true,
-    clients: true,
+    clients: false, // Removed client list access
     documents: true,
     store: true,
     academy: true,
-    earnings: true,
+    earnings: false, // Removed from all dashboards
     settings: true,
     analytics: true, // Can view their own lead analytics
     trackingCode: true, // Can manage their tracking code
-    quickShareLinks: true, // Can create short links for marketing
+    quickShareLinks: false, // Removed from all dashboards
+    // Management features
+    clientsStatus: true,
+    referralsStatus: true,
+    emails: true,
+    calendar: true,
+    addressBook: true,
+    clientFileCenter: true,
   },
   affiliate: {
     // Affiliates see minimal features
     dashboard: true,
-    earnings: true,
+    earnings: false, // Removed from all dashboards
     store: true,
     marketing: true,
     settings: true,
     analytics: true, // Can view their own affiliate analytics
     trackingCode: true, // Can manage their tracking code
-    quickShareLinks: true, // Can create short links for marketing
+    quickShareLinks: false, // Removed from all dashboards
   },
   referrer: {
     // Referrers see referral-focused features
     dashboard: true,
-    earnings: true,
+    earnings: false, // Removed from all dashboards
     contest: true,
     marketing: true,
     settings: true,
     analytics: true, // Can view their own referral analytics
     trackingCode: true, // Can manage their tracking code
-    quickShareLinks: true, // Can create short links for marketing
+    quickShareLinks: false, // Removed from all dashboards
   },
   client: {
     // Clients only see their own data
@@ -252,6 +259,26 @@ export function getUserPermissions(
 }
 
 /**
+ * Get effective permissions for a user considering viewing role
+ * Used for admin "View As" functionality
+ */
+export function getEffectivePermissions(
+  actualRole: UserRole,
+  effectiveRole: UserRole,
+  customPermissions?: Partial<UserPermissions>
+): Partial<UserPermissions> & { isViewingAsOtherRole: boolean; actualRole: UserRole } {
+  // Get permissions for the effective role (what user sees)
+  const permissions = getUserPermissions(effectiveRole, customPermissions);
+
+  // Add metadata about viewing state
+  return {
+    ...permissions,
+    isViewingAsOtherRole: actualRole !== effectiveRole,
+    actualRole,
+  };
+}
+
+/**
  * Check if user has a specific permission
  */
 export function hasPermission(
@@ -290,9 +317,8 @@ export function getEditablePermissions(role: UserRole): Permission[] {
         'clientFileCenter',
         'googleAnalytics',
         'referralsAnalytics',
-        'learningCenter',
         'marketingHub',
-        'quickShareLinks',
+        // Removed: learningCenter, quickShareLinks, earnings
       ];
 
     case 'tax_preparer':
@@ -303,35 +329,39 @@ export function getEditablePermissions(role: UserRole): Permission[] {
         'documents',
         'store',
         'academy',
-        'earnings',
         'settings',
         'analytics',
         'trackingCode',
-        'quickShareLinks',
+        // Management features
+        'clientsStatus',
+        'referralsStatus',
+        'emails',
+        'calendar',
+        'addressBook',
+        'clientFileCenter',
+        // Removed: earnings, quickShareLinks
       ];
 
     case 'affiliate':
       return [
         'dashboard',
-        'earnings',
         'store',
         'marketing',
         'settings',
         'analytics',
         'trackingCode',
-        'quickShareLinks',
+        // Removed: earnings, quickShareLinks
       ];
 
     case 'referrer':
       return [
         'dashboard',
-        'earnings',
         'contest',
         'marketing',
         'settings',
         'analytics',
         'trackingCode',
-        'quickShareLinks',
+        // Removed: earnings, quickShareLinks
       ];
 
     case 'client':
