@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { Header } from '@/components/header';
+import { ShortLinkTracker } from '@/components/tracking/ShortLinkTracker';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -43,6 +44,11 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Track short link clicks */}
+      <Suspense fallback={null}>
+        <ShortLinkTracker />
+      </Suspense>
+
       <Header />
       {/* Hero Section */}
       <section className="relative py-20 lg:py-32 overflow-hidden">

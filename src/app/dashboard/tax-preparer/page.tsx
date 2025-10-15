@@ -47,7 +47,9 @@ import {
   ShoppingCart,
   Package,
   CreditCard,
-  Sparkles
+  Sparkles,
+  Award,
+  Briefcase
 } from 'lucide-react'
 import Link from 'next/link'
 import { useToast } from '@/hooks/use-toast'

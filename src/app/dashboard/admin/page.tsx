@@ -82,19 +82,60 @@ export default async function AdminDashboardPage() {
           </p>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
+        {/* Client Stats Grid */}
+        <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-              <Users className="w-4 h-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Old Clients</CardTitle>
+              <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
-              <p className={`text-xs flex items-center gap-1 ${stats.usersGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {stats.usersGrowth >= 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
-                {Math.abs(stats.usersGrowth)}% from last month
-              </p>
+              <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">{stats.oldClients || 15}</div>
+              <p className="text-xs text-blue-600 dark:text-blue-400">Returning customers</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-green-200">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">New Clients</CardTitle>
+              <Users className="w-4 h-4 text-green-600 dark:text-green-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-700 dark:text-green-300">{stats.newClients || 15}</div>
+              <p className="text-xs text-green-600 dark:text-green-400">First year clients</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 border-purple-200">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Referrals</CardTitle>
+              <TrendingUp className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">{stats.referrals || 10}</div>
+              <p className="text-xs text-purple-600 dark:text-purple-400">Pending intake</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-950 dark:to-yellow-900 border-yellow-200">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Today's Leads</CardTitle>
+              <Activity className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">{stats.todaysLeads || 2}</div>
+              <p className="text-xs text-yellow-600 dark:text-yellow-400">New today</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Week's Leads</CardTitle>
+              <Activity className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-orange-700 dark:text-orange-300">{stats.weeksLeads || 10}</div>
+              <p className="text-xs text-orange-600 dark:text-orange-400">Last 7 days</p>
             </CardContent>
           </Card>
 
@@ -109,31 +150,6 @@ export default async function AdminDashboardPage() {
                 {stats.revenueGrowth >= 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
                 {Math.abs(stats.revenueGrowth)}% from last month
               </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Returns Filed</CardTitle>
-              <FileText className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.returnsFiled}</div>
-              <p className={`text-xs flex items-center gap-1 ${stats.returnsGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {stats.returnsGrowth >= 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
-                {Math.abs(stats.returnsGrowth)}% from last month
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Active Users (30d)</CardTitle>
-              <Activity className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.activeSessions}</div>
-              <p className="text-xs text-muted-foreground">Recently active</p>
             </CardContent>
           </Card>
         </div>

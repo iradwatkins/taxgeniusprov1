@@ -18,6 +18,7 @@ import {
   Lightbulb,
   BarChart3,
   ExternalLink,
+  Eye,
 } from 'lucide-react'
 
 export const metadata = {

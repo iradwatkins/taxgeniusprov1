@@ -24,8 +24,19 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   GraduationCap,
   MessageSquare,
+  Mail,
+  Calendar,
+  BookOpen,
+  FolderOpen,
+  TrendingUp,
+  Share2,
+  Bell,
+  Megaphone,
+  Globe,
+  Link2,
 } from 'lucide-react'
 import { UserRole, UserPermissions, Permission } from '@/lib/permissions'
 
@@ -35,6 +46,8 @@ interface NavItem {
   icon: React.ElementType
   badge?: string
   permission: Permission
+  section?: string // Add section for grouping
+  roles?: UserRole[] // Restrict to specific roles
 }
 
 interface DashboardSidebarProps {
@@ -47,39 +60,63 @@ interface DashboardSidebarProps {
 
 // All possible navigation items with their permission requirements
 const ALL_NAV_ITEMS: NavItem[] = [
-  // Dashboard - always first
-  { label: 'Dashboard', href: '/dashboard', icon: Home, permission: 'dashboard' },
+  // 🧩 Admin Side Navigation Section
+  { label: 'Dashboard (Overview)', href: '/dashboard', icon: Home, permission: 'dashboard', section: '🧩 Admin Side Navigation' },
 
-  // Admin features
-  { label: 'User Management', href: '/admin/users', icon: Users, permission: 'users' },
-  { label: 'Payouts', href: '/admin/payouts', icon: DollarSign, permission: 'payouts' },
-  { label: 'Content Generator', href: '/admin/content-generator', icon: Sparkles, permission: 'contentGenerator' },
-  { label: 'Database', href: '/admin/database', icon: Database, permission: 'database' },
-  { label: 'Analytics', href: '/admin/analytics', icon: BarChart3, permission: 'analytics' },
+  // 👥 Management Section
+  { label: 'Clients Status', href: '/admin/clients-status', icon: UserCheck, permission: 'clientsStatus', section: '👥 Management' },
+  { label: 'Referrals Status', href: '/admin/referrals-status', icon: Users, permission: 'referralsStatus', section: '👥 Management' },
+  { label: 'Emails', href: '/admin/emails', icon: Mail, permission: 'emails', section: '👥 Management' },
+  { label: 'Calendar / Appointments', href: '/admin/calendar', icon: Calendar, permission: 'calendar', section: '👥 Management' },
+  { label: 'Address Book', href: '/admin/address-book', icon: BookOpen, permission: 'addressBook', section: '👥 Management' },
+  { label: 'Client File Centers', href: '/admin/file-center', icon: FolderOpen, permission: 'clientFileCenter', section: '👥 Management' },
 
-  // Tax Preparer features
-  { label: 'Client List', href: '/dashboard/tax-preparer/clients', icon: Users, permission: 'clients' },
-  { label: 'Documents', href: '/dashboard/tax-preparer/documents', icon: FileText, permission: 'documents' },
-  { label: 'Store', href: '/store', icon: Package, permission: 'store' },
-  { label: 'Academy', href: '/app/academy', icon: GraduationCap, permission: 'academy' },
+  // 📊 Analytics Section (Admin only)
+  { label: 'Analytics Overview', href: '/admin/analytics', icon: BarChart3, permission: 'analytics', section: '📊 Analytics', roles: ['admin', 'super_admin'] },
+  { label: 'Tax Genius Analytics', href: '/admin/analytics/tax-genius', icon: Sparkles, permission: 'analytics', section: '📊 Analytics', roles: ['admin', 'super_admin'] },
+  { label: 'Tax Preparers Analytics', href: '/admin/analytics/preparers', icon: Users, permission: 'analytics', section: '📊 Analytics', roles: ['admin', 'super_admin'] },
+  { label: 'Affiliates Analytics', href: '/admin/analytics/affiliates', icon: Trophy, permission: 'analytics', section: '📊 Analytics', roles: ['admin', 'super_admin'] },
+  { label: 'Clients Analytics', href: '/admin/analytics/clients', icon: TrendingUp, permission: 'analytics', section: '📊 Analytics', roles: ['admin', 'super_admin'] },
 
-  // Affiliate features
-  { label: 'Leads', href: '/dashboard/affiliate/leads', icon: Users, permission: 'leads' },
-  { label: 'Marketing Materials', href: '/dashboard/affiliate/marketing', icon: Briefcase, permission: 'marketing' },
+  // Role-specific Analytics (for non-admin users)
+  { label: 'My Analytics', href: '/dashboard/tax-preparer/analytics', icon: BarChart3, permission: 'analytics', section: '📊 My Analytics', roles: ['tax_preparer'] },
+  { label: 'My Analytics', href: '/dashboard/affiliate/analytics', icon: BarChart3, permission: 'analytics', section: '📊 My Analytics', roles: ['affiliate'] },
+  { label: 'My Analytics', href: '/dashboard/referrer/analytics', icon: BarChart3, permission: 'analytics', section: '📊 My Analytics', roles: ['referrer'] },
 
-  // Referrer features
-  { label: 'Referrals', href: '/dashboard/referrer/referrals', icon: Users, permission: 'referrals' },
-  { label: 'Contest', href: '/dashboard/referrer/contest', icon: Trophy, permission: 'contest' },
-  { label: 'Marketing Tools', href: '/dashboard/referrer/marketing', icon: QrCode, permission: 'marketing' },
+  // Tracking Code (for users with marketing features)
+  { label: 'My Tracking Code', href: '/dashboard/tax-preparer/tracking', icon: QrCode, permission: 'trackingCode', section: '📢 Marketing', roles: ['tax_preparer'] },
+  { label: 'My Tracking Code', href: '/dashboard/affiliate/tracking', icon: QrCode, permission: 'trackingCode', section: '📢 Marketing', roles: ['affiliate'] },
+  { label: 'My Tracking Code', href: '/dashboard/referrer/tracking', icon: QrCode, permission: 'trackingCode', section: '📢 Marketing', roles: ['referrer'] },
 
-  // Client features
-  { label: 'Upload Documents', href: '/upload-documents', icon: Upload, permission: 'uploadDocuments' },
-  { label: 'My Returns', href: '/dashboard/client/returns', icon: FileText, permission: 'returns' },
-  { label: 'Messages', href: '/dashboard/client/messages', icon: MessageSquare, permission: 'messages' },
+  // 🎓 Learning Center Section
+  { label: 'Learning Center', href: '/admin/learning-center', icon: GraduationCap, permission: 'learningCenter', section: '🎓 Learning Center' },
+  { label: 'Academy', href: '/app/academy', icon: GraduationCap, permission: 'academy', section: '🎓 Learning Center' },
 
-  // Common features (always last)
-  { label: 'Earnings', href: '/dashboard/earnings', icon: DollarSign, permission: 'earnings' },
-  { label: 'Settings', href: '/dashboard/settings', icon: Settings, permission: 'settings' },
+  // 📢 Marketing Section
+  { label: 'Marketing Hub', href: '/admin/marketing-hub', icon: Megaphone, permission: 'marketingHub', section: '📢 Marketing' },
+  { label: 'Tracking Codes', href: '/admin/tracking-codes', icon: QrCode, permission: 'marketingHub', section: '📢 Marketing', roles: ['admin', 'super_admin'] },
+  { label: 'Marketing Materials', href: '/dashboard/affiliate/marketing', icon: Briefcase, permission: 'marketing', section: '📢 Marketing' },
+  { label: 'Content Generator', href: '/admin/content-generator', icon: Sparkles, permission: 'contentGenerator', section: '📢 Marketing' },
+  { label: 'Contest', href: '/dashboard/referrer/contest', icon: Trophy, permission: 'contest', section: '📢 Marketing' },
+  { label: 'Marketing Tools', href: '/dashboard/referrer/marketing', icon: QrCode, permission: 'marketing', section: '📢 Marketing' },
+
+  // 🛍️ Store Section
+  { label: 'Store', href: '/store', icon: Package, permission: 'store', section: '🛍️ Store' },
+  { label: 'Payouts', href: '/admin/payouts', icon: DollarSign, permission: 'payouts', section: '🛍️ Store' },
+  { label: 'Earnings', href: '/dashboard/earnings', icon: DollarSign, permission: 'earnings', section: '🛍️ Store' },
+
+  // ⚙️ System Controls Section
+  { label: 'User Management', href: '/admin/users', icon: Users, permission: 'users', section: '⚙️ System Controls' },
+  { label: 'Settings', href: '/dashboard/settings', icon: Settings, permission: 'settings', section: '⚙️ System Controls' },
+  { label: 'Database', href: '/admin/database', icon: Database, permission: 'database', section: '⚙️ System Controls' },
+
+  // 🔗 Quick Share Tools Section
+  { label: 'Quick Share Links', href: '/admin/quick-share', icon: Link2, permission: 'quickShareLinks', section: '🔗 Quick Share Tools' },
+  { label: 'Tax Prep Referral Link', href: '/admin/quick-share#referral', icon: Share2, permission: 'quickShareLinks', section: '🔗 Quick Share Tools' },
+  { label: 'Tax Prep Share Link', href: '/admin/quick-share#share', icon: Share2, permission: 'quickShareLinks', section: '🔗 Quick Share Tools' },
+
+  // Other role-specific items (these don't appear separately for admin)
+  { label: 'Client List', href: '/dashboard/tax-preparer/clients', icon: Users, permission: 'clients', section: '👥 Management' },
 ]
 
 // Dashboard routes by role (for redirecting to correct dashboard)
@@ -100,6 +137,7 @@ export function DashboardSidebar({
   className,
 }: DashboardSidebarProps) {
   const [internalCollapsed, setInternalCollapsed] = useState(false)
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({})
   const pathname = usePathname()
 
   // Use controlled state if provided, otherwise use internal state
@@ -113,9 +151,20 @@ export function DashboardSidebar({
     }
   }
 
-  // Generate navigation items dynamically based on user's permissions
+  // Generate navigation items dynamically based on user's permissions AND role
   const navItems = ALL_NAV_ITEMS
-    .filter((item) => permissions[item.permission] === true)
+    .filter((item) => {
+      // Check permission first
+      if (permissions[item.permission] !== true) return false
+
+      // If item has role restrictions, check if user's role is included
+      if (item.roles && item.roles.length > 0) {
+        return item.roles.includes(role)
+      }
+
+      // No role restrictions, show to all users with permission
+      return true
+    })
     .map((item) => {
       // Dashboard is special - update href based on role
       if (item.permission === 'dashboard') {
@@ -152,6 +201,28 @@ export function DashboardSidebar({
       return item
     })
 
+  // Group items by section for admin users
+  const groupedItems = navItems.reduce((acc, item) => {
+    const section = item.section || 'Other'
+    if (!acc[section]) {
+      acc[section] = []
+    }
+    acc[section].push(item)
+    return acc
+  }, {} as Record<string, typeof navItems>)
+
+  // Debug: Log the role and grouped items
+  console.log('Dashboard Sidebar Debug:', {
+    role,
+    isAdminOrSuperAdmin: role === 'admin' || role === 'super_admin',
+    totalNavItems: navItems.length,
+    sections: Object.keys(groupedItems),
+    itemsPerSection: Object.entries(groupedItems).map(([section, items]) => ({
+      section,
+      count: items.length
+    }))
+  })
+
   return (
     <div
       className={cn(
@@ -176,36 +247,119 @@ export function DashboardSidebar({
 
       {/* Sidebar Content */}
       <ScrollArea className="flex-1 py-4">
-        <nav className="space-y-1 px-2">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
-            const Icon = item.icon
+        <nav className="px-2">
+          {(role === 'admin' || role === 'super_admin') ? (
+            // Render with sections for admin users - ordered sections
+            // Define section order for consistent display
+            <div className="space-y-4">
+              {['🧩 Admin Side Navigation', '👥 Management', '📊 Analytics', '🎓 Learning Center',
+               '📢 Marketing', '🛍️ Store', '⚙️ System Controls', '🔗 Quick Share Tools'].map((sectionName, sectionIndex) => {
+                const items = groupedItems[sectionName];
+                if (!items || items.length === 0) return null;
 
-            return (
-              <Link key={item.href} href={item.href}>
-                <div
-                  className={cn(
-                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                    'hover:bg-accent hover:text-accent-foreground',
-                    isActive && 'bg-accent text-accent-foreground',
-                    !isActive && 'text-muted-foreground'
-                  )}
-                >
-                  <Icon className="h-5 w-5 flex-shrink-0" />
-                  {!isCollapsed && (
-                    <>
-                      <span className="flex-1">{item.label}</span>
-                      {item.badge && (
-                        <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-                          {item.badge}
-                        </span>
-                      )}
-                    </>
-                  )}
-                </div>
-              </Link>
-            )
-          })}
+                const isSectionCollapsed = collapsedSections[sectionName] ?? false;
+
+                return (
+                  <div key={sectionName} className="space-y-1">
+                    {/* Section header with collapsible button */}
+                    {!isCollapsed && (
+                      <button
+                        onClick={() => setCollapsedSections(prev => ({
+                          ...prev,
+                          [sectionName]: !prev[sectionName]
+                        }))}
+                        className={cn(
+                          "w-full flex items-center justify-between mb-2 px-3 py-2 rounded-md border transition-colors hover:bg-accent/50",
+                          sectionIndex === 0 ? "bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20" : "bg-muted/30 border-border/50"
+                        )}
+                      >
+                        <h3 className="text-xs font-bold tracking-wide text-foreground/90">
+                          {sectionName}
+                        </h3>
+                        <ChevronDown
+                          className={cn(
+                            "h-4 w-4 transition-transform duration-200",
+                            isSectionCollapsed && "-rotate-90"
+                          )}
+                        />
+                      </button>
+                    )}
+
+                    {/* Section Items - only show if not collapsed */}
+                    {(!isSectionCollapsed || isCollapsed) && (
+                      <div className="space-y-0.5">
+                        {items.map((item) => {
+                          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
+                          const Icon = item.icon
+
+                          return (
+                            <Link key={item.href} href={item.href}>
+                              <div
+                                className={cn(
+                                  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                                  !isCollapsed && !isSectionCollapsed && "ml-2",
+                                  'hover:bg-accent hover:text-accent-foreground',
+                                  isActive && 'bg-accent text-accent-foreground',
+                                  !isActive && 'text-muted-foreground'
+                                )}
+                              >
+                                <Icon className="h-5 w-5 flex-shrink-0" />
+                                {!isCollapsed && (
+                                  <>
+                                    <span className="flex-1">{item.label}</span>
+                                    {item.badge && (
+                                      <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                                        {item.badge}
+                                      </span>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </Link>
+                          )
+                        })}
+                      </div>
+                    )}
+
+                    {/* Add separator between sections (except last) */}
+                    {sectionIndex < 7 && !isCollapsed && (
+                      <div className="mt-2 border-b border-border/30" />
+                    )}
+                  </div>
+                )
+              })}</div>
+          ) : (
+            // Render flat list for non-admin users
+            navItems.map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
+              const Icon = item.icon
+
+              return (
+                <Link key={item.href} href={item.href}>
+                  <div
+                    className={cn(
+                      'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                      'hover:bg-accent hover:text-accent-foreground',
+                      isActive && 'bg-accent text-accent-foreground',
+                      !isActive && 'text-muted-foreground'
+                    )}
+                  >
+                    <Icon className="h-5 w-5 flex-shrink-0" />
+                    {!isCollapsed && (
+                      <>
+                        <span className="flex-1">{item.label}</span>
+                        {item.badge && (
+                          <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                            {item.badge}
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </Link>
+              )
+            })
+          )}
         </nav>
       </ScrollArea>
 

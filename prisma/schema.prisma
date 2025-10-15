@@ -92,6 +92,12 @@ model Profile {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  // Universal Tracking System (Auto-generated on signup)
+  trackingCode        String?  @unique // Auto-generated unique code (e.g., "TGP-123456")
+  customTrackingCode  String?  @unique // One-time customizable vanity code
+  trackingCodeChanged Boolean  @default(false) // Enforce one-time change rule
+  trackingCodeQRUrl   String?  @db.Text // Pre-generated QR code data URL
+
   // Encrypted sensitive data
   ssn         String? // Encrypted
   dateOfBirth String? // Encrypted
@@ -117,6 +123,8 @@ model Profile {
   @@index([role])
   @@index([vanitySlug])
   @@index([clerkUserId])
+  @@index([trackingCode])
+  @@index([customTrackingCode])
   @@map("profiles")
 }
 

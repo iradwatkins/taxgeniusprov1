@@ -34,6 +34,7 @@ import {
   UserX,
 } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
+import { ClientImportExport } from '@/components/tax-preparer/ClientImportExport'
 
 export const metadata = {
   title: 'Clients | Tax Genius Pro',
@@ -48,46 +49,50 @@ async function isTaxPreparer() {
 }
 
 async function getPreparerClients(preparerId: string) {
-  // Get tax returns assigned to this preparer
-  const taxReturns = await prisma.taxReturn.findMany({
+  // Get clients assigned to this preparer through ClientPreparer table
+  const clientPreparers = await prisma.clientPreparer.findMany({
     where: {
       preparerId: preparerId,
+      isActive: true,
     },
     include: {
-      profile: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          email: true,
-          phone: true,
-        },
-      },
-      documents: {
-        select: {
-          id: true,
+      client: {
+        include: {
+          taxReturns: {
+            orderBy: {
+              taxYear: 'desc',
+            },
+            take: 1, // Get most recent tax return
+            include: {
+              documents: true,
+            },
+          },
         },
       },
     },
     orderBy: {
-      updatedAt: 'desc',
+      assignedAt: 'desc',
     },
   })
 
   // Transform to client format
-  return taxReturns.map((taxReturn) => ({
-    id: taxReturn.profile.id,
-    name: `${taxReturn.profile.firstName} ${taxReturn.profile.lastName}`,
-    email: taxReturn.profile.email,
-    phone: taxReturn.profile.phone || 'N/A',
-    status: 'Active',
-    returnStatus: mapTaxReturnStatus(taxReturn.status),
-    year: taxReturn.taxYear,
-    lastContact: taxReturn.updatedAt.toISOString().split('T')[0],
-    documents: taxReturn.documents.length,
-    missingDocs: 0, // TODO: Calculate based on required documents
-    taxReturnId: taxReturn.id,
-  }))
+  return clientPreparers.map(({client, assignedAt}) => {
+    const latestReturn = client.taxReturns[0]
+
+    return {
+      id: client.id,
+      name: `${client.firstName || ''} ${client.lastName || ''}`.trim() || 'N/A',
+      email: client.clerkUserId || 'N/A',
+      phone: client.phone || 'N/A',
+      status: 'Active',
+      returnStatus: latestReturn ? mapTaxReturnStatus(latestReturn.status) : 'Not Started',
+      year: latestReturn?.taxYear || new Date().getFullYear(),
+      lastContact: latestReturn?.updatedAt?.toISOString().split('T')[0] || assignedAt.toISOString().split('T')[0],
+      documents: latestReturn?.documents?.length || 0,
+      missingDocs: 0, // TODO: Calculate based on required documents
+      taxReturnId: latestReturn?.id || null,
+    }
+  })
 }
 
 function mapTaxReturnStatus(status: string): string {
@@ -168,10 +173,13 @@ export default async function TaxPreparerClientsPage() {
             View and manage your client list
           </p>
         </div>
-        <Button>
-          <UserPlus className="w-4 h-4 mr-2" />
-          Add Client
-        </Button>
+        <div className="flex items-center gap-2">
+          <ClientImportExport />
+          <Button>
+            <UserPlus className="w-4 h-4 mr-2" />
+            Add Client
+          </Button>
+        </div>
       </div>
 
       {/* Empty State */}
