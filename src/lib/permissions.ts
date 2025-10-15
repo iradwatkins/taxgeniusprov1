@@ -83,6 +83,24 @@ export type UserRole = 'super_admin' | 'admin' | 'tax_preparer' | 'affiliate' | 
  * Default permissions for each role
  * These are the baseline permissions that can be customized by super_admin
  *
+ * ==================================================================================
+ * QUICK REFERENCE: WHAT MAKES EACH ROLE UNIQUE
+ * ==================================================================================
+ *
+ * 🛡️  SUPER ADMIN:    Database, Permissions, Google Analytics, All Client Files, Alerts
+ * 👑 ADMIN:          User Management, Payouts, Content Generator, System-wide Analytics
+ * 📊 TAX PREPARER:   Client Documents (their clients only), Lead Tracking, Academy
+ * 🤝 AFFILIATE:      Marketing Store, Professional Marketing Materials, Conversion Tracking
+ * 🎯 REFERRER:       Contests (unique!), Simple Referrals, NO Store Access
+ * 👤 CLIENT:         Upload Documents Only (most restricted)
+ *
+ * KEY DIFFERENTIATORS:
+ * - AFFILIATE has 'store' access, REFERRER does not
+ * - REFERRER has 'contest' access, AFFILIATE does not
+ * - TAX PREPARER sees only THEIR clients (backend filtered), not all system clients
+ * - Only SUPER ADMIN can access database, manage permissions, and see all client files
+ *
+ * ==================================================================================
  * ROLE HIERARCHY:
  *
  * 1. SUPER_ADMIN (Highest Level - Full System Control)
@@ -103,8 +121,28 @@ export type UserRole = 'super_admin' | 'admin' | 'tax_preparer' | 'affiliate' | 
  *    - Phone alerts DISABLED by default (alerts: false)
  *    - Can be customized by super_admin to grant additional permissions
  *
- * 3. TAX_PREPARER, AFFILIATE, REFERRER, CLIENT
- *    - Role-specific limited permissions
+ * 3. TAX_PREPARER (Independent Tax Professional)
+ *    - Manages THEIR OWN assigned clients only
+ *    - Has client documents and file access (scoped to their clients)
+ *    - Has tracking code for lead generation
+ *    - CANNOT see other preparers' clients or system-wide data
+ *
+ * 4. AFFILIATE (External Professional Marketer)
+ *    - Promotes TaxGeniusPro through professional marketing campaigns
+ *    - Has store access for marketing materials
+ *    - Sophisticated tracking and analytics
+ *    - CANNOT access any client data or admin features
+ *
+ * 5. REFERRER (Word-of-Mouth Promoter)
+ *    - Refers friends and family casually
+ *    - Can participate in referral contests (unlike affiliates)
+ *    - Simple tracking and basic analytics
+ *    - NO store access (not professional marketers)
+ *
+ * 6. CLIENT (Tax Service Customer)
+ *    - Most restricted role
+ *    - Can only upload documents and view their own status
+ *    - Cannot access any admin or marketing features
  */
 export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
   super_admin: {
@@ -184,46 +222,50 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     store: true,
   },
   tax_preparer: {
-    // Tax preparers see client-focused features
+    // Tax preparers are independent contractors who prepare taxes for THEIR assigned clients
+    // They should NOT have access to system-wide management tools
     dashboard: true,
-    clients: false, // Removed client list access
-    documents: true,
-    store: true,
-    academy: true,
-    earnings: false, // Removed from all dashboards
+    clients: true, // ✅ Their assigned clients only (filtered in backend by assignedPreparer)
+    documents: true, // ✅ Documents for their clients only (filtered in backend)
+    clientFileCenter: true, // ✅ Files for their clients only (filtered in backend)
+    store: true, // Can purchase marketing materials
+    academy: true, // Access training and certification
     settings: true,
     analytics: true, // Can view their own lead analytics
-    trackingCode: true, // Can manage their tracking code
+    trackingCode: true, // Can manage their personal tracking code
+    // ❌ REMOVED: System-wide management tools (these are for admins only)
+    // clientsStatus: false - Removed (admins manage this)
+    // referralsStatus: false - Removed (not their responsibility)
+    // emails: false - Removed (system-wide email management is admin-only)
+    // calendar: false - Removed (system-wide calendar is admin-only)
+    // addressBook: false - Removed (system-wide contacts are admin-only)
+    earnings: false, // Removed from all dashboards
     quickShareLinks: false, // Removed from all dashboards
-    // Management features
-    clientsStatus: true,
-    referralsStatus: true,
-    emails: true,
-    calendar: true,
-    addressBook: true,
-    clientFileCenter: true,
   },
   affiliate: {
-    // Affiliates see minimal features
+    // Affiliates are EXTERNAL PROFESSIONAL MARKETERS who promote TaxGeniusPro
+    // Focus: Professional marketing campaigns with detailed tracking
     dashboard: true,
-    earnings: false, // Removed from all dashboards
-    store: true,
-    marketing: true,
+    store: true, // ✅ Access to marketing materials store
+    marketing: true, // ✅ Professional marketing materials and assets
     settings: true,
-    analytics: true, // Can view their own affiliate analytics
-    trackingCode: true, // Can manage their tracking code
+    analytics: true, // ✅ Detailed conversion analytics for their campaigns
+    trackingCode: true, // ✅ Sophisticated tracking codes for attribution
+    earnings: false, // Removed from all dashboards
     quickShareLinks: false, // Removed from all dashboards
   },
   referrer: {
-    // Referrers see referral-focused features
+    // Referrers are CASUAL WORD-OF-MOUTH PROMOTERS (friends/family referrals)
+    // Focus: Simple referrals with contest participation
     dashboard: true,
-    earnings: false, // Removed from all dashboards
-    contest: true,
-    marketing: true,
+    contest: true, // ✅ UNIQUE: Participate in referral contests (affiliate doesn't have this)
+    marketing: true, // ✅ Simple sharing tools and referral links
     settings: true,
-    analytics: true, // Can view their own referral analytics
-    trackingCode: true, // Can manage their tracking code
+    analytics: true, // ✅ Basic referral statistics (simpler than affiliate)
+    trackingCode: true, // ✅ Simple personal referral link
+    earnings: false, // Removed from all dashboards
     quickShareLinks: false, // Removed from all dashboards
+    store: false, // ❌ No store access (not professional marketers like affiliates)
   },
   client: {
     // Clients only see their own data
@@ -350,46 +392,42 @@ export function getEditablePermissions(role: UserRole): Permission[] {
       ];
 
     case 'tax_preparer':
-      // Tax preparers have these fixed features
+      // Tax preparers have these fixed features (scoped to their assigned clients)
       return [
         'dashboard',
-        'clients',
-        'documents',
-        'store',
-        'academy',
+        'clients',          // Their assigned clients only (filtered in backend)
+        'documents',        // Their clients' documents only (filtered in backend)
+        'clientFileCenter', // Their clients' files only (filtered in backend)
+        'store',           // Can purchase marketing materials
+        'academy',         // Access training
         'settings',
-        'analytics',
-        'trackingCode',
-        // Management features
-        'clientsStatus',
-        'referralsStatus',
-        'emails',
-        'calendar',
-        'addressBook',
-        'clientFileCenter',
-        // Removed: earnings, quickShareLinks
+        'analytics',       // Their own performance analytics
+        'trackingCode',    // Their personal tracking link
+        // REMOVED: clientsStatus, referralsStatus, emails, calendar, addressBook
+        // (These are system-wide admin tools, not for individual tax preparers)
       ];
 
     case 'affiliate':
+      // Affiliates are professional external marketers
       return [
         'dashboard',
-        'store',
-        'marketing',
+        'store',        // ✅ Access to marketing materials store
+        'marketing',    // Professional marketing assets
         'settings',
-        'analytics',
-        'trackingCode',
-        // Removed: earnings, quickShareLinks
+        'analytics',    // Detailed conversion tracking
+        'trackingCode', // Sophisticated tracking codes
       ];
 
     case 'referrer':
+      // Referrers are casual word-of-mouth promoters
       return [
         'dashboard',
-        'contest',
-        'marketing',
+        'contest',      // ✅ UNIQUE: Referral contests (affiliates don't have this)
+        'marketing',    // Simple sharing tools
         'settings',
-        'analytics',
-        'trackingCode',
-        // Removed: earnings, quickShareLinks
+        'analytics',    // Basic referral stats
+        'trackingCode', // Simple referral link
+        // NO 'store' - not professional marketers like affiliates
       ];
 
     case 'client':
