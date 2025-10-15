@@ -37,7 +37,7 @@ import {
   XCircle,
   ArrowUpRight,
 } from 'lucide-react';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 // Status badge colors
 const statusColors: Record<string, string> = {
@@ -65,26 +65,55 @@ export default async function ReferralsStatusPage() {
     redirect('/forbidden');
   }
 
-  // Fetch all referrals with related data
-  const referrals = await prisma.referral.findMany({
-    include: {
-      referrer: true,
-      client: true,
-      commissions: true,
-      analytics: {
-        where: {
-          eventType: 'LINK_CLICK',
+  // Initialize with empty arrays in case of errors
+  let referrals: any[] = []
+  let topReferrers: any[] = []
+
+  try {
+    // Fetch all referrals with related data
+    referrals = await prisma.referral.findMany({
+      include: {
+        referrer: true,
+        client: true,
+        commissions: true,
+        analytics: {
+          where: {
+            eventType: 'LINK_CLICK',
+          },
+          orderBy: {
+            eventDate: 'desc',
+          },
+          take: 1,
         },
-        orderBy: {
-          eventDate: 'desc',
-        },
-        take: 1,
       },
-    },
-    orderBy: {
-      signupDate: 'desc',
-    },
-  });
+      orderBy: {
+        signupDate: 'desc',
+      },
+    });
+
+    // Get top referrers
+    topReferrers = await prisma.profile.findMany({
+      where: {
+        role: 'REFERRER',
+      },
+      include: {
+        referrerReferrals: {
+          where: {
+            status: 'COMPLETED',
+          },
+        },
+      },
+      orderBy: {
+        referrerReferrals: {
+          _count: 'desc',
+        },
+      },
+      take: 5,
+    });
+  } catch (error) {
+    console.error('Error fetching referrals data:', error)
+    // Continue with empty arrays - will show "No referrals found" message
+  }
 
   // Get statistics
   const totalReferrals = referrals.length;
@@ -97,26 +126,6 @@ export default async function ReferralsStatusPage() {
     );
     return sum + commissionAmount;
   }, 0);
-
-  // Get top referrers
-  const topReferrers = await prisma.profile.findMany({
-    where: {
-      role: 'REFERRER',
-    },
-    include: {
-      referrerReferrals: {
-        where: {
-          status: 'COMPLETED',
-        },
-      },
-    },
-    orderBy: {
-      referrerReferrals: {
-        _count: 'desc',
-      },
-    },
-    take: 5,
-  });
 
   return (
     <div className="min-h-screen bg-background">

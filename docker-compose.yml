@@ -1,46 +1,133 @@
 version: '3.8'
 
 services:
-  # Main PostgreSQL database for taxgeniuspro
-  postgres-main:
+  # PostgreSQL Database - Dedicated instance for taxgeniuspro
+  postgres:
     image: postgres:16-alpine
-    container_name: taxgeniuspro-postgres-main
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: template1
+    container_name: taxgeniuspro-postgres
     ports:
-      - "51214:5432"
+      - '5436:5432'  # Blueprint port allocation
+    environment:
+      - POSTGRES_USER=taxgeniuspro_user
+      - POSTGRES_PASSWORD=TaxGenius2024Secure
+      - POSTGRES_DB=taxgeniuspro_db
+      - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
-      - taxgeniuspro-postgres-main-data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - taxgeniuspro_network
+    restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U taxgeniuspro_user -d taxgeniuspro_db"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Shadow database for Prisma migrations (development)
-  postgres-shadow:
-    image: postgres:16-alpine
-    container_name: taxgeniuspro-postgres-shadow
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: template1
+  # Redis - For sessions, cache, and job queues
+  redis:
+    image: redis:7-alpine
+    container_name: taxgeniuspro-redis
     ports:
-      - "51215:5432"
+      - '6305:6379'  # Blueprint port allocation
     volumes:
-      - taxgeniuspro-postgres-shadow-data:/var/lib/postgresql/data
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - taxgeniuspro_network
+    restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # MinIO Object Storage - For document uploads and file storage
+  minio:
+    image: minio/minio:latest
+    container_name: taxgeniuspro-minio
+    ports:
+      - '9005:9000'  # API port - Blueprint allocation
+      - '9105:9001'  # Console port - Blueprint allocation
+    environment:
+      - MINIO_ROOT_USER=taxgeniuspro_minio_access
+      - MINIO_ROOT_PASSWORD=taxgeniuspro_minio_secret_2024
+      - MINIO_BROWSER_REDIRECT_URL=https://taxgeniuspro.tax/minio
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - taxgeniuspro_network
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Next.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
+        # Build-time env vars (using real Clerk keys for proper domain in HTML)
+        - DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy?schema=public
+        - REDIS_URL=redis://localhost:6379
+        - RESEND_API_KEY=re_etoZgion_7TUfB2EWL6hnGvyhyqGfYEen
+        - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_bGVhcm5pbmctc3RhZy0zMi5jbGVyay5hY2NvdW50cy5kZXYk
+        - CLERK_SECRET_KEY=sk_test_EJd9iO7b6U8XB25JzdTkq72nZbr3EWrWbxvAG1NGlN
+    image: taxgeniuspro:v1
+    container_name: taxgeniuspro_app
+    ports:
+      - '3005:3005'  # Blueprint port allocation
+    env_file:
+      - .env.local  # Load production env vars for runtime
+    environment:
+      # Node.js settings
+      - NODE_ENV=production
+      - PORT=3005
+      - HOSTNAME=0.0.0.0
+      - TZ=America/New_York
+
+      # Database - Use dedicated PostgreSQL container (CRITICAL: Use service name, not localhost)
+      - DATABASE_URL=postgresql://taxgeniuspro_user:TaxGenius2024Secure@postgres:5432/taxgeniuspro_db?schema=public
+
+      # Redis - Use dedicated container (CRITICAL: Use service name, not localhost)
+      - REDIS_URL=redis://redis:6379
+
+      # MinIO - Use dedicated container (CRITICAL: Use service name, not localhost)
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=taxgeniuspro_minio_access
+      - MINIO_SECRET_KEY=taxgeniuspro_minio_secret_2024
+      - MINIO_BUCKET_NAME=taxgenius
+      - MINIO_USE_SSL=false
+
+      # All other env vars (Clerk, Resend, Stripe, Square, etc.) loaded from .env.local via env_file directive
+
+    volumes:
+      - ./uploads:/app/uploads
+    networks:
+      - taxgeniuspro_network
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+networks:
+  taxgeniuspro_network:
+    driver: bridge
 
 volumes:
-  taxgeniuspro-postgres-main-data:
+  postgres_data:
     driver: local
-  taxgeniuspro-postgres-shadow-data:
+  redis_data:
+    driver: local
+  minio_data:
     driver: local

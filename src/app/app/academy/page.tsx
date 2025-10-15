@@ -43,73 +43,73 @@ export default function AcademyPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [completedVideos, setCompletedVideos] = useState<Set<string>>(new Set())
 
-  // Training videos - Replace YouTube IDs with actual training video IDs
+  // Training videos - Real Tax Genius training content
   const videos: Video[] = [
     {
       id: '1',
-      title: 'Introduction to Tax Preparation Basics',
-      description: 'Learn the fundamentals of tax preparation, including terminology, forms, and the tax filing process.',
-      duration: '15 min',
-      thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      title: 'The Basics of Tax Preparation',
+      description: 'This will give you the basics of Tax preparations. Comprehensive introduction to tax preparation fundamentals and the Tax Genius software.',
+      duration: '90 min',
+      thumbnail: 'https://img.youtube.com/vi/J1ebKU1YWnc/maxresdefault.jpg',
+      videoUrl: 'https://www.youtube.com/embed/J1ebKU1YWnc',
       completed: false,
       difficulty: 'Beginner',
       category: 'Fundamentals',
     },
     {
       id: '2',
-      title: 'Understanding W-2 Forms and Wage Income',
-      description: 'Deep dive into W-2 forms, wage reporting, withholdings, and how to accurately report employment income.',
-      duration: '20 min',
-      thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      title: 'Tax Genius Software Mobile App and Portal',
+      description: 'Gain valuable insights into the Tax Genius Software through the lens of customers as we explore both the mobile app and portal functionalities. Understand the features and convenience from a customer\'s viewpoint.',
+      duration: '101 min',
+      thumbnail: 'https://img.youtube.com/vi/z6KrrDK1KkY/maxresdefault.jpg',
+      videoUrl: 'https://www.youtube.com/embed/z6KrrDK1KkY',
       completed: false,
-      difficulty: 'Beginner',
-      category: 'Income Reporting',
+      difficulty: 'Intermediate',
+      category: 'Software Training',
     },
     {
       id: '3',
-      title: '1099 Forms: Self-Employment and Contractor Income',
-      description: 'Master 1099 forms including 1099-NEC, 1099-MISC, and understanding self-employment tax obligations.',
-      duration: '18 min',
-      thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      title: 'Tax Genius Software Full Return Demo',
+      description: 'A comprehensive journey through the Tax Genius Software from start to finish, including payments and banking products. This walkthrough covers the complete spectrum of tax preparation.',
+      duration: '66 min',
+      thumbnail: 'https://img.youtube.com/vi/rxWy8O4Gqvc/maxresdefault.jpg',
+      videoUrl: 'https://www.youtube.com/embed/rxWy8O4Gqvc',
       completed: false,
       difficulty: 'Intermediate',
-      category: 'Income Reporting',
+      category: 'Software Training',
     },
     {
       id: '4',
-      title: 'Deductions and Credits: Maximizing Refunds',
-      description: 'Learn the difference between deductions and credits, and how to identify opportunities to maximize client refunds.',
-      duration: '25 min',
-      thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      title: 'Tax Genius Software Login, Dashboard and Sections',
+      description: 'Explore the Tax Genius Software seamlessly from the login phase to navigating the dashboard and understanding the different sections. Ensure you have a comprehensive grasp of the Tax Genius Software\'s interface.',
+      duration: '45 min',
+      thumbnail: 'https://img.youtube.com/vi/LjEWXwKdxGw/maxresdefault.jpg',
+      videoUrl: 'https://www.youtube.com/embed/LjEWXwKdxGw',
       completed: false,
-      difficulty: 'Intermediate',
-      category: 'Deductions & Credits',
+      difficulty: 'Beginner',
+      category: 'Software Training',
     },
     {
       id: '5',
-      title: 'IRS Filing Requirements and Deadlines',
-      description: 'Understand filing thresholds, deadlines, extensions, and IRS compliance requirements for different taxpayer situations.',
+      title: 'Tax Genius Complimentary Vacations',
+      description: 'Our Travel Partner Redeem Vacations has joined us to provide you with a complimentary vacation to destinations including Cancun, Cabo San Lucas, Puerto Vallarta, Las Vegas, Phuket, Kuta & Dubai when you hire us to help you with your taxes.',
       duration: '15 min',
-      thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      thumbnail: 'https://img.youtube.com/vi/ni_RRH39MB0/maxresdefault.jpg',
+      videoUrl: 'https://www.youtube.com/embed/ni_RRH39MB0',
       completed: false,
       difficulty: 'Beginner',
-      category: 'Compliance',
+      category: 'Client Benefits',
     },
     {
       id: '6',
-      title: 'Common Mistakes and How to Avoid Them',
-      description: 'Review the most common tax preparation errors and learn best practices to ensure accuracy and avoid IRS notices.',
-      duration: '12 min',
-      thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      title: 'Tax Genius Complimentary Vacations (Extended)',
+      description: 'Extended version: Our Travel Partner Redeem Vacations provides complimentary vacations to popular destinations when you use our tax services. Learn how to present this benefit to clients.',
+      duration: '20 min',
+      thumbnail: 'https://img.youtube.com/vi/Br8UqmAA5l8/maxresdefault.jpg',
+      videoUrl: 'https://www.youtube.com/embed/Br8UqmAA5l8',
       completed: false,
-      difficulty: 'Intermediate',
-      category: 'Best Practices',
+      difficulty: 'Beginner',
+      category: 'Client Benefits',
     },
   ]
 
@@ -213,7 +213,10 @@ export default function AcademyPage() {
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold">
-                  {videos.reduce((acc, v) => acc + parseInt(v.duration), 0)} min
+                  {videos.reduce((acc, v) => {
+                    const minutes = parseInt(v.duration.replace(/\D/g, ''))
+                    return acc + (isNaN(minutes) ? 0 : minutes)
+                  }, 0)} min
                 </p>
                 <p className="text-xs text-muted-foreground">Total Duration</p>
               </div>

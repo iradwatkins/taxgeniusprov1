@@ -12,7 +12,7 @@ import {
   UserCog,
   Settings,
 } from 'lucide-react';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import { PermissionManager } from '@/components/admin/PermissionManager';
 import { PermissionPresets } from '@/components/admin/PermissionPresets';
 
@@ -28,14 +28,21 @@ export default async function PermissionsPage() {
   }
 
   // Fetch all admin users
-  const adminUsers = await prisma.profile.findMany({
-    where: {
-      role: 'ADMIN',
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  });
+  let adminUsers: any[] = []
+
+  try {
+    adminUsers = await prisma.profile.findMany({
+      where: {
+        role: 'ADMIN',
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching admin users:', error)
+    // Continue with empty array - will show "No admin users found" message
+  }
 
   // Default admin permissions (what regular admins get)
   const defaultAdminPermissions = {

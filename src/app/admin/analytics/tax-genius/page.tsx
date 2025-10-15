@@ -38,124 +38,142 @@ export default async function TaxGeniusAnalyticsPage() {
     redirect('/forbidden')
   }
 
-  // Get Tax Genius company marketing links
-  const companyLinks = await prisma.marketingLink.findMany({
-    where: {
-      creatorType: 'TAX_GENIUS',
-    },
-  })
+  // Initialize with empty defaults
+  let companyLinks: any[] = []
+  let linkIds: string[] = []
+  let linkCodes: string[] = []
+  let totalClicks = 0
+  let totalLeads = 0
+  let totalConversions = 0
+  let totalReturnsFiled = 0
+  let totalRevenue = 0
+  let conversionRate = 0
+  let linkBreakdown: any[] = []
+  let recentLeads: any[] = []
 
-  const linkIds = companyLinks.map(l => l.id)
-  const linkCodes = companyLinks.map(l => l.code)
-
-  // Get metrics
-  const totalClicks = await prisma.linkClick.count({
-    where: { linkId: { in: linkIds } },
-  })
-
-  const totalLeads = await prisma.lead.count({
-    where: {
-      OR: [
-        { source: { in: linkCodes } },
-        { assignedPreparerId: null },
-      ],
-    },
-  })
-
-  const totalConversions = await prisma.clientIntake.count({
-    where: {
-      OR: [
-        { sourceLink: { in: linkCodes } },
-        { assignedPreparerId: null },
-      ],
-    },
-  })
-
-  const totalReturnsFiled = await prisma.taxReturn.count({
-    where: {
-      profile: {
-        clientIntakes: {
-          some: {
-            assignedPreparerId: null,
-          },
-        },
+  try {
+    // Get Tax Genius company marketing links
+    companyLinks = await prisma.marketingLink.findMany({
+      where: {
+        creatorType: 'TAX_GENIUS',
       },
-    },
-  })
+    })
 
-  const revenueResult = await prisma.payment.aggregate({
-    where: {
-      status: 'COMPLETED',
-      profile: {
-        clientIntakes: {
-          some: {
-            OR: [
-              { sourceLink: { in: linkCodes } },
-              { assignedPreparerId: null },
-            ],
-          },
-        },
+    linkIds = companyLinks.map(l => l.id)
+    linkCodes = companyLinks.map(l => l.code)
+
+    // Get metrics
+    totalClicks = await prisma.linkClick.count({
+      where: { linkId: { in: linkIds } },
+    })
+
+    totalLeads = await prisma.lead.count({
+      where: {
+        OR: [
+          { source: { in: linkCodes } },
+          { assignedPreparerId: null },
+        ],
       },
-    },
-    _sum: { amount: true },
-  })
+    })
 
-  const totalRevenue = Number(revenueResult._sum.amount || 0)
-  const conversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0
+    totalConversions = await prisma.clientIntake.count({
+      where: {
+        OR: [
+          { sourceLink: { in: linkCodes } },
+          { assignedPreparerId: null },
+        ],
+      },
+    })
 
-  // Get link breakdown
-  const linkBreakdown = await Promise.all(
-    companyLinks.map(async (link) => {
-      const linkClicks = await prisma.linkClick.count({
-        where: { linkId: link.id },
-      })
-
-      const linkLeads = await prisma.lead.count({
-        where: { source: link.code },
-      })
-
-      const linkConversions = await prisma.clientIntake.count({
-        where: { sourceLink: link.code },
-      })
-
-      const linkRevenue = await prisma.payment.aggregate({
-        where: {
-          status: 'COMPLETED',
-          profile: {
-            clientIntakes: {
-              some: { sourceLink: link.code },
+    totalReturnsFiled = await prisma.taxReturn.count({
+      where: {
+        profile: {
+          clientIntakes: {
+            some: {
+              assignedPreparerId: null,
             },
           },
         },
-        _sum: { amount: true },
-      })
-
-      return {
-        linkId: link.id,
-        linkName: link.title || link.code,
-        linkCode: link.code,
-        linkUrl: `https://taxgeniuspro.tax/${link.code}`,
-        clicks: linkClicks,
-        leads: linkLeads,
-        conversions: linkConversions,
-        conversionRate: linkClicks > 0 ? (linkConversions / linkClicks) * 100 : 0,
-        revenue: Number(linkRevenue._sum.amount || 0),
-        createdAt: link.createdAt,
-      }
+      },
     })
-  )
 
-  // Get recent leads
-  const recentLeads = await prisma.lead.findMany({
-    where: {
-      OR: [
-        { source: { in: linkCodes } },
-        { assignedPreparerId: null },
-      ],
-    },
-    orderBy: { createdAt: 'desc' },
-    take: 10,
-  })
+    const revenueResult = await prisma.payment.aggregate({
+      where: {
+        status: 'COMPLETED',
+        profile: {
+          clientIntakes: {
+            some: {
+              OR: [
+                { sourceLink: { in: linkCodes } },
+                { assignedPreparerId: null },
+              ],
+            },
+          },
+        },
+      },
+      _sum: { amount: true },
+    })
+
+    totalRevenue = Number(revenueResult._sum.amount || 0)
+    conversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0
+
+    // Get link breakdown
+    linkBreakdown = await Promise.all(
+      companyLinks.map(async (link) => {
+        const linkClicks = await prisma.linkClick.count({
+          where: { linkId: link.id },
+        })
+
+        const linkLeads = await prisma.lead.count({
+          where: { source: link.code },
+        })
+
+        const linkConversions = await prisma.clientIntake.count({
+          where: { sourceLink: link.code },
+        })
+
+        const linkRevenue = await prisma.payment.aggregate({
+          where: {
+            status: 'COMPLETED',
+            profile: {
+              clientIntakes: {
+                some: { sourceLink: link.code },
+              },
+            },
+          },
+          _sum: { amount: true },
+        })
+
+        return {
+          linkId: link.id,
+          linkName: link.title || link.code,
+          linkCode: link.code,
+          linkUrl: `https://taxgeniuspro.tax/${link.code}`,
+          clicks: linkClicks,
+          leads: linkLeads,
+          conversions: linkConversions,
+          conversionRate: linkClicks > 0 ? (linkConversions / linkClicks) * 100 : 0,
+          revenue: Number(linkRevenue._sum.amount || 0),
+          createdAt: link.createdAt,
+        }
+      })
+    )
+
+    // Get recent leads
+    recentLeads = await prisma.lead.findMany({
+      where: {
+        OR: [
+          { source: { in: linkCodes } },
+          { assignedPreparerId: null },
+        ],
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+    })
+  } catch (error) {
+    console.error('Error fetching Tax Genius analytics:', error)
+    // Continue with empty/zero defaults - will show "No company campaigns yet" message
+  }
 
   // Create funnel data
   const funnelStages = createFunnelStages(

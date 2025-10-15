@@ -4,26 +4,35 @@ import { prisma } from '@/lib/prisma';
 /**
  * Dynamic sitemap generation (AC20)
  * Includes all published landing pages
+ * Returns only static pages during Docker build (no DB connection available)
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://taxgeniuspro.tax';
 
-  // Fetch all published landing pages
-  const landingPages = await prisma.landingPage.findMany({
-    where: { isPublished: true },
-    select: { 
-      slug: true, 
-      updatedAt: true 
-    },
-  });
+  // Fetch all published landing pages (with fallback for build time)
+  let landingPageEntries: MetadataRoute.Sitemap = [];
 
-  // Generate sitemap entries for landing pages
-  const landingPageEntries: MetadataRoute.Sitemap = landingPages.map(page => ({
-    url: `${baseUrl}/locations/${page.slug}`,
-    lastModified: page.updatedAt,
-    changeFrequency: 'monthly',
-    priority: 0.8,
-  }));
+  try {
+    const landingPages = await prisma.landingPage.findMany({
+      where: { isPublished: true },
+      select: {
+        slug: true,
+        updatedAt: true
+      },
+    });
+
+    // Generate sitemap entries for landing pages
+    landingPageEntries = landingPages.map(page => ({
+      url: `${baseUrl}/locations/${page.slug}`,
+      lastModified: page.updatedAt,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    }));
+  } catch (error) {
+    // During Docker build, database isn't available - return empty array
+    // Sitemap will be regenerated at runtime with actual data
+    console.log('Database not available during build, skipping dynamic sitemap entries');
+  }
 
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [

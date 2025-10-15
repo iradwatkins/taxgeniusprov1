@@ -18,7 +18,7 @@ import {
   CalendarDays,
   User,
 } from 'lucide-react';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 const statusColors: Record<string, string> = {
   REQUESTED: 'secondary',
@@ -49,12 +49,19 @@ export default async function CalendarPage() {
   if (!permissions.calendar) redirect('/forbidden');
 
   // Fetch appointments
-  const appointments = await prisma.appointment.findMany({
-    orderBy: {
-      scheduledFor: 'asc',
-    },
-    take: 50, // Limit for performance
-  });
+  let appointments: any[] = []
+
+  try {
+    appointments = await prisma.appointment.findMany({
+      orderBy: {
+        scheduledFor: 'asc',
+      },
+      take: 50, // Limit for performance
+    });
+  } catch (error) {
+    console.error('Error fetching appointments:', error)
+    // Continue with empty array - will show "No appointments scheduled" message
+  }
 
   // Get today's appointments
   const today = new Date();

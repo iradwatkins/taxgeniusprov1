@@ -62,16 +62,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 /**
  * Pre-render top 50 cities at build time (AC18)
  * Remaining cities use ISR (AC19)
+ * Returns empty array during Docker build (no DB connection available)
  */
 export async function generateStaticParams() {
-  const topCities = await prisma.landingPage.findMany({
-    where: { isPublished: true },
-    orderBy: { createdAt: 'desc' },
-    take: 50,
-    select: { slug: true },
-  });
+  try {
+    const topCities = await prisma.landingPage.findMany({
+      where: { isPublished: true },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+      select: { slug: true },
+    });
 
-  return topCities.map(page => ({ city: page.slug }));
+    return topCities.map(page => ({ city: page.slug }));
+  } catch (error) {
+    // During Docker build, database isn't available - return empty array
+    // Pages will be generated on-demand via ISR instead
+    console.log('Database not available during build, skipping static generation');
+    return [];
+  }
 }
 
 /**

@@ -76,62 +76,71 @@ export default async function ClientsStatusPage({
   const statusFilter = typeof searchParams.status === 'string' ? searchParams.status : ''
   const preparerFilter = typeof searchParams.preparer === 'string' ? searchParams.preparer : ''
 
-  // Fetch all tax preparers for the filter dropdown
-  const preparers = await prisma.profile.findMany({
-    where: {
-      role: 'TAX_PREPARER',
-    },
-    select: {
-      id: true,
-      firstName: true,
-      lastName: true,
-      email: true,
-    },
-    orderBy: {
-      firstName: 'asc',
-    },
-  })
+  // Initialize with empty arrays in case of errors
+  let preparers: any[] = []
+  let clients: any[] = []
 
-  // Build where clause for clients
-  const clientsWhere: any = {
-    role: 'CLIENT',
-  }
-
-  // Apply search filter
-  if (search) {
-    clientsWhere.OR = [
-      { firstName: { contains: search, mode: 'insensitive' } },
-      { lastName: { contains: search, mode: 'insensitive' } },
-      { email: { contains: search, mode: 'insensitive' } },
-      { phone: { contains: search, mode: 'insensitive' } },
-    ]
-  }
-
-  // Fetch all clients with their tax return status
-  const clients = await prisma.profile.findMany({
-    where: clientsWhere,
-    include: {
-      taxReturns: {
-        where: statusFilter ? { status: statusFilter.toUpperCase() as any } : undefined,
-        orderBy: {
-          taxYear: 'desc',
-        },
-        take: 1, // Get the most recent tax return
+  try {
+    // Fetch all tax preparers for the filter dropdown
+    preparers = await prisma.profile.findMany({
+      where: {
+        role: 'TAX_PREPARER',
       },
-      clientPreparers: {
-        where: {
-          isActive: true,
-          ...(preparerFilter && preparerFilter !== 'all' && preparerFilter !== 'unassigned' ? { preparerId: preparerFilter } : {}),
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+      },
+      orderBy: {
+        firstName: 'asc',
+      },
+    })
+
+    // Build where clause for clients
+    const clientsWhere: any = {
+      role: 'CLIENT',
+    }
+
+    // Apply search filter
+    if (search) {
+      clientsWhere.OR = [
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { phone: { contains: search, mode: 'insensitive' } },
+      ]
+    }
+
+    // Fetch all clients with their tax return status
+    clients = await prisma.profile.findMany({
+      where: clientsWhere,
+      include: {
+        taxReturns: {
+          where: statusFilter ? { status: statusFilter.toUpperCase() as any } : undefined,
+          orderBy: {
+            taxYear: 'desc',
+          },
+          take: 1, // Get the most recent tax return
         },
-        include: {
-          preparer: true,
+        clientPreparers: {
+          where: {
+            isActive: true,
+            ...(preparerFilter && preparerFilter !== 'all' && preparerFilter !== 'unassigned' ? { preparerId: preparerFilter } : {}),
+          },
+          include: {
+            preparer: true,
+          },
         },
       },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-  })
+      orderBy: {
+        createdAt: 'desc',
+      },
+    })
+  } catch (error) {
+    console.error('Error fetching clients data:', error)
+    // Continue with empty arrays - will show "No clients found" message
+  }
 
   // Filter clients based on preparer assignment
   let filteredClients = clients

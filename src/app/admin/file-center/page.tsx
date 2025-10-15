@@ -19,7 +19,7 @@ import {
   Calendar,
   User,
 } from 'lucide-react';
-import prisma from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 export default async function FileCenterPage() {
   const user = await currentUser();
@@ -32,12 +32,20 @@ export default async function FileCenterPage() {
   if (!permissions.clientFileCenter) redirect('/forbidden');
 
   // Fetch document statistics
-  const documentStats = await prisma.document.groupBy({
-    by: ['type'],
-    _count: true,
-  });
+  let documentStats: any[] = []
+  let totalDocuments = 0
 
-  const totalDocuments = await prisma.document.count();
+  try {
+    documentStats = await prisma.document.groupBy({
+      by: ['type'],
+      _count: true,
+    });
+
+    totalDocuments = await prisma.document.count();
+  } catch (error) {
+    console.error('Error fetching document statistics:', error)
+    // Continue with empty data - will show "0 documents" message
+  }
 
   return (
     <div className="min-h-screen bg-background">
