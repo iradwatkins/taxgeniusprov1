@@ -138,12 +138,14 @@ export function RoleSwitcher({
   // Get available roles based on actual role permissions
   const getAvailableRoles = (): UserRole[] => {
     if (actualRole === 'super_admin') {
-      // Super admins can view as any role
-      return ['super_admin', ...VIEWABLE_ROLES]
+      // Super admins can view as any role (including admin and themselves)
+      return ['super_admin', 'admin', ...VIEWABLE_ROLES]
     } else if (actualRole === 'admin') {
-      // Regular admins can view as all roles except super_admin
+      // Regular admins can view as limited roles (no super_admin, no self)
+      // VIEWABLE_ROLES already excludes admin to prevent self-switching
       return VIEWABLE_ROLES
     }
+    // Non-admin users should not see the switcher (handled by return null below)
     return [actualRole]
   }
 
@@ -185,6 +187,7 @@ export function RoleSwitcher({
           const roleConfig: RoleDisplayInfo = ROLE_DISPLAY_CONFIG[role]
           const isCurrentRole = role === currentEffectiveRole
           const isActualRole = role === actualRole
+          const isSuperAdminOnly = role === 'super_admin' && actualRole !== 'super_admin'
 
           return (
             <DropdownMenuItem
@@ -197,14 +200,21 @@ export function RoleSwitcher({
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{roleConfig.icon}</span>
                   <div className="flex flex-col">
-                    <span className="font-medium">
-                      {roleConfig.label}
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">
+                        {roleConfig.label}
+                      </span>
                       {isActualRole && (
-                        <span className="text-xs text-muted-foreground ml-2">
-                          (Your Role)
+                        <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary rounded">
+                          YOUR ROLE
                         </span>
                       )}
-                    </span>
+                      {isSuperAdminOnly && (
+                        <span className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 rounded">
+                          SUPER ADMIN ONLY
+                        </span>
+                      )}
+                    </div>
                     <span className="text-xs text-muted-foreground">
                       {roleConfig.description}
                     </span>

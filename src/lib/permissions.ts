@@ -82,10 +82,33 @@ export type UserRole = 'super_admin' | 'admin' | 'tax_preparer' | 'affiliate' | 
 /**
  * Default permissions for each role
  * These are the baseline permissions that can be customized by super_admin
+ *
+ * ROLE HIERARCHY:
+ *
+ * 1. SUPER_ADMIN (Highest Level - Full System Control)
+ *    - Has ALL permissions including system-critical features
+ *    - Can manage other admin permissions
+ *    - Can access database management
+ *    - Can view Google Analytics
+ *    - Can access sensitive client files
+ *    - Has phone alerts enabled
+ *    - CANNOT be assigned to regular users (security)
+ *
+ * 2. ADMIN (Limited Administrative Access)
+ *    - Has most admin features but RESTRICTED from critical operations
+ *    - CANNOT manage permissions (adminManagement: false)
+ *    - CANNOT access database (database: false)
+ *    - CANNOT access sensitive client files (clientFileCenter: false)
+ *    - CANNOT access Google Analytics (googleAnalytics: false)
+ *    - Phone alerts DISABLED by default (alerts: false)
+ *    - Can be customized by super_admin to grant additional permissions
+ *
+ * 3. TAX_PREPARER, AFFILIATE, REFERRER, CLIENT
+ *    - Role-specific limited permissions
  */
 export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
   super_admin: {
-    // Super admin has ALL permissions
+    // Super admin has ALL permissions - Full system control
     dashboard: true,
     users: true,
     payouts: true,
@@ -118,19 +141,25 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
   },
   admin: {
     // Admin has limited features by default, super_admin can grant more
+    // KEY RESTRICTIONS compared to super_admin:
+    // ❌ adminManagement (cannot manage permissions)
+    // ❌ database (no database access)
+    // ❌ googleAnalytics (no GA integration)
+    // ❌ clientFileCenter (no sensitive client files)
+    // ❌ alerts (phone alerts disabled)
     dashboard: true,
-    alerts: false, // Phone alerts restricted by default
+    alerts: false, // 🔒 SUPER_ADMIN ONLY - Phone alerts restricted by default
     users: true,
     payouts: true,
     contentGenerator: true,
     analytics: true,
-    adminManagement: false, // Cannot manage permissions (super_admin only)
-    database: false, // No database access by default
+    adminManagement: false, // 🔒 SUPER_ADMIN ONLY - Cannot manage permissions
+    database: false, // 🔒 SUPER_ADMIN ONLY - No database access by default
     settings: true,
     // Client Management - some restricted
     clientsStatus: true,
     clients: false, // Removed client list access
-    clientFileCenter: false, // Restricted - contains sensitive client files
+    clientFileCenter: false, // 🔒 SUPER_ADMIN ONLY - Restricted - contains sensitive client files
     documents: false, // Restricted - sensitive documents
     uploadDocuments: false,
     // Communications - available
@@ -138,7 +167,7 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     calendar: true,
     addressBook: true,
     // Analytics - some restricted
-    googleAnalytics: false, // Restricted - requires API access
+    googleAnalytics: false, // 🔒 SUPER_ADMIN ONLY - Restricted - requires API access
     referralsAnalytics: true,
     // Growth & Marketing - available
     referralsStatus: true,
@@ -151,7 +180,6 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     marketingHub: true,
     marketing: true,
     // Financial - some restricted
-    payouts: true,
     earnings: false, // Removed from all dashboards
     store: true,
   },

@@ -111,10 +111,12 @@ export const ROLE_DISPLAY_CONFIG: Record<UserRole, RoleDisplayInfo> = {
 }
 
 /**
- * Roles that admins can view as (excludes super_admin for security)
+ * Roles that admins can view as
+ * - Regular admins can switch to these roles (excludes super_admin for security)
+ * - Super admins can switch to any role including admin
+ * Note: 'admin' is excluded so regular admins don't see themselves in the switcher
  */
 export const VIEWABLE_ROLES: UserRole[] = [
-  'admin',
   'tax_preparer',
   'affiliate',
   'referrer',
