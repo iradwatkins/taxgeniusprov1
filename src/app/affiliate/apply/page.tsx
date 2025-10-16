@@ -13,7 +13,7 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -31,7 +31,8 @@ const PLATFORMS = [
   'Blog/Website', 'Email List', 'WhatsApp', 'LinkedIn', 'Pinterest'
 ]
 
-export default function AffiliateApplicationPage() {
+// Component that uses searchParams - must be wrapped in Suspense
+function AffiliateApplicationForm() {
   const searchParams = useSearchParams()
   const preparerUsername = searchParams?.get('preparer')
 
@@ -419,5 +420,21 @@ export default function AffiliateApplicationPage() {
         </form>
       </div>
     </div>
+  )
+}
+
+// Main page component with Suspense boundary
+export default function AffiliateApplicationPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Loading application form...</p>
+        </div>
+      </div>
+    }>
+      <AffiliateApplicationForm />
+    </Suspense>
   )
 }
