@@ -5,9 +5,30 @@ const globalForRedis = global as unknown as {
   redis: Redis | undefined
 }
 
-export const redis =
-  globalForRedis.redis ??
-  new Redis({
+// Parse REDIS_URL if provided, otherwise use individual env vars
+function getRedisConfig() {
+  const redisUrl = process.env.REDIS_URL
+
+  if (redisUrl) {
+    // Use URL-based connection (Docker-friendly)
+    return new Redis(redisUrl, {
+      maxRetriesPerRequest: 3,
+      retryStrategy(times) {
+        const delay = Math.min(times * 50, 2000)
+        return delay
+      },
+      reconnectOnError(err) {
+        const targetError = 'READONLY'
+        if (err.message.includes(targetError)) {
+          return true
+        }
+        return false
+      },
+    })
+  }
+
+  // Fallback to host/port configuration
+  return new Redis({
     host: process.env.REDIS_HOST || 'localhost',
     port: parseInt(process.env.REDIS_PORT || '6379'),
     password: process.env.REDIS_PASSWORD,
@@ -19,12 +40,14 @@ export const redis =
     reconnectOnError(err) {
       const targetError = 'READONLY'
       if (err.message.includes(targetError)) {
-        // Only reconnect when the error contains "READONLY"
         return true
       }
       return false
     },
   })
+}
+
+export const redis = globalForRedis.redis ?? getRedisConfig()
 
 if (process.env.NODE_ENV !== 'production') globalForRedis.redis = redis
 
