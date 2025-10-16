@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { clerkClient } from '@clerk/nextjs/server';
 import { getUserPermissions, UserRole, UserPermissions, Permission } from '@/lib/permissions';
 import { utmTrackingMiddleware } from '@/middleware/utm-tracking';
+import { attributionTrackingMiddleware, isShortLinkRequest } from '@/middleware/attribution-tracking';
 import { getEffectiveRole } from '@/lib/utils/role-switcher';
 import { logger } from '@/lib/logger'
 
@@ -12,7 +13,7 @@ const isPublicRoute = createRouteMatcher([
   '/',
   '/preparer(.*)',
   '/referral(.*)',
-  '/affiliate(.*)',      // Affiliate lead generation pages
+  '/affiliate(.*)',      // Affiliate pages (application, info)
   '/start-filing(.*)',   // Customer lead generation page
   '/find-a-refund(.*)',  // Public refund tracker utility
   '/refund-advance(.*)', // Refund advance information page
@@ -30,12 +31,23 @@ const isPublicRoute = createRouteMatcher([
   '/help(.*)',           // Help center page
   '/debug-role',         // Debug page to check user role
   '/api/admin/set-role', // Temporary public endpoint to set admin role
+  '/lead/(.*)',          // Short link for lead generation (Epic 6)
+  '/intake/(.*)',        // Short link for tax intake (Epic 6)
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId, sessionClaims } = await auth();
 
-  // Run UTM tracking middleware first (Epic 6)
+  // EPIC 6: Check for attribution short links FIRST (before Clerk auth)
+  // This must run before any auth checks so public links work
+  if (isShortLinkRequest(req.nextUrl.pathname)) {
+    const attributionResponse = await attributionTrackingMiddleware(req);
+    if (attributionResponse) {
+      return attributionResponse; // Returns redirect with attribution cookie
+    }
+  }
+
+  // Run UTM tracking middleware (Epic 6)
   const utmResponse = utmTrackingMiddleware(req);
 
   // If user is not signed in and trying to access protected route, redirect to login
@@ -48,7 +60,7 @@ export default clerkMiddleware(async (auth, req) => {
   // If user is signed in
   if (userId) {
     const pathname = req.nextUrl.pathname;
-    const validRoles: string[] = ['super_admin', 'admin', 'client', 'tax_preparer', 'referrer', 'affiliate'];
+    const validRoles: string[] = ['super_admin', 'admin', 'lead', 'client', 'tax_preparer', 'affiliate'];
 
     // ALWAYS check database first - session can be stale
     let role: string | undefined;
@@ -204,12 +216,12 @@ export default clerkMiddleware(async (auth, req) => {
       const dashboardUrls: Record<string, string> = {
         super_admin: '/dashboard/admin',
         admin: '/dashboard/admin',
+        lead: '/dashboard/lead',
         client: '/dashboard/client',
         tax_preparer: '/dashboard/tax-preparer',
-        referrer: '/dashboard/referrer',
         affiliate: '/dashboard/affiliate',
       };
-      const targetUrl = dashboardUrls[effectiveRole || role || 'client'] || '/dashboard/client';
+      const targetUrl = dashboardUrls[effectiveRole || role || 'lead'] || '/dashboard/lead';
       const redirect = NextResponse.redirect(new URL(targetUrl, req.url));
       // Copy UTM cookies to redirect response
       utmResponse.cookies.getAll().forEach(cookie => {

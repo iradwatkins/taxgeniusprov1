@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const validRoles = ['client', 'tax_preparer', 'referrer', 'affiliate', 'admin'];
+    const validRoles = ['super_admin', 'admin', 'lead', 'client', 'tax_preparer', 'affiliate'];
     if (!validRoles.includes(role)) {
       return NextResponse.json(
         { error: `Invalid role. Must be one of: ${validRoles.join(', ')}` },

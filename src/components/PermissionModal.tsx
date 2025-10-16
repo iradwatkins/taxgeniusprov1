@@ -42,9 +42,10 @@ interface PermissionModalProps {
     permissions?: Partial<UserPermissions>;
   };
   onSave: (userId: string, role: UserRole, permissions: Partial<UserPermissions>) => Promise<void>;
+  isSuperAdmin?: boolean; // Whether the current user is a super_admin
 }
 
-export function PermissionModal({ open, onOpenChange, user, onSave }: PermissionModalProps) {
+export function PermissionModal({ open, onOpenChange, user, onSave, isSuperAdmin = false }: PermissionModalProps) {
   const [selectedRole, setSelectedRole] = useState<UserRole>(user.role);
   const [permissions, setPermissions] = useState<Partial<UserPermissions>>(
     user.permissions || DEFAULT_PERMISSIONS[user.role] || {}
@@ -115,12 +116,12 @@ export function PermissionModal({ open, onOpenChange, user, onSave }: Permission
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="lead">Lead (Pending Approval)</SelectItem>
                 <SelectItem value="client">Client</SelectItem>
-                <SelectItem value="referrer">Referrer</SelectItem>
                 <SelectItem value="affiliate">Affiliate</SelectItem>
                 <SelectItem value="tax_preparer">Tax Preparer</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="super_admin">Super Admin</SelectItem>
+                {isSuperAdmin && <SelectItem value="super_admin">Super Admin</SelectItem>}
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">

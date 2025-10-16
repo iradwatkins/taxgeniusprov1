@@ -154,7 +154,7 @@ class WordPressMigration {
         { source: '/services-offered', destination: '/services', permanent: true },
         { source: '/get-quote', destination: '/pricing', permanent: true },
         { source: '/contact-us', destination: '/contact', permanent: true },
-        { source: '/affiliate-dashboard', destination: '/dashboard/referrer', permanent: true },
+        { source: '/affiliate-dashboard', destination: '/dashboard/affiliate', permanent: true },
         { source: '/tax-services', destination: '/services', permanent: true }
       ];
 

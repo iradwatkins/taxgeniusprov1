@@ -56,7 +56,7 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/affiliate-dashboard',
-        destination: '/dashboard/referrer',
+        destination: '/dashboard/affiliate',
         permanent: true
       },
       {

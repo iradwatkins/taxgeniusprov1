@@ -43,7 +43,8 @@ import { OverviewTab } from '@/components/dashboard/client/OverviewTab'
 import { DocumentsTab } from '@/components/dashboard/client/DocumentsTab'
 import { MessagesTab } from '@/components/dashboard/client/MessagesTab'
 import { PaymentsTab } from '@/components/dashboard/client/PaymentsTab'
-import { DollarSign, CalendarIcon } from 'lucide-react'
+import { MyReferralsTab } from '@/components/dashboard/client/MyReferralsTab'
+import { DollarSign, CalendarIcon, Users as UsersIcon } from 'lucide-react'
 
 // Types
 interface TaxReturn {
@@ -97,6 +98,11 @@ export default function ClientDashboard() {
   const [selectedTab, setSelectedTab] = useState('overview')
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear() - 1)
   const [notifications, setNotifications] = useState(0)
+
+  // Referral data (for conditional "My Referrals" tab)
+  const shortLinkUsername = dashboardData?.user?.shortLinkUsername
+  const totalLeads = dashboardData?.referralStats?.totalLeads || 0
+  const showReferralsTab = shortLinkUsername || totalLeads > 0
 
   // Fetch real dashboard data
   const { data: dashboardData, isLoading } = useQuery({
@@ -354,7 +360,10 @@ export default function ClientDashboard() {
 
           {/* Main Content Tabs */}
           <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto p-1">
+            <TabsList className={cn(
+              "grid w-full h-auto p-1",
+              showReferralsTab ? "grid-cols-2 md:grid-cols-5" : "grid-cols-2 md:grid-cols-4"
+            )}>
               <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Home className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Overview</span>
@@ -376,6 +385,17 @@ export default function ClientDashboard() {
                 <CreditCard className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Payments</span>
               </TabsTrigger>
+              {showReferralsTab && (
+                <TabsTrigger value="referrals" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <UsersIcon className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">My Referrals</span>
+                  {totalLeads > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-primary/20">
+                      {totalLeads}
+                    </span>
+                  )}
+                </TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="overview" className="space-y-4">
@@ -816,6 +836,16 @@ export default function ClientDashboard() {
                 </Card>
               </div>
             </TabsContent>
+
+            {/* My Referrals Tab (Conditional - only shows if user has referral activity) */}
+            {showReferralsTab && (
+              <TabsContent value="referrals" className="space-y-4">
+                <MyReferralsTab
+                  shortLinkUsername={shortLinkUsername}
+                  totalLeads={totalLeads}
+                />
+              </TabsContent>
+            )}
           </Tabs>
         </div>
       </div>

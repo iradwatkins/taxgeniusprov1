@@ -24,11 +24,6 @@ const roles: { value: UserRole; label: string; description: string }[] = [
     label: 'Affiliate Marketer',
     description: 'I want to market tax services and earn referral commissions',
   },
-  {
-    value: 'referrer',
-    label: 'Referrer',
-    description: 'I refer clients to Tax Genius Pro',
-  },
 ]
 
 export default function SelectRolePage() {
@@ -55,9 +50,9 @@ export default function SelectRolePage() {
       const dashboardUrls: Record<UserRole, string> = {
         super_admin: '/dashboard/admin',
         admin: '/dashboard/admin',
+        lead: '/dashboard/lead',
         client: '/dashboard/client',
         tax_preparer: '/dashboard/tax-preparer',
-        referrer: '/dashboard/referrer',
         affiliate: '/dashboard/affiliate',
       }
 

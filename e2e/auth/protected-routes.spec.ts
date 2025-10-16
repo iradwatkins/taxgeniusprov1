@@ -17,8 +17,8 @@ test.describe('Protected Routes', () => {
     expect(page.url()).toContain('/auth/login')
   })
 
-  test('should redirect to login when accessing referrer dashboard unauthenticated', async ({ page }) => {
-    await page.goto('http://localhost:3005/dashboard/referrer')
+  test('should redirect to login when accessing affiliate dashboard unauthenticated', async ({ page }) => {
+    await page.goto('http://localhost:3005/dashboard/affiliate')
 
     // Should redirect to login
     await page.waitForURL('**/auth/login**', { timeout: 5000 })

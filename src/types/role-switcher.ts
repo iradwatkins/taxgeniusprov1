@@ -87,19 +87,19 @@ export const ROLE_DISPLAY_CONFIG: Record<UserRole, RoleDisplayInfo> = {
     color: 'blue',
     icon: '📊',
   },
+  lead: {
+    value: 'lead',
+    label: 'Lead',
+    description: 'Lead management',
+    color: 'yellow',
+    icon: '🎯',
+  },
   affiliate: {
     value: 'affiliate',
     label: 'Affiliate',
     description: 'Affiliate marketing',
     color: 'purple',
     icon: '🤝',
-  },
-  referrer: {
-    value: 'referrer',
-    label: 'Referrer',
-    description: 'Referral program',
-    color: 'green',
-    icon: '🎯',
   },
   client: {
     value: 'client',
@@ -117,9 +117,9 @@ export const ROLE_DISPLAY_CONFIG: Record<UserRole, RoleDisplayInfo> = {
  * Note: 'admin' is excluded so regular admins don't see themselves in the switcher
  */
 export const VIEWABLE_ROLES: UserRole[] = [
+  'lead',
   'tax_preparer',
   'affiliate',
-  'referrer',
   'client',
 ]
 

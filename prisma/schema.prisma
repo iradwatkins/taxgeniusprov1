@@ -26,6 +26,10 @@ model User {
   oauthAccounts OAuthAccount[]
   magicLinks    MagicLink[]
 
+  // CRM Relations (Epic 7)
+  crmContact     CRMContact?
+  crmInteractions CRMInteraction[]
+
   @@map("users")
 }
 
@@ -69,10 +73,10 @@ model MagicLink {
 enum UserRole {
   SUPER_ADMIN
   ADMIN
-  CLIENT
-  REFERRER
-  TAX_PREPARER
-  AFFILIATE
+  LEAD          // Default role for new signups (pending admin approval)
+  CLIENT        // User who has completed tax preparation with Tax Genius
+  TAX_PREPARER  // Tax professional
+  AFFILIATE     // Referrer working for Tax Genius (hasn't done taxes with us)
 }
 
 model Profile {
@@ -98,6 +102,13 @@ model Profile {
   trackingCodeChanged Boolean  @default(false) // Enforce one-time change rule
   trackingCodeQRUrl   String?  @db.Text // Pre-generated QR code data URL
 
+  // Short Link System (NEW - Epic 6)
+  shortLinkUsername        String?  @unique // Username for short links (e.g., "irawatkins")
+  shortLinkUsernameChanged Boolean  @default(false) // One-time change enforcement
+
+  // Affiliate Bonding (NEW - Epic 6)
+  affiliateBondedToPreparerId String? // For affiliates: which preparer they're bonded to
+
   // Encrypted sensitive data
   ssn         String? // Encrypted
   dateOfBirth String? // Encrypted
@@ -119,12 +130,16 @@ model Profile {
   orders              Order[]
   subscriptions       Subscription[]
   campaigns           MarketingCampaign[]
+  affiliateBondings   AffiliateBonding[]   @relation("AffiliateBondings")
+  preparerBondings    AffiliateBonding[]   @relation("PreparerBondings")
 
   @@index([role])
   @@index([vanitySlug])
   @@index([clerkUserId])
   @@index([trackingCode])
   @@index([customTrackingCode])
+  @@index([shortLinkUsername])
+  @@index([affiliateBondedToPreparerId])
   @@map("profiles")
 }
 
@@ -397,6 +412,26 @@ model ClientPreparer {
   @@map("client_preparers")
 }
 
+// ============ Affiliate Bonding System (NEW - Epic 6) ============
+
+model AffiliateBonding {
+  id          String   @id @default(cuid())
+  affiliateId String
+  affiliate   Profile  @relation("AffiliateBondings", references: [id], fields: [affiliateId], onDelete: Cascade)
+  preparerId  String
+  preparer    Profile  @relation("PreparerBondings", references: [id], fields: [preparerId], onDelete: Cascade)
+  bondedAt    DateTime @default(now())
+  isActive    Boolean  @default(true)
+
+  // Tax preparer's custom commission structure for this affiliate
+  commissionStructure Json? // Example: {"tier1": {"count": 5, "rate": 50}, "tier2": {"count": 10, "rate": 75}}
+
+  @@unique([affiliateId, preparerId])
+  @@index([affiliateId, isActive])
+  @@index([preparerId, isActive])
+  @@map("affiliate_bondings")
+}
+
 enum TaxReturnStatus {
   DRAFT
   IN_REVIEW
@@ -591,6 +626,11 @@ model Commission {
   referralId String
   referral   Referral      @relation(references: [id], fields: [referralId], onDelete: Cascade)
   amount     Decimal
+
+  // Rate Locking (NEW - Epic 6)
+  rateAtCreation   Decimal?  @db.Decimal(5, 2) // Commission rate when lead was created
+  calculatedAmount Decimal?  @db.Decimal(10, 2) // Auto-calculated commission
+
   status     PaymentStatus @default(PENDING)
   paidAt     DateTime?
   paymentRef String? // Reference to payment transaction
@@ -600,6 +640,7 @@ model Commission {
   @@index([referrerId])
   @@index([referralId])
   @@index([status])
+  @@index([createdAt])
   @@map("commissions")
 }
 
@@ -722,6 +763,15 @@ model Lead {
   ipAddress     String?
   userAgent     String?
 
+  // Attribution & Commission Locking (NEW - Epic 6)
+  referrerUsername         String? // Username of referrer who brought this lead
+  referrerType             String? // TAX_PREPARER, AFFILIATE, CLIENT, ADMIN
+  commissionRate           Decimal?  @db.Decimal(5, 2) // Locked rate at lead creation
+  commissionRateLockedAt   DateTime? // When rate was locked
+  attributionMethod        String? // "cookie", "email_match", "phone_match", "direct"
+  attributionCookieId      String? // Cookie ID used for attribution
+  attributionConfidence    Int      @default(100) // 0-100 confidence score
+
   // Assignment & Follow-up tracking
   assignedPreparerId String? // Which preparer is handling this lead
   contactRequested   Boolean  @default(false) // Did they request a call/appointment?
@@ -738,6 +788,9 @@ model Lead {
   @@index([createdAt])
   @@index([assignedPreparerId])
   @@index([contactRequested])
+  @@index([referrerUsername])
+  @@index([commissionRateLockedAt])
+  @@index([attributionMethod])
   @@map("leads")
 }
 
@@ -795,6 +848,11 @@ model TaxIntakeLead {
   // Tracking
   completed      Boolean  @default(false)
 
+  // Attribution (NEW - Epic 6)
+  referrerUsername  String? // Username who referred this intake
+  referrerType      String? // TAX_PREPARER, AFFILIATE, CLIENT, ADMIN
+  attributionMethod String? // "cookie", "email_match", "phone_match", "direct"
+
   // Assignment & Follow-up tracking
   assignedPreparerId String? // Which preparer is handling this intake
   contactRequested   Boolean  @default(false) // Did they request a call/appointment?
@@ -810,6 +868,8 @@ model TaxIntakeLead {
   @@index([created_at])
   @@index([assignedPreparerId])
   @@index([contactRequested])
+  @@index([referrerUsername])
+  @@index([attributionMethod])
   @@map("tax_intake_leads")
 }
 
@@ -1023,12 +1083,19 @@ model LinkClick {
   utmContent  String?
   utmTerm     String?
 
+  // NEW: Cross-device attribution (Epic 6)
+  userEmail              String? // Email entered in form (for device-agnostic attribution)
+  userPhone              String? // Phone entered in form (for device-agnostic attribution)
+  attributionConfidence  Int     @default(100) // 0-100 confidence score
+
   @@index([linkId])
   @@index([clickedAt])
   @@index([converted])
   @@index([intakeStartedAt])
   @@index([intakeCompletedAt])
   @@index([taxReturnCompletedAt])
+  @@index([userEmail])
+  @@index([userPhone])
   // NEW: Performance indexes for Top 15 Locations query (Epic 6 - Story 6.3)
   @@index([city, state, clickedAt])
   @@index([clickedAt, city, state])
@@ -1152,4 +1219,151 @@ model FollowUpLog {
   @@index([contactedAt])
   @@index([nextFollowUp])
   @@map("follow_up_logs")
+}
+
+// ============ CRM System (Epic 7) ============
+
+enum ContactType {
+  CLIENT
+  LEAD
+  AFFILIATE
+  PREPARER
+}
+
+enum PipelineStage {
+  NEW
+  CONTACTED
+  DOCUMENTS
+  PREPARING
+  COMPLETE
+}
+
+enum InteractionType {
+  EMAIL
+  PHONE_CALL
+  MEETING
+  NOTE
+  OTHER
+}
+
+enum Direction {
+  INBOUND
+  OUTBOUND
+}
+
+// CRM Contact (extends existing User/Client/Preparer/Affiliate)
+model CRMContact {
+  id                String    @id @default(cuid())
+  userId            String?   @unique  // FK to User table (legacy Lucia) - nullable for leads without users
+  clerkUserId       String?   @unique  // FK to Clerk user (current)
+  contactType       ContactType        // CLIENT | LEAD | AFFILIATE | PREPARER
+
+  // Contact metadata
+  firstName         String
+  lastName          String
+  email             String    @unique
+  phone             String?
+  company           String?
+
+  // Tax-specific fields
+  filingStatus      String?   // Single, Married, etc.
+  dependents        Int?
+  previousYearAGI   Float?
+  taxYear           Int?
+
+  // CRM lifecycle
+  stage             PipelineStage @default(NEW)
+  stageEnteredAt    DateTime  @default(now())
+  source            String?   // utm_source, referral code, etc.
+
+  // Assignment
+  assignedPreparerId String?
+  assignedAt        DateTime?
+
+  // Lead Attribution (Epic 6 integration)
+  referrerUsername         String? // Username of referrer who brought this lead
+  referrerType             String? // TAX_PREPARER, AFFILIATE, CLIENT, ADMIN
+  commissionRate           Decimal?  @db.Decimal(5, 2) // Locked rate at lead creation
+  commissionRateLockedAt   DateTime? // When rate was locked
+  attributionMethod        String? // "cookie", "email_match", "phone_match", "direct"
+  attributionConfidence    Int      @default(100) // 0-100 confidence score
+
+  // Timestamps
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  lastContactedAt   DateTime?
+
+  // Relations
+  user              User?     @relation(fields: [userId], references: [id])
+  interactions      CRMInteraction[]
+  stageHistory      CRMStageHistory[]
+
+  @@index([email])
+  @@index([userId])
+  @@index([clerkUserId])
+  @@index([assignedPreparerId])
+  @@index([stage])
+  @@index([contactType])
+  @@index([lastContactedAt])
+  @@index([referrerUsername])
+  @@map("crm_contacts")
+}
+
+// CRM Interaction (phone, email, meeting, note)
+model CRMInteraction {
+  id                String    @id @default(cuid())
+  contactId         String
+  userId            String?   // Who logged this interaction (legacy Lucia)
+  clerkUserId       String?   // Who logged this interaction (current Clerk)
+
+  // Interaction details
+  type              InteractionType
+  direction         Direction @default(OUTBOUND) // INBOUND | OUTBOUND
+  subject           String?
+  body              String?   @db.Text
+  duration          Int?      // minutes (for calls/meetings)
+
+  // Email-specific (for Resend sync)
+  emailId           String?   @unique // Resend email ID
+  emailThreadId     String?   // For Gmail-style threading
+  emailTo           String[]
+  emailCc           String[]
+  emailBcc          String[]
+
+  // Metadata
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  occurredAt        DateTime  @default(now()) // When interaction happened
+
+  // Attachments
+  attachments       Json?     // Array of MinIO file keys
+
+  // Relations
+  contact           CRMContact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  user              User?     @relation(fields: [userId], references: [id])
+
+  @@index([contactId, occurredAt(sort: Desc)])
+  @@index([emailThreadId])
+  @@index([type])
+  @@index([userId])
+  @@index([clerkUserId])
+  @@map("crm_interactions")
+}
+
+// Stage history tracking (for reporting)
+model CRMStageHistory {
+  id                String    @id @default(cuid())
+  contactId         String
+  fromStage         PipelineStage?
+  toStage           PipelineStage
+  changedBy         String?   // userId (legacy Lucia)
+  changedByClerk    String?   // clerkUserId (current)
+  reason            String?   @db.Text
+  createdAt         DateTime  @default(now())
+
+  contact           CRMContact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@index([contactId, createdAt(sort: Desc)])
+  @@index([changedByClerk])
+  @@map("crm_stage_history")
 }

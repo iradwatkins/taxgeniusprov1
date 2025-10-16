@@ -5,8 +5,8 @@ import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   try {
-    // Allow both referrer and affiliate roles to access activity
-    const { profile } = await requireOneOfRoles(['referrer', 'affiliate'])
+    // Allow client and affiliate roles to access activity (anyone who can refer)
+    const { profile } = await requireOneOfRoles(['client', 'affiliate'])
 
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '10')

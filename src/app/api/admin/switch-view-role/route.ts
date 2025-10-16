@@ -48,9 +48,9 @@ export async function POST(request: NextRequest) {
     const validRoles: UserRole[] = [
       'super_admin',
       'admin',
+      'lead',
       'tax_preparer',
       'affiliate',
-      'referrer',
       'client',
     ]
 

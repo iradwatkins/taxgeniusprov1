@@ -36,10 +36,10 @@ describe('SelectRolePage', () => {
     expect(screen.getByText('I need tax preparation services')).toBeInTheDocument()
 
     expect(screen.getByText('Tax Preparer')).toBeInTheDocument()
-    expect(screen.getByText('I prepare taxes for clients')).toBeInTheDocument()
+    expect(screen.getByText('I prepare taxes and want customized marketing materials')).toBeInTheDocument()
 
-    expect(screen.getByText('Referrer')).toBeInTheDocument()
-    expect(screen.getByText('I refer clients to tax preparers')).toBeInTheDocument()
+    expect(screen.getByText('Affiliate Marketer')).toBeInTheDocument()
+    expect(screen.getByText('I want to market tax services and earn referral commissions')).toBeInTheDocument()
   })
 
   it('should have continue button disabled when no role selected', () => {
@@ -95,9 +95,9 @@ describe('SelectRolePage', () => {
 
     render(<SelectRolePage />)
 
-    // Select referrer role
-    const referrerButton = screen.getByText('Referrer').closest('button')
-    fireEvent.click(referrerButton!)
+    // Select affiliate role
+    const affiliateButton = screen.getByText('Affiliate Marketer').closest('button')
+    fireEvent.click(affiliateButton!)
 
     // Click continue
     const continueButton = screen.getByRole('button', { name: /continue/i })
@@ -105,12 +105,12 @@ describe('SelectRolePage', () => {
 
     await waitFor(() => {
       expect(mockUpdate).toHaveBeenCalledWith({
-        publicMetadata: { role: 'referrer' },
+        publicMetadata: { role: 'affiliate' },
       })
     })
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/dashboard/referrer')
+      expect(mockPush).toHaveBeenCalledWith('/dashboard/affiliate')
     })
   })
 
@@ -166,8 +166,8 @@ describe('SelectRolePage', () => {
   it('should redirect to correct dashboard based on selected role', async () => {
     const roles = [
       { role: 'client', path: '/dashboard/client', label: 'Tax Client' },
-      { role: 'preparer', path: '/dashboard/preparer', label: 'Tax Preparer' },
-      { role: 'referrer', path: '/dashboard/referrer', label: 'Referrer' },
+      { role: 'tax_preparer', path: '/dashboard/tax-preparer', label: 'Tax Preparer' },
+      { role: 'affiliate', path: '/dashboard/affiliate', label: 'Affiliate Marketer' },
     ]
 
     for (const { role, path, label } of roles) {

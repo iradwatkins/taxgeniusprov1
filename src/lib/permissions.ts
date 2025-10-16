@@ -77,7 +77,7 @@ export const SECTION_PERMISSIONS: Record<SectionPermission, Permission[]> = {
 
 export type UserPermissions = Record<Permission, boolean>;
 
-export type UserRole = 'super_admin' | 'admin' | 'tax_preparer' | 'affiliate' | 'referrer' | 'client';
+export type UserRole = 'super_admin' | 'admin' | 'tax_preparer' | 'affiliate' | 'lead' | 'client';
 
 /**
  * Default permissions for each role
@@ -91,12 +91,13 @@ export type UserRole = 'super_admin' | 'admin' | 'tax_preparer' | 'affiliate' | 
  * 👑 ADMIN:          User Management, Payouts, Content Generator, System-wide Analytics
  * 📊 TAX PREPARER:   Client Documents (their clients only), Lead Tracking, Academy
  * 🤝 AFFILIATE:      Marketing Store, Professional Marketing Materials, Conversion Tracking
- * 🎯 REFERRER:       Contests (unique!), Simple Referrals, NO Store Access
- * 👤 CLIENT:         Upload Documents Only (most restricted)
+ * 🔶 LEAD:           Pending Approval (no access until role changed by admin)
+ * 👤 CLIENT:         Upload Documents, Conditional Referral Access (most restricted)
  *
  * KEY DIFFERENTIATORS:
- * - AFFILIATE has 'store' access, REFERRER does not
- * - REFERRER has 'contest' access, AFFILIATE does not
+ * - LEAD has no dashboard access (pending approval page only)
+ * - CLIENT can refer and see referral analytics (if they have shortLinkUsername)
+ * - AFFILIATE works for Tax Genius but hasn't done taxes (can refer)
  * - TAX PREPARER sees only THEIR clients (backend filtered), not all system clients
  * - Only SUPER ADMIN can access database, manage permissions, and see all client files
  *
@@ -129,20 +130,22 @@ export type UserRole = 'super_admin' | 'admin' | 'tax_preparer' | 'affiliate' | 
  *
  * 4. AFFILIATE (External Professional Marketer)
  *    - Promotes TaxGeniusPro through professional marketing campaigns
+ *    - Works for Tax Genius but hasn't done taxes yet
  *    - Has store access for marketing materials
  *    - Sophisticated tracking and analytics
  *    - CANNOT access any client data or admin features
  *
- * 5. REFERRER (Word-of-Mouth Promoter)
- *    - Refers friends and family casually
- *    - Can participate in referral contests (unlike affiliates)
- *    - Simple tracking and basic analytics
- *    - NO store access (not professional marketers)
+ * 5. LEAD (New Signup - Pending Approval)
+ *    - Default role for all new signups
+ *    - NO dashboard access (shows pending approval page)
+ *    - Admin must change role to: CLIENT, AFFILIATE, or TAX_PREPARER
+ *    - Tax Preparers can only change: LEAD → CLIENT
  *
  * 6. CLIENT (Tax Service Customer)
- *    - Most restricted role
- *    - Can only upload documents and view their own status
- *    - Cannot access any admin or marketing features
+ *    - User who has completed tax preparation with Tax Genius
+ *    - Can upload documents and view their own status
+ *    - Can refer new clients (shows "My Referrals" tab if active)
+ *    - Earns commissions on referrals (same as affiliates)
  */
 export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
   super_admin: {
@@ -254,24 +257,21 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     earnings: false, // Removed from all dashboards
     quickShareLinks: false, // Removed from all dashboards
   },
-  referrer: {
-    // Referrers are CASUAL WORD-OF-MOUTH PROMOTERS (friends/family referrals)
-    // Focus: Simple referrals with contest participation
-    dashboard: true,
-    contest: true, // ✅ UNIQUE: Participate in referral contests (affiliate doesn't have this)
-    marketing: true, // ✅ Simple sharing tools and referral links
-    settings: true,
-    analytics: true, // ✅ Basic referral statistics (simpler than affiliate)
-    trackingCode: true, // ✅ Simple personal referral link
-    earnings: false, // Removed from all dashboards
-    quickShareLinks: false, // Removed from all dashboards
-    store: false, // ❌ No store access (not professional marketers like affiliates)
+  lead: {
+    // Leads are NEW SIGNUPS pending admin approval
+    // NO access until admin changes role to CLIENT, AFFILIATE, or TAX_PREPARER
+    dashboard: false, // Shows pending approval page instead
+    settings: false,   // No access until approved
   },
   client: {
-    // Clients only see their own data
+    // Clients have completed tax preparation and can refer new clients
     dashboard: true,
     uploadDocuments: true,
     settings: true,
+    // Referral features (conditional - shown if shortLinkUsername exists)
+    analytics: true,      // View referral analytics
+    trackingCode: true,   // Personal referral link
+    marketing: true,      // Sharing tools
   },
 };
 
@@ -418,23 +418,18 @@ export function getEditablePermissions(role: UserRole): Permission[] {
         'trackingCode', // Sophisticated tracking codes
       ];
 
-    case 'referrer':
-      // Referrers are casual word-of-mouth promoters
-      return [
-        'dashboard',
-        'contest',      // ✅ UNIQUE: Referral contests (affiliates don't have this)
-        'marketing',    // Simple sharing tools
-        'settings',
-        'analytics',    // Basic referral stats
-        'trackingCode', // Simple referral link
-        // NO 'store' - not professional marketers like affiliates
-      ];
+    case 'lead':
+      // Leads have no permissions until approved by admin
+      return [];
 
     case 'client':
       return [
         'dashboard',
         'uploadDocuments',
         'settings',
+        'analytics',    // View referral analytics (conditional)
+        'trackingCode', // Personal referral link (conditional)
+        'marketing',    // Sharing tools (conditional)
       ];
 
     default:
@@ -461,7 +456,7 @@ export const PERMISSION_TO_ROUTE: Record<Permission, string> = {
   settings: '/dashboard/*/settings',
   marketing: '/dashboard/*/marketing',
   uploadDocuments: '/upload-documents',
-  contest: '/dashboard/referrer/contest',
+  contest: '/dashboard/contest',
   trackingCode: '/dashboard/*/tracking',
   alerts: '/admin/alerts',
   // New admin navigation routes

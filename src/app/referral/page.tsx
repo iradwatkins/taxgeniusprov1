@@ -44,7 +44,7 @@ export default function ReferralPage() {
               <Link href="/">
                 <Button variant="ghost">Back to Home</Button>
               </Link>
-              <Link href="/auth/signup?role=referrer">
+              <Link href="/auth/signup?role=client">
                 <Button className="bg-primary hover:bg-primary/90">
                   Join Now <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
@@ -77,7 +77,7 @@ export default function ReferralPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Link href="/auth/signup?role=referrer">
+              <Link href="/auth/signup?role=client">
                 <Button size="lg" className="bg-yellow-400 text-blue-900 hover:bg-yellow-300 text-lg px-8 shadow-xl hover:scale-105 transition-transform">
                   Start Referring Now <ArrowRight className="ml-2" />
                 </Button>
@@ -370,7 +370,7 @@ export default function ReferralPage() {
               <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
                 Join thousands of people earning extra money by referring friends to Tax Genius Pro
               </p>
-              <Link href="/auth/signup?role=referrer">
+              <Link href="/auth/signup?role=client">
                 <Button size="lg" className="bg-yellow-400 text-blue-900 hover:bg-yellow-300 text-lg px-8 shadow-xl hover:scale-105 transition-transform">
                   Get Your Referral Link <ArrowRight className="ml-2" />
                 </Button>

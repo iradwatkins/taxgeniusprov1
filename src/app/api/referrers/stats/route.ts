@@ -5,8 +5,8 @@ import { withErrorHandler, createServiceUnavailableError } from '@/lib/api-error
 import { logger } from '@/lib/logger'
 
 export const GET = withErrorHandler(async function(request: NextRequest) {
-  // Allow both referrer and affiliate roles to access stats
-  const { profile } = await requireOneOfRoles(['referrer', 'affiliate'])
+  // Allow client and affiliate roles to access stats (anyone who can refer)
+  const { profile } = await requireOneOfRoles(['client', 'affiliate'])
 
   try {
     const stats = await ReferrerService.getReferrerStats(profile.id)

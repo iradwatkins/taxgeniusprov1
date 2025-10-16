@@ -42,12 +42,14 @@ export function DashboardHeader({
 
   const getRoleBadgeColor = (role?: string) => {
     switch (role) {
+      case 'super_admin':
+        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
       case 'admin':
         return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+      case 'lead':
+        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
       case 'tax_preparer':
         return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-      case 'referrer':
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
       case 'affiliate':
         return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
       case 'client':

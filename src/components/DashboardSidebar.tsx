@@ -61,19 +61,26 @@ interface DashboardSidebarProps {
 
 // All possible navigation items with their permission requirements
 const ALL_NAV_ITEMS: NavItem[] = [
-  // 🧩 Admin Side Navigation Section
-  { label: 'Dashboard (Overview)', href: '/dashboard', icon: Home, permission: 'dashboard', section: '🧩 Admin Side Navigation' },
+  // 🧩 Dashboard Section
+  { label: 'Dashboard', href: '/dashboard', icon: Home, permission: 'dashboard', section: '🧩 Dashboard' },
 
-  // 👥 Management Section
-  { label: 'Clients Status', href: '/admin/clients-status', icon: UserCheck, permission: 'clientsStatus', section: '👥 Management' },
-  { label: 'Referrals Status', href: '/admin/referrals-status', icon: Users, permission: 'referralsStatus', section: '👥 Management' },
-  { label: 'Emails', href: '/admin/emails', icon: Mail, permission: 'emails', section: '👥 Management' },
-  { label: 'Calendar / Appointments', href: '/admin/calendar', icon: Calendar, permission: 'calendar', section: '👥 Management' },
-  { label: 'Address Book', href: '/admin/address-book', icon: BookOpen, permission: 'addressBook', section: '👥 Management' },
-  { label: 'Client File Centers', href: '/admin/file-center', icon: FolderOpen, permission: 'clientFileCenter', section: '👥 Management' },
-  { label: 'Payouts', href: '/admin/payouts', icon: DollarSign, permission: 'payouts', section: '👥 Management' },
+  // 👥 Client Management Section
+  { label: 'Clients Status', href: '/admin/clients-status', icon: UserCheck, permission: 'clientsStatus', section: '👥 Client Management' },
+  { label: 'Referrals Status', href: '/admin/referrals-status', icon: Users, permission: 'referralsStatus', section: '👥 Client Management' },
+  { label: 'Calendar & Appointments', href: '/admin/calendar', icon: Calendar, permission: 'calendar', section: '👥 Client Management' },
+  { label: 'Client File Center', href: '/admin/file-center', icon: FolderOpen, permission: 'clientFileCenter', section: '👥 Client Management' },
 
-  // 📊 Analytics Section (Admin only)
+  // 💬 Communication Section
+  { label: 'Emails', href: '/admin/emails', icon: Mail, permission: 'emails', section: '💬 Communication' },
+  { label: 'Address Book', href: '/admin/address-book', icon: BookOpen, permission: 'addressBook', section: '💬 Communication' },
+
+  // 💰 Financials Section
+  { label: 'Earnings', href: '/admin/earnings', icon: DollarSign, permission: 'earnings', section: '💰 Financials', roles: ['admin', 'super_admin'] },
+  { label: 'My Earnings', href: '/dashboard/tax-preparer/earnings', icon: DollarSign, permission: 'earnings', section: '💰 Financials', roles: ['tax_preparer'] },
+  { label: 'My Earnings', href: '/dashboard/affiliate/earnings', icon: DollarSign, permission: 'earnings', section: '💰 Financials', roles: ['affiliate'] },
+  { label: 'Payouts', href: '/admin/payouts', icon: DollarSign, permission: 'payouts', section: '💰 Financials' },
+
+  // 📊 Analytics Section
   { label: 'Analytics Overview', href: '/admin/analytics', icon: BarChart3, permission: 'analytics', section: '📊 Analytics', roles: ['admin', 'super_admin'] },
   { label: 'Tax Genius Analytics', href: '/admin/analytics/tax-genius', icon: Sparkles, permission: 'analytics', section: '📊 Analytics', roles: ['admin', 'super_admin'] },
   { label: 'Tax Preparers Analytics', href: '/admin/analytics/preparers', icon: Users, permission: 'analytics', section: '📊 Analytics', roles: ['admin', 'super_admin'] },
@@ -81,46 +88,41 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { label: 'Clients Analytics', href: '/admin/analytics/clients', icon: TrendingUp, permission: 'analytics', section: '📊 Analytics', roles: ['admin', 'super_admin'] },
 
   // Role-specific Analytics (for non-admin users)
-  { label: 'My Analytics', href: '/dashboard/tax-preparer/analytics', icon: BarChart3, permission: 'analytics', section: '📊 My Analytics', roles: ['tax_preparer'] },
-  { label: 'My Analytics', href: '/dashboard/affiliate/analytics', icon: BarChart3, permission: 'analytics', section: '📊 My Analytics', roles: ['affiliate'] },
-  { label: 'My Analytics', href: '/dashboard/referrer/analytics', icon: BarChart3, permission: 'analytics', section: '📊 My Analytics', roles: ['referrer'] },
-
-  // Tracking Code (for users with marketing features)
-  { label: 'My Tracking Code', href: '/dashboard/tax-preparer/tracking', icon: QrCode, permission: 'trackingCode', section: '📢 Marketing', roles: ['tax_preparer'] },
-  { label: 'My Tracking Code', href: '/dashboard/affiliate/tracking', icon: QrCode, permission: 'trackingCode', section: '📢 Marketing', roles: ['affiliate'] },
-  { label: 'My Tracking Code', href: '/dashboard/referrer/tracking', icon: QrCode, permission: 'trackingCode', section: '📢 Marketing', roles: ['referrer'] },
-
-  // 🎓 Learning Center Section
-  { label: 'Learning Center', href: '/admin/learning-center', icon: GraduationCap, permission: 'learningCenter', section: '🎓 Learning Center' },
-  { label: 'Academy', href: '/app/academy', icon: GraduationCap, permission: 'academy', section: '🎓 Learning Center' },
+  { label: 'My Analytics', href: '/dashboard/tax-preparer/analytics', icon: BarChart3, permission: 'analytics', section: '📊 Analytics', roles: ['tax_preparer'] },
+  { label: 'My Analytics', href: '/dashboard/affiliate/analytics', icon: BarChart3, permission: 'analytics', section: '📊 Analytics', roles: ['affiliate'] },
 
   // 📢 Marketing Section
-  { label: 'Marketing Hub', href: '/admin/marketing-hub', icon: Megaphone, permission: 'marketingHub', section: '📢 Marketing' },
+  { label: 'Marketing Hub', href: '/admin/marketing-hub', icon: Megaphone, permission: 'marketingHub', section: '📢 Marketing', roles: ['admin', 'super_admin'] },
   { label: 'Tracking Codes', href: '/admin/tracking-codes', icon: QrCode, permission: 'marketingHub', section: '📢 Marketing', roles: ['admin', 'super_admin'] },
-  { label: 'Marketing Materials', href: '/dashboard/affiliate/marketing', icon: Briefcase, permission: 'marketing', section: '📢 Marketing' },
-  { label: 'Content Generator', href: '/admin/content-generator', icon: Sparkles, permission: 'contentGenerator', section: '📢 Marketing' },
-  { label: 'Contest', href: '/dashboard/referrer/contest', icon: Trophy, permission: 'contest', section: '📢 Marketing' },
-  { label: 'Marketing Tools', href: '/dashboard/referrer/marketing', icon: QrCode, permission: 'marketing', section: '📢 Marketing' },
-  { label: 'Store', href: '/store', icon: Package, permission: 'store', section: '📢 Marketing' },
+  { label: 'Content Generator', href: '/admin/content-generator', icon: Sparkles, permission: 'contentGenerator', section: '📢 Marketing', roles: ['admin', 'super_admin'] },
+
+  // Role-specific Marketing (for non-admin users)
+  { label: 'My Tracking Code', href: '/dashboard/tax-preparer/tracking', icon: QrCode, permission: 'trackingCode', section: '📢 Marketing', roles: ['tax_preparer'] },
+  { label: 'My Marketing', href: '/dashboard/affiliate/marketing', icon: Briefcase, permission: 'marketing', section: '📢 Marketing', roles: ['affiliate'] },
+  { label: 'My Tracking Code', href: '/dashboard/affiliate/tracking', icon: QrCode, permission: 'trackingCode', section: '📢 Marketing', roles: ['affiliate'] },
+
+  // 🎓 Learning & Resources Section
+  { label: 'Learning Center', href: '/admin/learning-center', icon: GraduationCap, permission: 'learningCenter', section: '🎓 Learning & Resources' },
+  { label: 'Academy', href: '/app/academy', icon: GraduationCap, permission: 'academy', section: '🎓 Learning & Resources' },
+  { label: 'Store', href: '/store', icon: Package, permission: 'store', section: '🎓 Learning & Resources' },
+
+  // 🔗 Quick Share Tools Section
+  { label: 'Quick Share Links', href: '/admin/quick-share', icon: Link2, permission: 'quickShareLinks', section: '🔗 Quick Share Tools', roles: ['admin', 'super_admin'] },
 
   // ⚙️ System Controls Section
   { label: 'User Management', href: '/admin/users', icon: Users, permission: 'users', section: '⚙️ System Controls' },
-  { label: 'Settings', href: '/dashboard/settings', icon: Settings, permission: 'settings', section: '⚙️ System Controls' },
+  { label: 'Permissions', href: '/admin/permissions', icon: ShieldCheck, permission: 'users', section: '⚙️ System Controls', roles: ['super_admin'] },
   { label: 'Database', href: '/admin/database', icon: Database, permission: 'database', section: '⚙️ System Controls' },
-
-  // 🔗 Quick Share Tools Section
-  { label: 'Quick Share Links', href: '/admin/quick-share', icon: Link2, permission: 'quickShareLinks', section: '🔗 Quick Share Tools' },
-  { label: 'Tax Prep Referral Link', href: '/admin/quick-share#referral', icon: Share2, permission: 'quickShareLinks', section: '🔗 Quick Share Tools' },
-  { label: 'Tax Prep Share Link', href: '/admin/quick-share#share', icon: Share2, permission: 'quickShareLinks', section: '🔗 Quick Share Tools' },
+  { label: 'Settings', href: '/dashboard/settings', icon: Settings, permission: 'settings', section: '⚙️ System Controls' },
 ]
 
 // Dashboard routes by role (for redirecting to correct dashboard)
 const ROLE_DASHBOARD_ROUTES: Record<UserRole, string> = {
   super_admin: '/dashboard/admin',
   admin: '/dashboard/admin',
+  lead: '/dashboard/lead',
   tax_preparer: '/dashboard/tax-preparer',
   affiliate: '/dashboard/affiliate',
-  referrer: '/dashboard/referrer',
   client: '/dashboard/client',
 }
 
@@ -173,9 +175,9 @@ export function DashboardSidebar({
         const earningsRoutes: Record<UserRole, string> = {
           super_admin: '/admin/earnings',
           admin: '/admin/earnings',
+          lead: '/dashboard/lead/earnings',
           tax_preparer: '/dashboard/tax-preparer/earnings',
           affiliate: '/dashboard/affiliate/earnings',
-          referrer: '/dashboard/referrer/earnings',
           client: '/dashboard/client/earnings',
         }
         return { ...item, href: earningsRoutes[role] }
@@ -186,9 +188,9 @@ export function DashboardSidebar({
         const settingsRoutes: Record<UserRole, string> = {
           super_admin: '/admin/settings',
           admin: '/admin/settings',
+          lead: '/dashboard/lead/settings',
           tax_preparer: '/dashboard/tax-preparer/settings',
           affiliate: '/dashboard/affiliate/settings',
-          referrer: '/dashboard/referrer/settings',
           client: '/dashboard/client/settings',
         }
         return { ...item, href: settingsRoutes[role] }
@@ -249,8 +251,8 @@ export function DashboardSidebar({
             // Render with sections for admin users - ordered sections
             // Define section order for consistent display
             <div className="space-y-4">
-              {['🧩 Admin Side Navigation', '👥 Management', '📊 Analytics', '🎓 Learning Center',
-               '📢 Marketing', '⚙️ System Controls', '🔗 Quick Share Tools'].map((sectionName, sectionIndex) => {
+              {['🧩 Dashboard', '👥 Client Management', '💬 Communication', '💰 Financials', '📊 Analytics',
+               '📢 Marketing', '🎓 Learning & Resources', '🔗 Quick Share Tools', '⚙️ System Controls'].map((sectionName, sectionIndex) => {
                 const items = groupedItems[sectionName];
                 if (!items || items.length === 0) return null;
 

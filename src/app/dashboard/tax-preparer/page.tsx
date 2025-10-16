@@ -26,7 +26,10 @@ import {
   MessageSquare,
   ChevronRight,
   DollarSign,
-  FileCheck
+  FileCheck,
+  Mail,
+  FolderOpen,
+  BookUser
 } from 'lucide-react'
 import Link from 'next/link'
 import { useToast } from '@/hooks/use-toast'
@@ -36,8 +39,11 @@ import { SourceBreakdown } from '@/components/analytics/SourceBreakdown'
 import { StatsGrid } from '@/components/dashboard/preparer/StatsGrid'
 import { OverviewTab } from '@/components/dashboard/preparer/OverviewTab'
 import { ClientsTab } from '@/components/dashboard/preparer/ClientsTab'
+import { LeadsManagementTab } from '@/components/dashboard/preparer/LeadsManagementTab'
 import { WorkflowTab } from '@/components/dashboard/preparer/WorkflowTab'
 import { getStatusIcon, getStatusColor, getPriorityColor } from '@/components/dashboard/preparer/utils'
+import { AttributionStatsCard } from '@/components/dashboard/attribution-stats-card'
+import { RecentLeadsTable } from '@/components/dashboard/recent-leads-table'
 
 // Types
 interface Client {
@@ -184,9 +190,19 @@ export default function PreparerDashboard() {
 
           <TabsContent value="overview" className="space-y-4">
             <OverviewTab clients={clients} getPriorityColor={getPriorityColor} />
+
+            {/* EPIC 6: Attribution Analytics - Track referrer partnerships */}
+            <AttributionStatsCard period="30d" />
+
+            {/* EPIC 6: Recent Leads from Referrers */}
+            <RecentLeadsTable limit={10} />
           </TabsContent>
 
           <TabsContent value="clients" className="space-y-4">
+            {/* Leads Management - Promote LEAD → CLIENT */}
+            <LeadsManagementTab />
+
+            {/* Existing Clients */}
             <ClientsTab
               clients={clients}
               getStatusIcon={getStatusIcon}
@@ -322,6 +338,70 @@ export default function PreparerDashboard() {
           </TabsContent>
 
           <TabsContent value="resources" className="space-y-4">
+            {/* Professional Tools Access */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Briefcase className="h-5 w-5" />
+                  Professional Tools
+                </CardTitle>
+                <CardDescription>
+                  Access your client management and communication tools
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+                  <Button variant="outline" className="h-auto flex-col gap-2 py-6" asChild>
+                    <Link href="/admin/file-center">
+                      <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                        <FolderOpen className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div className="text-center">
+                        <p className="font-semibold">File Center</p>
+                        <p className="text-xs text-muted-foreground">Manage client documents</p>
+                      </div>
+                    </Link>
+                  </Button>
+
+                  <Button variant="outline" className="h-auto flex-col gap-2 py-6" asChild>
+                    <Link href="/admin/calendar">
+                      <div className="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                        <Calendar className="h-6 w-6 text-green-600" />
+                      </div>
+                      <div className="text-center">
+                        <p className="font-semibold">Calendar</p>
+                        <p className="text-xs text-muted-foreground">Schedule appointments</p>
+                      </div>
+                    </Link>
+                  </Button>
+
+                  <Button variant="outline" className="h-auto flex-col gap-2 py-6" asChild>
+                    <Link href="/admin/emails">
+                      <div className="h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                        <Mail className="h-6 w-6 text-purple-600" />
+                      </div>
+                      <div className="text-center">
+                        <p className="font-semibold">Emails</p>
+                        <p className="text-xs text-muted-foreground">Client communication</p>
+                      </div>
+                    </Link>
+                  </Button>
+
+                  <Button variant="outline" className="h-auto flex-col gap-2 py-6" asChild>
+                    <Link href="/admin/address-book">
+                      <div className="h-12 w-12 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                        <BookUser className="h-6 w-6 text-orange-600" />
+                      </div>
+                      <div className="text-center">
+                        <p className="font-semibold">Address Book</p>
+                        <p className="text-xs text-muted-foreground">Contact management</p>
+                      </div>
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Academy Link */}
             <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
               <CardHeader>

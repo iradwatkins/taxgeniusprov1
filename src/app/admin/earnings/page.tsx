@@ -65,8 +65,9 @@ export default async function AdminEarningsPage() {
   const getRoleBadge = (role: string) => {
     const badges = {
       tax_preparer: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-      referrer: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
       affiliate: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+      client: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+      lead: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
     }
     return badges[role as keyof typeof badges] || 'bg-gray-100 text-gray-700'
   }
@@ -275,8 +276,8 @@ export default async function AdminEarningsPage() {
               </TableRow>
               <TableRow>
                 <TableCell>
-                  <Badge className={getRoleBadge('referrer')}>
-                    Referrers
+                  <Badge className={getRoleBadge('client')}>
+                    Clients (Referring)
                   </Badge>
                 </TableCell>
                 <TableCell>38</TableCell>

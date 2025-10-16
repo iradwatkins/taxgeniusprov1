@@ -43,7 +43,7 @@ function SignupContent() {
       theme: 'from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-800/20',
       accentColor: 'text-blue-600 dark:text-blue-400',
     },
-    referrer: {
+    affiliate: {
       badge: '💰 Start Earning Today',
       icon: DollarSign,
       heading: 'Start Making Money Now!',
@@ -116,7 +116,7 @@ function SignupContent() {
           {/* Trust indicators */}
           <div className="pt-4 border-t">
             <p className="text-sm text-muted-foreground mb-3">
-              {role === 'referrer'
+              {role === 'affiliate'
                 ? '🔥 Join 10,000+ people already earning extra cash'
                 : role === 'preparer'
                 ? '✓ Trusted by 500+ professional tax preparers'
@@ -140,7 +140,7 @@ function SignupContent() {
             />
             <h2 className="text-2xl font-bold mb-2">{content.ctaText}</h2>
             <p className="text-sm text-muted-foreground">
-              {role === 'referrer'
+              {role === 'affiliate'
                 ? 'Create your account and start earning in minutes'
                 : role === 'preparer'
                 ? 'Create your professional account to get started'
@@ -158,7 +158,7 @@ function SignupContent() {
                 headerSubtitle: 'hidden',
                 socialButtonsBlockButton: 'border-2 hover:bg-accent',
                 formButtonPrimary: `bg-primary hover:bg-primary/90 text-lg py-3 ${
-                  role === 'referrer' ? 'bg-yellow-500 hover:bg-yellow-600' : ''
+                  role === 'affiliate' ? 'bg-yellow-500 hover:bg-yellow-600' : ''
                 }`,
                 footerActionLink: 'text-primary hover:text-primary/80',
                 formFieldInput__emailAddress: 'hidden',

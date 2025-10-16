@@ -38,10 +38,10 @@ export async function POST(request: Request) {
     const role = body.role || 'admin'; // Default to admin
 
     // Validate role
-    const validRoles = ['client', 'preparer', 'referrer', 'admin'];
+    const validRoles = ['super_admin', 'admin', 'lead', 'client', 'tax_preparer', 'affiliate'];
     if (!validRoles.includes(role)) {
       return NextResponse.json(
-        { error: 'Invalid role. Must be: client, preparer, referrer, or admin' },
+        { error: 'Invalid role. Must be: super_admin, admin, lead, client, tax_preparer, or affiliate' },
         { status: 400 }
       );
     }

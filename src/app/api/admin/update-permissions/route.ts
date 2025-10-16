@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate role
-    const validRoles: UserRole[] = ['super_admin', 'admin', 'tax_preparer', 'affiliate', 'referrer', 'client'];
+    const validRoles: UserRole[] = ['super_admin', 'admin', 'lead', 'tax_preparer', 'affiliate', 'client'];
     if (!validRoles.includes(role)) {
       return NextResponse.json(
         { error: 'Invalid role specified' },

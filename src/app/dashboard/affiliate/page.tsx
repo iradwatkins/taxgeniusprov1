@@ -37,6 +37,8 @@ import { useReferrerStats, useRecentActivity } from '@/hooks/useReferrerData'
 import { MaterialsTable } from '@/components/analytics/MaterialsTable'
 import { ConversionFunnel } from '@/components/analytics/ConversionFunnel'
 import { SourceBreakdown } from '@/components/analytics/SourceBreakdown'
+import { AttributionStatsCard } from '@/components/dashboard/attribution-stats-card'
+import { RecentLeadsTable } from '@/components/dashboard/recent-leads-table'
 
 export default function AffiliateDashboard() {
   const router = useRouter()
@@ -97,7 +99,7 @@ export default function AffiliateDashboard() {
                 icon={<DollarSign className="h-4 w-4" />}
                 description={`$${stats?.earnings_this_month || 0} this month`}
                 trend="up"
-                onClick={() => router.push('/dashboard/referrer/earnings')}
+                onClick={() => router.push('/dashboard/affiliate/earnings')}
                 className="cursor-pointer hover:shadow-md transition-shadow"
               />
               <StatCard
@@ -173,7 +175,7 @@ export default function AffiliateDashboard() {
                   <Button
                     className="w-full justify-start"
                     variant="outline"
-                    onClick={() => router.push('/dashboard/referrer/earnings')}
+                    onClick={() => router.push('/dashboard/affiliate/earnings')}
                   >
                     <Wallet className="mr-2 h-4 w-4" />
                     View Earnings & Request Payout
@@ -236,6 +238,12 @@ export default function AffiliateDashboard() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* EPIC 6: Attribution Analytics */}
+            <AttributionStatsCard period="30d" />
+
+            {/* EPIC 6: Recent Leads with Attribution */}
+            <RecentLeadsTable limit={10} />
 
             {/* Top 5 Campaigns Preview */}
             <Card>

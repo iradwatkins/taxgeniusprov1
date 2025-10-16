@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { UsernameManager } from '@/components/dashboard/username-manager'
 import {
   Share2,
   Copy,
@@ -40,9 +41,6 @@ export default async function AffiliateMarketingPage() {
     redirect('/forbidden')
   }
 
-  const affiliateId = 'AFF12345'
-  const affiliateLink = `https://taxgeniuspro.tax/aff/${affiliateId}`
-
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -59,77 +57,8 @@ export default async function AffiliateMarketingPage() {
         </Button>
       </div>
 
-      {/* Affiliate Link */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Link2 className="w-5 h-5" />
-            <CardTitle>Your Affiliate Link</CardTitle>
-          </div>
-          <CardDescription>
-            Share this link to track conversions and earn commissions
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              value={affiliateLink}
-              readOnly
-              className="font-mono text-sm"
-            />
-            <Button variant="outline">
-              <Copy className="w-4 h-4 mr-2" />
-              Copy
-            </Button>
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Affiliate ID</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={affiliateId}
-                  readOnly
-                  className="font-mono font-bold text-lg"
-                />
-                <Button variant="outline" size="icon">
-                  <Copy className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Campaign Tracking</Label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="utm_campaign=tax-season"
-                  className="font-mono text-sm"
-                />
-                <Button variant="outline">Add</Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Link Performance */}
-          <div className="grid gap-3 md:grid-cols-4 pt-4 border-t">
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Clicks</p>
-              <p className="text-2xl font-bold">1,234</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Conversions</p>
-              <p className="text-2xl font-bold">23</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Conv. Rate</p>
-              <p className="text-2xl font-bold">1.86%</p>
-            </div>
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Earnings</p>
-              <p className="text-2xl font-bold text-green-600">$1,610</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* EPIC 6: Username Manager - Replaces hardcoded affiliate link */}
+      <UsernameManager />
 
       {/* Marketing Materials Tabs */}
       <Tabs defaultValue="content" className="space-y-4">

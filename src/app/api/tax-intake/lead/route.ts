@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { trackJourneyStage } from '@/lib/services/journey-tracking.service';
 import { getUTMCookie } from '@/lib/utils/cookie-manager';
+import { getAttribution, saveTaxIntakeAttribution } from '@/lib/services/attribution.service';
 import { logger } from '@/lib/logger'
 
 export async function POST(req: NextRequest) {
@@ -30,6 +31,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // EPIC 6: Get attribution (cookie → email → phone → direct)
+    const attributionResult = await getAttribution(email, phone)
+
     // Check if lead already exists by email
     let lead = await prisma.taxIntakeLead.findUnique({
       where: { email },
@@ -51,6 +55,10 @@ export async function POST(req: NextRequest) {
           state,
           zip_code,
           updated_at: new Date(),
+          // EPIC 6: Attribution fields (update on re-submit)
+          referrerUsername: attributionResult.attribution.referrerUsername,
+          referrerType: attributionResult.attribution.referrerType,
+          attributionMethod: attributionResult.attribution.attributionMethod,
         },
       });
     } else {
@@ -68,6 +76,10 @@ export async function POST(req: NextRequest) {
           city,
           state,
           zip_code,
+          // EPIC 6: Attribution fields
+          referrerUsername: attributionResult.attribution.referrerUsername,
+          referrerType: attributionResult.attribution.referrerType,
+          attributionMethod: attributionResult.attribution.attributionMethod,
         },
       });
     }

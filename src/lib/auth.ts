@@ -3,7 +3,7 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 /**
  * User role types for Tax Genius platform
  */
-export type UserRole = 'super_admin' | 'admin' | 'client' | 'tax_preparer' | 'referrer' | 'affiliate';
+export type UserRole = 'super_admin' | 'admin' | 'lead' | 'client' | 'tax_preparer' | 'affiliate';
 
 /**
  * Get the current user's role from Clerk metadata
@@ -96,9 +96,9 @@ export function getDashboardUrl(role: UserRole): string {
   const dashboardUrls: Record<UserRole, string> = {
     super_admin: '/dashboard/admin',
     admin: '/dashboard/admin',
+    lead: '/dashboard/lead',
     client: '/dashboard/client',
     tax_preparer: '/dashboard/tax-preparer',
-    referrer: '/dashboard/referrer',
     affiliate: '/dashboard/affiliate',
   };
 

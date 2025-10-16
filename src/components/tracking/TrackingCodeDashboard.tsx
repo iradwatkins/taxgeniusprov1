@@ -37,7 +37,7 @@ interface TrackingCodeData {
 interface TrackingCodeDashboardProps {
   userId: string
   profileId: string
-  role: 'tax_preparer' | 'affiliate' | 'referrer'
+  role: 'tax_preparer' | 'affiliate' | 'client'
 }
 
 export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeDashboardProps) {

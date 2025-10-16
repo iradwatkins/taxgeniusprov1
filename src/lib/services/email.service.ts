@@ -73,7 +73,7 @@ export class EmailService {
   static async sendWelcomeEmail(
     to: string,
     name: string,
-    role: 'CLIENT' | 'REFERRER' | 'PREPARER'
+    role: 'CLIENT' | 'AFFILIATE' | 'PREPARER'
   ): Promise<boolean> {
     try {
       const dashboardUrl = `${this.appUrl}/dashboard/${role.toLowerCase()}`
@@ -117,7 +117,7 @@ export class EmailService {
     clientName: string
   ): Promise<boolean> {
     try {
-      const dashboardUrl = `${this.appUrl}/dashboard/referrer`
+      const dashboardUrl = `${this.appUrl}/dashboard/client`
 
       if (process.env.NODE_ENV === 'development') {
         logger.info('Commission Email (Dev Mode):', { to, name, amount, clientName })
@@ -363,7 +363,7 @@ export class EmailService {
     refundAmount?: number
   ): Promise<boolean> {
     try {
-      const signupUrl = `${this.appUrl}/auth/signup?role=referrer`
+      const signupUrl = `${this.appUrl}/auth/signup?role=client`
 
       if (process.env.NODE_ENV === 'development') {
         logger.info('Referral Invitation Email (Dev Mode):', {
@@ -497,7 +497,7 @@ export class EmailService {
             </div>
 
             <p style="margin-top: 30px;">
-              <a href="${this.appUrl}/dashboard/referrer"
+              <a href="${this.appUrl}/dashboard/client"
                  style="background: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
                 View Dashboard
               </a>
@@ -613,7 +613,7 @@ export class EmailService {
             </div>
 
             <p style="margin-top: 30px;">
-              <a href="${this.appUrl}/dashboard/referrer"
+              <a href="${this.appUrl}/dashboard/affiliate"
                  style="background: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
                 View Payout History
               </a>
@@ -798,14 +798,14 @@ export class EmailService {
             </div>
 
             <p style="margin-top: 30px;">
-              <a href="${this.appUrl}/dashboard/referrer"
+              <a href="${this.appUrl}/dashboard/affiliate"
                  style="background: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
                 View Dashboard
               </a>
             </p>
 
             <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
-              Thank you for being a valued referrer! Keep sharing your referral link to earn more.
+              Thank you for being a valued affiliate! Keep sharing your referral link to earn more.
             </p>
 
             <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
@@ -884,7 +884,7 @@ export class EmailService {
             </div>
 
             <p style="margin-top: 30px;">
-              <a href="${this.appUrl}/dashboard/referrer"
+              <a href="${this.appUrl}/dashboard/affiliate"
                  style="background: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
                 View Dashboard
               </a>

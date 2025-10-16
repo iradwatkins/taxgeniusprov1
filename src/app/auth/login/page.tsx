@@ -45,8 +45,8 @@ function LoginContent() {
       accentColor: 'text-blue-600 dark:text-blue-400',
       welcomeBack: 'Ready to help more clients today?',
     },
-    referrer: {
-      badge: '💰 Referrer Portal',
+    affiliate: {
+      badge: '💰 Affiliate Portal',
       icon: DollarSign,
       heading: 'Welcome Back!',
       subheading: 'Check your earnings, share your link, and see how much money you\'ve made!',
@@ -138,7 +138,7 @@ function LoginContent() {
             />
             <h2 className="text-2xl font-bold mb-2">{content.ctaText}</h2>
             <p className="text-sm text-muted-foreground">
-              {role === 'referrer'
+              {role === 'affiliate'
                 ? 'Sign in to check your earnings and share your link'
                 : role === 'preparer'
                 ? 'Access your professional dashboard'
@@ -156,7 +156,7 @@ function LoginContent() {
                 headerSubtitle: 'hidden',
                 socialButtonsBlockButton: 'border-2 hover:bg-accent',
                 formButtonPrimary: `bg-primary hover:bg-primary/90 text-lg py-3 ${
-                  role === 'referrer' ? 'bg-yellow-500 hover:bg-yellow-600' : ''
+                  role === 'affiliate' ? 'bg-yellow-500 hover:bg-yellow-600' : ''
                 }`,
                 footerActionLink: 'text-primary hover:text-primary/80',
                 formFieldInput__emailAddress: 'hidden',

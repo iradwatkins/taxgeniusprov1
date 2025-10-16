@@ -5,7 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
-  requiredRole?: 'client' | 'referrer' | 'preparer'
+  requiredRole?: 'client' | 'affiliate' | 'preparer'
   requireProfile?: boolean
 }
 
@@ -51,8 +51,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       switch (user.role) {
         case 'client':
           return <Navigate to="/dashboard/client" replace />
-        case 'referrer':
-          return <Navigate to="/dashboard/referrer" replace />
+        case 'affiliate':
+          return <Navigate to="/dashboard/affiliate" replace />
         case 'preparer':
           return <Navigate to="/dashboard/preparer" replace />
         default:

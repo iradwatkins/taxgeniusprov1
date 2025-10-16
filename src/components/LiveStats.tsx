@@ -74,7 +74,7 @@ function StatItem({ value, label, prefix = '', suffix = '', trend, delay = 0 }: 
   );
 }
 
-export default function LiveStats({ type }: { type: 'preparer' | 'referrer' }) {
+export default function LiveStats({ type }: { type: 'preparer' | 'affiliate' }) {
   const preparerStats = [
     { value: 537, label: 'Active Preparers', suffix: '+', trend: 23 },
     { value: 75000, label: 'Avg Annual Income', prefix: '$', trend: 15 },
@@ -82,14 +82,14 @@ export default function LiveStats({ type }: { type: 'preparer' | 'referrer' }) {
     { value: 4.9, label: 'Preparer Rating', suffix: '/5' },
   ];
 
-  const referrerStats = [
-    { value: 1247, label: 'Active Referrers', suffix: '+', trend: 34 },
+  const affiliateStats = [
+    { value: 1247, label: 'Active Affiliates', suffix: '+', trend: 34 },
     { value: 50, label: 'Per Referral', prefix: '$', suffix: '+' },
     { value: 523000, label: 'Paid This Month', prefix: '$', trend: 28 },
     { value: 4.8, label: 'Partner Rating', suffix: '/5' },
   ];
 
-  const stats = type === 'preparer' ? preparerStats : referrerStats;
+  const stats = type === 'preparer' ? preparerStats : affiliateStats;
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">

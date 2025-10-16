@@ -51,7 +51,7 @@ describe('Auth Helpers', () => {
     })
 
     it('should handle all valid role types', async () => {
-      const roles: UserRole[] = ['client', 'preparer', 'referrer', 'admin']
+      const roles: UserRole[] = ['super_admin', 'admin', 'lead', 'client', 'tax_preparer', 'affiliate']
 
       for (const expectedRole of roles) {
         mockCurrentUser.mockResolvedValue({
@@ -69,10 +69,10 @@ describe('Auth Helpers', () => {
     it('should return true when user has the specified role', async () => {
       mockCurrentUser.mockResolvedValue({
         id: 'user_123',
-        publicMetadata: { role: 'preparer' },
+        publicMetadata: { role: 'tax_preparer' },
       })
 
-      const result = await hasRole('preparer')
+      const result = await hasRole('tax_preparer')
       expect(result).toBe(true)
     })
 
@@ -82,7 +82,7 @@ describe('Auth Helpers', () => {
         publicMetadata: { role: 'client' },
       })
 
-      const result = await hasRole('preparer')
+      const result = await hasRole('tax_preparer')
       expect(result).toBe(false)
     })
 
@@ -95,13 +95,21 @@ describe('Auth Helpers', () => {
   })
 
   describe('isAdmin', () => {
-    it('should return true when user is admin', async () => {
+    it('should return true when user is admin or super_admin', async () => {
       mockCurrentUser.mockResolvedValue({
         id: 'user_123',
         publicMetadata: { role: 'admin' },
       })
 
-      const result = await isAdmin()
+      let result = await isAdmin()
+      expect(result).toBe(true)
+
+      mockCurrentUser.mockResolvedValue({
+        id: 'user_123',
+        publicMetadata: { role: 'super_admin' },
+      })
+
+      result = await isAdmin()
       expect(result).toBe(true)
     })
 
@@ -139,13 +147,13 @@ describe('Auth Helpers', () => {
     it('should return user and role when user has required role', async () => {
       const mockUser = {
         id: 'user_123',
-        publicMetadata: { role: 'preparer' },
+        publicMetadata: { role: 'tax_preparer' },
       }
       mockCurrentUser.mockResolvedValue(mockUser)
 
-      const result = await requireRole('preparer')
+      const result = await requireRole('tax_preparer')
       expect(result.user).toEqual(mockUser)
-      expect(result.role).toBe('preparer')
+      expect(result.role).toBe('tax_preparer')
     })
 
     it('should throw error when user lacks required role', async () => {
@@ -154,7 +162,7 @@ describe('Auth Helpers', () => {
         publicMetadata: { role: 'client' },
       })
 
-      await expect(requireRole('preparer')).rejects.toThrow('Insufficient permissions')
+      await expect(requireRole('tax_preparer')).rejects.toThrow('Insufficient permissions')
     })
 
     it('should throw error when not authenticated', async () => {
@@ -166,10 +174,12 @@ describe('Auth Helpers', () => {
 
   describe('getDashboardUrl', () => {
     it('should return correct dashboard URL for each role', () => {
-      expect(getDashboardUrl('client')).toBe('/dashboard/client')
-      expect(getDashboardUrl('preparer')).toBe('/dashboard/preparer')
-      expect(getDashboardUrl('referrer')).toBe('/dashboard/referrer')
+      expect(getDashboardUrl('super_admin')).toBe('/dashboard/admin')
       expect(getDashboardUrl('admin')).toBe('/dashboard/admin')
+      expect(getDashboardUrl('lead')).toBe('/dashboard/lead')
+      expect(getDashboardUrl('client')).toBe('/dashboard/client')
+      expect(getDashboardUrl('tax_preparer')).toBe('/dashboard/tax-preparer')
+      expect(getDashboardUrl('affiliate')).toBe('/dashboard/affiliate')
     })
   })
 
@@ -182,10 +192,10 @@ describe('Auth Helpers', () => {
         updateUserMetadata: mockUpdateMetadata,
       } as any
 
-      await updateUserRole('user_123', 'preparer')
+      await updateUserRole('user_123', 'tax_preparer')
 
       expect(mockUpdateMetadata).toHaveBeenCalledWith('user_123', {
-        publicMetadata: { role: 'preparer' },
+        publicMetadata: { role: 'tax_preparer' },
       })
     })
   })

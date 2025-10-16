@@ -113,8 +113,8 @@ export function UserManagementClient({ users: initialUsers, isSuperAdmin }: User
         return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
       case 'tax_preparer':
         return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
-      case 'referrer':
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
+      case 'lead':
+        return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300';
       case 'affiliate':
         return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300';
       case 'client':
@@ -175,7 +175,7 @@ export function UserManagementClient({ users: initialUsers, isSuperAdmin }: User
                 <SelectItem value="super_admin">Super Admin</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
                 <SelectItem value="tax_preparer">Tax Preparer</SelectItem>
-                <SelectItem value="referrer">Referrer</SelectItem>
+                <SelectItem value="lead">Lead (Pending)</SelectItem>
                 <SelectItem value="affiliate">Affiliate</SelectItem>
                 <SelectItem value="client">Client</SelectItem>
               </SelectContent>
@@ -277,6 +277,7 @@ export function UserManagementClient({ users: initialUsers, isSuperAdmin }: User
             permissions: selectedUser.permissions as Partial<UserPermissions>,
           }}
           onSave={handleSavePermissions}
+          isSuperAdmin={isSuperAdmin}
         />
       )}
     </>
