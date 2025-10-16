@@ -11,10 +11,11 @@ import { currentUser } from '@clerk/nextjs/server'
 import { clerkClient } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 export async function GET() {
   try {
-    console.log('🚨 EMERGENCY: Setting super_admin role...')
+    logger.info('🚨 EMERGENCY: Setting super_admin role...')
 
     // Get current user
     const user = await currentUser()
@@ -38,20 +39,20 @@ export async function GET() {
       )
     }
 
-    console.log(`✅ Email verified: ${email}`)
+    logger.info(`✅ Email verified: ${email}`)
 
     // Update Clerk metadata
-    console.log('📝 Updating Clerk metadata...')
+    logger.info('📝 Updating Clerk metadata...')
     const clerk = await clerkClient()
     await clerk.users.updateUserMetadata(user.id, {
       publicMetadata: {
         role: 'super_admin',
       },
     })
-    console.log('✅ Clerk metadata updated to super_admin')
+    logger.info('✅ Clerk metadata updated to super_admin')
 
     // Update or create profile in database
-    console.log('📝 Updating database profile...')
+    logger.info('📝 Updating database profile...')
     try {
       const profile = await prisma.profile.findUnique({
         where: { clerkUserId: user.id },
@@ -67,19 +68,19 @@ export async function GET() {
             lastName: user.lastName || 'Watkins',
           },
         })
-        console.log('✅ Profile created in database with SUPER_ADMIN role')
+        logger.info('✅ Profile created in database with SUPER_ADMIN role')
       } else {
         await prisma.profile.update({
           where: { id: profile.id },
           data: { role: 'SUPER_ADMIN' },
         })
-        console.log('✅ Profile updated to SUPER_ADMIN role')
+        logger.info('✅ Profile updated to SUPER_ADMIN role')
       }
     } catch (dbError) {
-      console.error('⚠️  Database update failed (non-critical):', dbError)
+      logger.error('⚠️  Database update failed (non-critical):', dbError)
     }
 
-    console.log('🎉 SUCCESS! iradwatkins@gmail.com is now super_admin')
+    logger.info('🎉 SUCCESS! iradwatkins@gmail.com is now super_admin')
 
     return NextResponse.json({
       success: true,
@@ -93,7 +94,7 @@ export async function GET() {
       },
     })
   } catch (error) {
-    console.error('❌ Error setting super_admin role:', error)
+    logger.error('❌ Error setting super_admin role:', error)
     return NextResponse.json(
       {
         error: 'Failed to set super_admin role',

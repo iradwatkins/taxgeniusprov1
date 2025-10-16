@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { isAdmin } from '@/lib/auth';
+import { logger } from '@/lib/logger'
 
 // Zod validation schema for saving landing pages
 const SaveLandingPageSchema = z.object({
@@ -80,7 +81,7 @@ export async function POST(request: Request) {
     });
 
   } catch (error) {
-    console.error('[Save Landing Page Error]:', error);
+    logger.error('[Save Landing Page Error]:', error);
     return NextResponse.json(
       { error: 'Failed to save landing page' },
       { status: 500 }
@@ -116,7 +117,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: true, data: landingPages });
 
   } catch (error) {
-    console.error('[List Landing Pages Error]:', error);
+    logger.error('[List Landing Pages Error]:', error);
     return NextResponse.json({ error: 'Failed to fetch landing pages' }, { status: 500 });
   }
 }

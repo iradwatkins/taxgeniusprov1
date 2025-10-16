@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -141,7 +142,7 @@ export async function POST(request: NextRequest) {
       errors: errors.length > 0 ? errors : undefined,
     })
   } catch (error) {
-    console.error('Error importing clients:', error)
+    logger.error('Error importing clients:', error)
     return NextResponse.json({
       error: 'Failed to import clients',
       details: error instanceof Error ? error.message : 'Unknown error'

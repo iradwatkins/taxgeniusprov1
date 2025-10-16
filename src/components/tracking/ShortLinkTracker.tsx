@@ -15,6 +15,7 @@
 
 import { useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { logger } from '@/lib/logger'
 
 export function ShortLinkTracker() {
   const searchParams = useSearchParams()
@@ -33,7 +34,7 @@ export function ShortLinkTracker() {
       if (typeof window !== 'undefined' && window.trackReferralClick) {
         window.trackReferralClick(trackingCode, 'SHORT_LINK')
 
-        console.log('[ShortLinkTracker] GA Event: trackReferralClick', {
+        logger.info('[ShortLinkTracker] GA Event: trackReferralClick', {
           trackingCode,
           materialType: 'SHORT_LINK',
           linkCode,
@@ -50,7 +51,7 @@ export function ShortLinkTracker() {
         sessionStorage.setItem('utmSource', utmSource || '')
         sessionStorage.setItem('utmMedium', utmMedium || '')
       } catch (error) {
-        console.error('[ShortLinkTracker] Error storing tracking data:', error)
+        logger.error('[ShortLinkTracker] Error storing tracking data:', error)
       }
     }
   }, [searchParams])
@@ -95,7 +96,7 @@ export function trackLeadSubmission(leadType: 'CUSTOMER' | 'INQUIRY') {
     if (typeof window !== 'undefined' && window.trackLeadGeneration) {
       window.trackLeadGeneration(trackingData.trackingCode, leadType)
 
-      console.log('[ShortLinkTracker] GA Event: trackLeadGeneration', {
+      logger.info('[ShortLinkTracker] GA Event: trackLeadGeneration', {
         trackingCode: trackingData.trackingCode,
         leadType,
         linkCode: trackingData.linkCode,
@@ -117,7 +118,7 @@ export function trackConversionSubmission(conversionType: string, value?: number
     if (typeof window !== 'undefined' && window.trackConversion) {
       window.trackConversion(trackingData.trackingCode, conversionType, value)
 
-      console.log('[ShortLinkTracker] GA Event: trackConversion', {
+      logger.info('[ShortLinkTracker] GA Event: trackConversion', {
         trackingCode: trackingData.trackingCode,
         conversionType,
         value,

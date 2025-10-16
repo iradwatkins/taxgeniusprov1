@@ -15,6 +15,7 @@ import {
   checkMaterialLimit,
 } from '@/lib/services/material-management.service'
 import type { LinkType } from '@prisma/client'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/materials
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
       offset,
     })
   } catch (error) {
-    console.error('Get materials error:', error)
+    logger.error('Get materials error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch materials' },
       { status: 500 }
@@ -113,7 +114,7 @@ export async function POST(request: NextRequest) {
       material,
     })
   } catch (error) {
-    console.error('Create material error:', error)
+    logger.error('Create material error:', error)
     return NextResponse.json(
       { error: 'Failed to create material' },
       { status: 500 }

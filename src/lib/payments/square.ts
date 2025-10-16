@@ -2,6 +2,7 @@
 // Story 1.3: Payment Processing Integration
 
 import { Client, Environment } from 'square'
+import { logger } from '@/lib/logger'
 
 // Initialize Square client
 const squareClient = new Client({
@@ -69,7 +70,7 @@ export async function createPayment(request: PaymentRequest) {
       receiptUrl: result.payment?.receiptUrl
     }
   } catch (error: any) {
-    console.error('Square payment error:', error)
+    logger.error('Square payment error:', error)
     return {
       success: false,
       error: error.message || 'Payment failed',
@@ -119,7 +120,7 @@ export async function createCashAppPayment(request: PaymentRequest) {
       expiresAt: paymentRequest.paymentLink?.createdAt
     }
   } catch (error: any) {
-    console.error('Cash App Pay error:', error)
+    logger.error('Cash App Pay error:', error)
     return {
       success: false,
       error: error.message || 'Cash App Pay failed',
@@ -149,7 +150,7 @@ export async function processRefund(request: RefundRequest) {
       createdAt: result.refund?.createdAt
     }
   } catch (error: any) {
-    console.error('Refund error:', error)
+    logger.error('Refund error:', error)
     return {
       success: false,
       error: error.message || 'Refund failed',
@@ -176,7 +177,7 @@ export async function createCustomer(customerData: CustomerData) {
       createdAt: result.customer?.createdAt
     }
   } catch (error: any) {
-    console.error('Create customer error:', error)
+    logger.error('Create customer error:', error)
     return {
       success: false,
       error: error.message || 'Failed to create customer',

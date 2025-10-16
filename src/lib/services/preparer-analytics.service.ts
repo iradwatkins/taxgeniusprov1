@@ -6,6 +6,7 @@
  */
 
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 export interface PreparerDashboardStats {
   totalIntakesForms: number
@@ -129,7 +130,7 @@ export async function getPreparerDashboardStats(preparerId: string): Promise<Pre
       missedFollowUpsCount: missedFollowUps
     }
   } catch (error) {
-    console.error('Error fetching preparer dashboard stats:', error)
+    logger.error('Error fetching preparer dashboard stats:', error)
     return {
       totalIntakesForms: 0,
       totalReferrals: 0,
@@ -171,7 +172,7 @@ async function calculateAverageResponseTime(preparerId: string): Promise<number>
 
     return Math.round(totalHours / leads.length)
   } catch (error) {
-    console.error('Error calculating average response time:', error)
+    logger.error('Error calculating average response time:', error)
     return 0
   }
 }
@@ -203,7 +204,7 @@ async function getMissedFollowUpsCount(preparerId: string): Promise<number> {
 
     return missedLeads + missedIntakes
   } catch (error) {
-    console.error('Error getting missed follow-ups count:', error)
+    logger.error('Error getting missed follow-ups count:', error)
     return 0
   }
 }
@@ -271,7 +272,7 @@ export async function getPreparerMissedFollowUps(preparerId: string): Promise<Mi
 
     return results
   } catch (error) {
-    console.error('Error fetching preparer missed follow-ups:', error)
+    logger.error('Error fetching preparer missed follow-ups:', error)
     return []
   }
 }
@@ -334,7 +335,7 @@ export async function getPreparerTopReferrers(preparerId: string, limit: number 
     topReferrers.sort((a, b) => b.referralCount - a.referralCount)
     return topReferrers.slice(0, limit)
   } catch (error) {
-    console.error('Error fetching top referrers:', error)
+    logger.error('Error fetching top referrers:', error)
     return []
   }
 }
@@ -364,7 +365,7 @@ export async function getPreparerTopLinks(preparerId: string, limit: number = 10
       conversionRate: link.conversionRate || 0
     }))
   } catch (error) {
-    console.error('Error fetching preparer top links:', error)
+    logger.error('Error fetching preparer top links:', error)
     return []
   }
 }
@@ -441,7 +442,7 @@ export async function getTopPreparers(metric: 'clients' | 'returns' | 'revenue' 
 
     return preparerStats.slice(0, limit)
   } catch (error) {
-    console.error('Error fetching top preparers:', error)
+    logger.error('Error fetching top preparers:', error)
     return []
   }
 }
@@ -483,7 +484,7 @@ export async function getPreparerPerformanceComparison(preparerId: string) {
       }
     }
   } catch (error) {
-    console.error('Error fetching preparer performance comparison:', error)
+    logger.error('Error fetching preparer performance comparison:', error)
     return null
   }
 }

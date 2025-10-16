@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar, CheckCircle, UserPlus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { logger } from '@/lib/logger'
 
 interface PreparerFormData {
   firstName: string;
@@ -68,7 +69,7 @@ export default function TaxPreparerApplicationForm({ onSubmitSuccess }: TaxPrepa
         onSubmitSuccess();
       }
     } catch (error) {
-      console.error('Error submitting application:', error);
+      logger.error('Error submitting application:', error);
       alert('Failed to submit application. Please try again.');
     } finally {
       setIsSubmitting(false);

@@ -2,6 +2,7 @@ import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger'
 
 // Initialize Stripe only if key is available (avoid build-time errors)
 const getStripe = () => {
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
     const signature = headersList.get('stripe-signature');
 
     if (!signature) {
-      console.error('❌ Webhook Error: No stripe-signature header');
+      logger.error('❌ Webhook Error: No stripe-signature header');
       return NextResponse.json(
         { error: 'No signature provided' },
         { status: 400 }
@@ -44,27 +45,27 @@ export async function POST(request: NextRequest) {
       );
     } catch (err) {
       const error = err as Error;
-      console.error('❌ Webhook signature verification failed:', error.message);
+      logger.error('❌ Webhook signature verification failed:', error.message);
       return NextResponse.json(
         { error: 'Invalid signature' },
         { status: 400 }
       );
     }
 
-    console.log(`✅ Webhook verified: ${event.type}`);
+    logger.info(`✅ Webhook verified: ${event.type}`);
 
     // Handle checkout.session.completed event
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
 
-      console.log('💰 Processing completed checkout session:', session.id);
+      logger.info('💰 Processing completed checkout session:', session.id);
 
       // Extract metadata
       const userId = session.metadata?.userId;
       const cartItemsJson = session.metadata?.cartItems;
 
       if (!userId || !cartItemsJson) {
-        console.error('❌ Missing metadata in session:', session.id);
+        logger.error('❌ Missing metadata in session:', session.id);
         return NextResponse.json(
           { error: 'Missing required metadata' },
           { status: 400 }
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
       });
 
       if (existingOrder) {
-        console.log(`⚠️  Order already exists for session ${session.id}`);
+        logger.info(`⚠️  Order already exists for session ${session.id}`);
         return NextResponse.json({ received: true, orderId: existingOrder.id });
       }
 
@@ -96,7 +97,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      console.log(`✅ Order created: ${order.id} for user ${userId}`);
+      logger.info(`✅ Order created: ${order.id} for user ${userId}`);
 
       // TODO: Send order confirmation email via Resend
       // await sendOrderConfirmationEmail(order);
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest) {
     if (event.type === 'checkout.session.expired') {
       const session = event.data.object as Stripe.Checkout.Session;
 
-      console.log('⏱️  Checkout session expired:', session.id);
+      logger.info('⏱️  Checkout session expired:', session.id);
 
       // Check if order exists
       const existingOrder = await prisma.order.findUnique({
@@ -122,18 +123,18 @@ export async function POST(request: NextRequest) {
           data: { status: 'FAILED' },
         });
 
-        console.log(`❌ Order marked as FAILED: ${existingOrder.id}`);
+        logger.info(`❌ Order marked as FAILED: ${existingOrder.id}`);
       }
 
       return NextResponse.json({ received: true });
     }
 
     // Acknowledge receipt of unhandled event types
-    console.log(`ℹ️  Unhandled event type: ${event.type}`);
+    logger.info(`ℹ️  Unhandled event type: ${event.type}`);
     return NextResponse.json({ received: true });
 
   } catch (error) {
-    console.error('❌ Webhook processing error:', error);
+    logger.error('❌ Webhook processing error:', error);
     return NextResponse.json(
       { error: 'Webhook processing failed' },
       { status: 500 }

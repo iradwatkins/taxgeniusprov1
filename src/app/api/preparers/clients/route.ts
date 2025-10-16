@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/preparers/clients
@@ -88,7 +89,7 @@ export async function GET(req: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching preparer clients:', error)
+    logger.error('Error fetching preparer clients:', error)
     return NextResponse.json(
       { error: 'Failed to fetch clients' },
       { status: 500 }
@@ -193,7 +194,7 @@ export async function POST(req: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error assigning client:', error)
+    logger.error('Error assigning client:', error)
     return NextResponse.json(
       { error: 'Failed to assign client' },
       { status: 500 }

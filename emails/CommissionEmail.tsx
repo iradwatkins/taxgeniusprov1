@@ -36,7 +36,7 @@ export function CommissionEmail({
             <Heading style={h2}>Congratulations, {name}!</Heading>
 
             <Section style={amountBox}>
-              <Text style={amountLabel}>You've earned</Text>
+              <Text style={amountLabel}>You&apos;ve earned</Text>
               <Text style={amountValue}>${amount.toFixed(2)}</Text>
               <Text style={amountSubtext}>in commission</Text>
             </Section>

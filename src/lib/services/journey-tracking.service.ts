@@ -13,6 +13,7 @@
 import { prisma } from '../prisma'
 import type { LinkClick, MarketingLink } from '@prisma/client'
 import type { UTMAttribution } from './utm-tracking.service'
+import { logger } from '@/lib/logger'
 
 export type JourneyStage =
   | 'CLICKED'
@@ -91,7 +92,7 @@ export async function trackJourneyStage(
       } : undefined,
     }
   } catch (error) {
-    console.error('Failed to track journey stage:', error)
+    logger.error('Failed to track journey stage:', error)
     return {
       success: false,
       journeyStage: stage,

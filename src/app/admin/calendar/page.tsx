@@ -19,6 +19,7 @@ import {
   User,
 } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger'
 
 const statusColors: Record<string, string> = {
   REQUESTED: 'secondary',
@@ -59,7 +60,7 @@ export default async function CalendarPage() {
       take: 50, // Limit for performance
     });
   } catch (error) {
-    console.error('Error fetching appointments:', error)
+    logger.error('Error fetching appointments:', error)
     // Continue with empty array - will show "No appointments scheduled" message
   }
 

@@ -15,6 +15,7 @@ import { createFunnelStages } from '@/lib/utils/analytics'
 import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart'
 import { ExportButton } from '@/components/admin/analytics/ExportButton'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { logger } from '@/lib/logger'
 
 export const metadata = {
   title: 'Tax Genius Analytics - Admin | Tax Genius Pro',
@@ -171,7 +172,7 @@ export default async function TaxGeniusAnalyticsPage() {
       take: 10,
     })
   } catch (error) {
-    console.error('Error fetching Tax Genius analytics:', error)
+    logger.error('Error fetching Tax Genius analytics:', error)
     // Continue with empty/zero defaults - will show "No company campaigns yet" message
   }
 

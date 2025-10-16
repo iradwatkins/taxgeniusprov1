@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { UserPermissions } from '@/lib/permissions';
+import { logger } from '@/lib/logger'
 
 interface PermissionPresetsProps {
   onApplyPreset?: (permissions: Partial<UserPermissions>) => void;
@@ -249,7 +250,7 @@ export function PermissionPresets({ onApplyPreset }: PermissionPresetsProps) {
         duration: 3000,
       });
     } catch (error) {
-      console.error('Error applying preset:', error);
+      logger.error('Error applying preset:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to apply preset",

@@ -251,8 +251,8 @@ export default function TaxGeniusLanding() {
               <Users className="w-12 h-12 text-gray-400" />
             </div>
             <blockquote className="text-xl text-gray-700 italic mb-6">
-              "Tax Genius Pro has completely transformed how we handle tax season. 
-              The client portal and document management features are game-changers."
+              &quot;Tax Genius Pro has completely transformed how we handle tax season.
+              The client portal and document management features are game-changers.&quot;
             </blockquote>
             <div className="text-gray-600">
               <div className="font-semibold">Sarah Johnson</div>

@@ -1,5 +1,6 @@
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/logger'
 
 /**
  * RESTRICTED ENDPOINT: Set current user's role
@@ -61,7 +62,7 @@ export async function POST(request: Request) {
     });
 
   } catch (error) {
-    console.error('Error setting user role:', error);
+    logger.error('Error setting user role:', error);
     return NextResponse.json(
       {
         error: 'Failed to update user role',
@@ -100,7 +101,7 @@ export async function GET(request: Request) {
     });
 
   } catch (error) {
-    console.error('Error getting user role:', error);
+    logger.error('Error getting user role:', error);
     return NextResponse.json(
       { error: 'Failed to get user role' },
       { status: 500 }

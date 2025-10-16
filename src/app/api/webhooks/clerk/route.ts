@@ -13,12 +13,13 @@ import { Webhook } from 'svix'
 import { WebhookEvent } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { assignTrackingCodeToUser } from '@/lib/services/tracking-code.service'
+import { logger } from '@/lib/logger'
 
 export async function POST(req: Request) {
   const webhookSecret = process.env.CLERK_WEBHOOK_SECRET
 
   if (!webhookSecret) {
-    console.error('CLERK_WEBHOOK_SECRET is not set in environment variables')
+    logger.error('CLERK_WEBHOOK_SECRET is not set in environment variables')
     return NextResponse.json(
       { error: 'Webhook secret not configured' },
       { status: 500 }
@@ -55,7 +56,7 @@ export async function POST(req: Request) {
       'svix-signature': svix_signature,
     }) as WebhookEvent
   } catch (err) {
-    console.error('Webhook verification failed:', err)
+    logger.error('Webhook verification failed:', err)
     return NextResponse.json(
       { error: 'Webhook verification failed' },
       { status: 400 }
@@ -80,12 +81,12 @@ export async function POST(req: Request) {
         break
 
       default:
-        console.log(`Unhandled Clerk webhook event: ${eventType}`)
+        logger.info(`Unhandled Clerk webhook event: ${eventType}`)
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error(`Error handling Clerk webhook (${eventType}):`, error)
+    logger.error(`Error handling Clerk webhook (${eventType}):`, error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -102,7 +103,7 @@ async function handleUserCreated(evt: WebhookEvent) {
 
   const { id: clerkUserId, email_addresses, first_name, last_name } = evt.data
 
-  console.log(`🆕 New user created: ${clerkUserId}`)
+  logger.info(`🆕 New user created: ${clerkUserId}`)
 
   try {
     // Check if profile already exists
@@ -113,23 +114,23 @@ async function handleUserCreated(evt: WebhookEvent) {
     if (!profile) {
       // Profile doesn't exist yet - it will be created by the select-role page
       // We'll wait for that to happen, then assign tracking code
-      console.log(`Profile not yet created for ${clerkUserId}, waiting for role selection...`)
+      logger.info(`Profile not yet created for ${clerkUserId}, waiting for role selection...`)
       return
     }
 
     // Profile exists but no tracking code
     if (!profile.trackingCode) {
-      console.log(`Assigning tracking code to ${clerkUserId}...`)
+      logger.info(`Assigning tracking code to ${clerkUserId}...`)
 
       await assignTrackingCodeToUser(
         profile.id,
         process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax'
       )
 
-      console.log(`✅ Tracking code assigned to ${clerkUserId}`)
+      logger.info(`✅ Tracking code assigned to ${clerkUserId}`)
     }
   } catch (error) {
-    console.error(`Error in handleUserCreated for ${clerkUserId}:`, error)
+    logger.error(`Error in handleUserCreated for ${clerkUserId}:`, error)
     throw error
   }
 }
@@ -143,7 +144,7 @@ async function handleUserUpdated(evt: WebhookEvent) {
 
   const { id: clerkUserId } = evt.data
 
-  console.log(`🔄 User updated: ${clerkUserId}`)
+  logger.info(`🔄 User updated: ${clerkUserId}`)
 
   try {
     const profile = await prisma.profile.findUnique({
@@ -151,23 +152,23 @@ async function handleUserUpdated(evt: WebhookEvent) {
     })
 
     if (!profile) {
-      console.log(`Profile not found for ${clerkUserId}, skipping update`)
+      logger.info(`Profile not found for ${clerkUserId}, skipping update`)
       return
     }
 
     // Assign tracking code if missing
     if (!profile.trackingCode) {
-      console.log(`Assigning missing tracking code to ${clerkUserId}...`)
+      logger.info(`Assigning missing tracking code to ${clerkUserId}...`)
 
       await assignTrackingCodeToUser(
         profile.id,
         process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax'
       )
 
-      console.log(`✅ Tracking code assigned to ${clerkUserId}`)
+      logger.info(`✅ Tracking code assigned to ${clerkUserId}`)
     }
   } catch (error) {
-    console.error(`Error in handleUserUpdated for ${clerkUserId}:`, error)
+    logger.error(`Error in handleUserUpdated for ${clerkUserId}:`, error)
     throw error
   }
 }
@@ -181,14 +182,14 @@ async function handleUserDeleted(evt: WebhookEvent) {
 
   const { id: clerkUserId } = evt.data
 
-  console.log(`🗑️  User deleted: ${clerkUserId}`)
+  logger.info(`🗑️  User deleted: ${clerkUserId}`)
 
   try {
     // Profile will be cascaded and deleted by Prisma relations
     // Just log for now
-    console.log(`Profile and related data will be deleted via cascade for ${clerkUserId}`)
+    logger.info(`Profile and related data will be deleted via cascade for ${clerkUserId}`)
   } catch (error) {
-    console.error(`Error in handleUserDeleted for ${clerkUserId}:`, error)
+    logger.error(`Error in handleUserDeleted for ${clerkUserId}:`, error)
     throw error
   }
 }

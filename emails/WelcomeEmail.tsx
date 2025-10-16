@@ -41,7 +41,7 @@ export function WelcomeEmail({ name, role, dashboardUrl }: WelcomeEmailProps) {
             <Heading style={h2}>Hi {name}!</Heading>
 
             <Text style={text}>
-              We're thrilled to have you join the Tax Genius community.
+              We&apos;re thrilled to have you join the Tax Genius community.
             </Text>
 
             <Section style={highlightBox}>
@@ -54,7 +54,7 @@ export function WelcomeEmail({ name, role, dashboardUrl }: WelcomeEmailProps) {
               </Button>
             </Section>
 
-            <Heading style={h3}>What's Next?</Heading>
+            <Heading style={h3}>What&apos;s Next?</Heading>
             <ul style={list}>
               {whatNext[role].map((item, index) => (
                 <li key={index} style={listItem}>

@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { clerkClient } from '@clerk/nextjs/server'
+import { logger } from '@/lib/logger'
 import {
   getPlatformOverview,
   parseDateRange,
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest) {
       generatedAt: new Date().toISOString(),
     })
   } catch (error) {
-    console.error('Admin analytics overview error:', error)
+    logger.error('Admin analytics overview error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch overview metrics' },
       { status: 500 }

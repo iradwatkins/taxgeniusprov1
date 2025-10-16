@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ZodError } from 'zod'
 import { Prisma } from '@prisma/client'
+import { logger } from '@/lib/logger'
 
 export interface APIError {
   code: string
@@ -33,7 +34,7 @@ export function createAPIError(
 }
 
 export function handleAPIError(error: unknown): NextResponse {
-  console.error('API Error:', error)
+  logger.error('API Error:', error)
 
   // Handle custom API errors
   if (error instanceof CustomAPIError) {

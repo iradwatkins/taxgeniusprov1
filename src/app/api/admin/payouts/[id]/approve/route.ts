@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { EmailService } from '@/lib/services/email.service'
+import { logger } from '@/lib/logger'
 
 export async function POST(
   req: NextRequest,
@@ -118,8 +119,8 @@ export async function POST(
       payout.paymentMethod
     )
 
-    console.log(`✅ Payout ${id} approved by admin ${profile.id}`)
-    console.log(`💰 $${payout.amount} paid to referrer ${payout.referrerId}`)
+    logger.info(`✅ Payout ${id} approved by admin ${profile.id}`)
+    logger.info(`💰 $${payout.amount} paid to referrer ${payout.referrerId}`)
 
     return NextResponse.json({
       success: true,
@@ -132,7 +133,7 @@ export async function POST(
       },
     })
   } catch (error) {
-    console.error('Error approving payout:', error)
+    logger.error('Error approving payout:', error)
     return NextResponse.json(
       { error: 'Failed to approve payout. Please try again.' },
       { status: 500 }

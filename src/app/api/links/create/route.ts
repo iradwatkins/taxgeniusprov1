@@ -9,6 +9,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 import {
   createShortLink,
   validateShortCode,
@@ -116,7 +117,7 @@ export async function POST(req: Request) {
       message: 'Short link created successfully',
     })
   } catch (error: any) {
-    console.error('Error creating short link:', error)
+    logger.error('Error creating short link:', error)
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/preparers/clients/[clientId]
@@ -129,7 +130,7 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error fetching client details:', error)
+    logger.error('Error fetching client details:', error)
     return NextResponse.json(
       { error: 'Failed to fetch client details' },
       { status: 500 }

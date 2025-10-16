@@ -6,6 +6,7 @@ import { useUser } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { UserRole } from '@/lib/auth'
+import { logger } from '@/lib/logger'
 
 const roles: { value: UserRole; label: string; description: string }[] = [
   {
@@ -62,7 +63,7 @@ export default function SelectRolePage() {
 
       router.push(dashboardUrls[selectedRole])
     } catch (err) {
-      console.error('Error updating role:', err)
+      logger.error('Error updating role:', err)
       setError('Failed to update role. Please try again.')
       setIsLoading(false)
     }

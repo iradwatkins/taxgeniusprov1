@@ -3,6 +3,7 @@ import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { documentRateLimit, getClientIdentifier, getUserIdentifier, getRateLimitHeaders, checkRateLimit } from '@/lib/rate-limit'
 import { SignJWT } from 'jose'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/documents/[documentId]/download
@@ -146,7 +147,7 @@ export async function GET(
     )
 
   } catch (error) {
-    console.error('Error generating document download URL:', error)
+    logger.error('Error generating document download URL:', error)
     return NextResponse.json(
       { error: 'Failed to generate download URL' },
       { status: 500 }
@@ -169,9 +170,11 @@ async function generateSignedUrl(
   userId: string,
   expiryMinutes: number = 15
 ): Promise<string> {
-  const secret = new TextEncoder().encode(
-    process.env.JWT_SECRET || process.env.CLERK_SECRET_KEY || 'default-secret-key-change-in-production'
-  )
+  const jwtSecret = process.env.JWT_SECRET || process.env.CLERK_SECRET_KEY
+  if (!jwtSecret) {
+    throw new Error('CRITICAL: JWT_SECRET or CLERK_SECRET_KEY environment variable is missing')
+  }
+  const secret = new TextEncoder().encode(jwtSecret)
 
   // Create JWT token with document access claims
   const token = await new SignJWT({

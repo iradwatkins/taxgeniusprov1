@@ -8,6 +8,7 @@ import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getUserShortLinks } from '@/lib/services/short-link.service'
+import { logger } from '@/lib/logger'
 
 export async function GET() {
   try {
@@ -42,7 +43,7 @@ export async function GET() {
       count: links.length,
     })
   } catch (error) {
-    console.error('Error fetching short links:', error)
+    logger.error('Error fetching short links:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

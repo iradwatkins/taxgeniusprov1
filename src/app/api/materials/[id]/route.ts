@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
+import { logger } from '@/lib/logger'
 import {
   getMaterialById,
   updateMaterial,
@@ -53,7 +54,7 @@ export async function GET(
       performance,
     })
   } catch (error) {
-    console.error('Get material error:', error)
+    logger.error('Get material error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch material' },
       { status: 500 }
@@ -105,7 +106,7 @@ export async function PATCH(
       material: updatedMaterial,
     })
   } catch (error) {
-    console.error('Update material error:', error)
+    logger.error('Update material error:', error)
     return NextResponse.json(
       { error: 'Failed to update material' },
       { status: 500 }
@@ -147,7 +148,7 @@ export async function DELETE(
       material: deletedMaterial,
     })
   } catch (error) {
-    console.error('Delete material error:', error)
+    logger.error('Delete material error:', error)
     return NextResponse.json(
       { error: 'Failed to delete material' },
       { status: 500 }

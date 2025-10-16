@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { logger } from '@/lib/logger'
 
 export default function SaveFormDataClient() {
   const [isSaving, setIsSaving] = useState(false);
@@ -36,9 +37,9 @@ export default function SaveFormDataClient() {
         // Clear localStorage after successful save
         localStorage.removeItem('taxFormData');
 
-        console.log('Tax form data saved successfully');
+        logger.info('Tax form data saved successfully');
       } catch (error) {
-        console.error('Error saving tax form data:', error);
+        logger.error('Error saving tax form data:', error);
         // Keep data in localStorage if save failed
       } finally {
         setIsSaving(false);

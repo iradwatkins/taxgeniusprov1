@@ -15,6 +15,7 @@ import {
 import { prisma } from '@/lib/prisma';
 import { PermissionManager } from '@/components/admin/PermissionManager';
 import { PermissionPresets } from '@/components/admin/PermissionPresets';
+import { logger } from '@/lib/logger'
 
 export default async function PermissionsPage() {
   const user = await currentUser();
@@ -40,7 +41,7 @@ export default async function PermissionsPage() {
       },
     });
   } catch (error) {
-    console.error('Error fetching admin users:', error)
+    logger.error('Error fetching admin users:', error)
     // Continue with empty array - will show "No admin users found" message
   }
 

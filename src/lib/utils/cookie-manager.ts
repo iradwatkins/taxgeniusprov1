@@ -7,6 +7,7 @@
 
 import { cookies } from 'next/headers'
 import type { UTMAttribution } from '../services/utm-tracking.service'
+import { logger } from '@/lib/logger'
 
 // Cookie configuration
 export const UTM_COOKIE_NAME = '__tgp_utm'
@@ -55,7 +56,7 @@ export async function getUTMCookie(): Promise<UTMAttribution | null> {
 
     return attribution
   } catch (error) {
-    console.error('Failed to parse UTM cookie:', error)
+    logger.error('Failed to parse UTM cookie:', error)
     return null
   }
 }
@@ -101,7 +102,7 @@ export function getUTMCookieClient(): UTMAttribution | null {
 
     return attribution
   } catch (error) {
-    console.error('Failed to parse UTM cookie (client):', error)
+    logger.error('Failed to parse UTM cookie (client):', error)
     return null
   }
 }
@@ -122,7 +123,7 @@ export async function setUTMCookieClient(attribution: UTMAttribution): Promise<b
 
     return response.ok
   } catch (error) {
-    console.error('Failed to set UTM cookie via API:', error)
+    logger.error('Failed to set UTM cookie via API:', error)
     return false
   }
 }

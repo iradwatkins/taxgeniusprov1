@@ -8,6 +8,7 @@
 import { currentUser } from '@clerk/nextjs/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { UserRole } from '@/lib/permissions'
+import { logger } from '@/lib/logger'
 import {
   setViewingRoleCookie,
   clearViewingRoleCookie,
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
     if (targetRole === actualRole) {
       await clearViewingRoleCookie()
 
-      console.log(
+      logger.info(
         `✅ Admin ${user.id} cleared viewing role (returned to ${formatRoleName(
           actualRole
         )})`
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
     // Set viewing role cookie
     await setViewingRoleCookie(targetRole, user.id)
 
-    console.log(
+    logger.info(
       `✅ Admin ${user.id} (${actualRole}) switched to viewing as ${formatRoleName(
         targetRole
       )} (${targetRole})`
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest) {
       message: `Now viewing as ${formatRoleName(targetRole)}`,
     })
   } catch (error) {
-    console.error('Error switching viewing role:', error)
+    logger.error('Error switching viewing role:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -141,7 +142,7 @@ export async function DELETE(request: NextRequest) {
     // Clear viewing role cookie
     await clearViewingRoleCookie()
 
-    console.log(
+    logger.info(
       `✅ Admin ${user.id} cleared viewing role (returned to ${formatRoleName(
         actualRole
       )})`
@@ -156,7 +157,7 @@ export async function DELETE(request: NextRequest) {
       message: `Returned to ${formatRoleName(actualRole)} view`,
     })
   } catch (error) {
-    console.error('Error clearing viewing role:', error)
+    logger.error('Error clearing viewing role:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -200,7 +201,7 @@ export async function GET(request: NextRequest) {
       viewingRoleName: roleInfo.viewingRoleName,
     })
   } catch (error) {
-    console.error('Error getting viewing role state:', error)
+    logger.error('Error getting viewing role state:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

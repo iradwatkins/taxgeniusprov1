@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { LandingPageTemplate } from '@/components/landing-page/LandingPageTemplate';
+import { logger } from '@/lib/logger'
 
 // ISR: Revalidate every 1 hour (AC8)
 export const revalidate = 3600;
@@ -77,7 +78,7 @@ export async function generateStaticParams() {
   } catch (error) {
     // During Docker build, database isn't available - return empty array
     // Pages will be generated on-demand via ISR instead
-    console.log('Database not available during build, skipping static generation');
+    logger.info('Database not available during build, skipping static generation');
     return [];
   }
 }

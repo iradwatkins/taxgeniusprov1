@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { EmailService } from '@/lib/services/email.service'
+import { logger } from '@/lib/logger'
 
 export async function POST(
   req: NextRequest,
@@ -108,8 +109,8 @@ export async function POST(
       notes || 'Your payout request has been rejected. Please contact support for more information.'
     )
 
-    console.log(`❌ Payout ${id} rejected by admin ${profile.id}`)
-    console.log(`💵 $${payout.amount} returned to PENDING for referrer ${payout.referrerId}`)
+    logger.info(`❌ Payout ${id} rejected by admin ${profile.id}`)
+    logger.info(`💵 $${payout.amount} returned to PENDING for referrer ${payout.referrerId}`)
 
     return NextResponse.json({
       success: true,
@@ -121,7 +122,7 @@ export async function POST(
       },
     })
   } catch (error) {
-    console.error('Error rejecting payout:', error)
+    logger.error('Error rejecting payout:', error)
     return NextResponse.json(
       { error: 'Failed to reject payout. Please try again.' },
       { status: 500 }

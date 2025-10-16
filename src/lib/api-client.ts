@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger'
 interface RetryConfig {
   maxAttempts: number
   baseDelay: number
@@ -109,7 +110,7 @@ export class APIClient {
 
         if (this.shouldRetry(apiError, attempt)) {
           const delay = this.calculateDelay(attempt)
-          console.warn(`API request failed (attempt ${attempt}), retrying in ${delay}ms:`, apiError.message)
+          logger.warn(`API request failed (attempt ${attempt}), retrying in ${delay}ms:`, apiError.message)
           await this.sleep(delay)
           return this.makeRequest<T>(url, options, attempt + 1)
         }
@@ -140,7 +141,7 @@ export class APIClient {
 
       if (this.shouldRetry(networkError, attempt)) {
         const delay = this.calculateDelay(attempt)
-        console.warn(`Network error (attempt ${attempt}), retrying in ${delay}ms:`, networkError.message)
+        logger.warn(`Network error (attempt ${attempt}), retrying in ${delay}ms:`, networkError.message)
         await this.sleep(delay)
         return this.makeRequest<T>(url, options, attempt + 1)
       }

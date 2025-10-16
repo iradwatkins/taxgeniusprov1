@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { NotificationService } from '@/lib/services/notification.service'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
       message: 'Push subscription removed successfully'
     })
   } catch (error) {
-    console.error('Push unsubscribe error:', error)
+    logger.error('Push unsubscribe error:', error)
     return NextResponse.json(
       { error: 'Failed to remove push subscription' },
       { status: 500 }

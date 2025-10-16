@@ -39,6 +39,7 @@ import {
   Link2,
 } from 'lucide-react'
 import { UserRole, UserPermissions, Permission } from '@/lib/permissions'
+import { logger } from '@/lib/logger'
 
 interface NavItem {
   label: string
@@ -208,7 +209,7 @@ export function DashboardSidebar({
   }, {} as Record<string, typeof navItems>)
 
   // Debug: Log the role and grouped items
-  console.log('Dashboard Sidebar Debug:', {
+  logger.info('Dashboard Sidebar Debug:', {
     role,
     isAdminOrSuperAdmin: role === 'admin' || role === 'super_admin',
     totalNavItems: navItems.length,

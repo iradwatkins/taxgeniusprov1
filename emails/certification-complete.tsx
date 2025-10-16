@@ -5,7 +5,6 @@ import {
   Head,
   Heading,
   Html,
-  Img,
   Link,
   Preview,
   Section,
@@ -24,7 +23,7 @@ export const CertificationCompleteEmail = ({
   return (
     <Html>
       <Head />
-      <Preview>Congratulations! You've completed all required training materials</Preview>
+      <Preview>Congratulations! You&apos;ve completed all required training materials</Preview>
       <Body style={main}>
         <Container style={container}>
           {/* Header */}
@@ -37,7 +36,7 @@ export const CertificationCompleteEmail = ({
             <Text style={greeting}>Hi {preparerName},</Text>
 
             <Text style={paragraph}>
-              <strong>Congratulations!</strong> You've successfully completed all required training materials for the Tax Genius Academy certification program.
+              <strong>Congratulations!</strong> You&apos;ve successfully completed all required training materials for the Tax Genius Academy certification program.
             </Text>
 
             <Text style={paragraph}>
@@ -53,11 +52,11 @@ export const CertificationCompleteEmail = ({
               </Text>
 
               <Text style={listItem}>
-                <strong>2. Certification Interview:</strong> You'll be scheduled for a brief knowledge verification call
+                <strong>2. Certification Interview:</strong> You&apos;ll be scheduled for a brief knowledge verification call
               </Text>
 
               <Text style={listItem}>
-                <strong>3. Final Certification:</strong> Upon passing the interview, you'll receive your official Tax Genius Preparer certification
+                <strong>3. Final Certification:</strong> Upon passing the interview, you&apos;ll receive your official Tax Genius Preparer certification
               </Text>
             </Section>
 
@@ -78,7 +77,7 @@ export const CertificationCompleteEmail = ({
             </Text>
 
             <Text style={paragraph}>
-              If you have any questions about the certification process, please don't hesitate to contact our support team.
+              If you have any questions about the certification process, please don&apos;t hesitate to contact our support team.
             </Text>
 
             <Text style={signature}>

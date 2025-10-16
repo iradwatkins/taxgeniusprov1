@@ -9,6 +9,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 import {
   getShortLinkByCode,
   updateShortLink,
@@ -56,7 +57,7 @@ export async function GET(
       data: analytics,
     })
   } catch (error: any) {
-    console.error('Error fetching short link:', error)
+    logger.error('Error fetching short link:', error)
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }
@@ -110,7 +111,7 @@ export async function PATCH(
       message: 'Short link updated successfully',
     })
   } catch (error: any) {
-    console.error('Error updating short link:', error)
+    logger.error('Error updating short link:', error)
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }
@@ -158,7 +159,7 @@ export async function DELETE(
       message: 'Short link deleted successfully',
     })
   } catch (error: any) {
-    console.error('Error deleting short link:', error)
+    logger.error('Error deleting short link:', error)
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }

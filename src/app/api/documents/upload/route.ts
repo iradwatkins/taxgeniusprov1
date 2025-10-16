@@ -5,6 +5,7 @@ import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import { uploadRateLimit, getClientIdentifier, getUserIdentifier, getRateLimitHeaders, checkRateLimit } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger'
 
 // Map form categories to DocumentType enum
 const CATEGORY_TO_TYPE: Record<string, string> = {
@@ -118,7 +119,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error uploading document:', error);
+    logger.error('Error uploading document:', error);
     return NextResponse.json(
       { error: 'Failed to upload document' },
       { status: 500 }
@@ -152,7 +153,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ documents });
   } catch (error) {
-    console.error('Error fetching documents:', error);
+    logger.error('Error fetching documents:', error);
     return NextResponse.json(
       { error: 'Failed to fetch documents' },
       { status: 500 }

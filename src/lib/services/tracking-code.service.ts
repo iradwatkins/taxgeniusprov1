@@ -7,6 +7,7 @@
 
 import { prisma } from '@/lib/prisma'
 import { generateQRCode, type QRCodeResult } from './qr-code.service'
+import { logger } from '@/lib/logger'
 
 export interface TrackingCodeData {
   code: string
@@ -290,7 +291,7 @@ export async function backfillTrackingCodes(baseUrl?: string): Promise<{ updated
       await assignTrackingCodeToUser(profile.id, baseUrl)
       updated++
     } catch (error) {
-      console.error(`Failed to assign tracking code to profile ${profile.id}:`, error)
+      logger.error(`Failed to assign tracking code to profile ${profile.id}:`, error)
       errors++
     }
   }

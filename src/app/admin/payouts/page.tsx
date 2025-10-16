@@ -15,6 +15,7 @@ import {
   TableRow
 } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { logger } from '@/lib/logger'
 import {
   DollarSign,
   Clock,
@@ -71,7 +72,7 @@ export default function AdminPayoutsPage() {
         setStats(data.stats)
       }
     } catch (error) {
-      console.error('Error fetching payouts:', error)
+      logger.error('Error fetching payouts:', error)
     } finally {
       setLoading(false)
     }

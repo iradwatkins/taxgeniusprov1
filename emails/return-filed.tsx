@@ -88,7 +88,7 @@ export const ReturnFiledEmail = ({
                 <>
                   <Heading style={boxHeading}>Return Status</Heading>
                   <Text style={boxText}>
-                    Your tax return has been successfully filed. You'll receive an update once the IRS processes your return.
+                    Your tax return has been successfully filed. You&apos;ll receive an update once the IRS processes your return.
                   </Text>
                 </>
               )}
@@ -120,14 +120,14 @@ export const ReturnFiledEmail = ({
 
             <Hr style={hr} />
 
-            {/* What's Next */}
-            <Heading style={h2}>What's Next?</Heading>
+            {/* What&apos;s Next */}
+            <Heading style={h2}>What&apos;s Next?</Heading>
 
             <Text style={listItem}>
               ✓ Your return is now with the IRS for processing
             </Text>
             <Text style={listItem}>
-              ✓ You'll receive confirmation once the IRS accepts your return
+              ✓ You&apos;ll receive confirmation once the IRS accepts your return
             </Text>
             {hasRefund && (
               <Text style={listItem}>
@@ -154,7 +154,7 @@ export const ReturnFiledEmail = ({
 
             <Text style={smallText}>
               © {new Date().getFullYear()} Tax Genius Pro. All rights reserved.<br />
-              You're receiving this email because your tax return was filed through our platform.
+              You&apos;re receiving this email because your tax return was filed through our platform.
             </Text>
           </Section>
         </Container>

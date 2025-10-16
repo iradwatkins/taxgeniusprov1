@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowRight, ArrowLeft, Upload, FileUp, Share2, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { logger } from '@/lib/logger'
 import {
   Select,
   SelectContent,
@@ -168,9 +169,9 @@ export default function SimpleTaxForm() {
       }
 
       const data = await response.json();
-      console.log('Lead saved:', data.leadId);
+      logger.info('Lead saved:', data.leadId);
     } catch (error) {
-      console.error('Error saving lead:', error);
+      logger.error('Error saving lead:', error);
       // Continue anyway - don't block the user
     } finally {
       setIsSaving(false);

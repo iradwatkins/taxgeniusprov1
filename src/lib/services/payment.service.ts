@@ -2,6 +2,7 @@ import { Client, Environment, ApiError } from 'square'
 import { prisma } from '@/lib/db'
 import { cache, cacheKeys } from '@/lib/redis'
 import crypto from 'crypto'
+import { logger } from '@/lib/logger'
 
 // Initialize Square client
 const squareClient = new Client({
@@ -88,7 +89,7 @@ export class PaymentService {
         paymentId: dbPayment.id,
       }
     } catch (error) {
-      console.error('Payment error:', error)
+      logger.error('Payment error:', error)
 
       if (error instanceof ApiError) {
         return {
@@ -146,7 +147,7 @@ export class PaymentService {
         checkoutUrl: response.result.paymentLink.url,
       }
     } catch (error) {
-      console.error('Checkout link error:', error)
+      logger.error('Checkout link error:', error)
       return {
         success: false,
         error: 'Failed to create checkout link',
@@ -162,7 +163,7 @@ export class PaymentService {
       const response = await squareClient.paymentsApi.getPayment(paymentId)
       return response.result.payment
     } catch (error) {
-      console.error('Get payment error:', error)
+      logger.error('Get payment error:', error)
       return null
     }
   }
@@ -223,7 +224,7 @@ export class PaymentService {
         refundId: response.result.refund.id,
       }
     } catch (error) {
-      console.error('Refund error:', error)
+      logger.error('Refund error:', error)
       return {
         success: false,
         error: 'Refund failed',
@@ -282,7 +283,7 @@ export class PaymentService {
 
       // TODO: Send commission notification email
     } catch (error) {
-      console.error('Commission calculation error:', error)
+      logger.error('Commission calculation error:', error)
     }
   }
 
@@ -352,7 +353,7 @@ export class PaymentService {
         message: `Payout of $${totalAmount.toFixed(2)} initiated`,
       }
     } catch (error) {
-      console.error('Payout error:', error)
+      logger.error('Payout error:', error)
       return {
         success: false,
         message: 'Payout processing failed',
@@ -389,7 +390,7 @@ export class PaymentService {
           .digest('base64')
 
         if (hash !== signature) {
-          console.error('Invalid webhook signature')
+          logger.error('Invalid webhook signature')
           return { success: false }
         }
       }
@@ -408,12 +409,12 @@ export class PaymentService {
           break
 
         default:
-          console.log('Unhandled webhook event type:', event.type)
+          logger.info('Unhandled webhook event type:', event.type)
       }
 
       return { success: true }
     } catch (error) {
-      console.error('Webhook error:', error)
+      logger.error('Webhook error:', error)
       return { success: false }
     }
   }
@@ -428,7 +429,7 @@ export class PaymentService {
       })
 
       if (!dbPayment) {
-        console.log('Payment not found in database:', payment.id)
+        logger.info('Payment not found in database:', payment.id)
         return
       }
 
@@ -441,7 +442,7 @@ export class PaymentService {
         },
       })
     } catch (error) {
-      console.error('Handle payment event error:', error)
+      logger.error('Handle payment event error:', error)
     }
   }
 
@@ -455,7 +456,7 @@ export class PaymentService {
       })
 
       if (!dbPayment) {
-        console.log('Payment not found for refund:', refund.payment_id)
+        logger.info('Payment not found for refund:', refund.payment_id)
         return
       }
 
@@ -473,7 +474,7 @@ export class PaymentService {
         },
       })
     } catch (error) {
-      console.error('Handle refund event error:', error)
+      logger.error('Handle refund event error:', error)
     }
   }
 }

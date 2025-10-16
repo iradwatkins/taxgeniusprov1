@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
+import { logger } from '@/lib/logger'
 import {
   QrCode,
   Copy,
@@ -62,7 +63,7 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
         const result = await response.json()
         setTrackingData(result.data)
       } catch (error) {
-        console.error('Error fetching tracking code:', error)
+        logger.error('Error fetching tracking code:', error)
       } finally {
         setIsLoading(false)
       }
@@ -88,7 +89,7 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
       const result = await response.json()
       setAvailability(result)
     } catch (error) {
-      console.error('Error checking availability:', error)
+      logger.error('Error checking availability:', error)
     } finally {
       setIsChecking(false)
     }
@@ -141,7 +142,7 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
       setCopied(type)
       setTimeout(() => setCopied(null), 2000)
     } catch (error) {
-      console.error('Failed to copy:', error)
+      logger.error('Failed to copy:', error)
     }
   }
 

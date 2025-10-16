@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/core/providers/AuthProvider'
 import { useProfile } from '@/core/hooks/useProfile'
 import { User, Settings, ExternalLink } from 'lucide-react'
+import { logger } from '@/lib/logger'
 
 export const ProfileManager: React.FC = () => {
   const { t } = useTranslation()
@@ -51,7 +52,7 @@ export const ProfileManager: React.FC = () => {
       setMessage('Profile updated successfully!')
     } catch (err) {
       setError('Failed to update profile')
-      console.error('Profile update error:', err)
+      logger.error('Profile update error:', err)
     }
   }
 

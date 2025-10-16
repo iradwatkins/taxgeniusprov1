@@ -26,6 +26,7 @@ import {
   type RoleDisplayInfo,
 } from '@/types/role-switcher'
 import { useToast } from '@/hooks/use-toast'
+import { logger } from '@/lib/logger'
 
 interface RoleSwitcherProps {
   actualRole: UserRole
@@ -83,7 +84,7 @@ export function RoleSwitcher({
       // Use hard refresh to force middleware to re-evaluate
       window.location.reload()
     } catch (error) {
-      console.error('Error switching role:', error)
+      logger.error('Error switching role:', error)
 
       toast({
         title: 'Error',
@@ -122,7 +123,7 @@ export function RoleSwitcher({
       // Refresh the page
       router.refresh()
     } catch (error) {
-      console.error('Error clearing viewing role:', error)
+      logger.error('Error clearing viewing role:', error)
 
       toast({
         title: 'Error',

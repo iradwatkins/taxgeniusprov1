@@ -20,6 +20,7 @@ import {
   User,
 } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger'
 
 export default async function FileCenterPage() {
   const user = await currentUser();
@@ -43,7 +44,7 @@ export default async function FileCenterPage() {
 
     totalDocuments = await prisma.document.count();
   } catch (error) {
-    console.error('Error fetching document statistics:', error)
+    logger.error('Error fetching document statistics:', error)
     // Continue with empty data - will show "0 documents" message
   }
 

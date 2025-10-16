@@ -8,6 +8,7 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 import {
   getUserTrackingCode,
   customizeTrackingCode,
@@ -57,7 +58,7 @@ export async function GET() {
       data: trackingData,
     })
   } catch (error) {
-    console.error('Error getting tracking code:', error)
+    logger.error('Error getting tracking code:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -123,7 +124,7 @@ export async function PATCH(req: Request) {
       message: 'Tracking code customized successfully',
     })
   } catch (error) {
-    console.error('Error customizing tracking code:', error)
+    logger.error('Error customizing tracking code:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

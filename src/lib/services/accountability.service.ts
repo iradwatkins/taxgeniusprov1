@@ -6,6 +6,7 @@
  */
 
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 export interface MissedFollowUpAlert {
   id: string
@@ -174,7 +175,7 @@ export async function getAllMissedFollowUps(limit?: number): Promise<MissedFollo
 
     return limit ? results.slice(0, limit) : results
   } catch (error) {
-    console.error('Error fetching all missed follow-ups:', error)
+    logger.error('Error fetching all missed follow-ups:', error)
     return []
   }
 }
@@ -275,7 +276,7 @@ export async function getPreparerAccountabilityMetrics(): Promise<PreparerAccoun
 
     return metrics
   } catch (error) {
-    console.error('Error fetching preparer accountability metrics:', error)
+    logger.error('Error fetching preparer accountability metrics:', error)
     return []
   }
 }
@@ -369,7 +370,7 @@ export async function getPlatformAccountabilityStats(): Promise<PlatformAccounta
       totalPendingAppointments
     }
   } catch (error) {
-    console.error('Error fetching platform accountability stats:', error)
+    logger.error('Error fetching platform accountability stats:', error)
     return {
       totalMissedFollowUps: 0,
       criticalAlerts: 0,
@@ -388,7 +389,7 @@ export async function getPreparerMissedFollowUpsList(preparerId: string): Promis
     const allMissed = await getAllMissedFollowUps()
     return allMissed.filter(m => m.preparerId === preparerId)
   } catch (error) {
-    console.error('Error fetching preparer missed follow-ups list:', error)
+    logger.error('Error fetching preparer missed follow-ups list:', error)
     return []
   }
 }
@@ -440,7 +441,7 @@ export async function markFollowUpCompleted(params: {
 
     return { success: true }
   } catch (error) {
-    console.error('Error marking follow-up completed:', error)
+    logger.error('Error marking follow-up completed:', error)
     return { success: false, error }
   }
 }
@@ -476,7 +477,7 @@ export async function escalateMissedFollowUp(params: {
 
     return { success: true }
   } catch (error) {
-    console.error('Error escalating missed follow-up:', error)
+    logger.error('Error escalating missed follow-up:', error)
     return { success: false, error }
   }
 }

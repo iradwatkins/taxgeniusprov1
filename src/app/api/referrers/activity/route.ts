@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireOneOfRoles } from '@/lib/auth'
 import { ReferrerService } from '@/lib/services/referrer.service'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    console.error('Error fetching referrer activity:', error)
+    logger.error('Error fetching referrer activity:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

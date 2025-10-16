@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 interface FunnelData {
   funnel: {
@@ -161,7 +162,7 @@ export async function GET(
 
     return NextResponse.json(response)
   } catch (error) {
-    console.error('Conversion funnel error:', error)
+    logger.error('Conversion funnel error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch conversion funnel' },
       { status: 500 }

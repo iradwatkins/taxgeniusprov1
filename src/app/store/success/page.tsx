@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { CheckCircle, ShoppingBag, ArrowRight } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { ClearCartClient } from './_components/ClearCartClient';
+import { logger } from '@/lib/logger'
 
 interface SuccessPageProps {
   searchParams: Promise<{
@@ -18,7 +19,7 @@ async function OrderDetails({ sessionId }: { sessionId: string }) {
   // Check if this is a test order
   const isTestMode = sessionId.startsWith('test_session_');
 
-  console.log(`📦 Fetching order for session: ${sessionId} (test mode: ${isTestMode})`);
+  logger.info(`📦 Fetching order for session: ${sessionId} (test mode: ${isTestMode})`);
 
   try {
     // Fetch order from database by stripeSessionId
@@ -27,7 +28,7 @@ async function OrderDetails({ sessionId }: { sessionId: string }) {
     });
 
     if (!order) {
-      console.log('⏳ Order not found yet - webhook may be processing');
+      logger.info('⏳ Order not found yet - webhook may be processing');
 
       return (
         <Card className="border-yellow-200 bg-yellow-50">
@@ -126,7 +127,7 @@ async function OrderDetails({ sessionId }: { sessionId: string }) {
     );
 
   } catch (error) {
-    console.error('Error fetching order:', error);
+    logger.error('Error fetching order:', error);
 
     return (
       <Card className="border-red-200 bg-red-50">

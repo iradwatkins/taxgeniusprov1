@@ -6,6 +6,7 @@
  */
 
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 export interface LinkPerformance {
   id: string
@@ -55,7 +56,7 @@ export async function trackLinkClick(params: {
     })
 
     if (!link) {
-      console.error(`Link not found: ${params.linkCode}`)
+      logger.error(`Link not found: ${params.linkCode}`)
       return null
     }
 
@@ -84,7 +85,7 @@ export async function trackLinkClick(params: {
 
     return click
   } catch (error) {
-    console.error('Error tracking link click:', error)
+    logger.error('Error tracking link click:', error)
     return null
   }
 }
@@ -154,7 +155,7 @@ export async function recordLinkConversion(params: {
     // Recalculate conversion rates
     await updateLinkConversionRates(link.id)
   } catch (error) {
-    console.error('Error recording link conversion:', error)
+    logger.error('Error recording link conversion:', error)
   }
 }
 
@@ -217,7 +218,7 @@ export async function getCreatorLinkPerformance(
       createdAt: link.createdAt
     }))
   } catch (error) {
-    console.error('Error fetching creator link performance:', error)
+    logger.error('Error fetching creator link performance:', error)
     return []
   }
 }
@@ -270,7 +271,7 @@ export async function getTopPerformingLinks(limit: number = 10): Promise<LinkPer
       createdAt: link.createdAt
     }))
   } catch (error) {
-    console.error('Error fetching top performing links:', error)
+    logger.error('Error fetching top performing links:', error)
     return []
   }
 }
@@ -322,7 +323,7 @@ export async function getLinkConversionFunnel(linkId: string): Promise<LinkConve
       returnConversionRate: clicks > 0 ? Math.round((returns / clicks) * 100) : 0
     }
   } catch (error) {
-    console.error('Error fetching link conversion funnel:', error)
+    logger.error('Error fetching link conversion funnel:', error)
     return {
       clicks: 0,
       uniqueVisitors: 0,
@@ -366,7 +367,7 @@ export async function getLinkPerformanceByType() {
         : 0
     }))
   } catch (error) {
-    console.error('Error fetching link performance by type:', error)
+    logger.error('Error fetching link performance by type:', error)
     return []
   }
 }
@@ -407,7 +408,7 @@ export async function getPlatformLinkStats() {
         : 0
     }
   } catch (error) {
-    console.error('Error fetching platform link stats:', error)
+    logger.error('Error fetching platform link stats:', error)
     return {
       totalLinks: 0,
       totalClicks: 0,

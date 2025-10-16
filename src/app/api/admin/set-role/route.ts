@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUser, clerkClient } from '@clerk/nextjs/server';
+import { logger } from '@/lib/logger'
 
 /**
  * API endpoint to set admin role for a user
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`🔍 Looking for user with email: ${email}`);
+    logger.info(`🔍 Looking for user with email: ${email}`);
 
     const clerk = await clerkClient();
 
@@ -62,11 +63,11 @@ export async function POST(request: NextRequest) {
     }
 
     const user = users.data[0];
-    console.log(`✅ Found user: ${user.firstName} ${user.lastName} (${user.id})`);
+    logger.info(`✅ Found user: ${user.firstName} ${user.lastName} (${user.id})`);
 
     // Check current role
     const currentRole = user.publicMetadata?.role;
-    console.log(`📋 Current role: ${currentRole || 'none'}`);
+    logger.info(`📋 Current role: ${currentRole || 'none'}`);
 
     // Update role
     await clerk.users.updateUserMetadata(user.id, {
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log(`✅ Successfully set ${role} role for ${email}`);
+    logger.info(`✅ Successfully set ${role} role for ${email}`);
 
     return NextResponse.json({
       success: true,
@@ -96,7 +97,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Error setting role:', error);
+    logger.error('❌ Error setting role:', error);
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }

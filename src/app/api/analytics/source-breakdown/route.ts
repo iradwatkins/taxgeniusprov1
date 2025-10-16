@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 interface SourceBreakdown {
   byType: Array<{
@@ -227,7 +228,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response)
   } catch (error) {
-    console.error('Source breakdown error:', error)
+    logger.error('Source breakdown error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch source breakdown' },
       { status: 500 }

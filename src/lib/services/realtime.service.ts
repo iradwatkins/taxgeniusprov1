@@ -2,6 +2,7 @@ import { Server as HTTPServer } from 'http'
 import { Server as SocketIOServer, Socket } from 'socket.io'
 import { prisma } from '@/lib/db'
 import { cache } from '@/lib/redis'
+import { logger } from '@/lib/logger'
 
 let io: SocketIOServer | null = null
 
@@ -63,7 +64,7 @@ export class RealtimeService {
 
         next()
       } catch (error) {
-        console.error('Socket authentication error:', error)
+        logger.error('Socket authentication error:', error)
         next(new Error('Authentication failed'))
       }
     })
@@ -83,7 +84,7 @@ export class RealtimeService {
    * Handle new socket connection
    */
   private static handleConnection(socket: Socket, userData: SocketUser) {
-    console.log(`User connected: ${userData.userId} (${userData.role})`)
+    logger.info(`User connected: ${userData.userId} (${userData.role})`)
 
     // Store connected user
     this.connectedUsers.set(socket.id, userData)
@@ -101,7 +102,7 @@ export class RealtimeService {
 
     // Handle disconnection
     socket.on('disconnect', () => {
-      console.log(`User disconnected: ${userData.userId}`)
+      logger.info(`User disconnected: ${userData.userId}`)
       this.connectedUsers.delete(socket.id)
       this.updateUserPresence(userData.userId, false)
     })
@@ -171,7 +172,7 @@ export class RealtimeService {
         await this.sendUpdatedStats(socket, userData)
       }
     } catch (error) {
-      console.error('Error sending initial data:', error)
+      logger.error('Error sending initial data:', error)
     }
   }
 
@@ -234,7 +235,7 @@ export class RealtimeService {
         data: { lastReadAt: new Date() },
       })
     } catch (error) {
-      console.error('Chat message error:', error)
+      logger.error('Chat message error:', error)
       socket.emit('error', { message: 'Failed to send message' })
     }
   }
@@ -256,7 +257,7 @@ export class RealtimeService {
         isTyping: data.isTyping,
       })
     } catch (error) {
-      console.error('Typing indicator error:', error)
+      logger.error('Typing indicator error:', error)
     }
   }
 
@@ -306,7 +307,7 @@ export class RealtimeService {
         profileId: userData.profileId,
       })
     } catch (error) {
-      console.error('Join room error:', error)
+      logger.error('Join room error:', error)
       socket.emit('error', { message: 'Failed to join room' })
     }
   }
@@ -348,7 +349,7 @@ export class RealtimeService {
         },
       })
     } catch (error) {
-      console.error('Mark notification read error:', error)
+      logger.error('Mark notification read error:', error)
     }
   }
 
@@ -377,7 +378,7 @@ export class RealtimeService {
         total_earnings: totalEarnings,
       })
     } catch (error) {
-      console.error('Send stats error:', error)
+      logger.error('Send stats error:', error)
     }
   }
 
@@ -428,7 +429,7 @@ export class RealtimeService {
 
       return savedNotification
     } catch (error) {
-      console.error('Send notification error:', error)
+      logger.error('Send notification error:', error)
       return null
     }
   }

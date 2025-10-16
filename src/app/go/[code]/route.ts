@@ -17,6 +17,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { incrementShortLinkClick } from '@/lib/services/short-link.service'
+import { logger } from '@/lib/logger'
 
 export async function GET(
   request: NextRequest,
@@ -46,7 +47,7 @@ export async function GET(
 
     // Increment click counter (async, don't wait)
     incrementShortLinkClick(code).catch(err => {
-      console.error('Error incrementing click count:', err)
+      logger.error('Error incrementing click count:', err)
     })
 
     // Create link click record for analytics
@@ -67,7 +68,7 @@ export async function GET(
         }
       })
     } catch (err) {
-      console.error('Error creating link click record:', err)
+      logger.error('Error creating link click record:', err)
       // Continue anyway - don't block redirect
     }
 
@@ -87,7 +88,7 @@ export async function GET(
 
     return NextResponse.redirect(url.toString())
   } catch (error) {
-    console.error('Error handling short link redirect:', error)
+    logger.error('Error handling short link redirect:', error)
 
     // Fallback to home page with error
     return NextResponse.redirect(

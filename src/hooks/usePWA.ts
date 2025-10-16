@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { toast } from '@/hooks/use-toast'
+import { logger } from '@/lib/logger'
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -76,7 +77,7 @@ export function usePWA() {
           })
         })
         .catch((error) => {
-          console.error('Service worker registration failed:', error)
+          logger.error('Service worker registration failed:', error)
         })
     }
   }, [])
@@ -156,7 +157,7 @@ export function usePWA() {
       const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
 
       if (!vapidPublicKey) {
-        console.error('VAPID public key not configured')
+        logger.error('VAPID public key not configured')
         return null
       }
 
@@ -186,7 +187,7 @@ export function usePWA() {
 
       return subscription
     } catch (error) {
-      console.error('Failed to subscribe to push notifications:', error)
+      logger.error('Failed to subscribe to push notifications:', error)
       toast({
         title: 'Notification Error',
         description: 'Could not enable push notifications.',
@@ -220,7 +221,7 @@ export function usePWA() {
         description: 'You won\'t receive push notifications anymore.',
       })
     } catch (error) {
-      console.error('Failed to unsubscribe from push notifications:', error)
+      logger.error('Failed to unsubscribe from push notifications:', error)
       toast({
         title: 'Error',
         description: 'Could not disable push notifications.',
@@ -252,7 +253,7 @@ export function usePWA() {
         description: 'All cached data has been removed.',
       })
     } catch (error) {
-      console.error('Failed to clear cache:', error)
+      logger.error('Failed to clear cache:', error)
       toast({
         title: 'Error',
         description: 'Could not clear cache.',

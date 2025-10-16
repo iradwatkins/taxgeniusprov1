@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Download, FileText, FileSpreadsheet, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { logger } from '@/lib/logger'
 
 interface ExportButtonProps {
   data: any[]
@@ -93,7 +94,7 @@ export function ExportButton({
       const timestamp = new Date().toISOString().split('T')[0]
       downloadFile(csv, `${filename}_${timestamp}.csv`, 'text/csv')
     } catch (error) {
-      console.error('Export failed:', error)
+      logger.error('Export failed:', error)
     } finally {
       setIsExporting(false)
     }
@@ -108,7 +109,7 @@ export function ExportButton({
       const timestamp = new Date().toISOString().split('T')[0]
       downloadFile(json, `${filename}_${timestamp}.json`, 'application/json')
     } catch (error) {
-      console.error('Export failed:', error)
+      logger.error('Export failed:', error)
     } finally {
       setIsExporting(false)
     }
@@ -129,7 +130,7 @@ export function ExportButton({
         'text/csv;charset=utf-8'
       )
     } catch (error) {
-      console.error('Export failed:', error)
+      logger.error('Export failed:', error)
     } finally {
       setIsExporting(false)
     }

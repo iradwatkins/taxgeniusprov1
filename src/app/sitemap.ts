@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger'
 
 /**
  * Dynamic sitemap generation (AC20)
@@ -31,7 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   } catch (error) {
     // During Docker build, database isn't available - return empty array
     // Sitemap will be regenerated at runtime with actual data
-    console.log('Database not available during build, skipping dynamic sitemap entries');
+    logger.info('Database not available during build, skipping dynamic sitemap entries');
   }
 
   // Static pages

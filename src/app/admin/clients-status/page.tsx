@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { ClientsManagement } from '@/components/admin/ClientsManagement';
+import { logger } from '@/lib/logger'
 
 // Status badge colors
 const statusColors: Record<string, string> = {
@@ -138,7 +139,7 @@ export default async function ClientsStatusPage({
       },
     })
   } catch (error) {
-    console.error('Error fetching clients data:', error)
+    logger.error('Error fetching clients data:', error)
     // Continue with empty arrays - will show "No clients found" message
   }
 

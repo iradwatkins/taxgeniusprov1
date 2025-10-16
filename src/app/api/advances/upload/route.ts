@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 
 // Simulated OCR processing for tax documents
 function extractDataFromDocument(fileName: string, fileType: string): any {
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Log upload (in production, save to database)
-    console.log('Document uploaded:', {
+    logger.info('Document uploaded:', {
       id: fileId,
       name: file.name,
       type: documentType,
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response, { status: 200 })
 
   } catch (error) {
-    console.error('Upload error:', error)
+    logger.error('Upload error:', error)
     return NextResponse.json(
       { error: 'Failed to upload document' },
       { status: 500 }

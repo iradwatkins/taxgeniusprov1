@@ -7,6 +7,7 @@
 
 import { UserRole } from '@/lib/permissions'
 import type { RoleSwitchAuditLog } from '@/types/role-switcher'
+import { logger } from '@/lib/logger'
 
 /**
  * Log a role switch event
@@ -38,7 +39,7 @@ export async function logRoleSwitch(
   }
 
   // Console logging for development
-  console.log('📋 Audit Log - Role Switch:', {
+  logger.info('📋 Audit Log - Role Switch:', {
     admin: adminEmail,
     from: fromRole,
     to: toRole,
@@ -76,7 +77,7 @@ export async function logProtectedOperationAttempt(
     resourceId?: string
   }
 ): Promise<void> {
-  console.log('⚠️  Audit Log - Protected Operation Blocked:', {
+  logger.info('⚠️  Audit Log - Protected Operation Blocked:', {
     admin: adminEmail,
     operation,
     viewingRole,
@@ -114,7 +115,7 @@ export async function getAuditLogsForAdmin(
     endDate?: Date
   }
 ): Promise<RoleSwitchAuditLog[]> {
-  console.log('📋 Fetching audit logs for admin:', adminUserId, options)
+  logger.info('📋 Fetching audit logs for admin:', adminUserId, options)
 
   // TODO: Query database
   // return await prisma.auditLog.findMany({
@@ -146,7 +147,7 @@ export async function getAllAuditLogs(options?: {
   userId?: string
   type?: string
 }): Promise<RoleSwitchAuditLog[]> {
-  console.log('📋 Fetching all audit logs:', options)
+  logger.info('📋 Fetching all audit logs:', options)
 
   // TODO: Query database with filters
   // return await prisma.auditLog.findMany({
@@ -187,7 +188,7 @@ export async function getAuditLogStats(options?: {
   protectedOperationAttempts: number
   uniqueAdmins: number
 }> {
-  console.log('📊 Fetching audit log statistics:', options)
+  logger.info('📊 Fetching audit log statistics:', options)
 
   // TODO: Aggregate from database
   // const stats = await prisma.auditLog.aggregate({

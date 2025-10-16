@@ -7,6 +7,7 @@
 
 import { prisma } from '@/lib/prisma'
 import { clerkClient } from '@clerk/nextjs/server'
+import { logger } from '@/lib/logger'
 
 export interface DashboardStats {
   totalUsers: number
@@ -168,7 +169,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       returnsGrowth: Math.round(returnsGrowth * 10) / 10,
     }
   } catch (error) {
-    console.error('Error fetching dashboard stats:', error)
+    logger.error('Error fetching dashboard stats:', error)
     // Return safe defaults
     return {
       totalUsers: 0,
@@ -275,7 +276,7 @@ export async function getRecentActivity(): Promise<RecentActivity[]> {
     // Sort by most recent and take top 20
     return activities.slice(0, 20)
   } catch (error) {
-    console.error('Error fetching recent activity:', error)
+    logger.error('Error fetching recent activity:', error)
     return []
   }
 }
@@ -316,7 +317,7 @@ export async function getRevenueData(): Promise<RevenueData[]> {
       height: `${(m.value / maxValue) * 100}%`,
     }))
   } catch (error) {
-    console.error('Error fetching revenue data:', error)
+    logger.error('Error fetching revenue data:', error)
     return []
   }
 }
@@ -355,7 +356,7 @@ export async function getUserGrowthData(): Promise<UserGrowthData[]> {
       height: `${(m.value / maxValue) * 100}%`,
     }))
   } catch (error) {
-    console.error('Error fetching user growth data:', error)
+    logger.error('Error fetching user growth data:', error)
     return []
   }
 }
@@ -399,7 +400,7 @@ export async function getTopServices(): Promise<TopService[]> {
 
     return services.slice(0, 5)
   } catch (error) {
-    console.error('Error fetching top services:', error)
+    logger.error('Error fetching top services:', error)
     return []
   }
 }
@@ -447,7 +448,7 @@ export async function getUserActivity(): Promise<UserActivityData[]> {
 
     return activity
   } catch (error) {
-    console.error('Error fetching user activity:', error)
+    logger.error('Error fetching user activity:', error)
     return []
   }
 }
@@ -516,7 +517,7 @@ export async function getConversionFunnel(): Promise<ConversionStage[]> {
       },
     ]
   } catch (error) {
-    console.error('Error fetching conversion funnel:', error)
+    logger.error('Error fetching conversion funnel:', error)
     return []
   }
 }
@@ -560,7 +561,7 @@ export async function getRevenueChart() {
       height: `${(d.value / maxValue) * 90}%`, // Max 90% height for visual spacing
     }))
   } catch (error) {
-    console.error('Error fetching revenue chart:', error)
+    logger.error('Error fetching revenue chart:', error)
     return []
   }
 }
@@ -606,7 +607,7 @@ export async function getPagePerformance() {
           : 0,
     }))
   } catch (error) {
-    console.error('Error fetching page performance:', error)
+    logger.error('Error fetching page performance:', error)
     return []
   }
 }
@@ -636,7 +637,7 @@ export async function getTrafficSources() {
       percentage: total > 0 ? Math.round(((source._sum.views || 0) / total) * 100) : 0,
     }))
   } catch (error) {
-    console.error('Error fetching traffic sources:', error)
+    logger.error('Error fetching traffic sources:', error)
     return []
   }
 }
@@ -684,7 +685,7 @@ export async function getAIContentMetrics() {
         : 0,
     }
   } catch (error) {
-    console.error('Error fetching AI content metrics:', error)
+    logger.error('Error fetching AI content metrics:', error)
     return {
       generated: 0,
       published: 0,
@@ -740,7 +741,7 @@ export async function getPendingActionsCount() {
       failedPaymentsAmount: Number(failedPaymentsAmount._sum.amount || 0),
     }
   } catch (error) {
-    console.error('Error fetching pending actions:', error)
+    logger.error('Error fetching pending actions:', error)
     return {
       pendingPayouts: 0,
       newLeads: 0,

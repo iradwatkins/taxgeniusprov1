@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger'
 /**
  * Tracking Code Integration Utilities
  *
@@ -48,7 +49,7 @@ export function buildTrackingUrl(baseUrl: string, params: TrackingParams): strin
 
     return url.toString()
   } catch (error) {
-    console.error('Error building tracking URL:', error)
+    logger.error('Error building tracking URL:', error)
     return baseUrl
   }
 }
@@ -70,7 +71,7 @@ export function extractTrackingCode(url: string): string | null {
     const urlObj = new URL(url)
     return urlObj.searchParams.get('ref')
   } catch (error) {
-    console.error('Error extracting tracking code:', error)
+    logger.error('Error extracting tracking code:', error)
     return null
   }
 }
@@ -98,7 +99,7 @@ export function extractUTMParams(url: string): {
       term: urlObj.searchParams.get('utm_term') || undefined,
     }
   } catch (error) {
-    console.error('Error extracting UTM params:', error)
+    logger.error('Error extracting UTM params:', error)
     return {}
   }
 }
@@ -149,7 +150,7 @@ export function buildMarketingLinkUrl(
 
     return url.toString()
   } catch (error) {
-    console.error('Error building marketing link URL:', error)
+    logger.error('Error building marketing link URL:', error)
     return baseUrl
   }
 }

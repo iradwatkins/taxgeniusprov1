@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
+import { logger } from '@/lib/logger'
 import {
   QrCode,
   Users,
@@ -65,7 +66,7 @@ async function getAllTrackingCodes() {
           userName = `User ${profile.clerkUserId.substring(0, 8)}`
           userEmail = `user${profile.clerkUserId.substring(0, 8)}@example.com`
         } catch (error) {
-          console.error('Error fetching user details:', error)
+          logger.error('Error fetching user details:', error)
         }
       }
 

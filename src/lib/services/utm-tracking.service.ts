@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger'
 /**
  * UTM Tracking Service
  *
@@ -101,7 +102,7 @@ export function deserializeUTMAttribution(data: string): UTMAttribution | null {
 
     return parsed as UTMAttribution
   } catch (error) {
-    console.error('Failed to deserialize UTM attribution:', error)
+    logger.error('Failed to deserialize UTM attribution:', error)
     return null
   }
 }

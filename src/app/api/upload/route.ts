@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth'
 import { StorageService } from '@/lib/services/storage.service'
 import { prisma } from '@/lib/db'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest) {
       fileSize: file.size,
     })
   } catch (error) {
-    console.error('Error uploading file:', error)
+    logger.error('Error uploading file:', error)
 
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -170,7 +171,7 @@ export async function GET(request: NextRequest) {
       expires: new Date(Date.now() + 3600000).toISOString()
     })
   } catch (error) {
-    console.error('Error generating presigned URL:', error)
+    logger.error('Error generating presigned URL:', error)
 
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

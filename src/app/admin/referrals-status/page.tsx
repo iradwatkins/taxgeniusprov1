@@ -38,6 +38,7 @@ import {
   ArrowUpRight,
 } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger'
 
 // Status badge colors
 const statusColors: Record<string, string> = {
@@ -111,7 +112,7 @@ export default async function ReferralsStatusPage() {
       take: 5,
     });
   } catch (error) {
-    console.error('Error fetching referrals data:', error)
+    logger.error('Error fetching referrals data:', error)
     // Continue with empty arrays - will show "No referrals found" message
   }
 

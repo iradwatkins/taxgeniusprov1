@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { trackJourneyStage, type JourneyStage } from '@/lib/services/journey-tracking.service'
 import { getUTMCookie } from '@/lib/utils/cookie-manager'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest) {
       attribution: result.attribution,
     })
   } catch (error) {
-    console.error('Journey tracking error:', error)
+    logger.error('Journey tracking error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -94,7 +95,7 @@ export async function GET() {
       },
     })
   } catch (error) {
-    console.error('Get journey status error:', error)
+    logger.error('Get journey status error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

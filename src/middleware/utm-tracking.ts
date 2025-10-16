@@ -15,6 +15,7 @@ import {
   type UTMAttribution,
 } from '@/lib/services/utm-tracking.service'
 import { UTM_COOKIE_NAME, UTM_COOKIE_MAX_AGE } from '@/lib/utils/cookie-manager'
+import { logger } from '@/lib/logger'
 
 /**
  * UTM tracking middleware
@@ -37,7 +38,7 @@ export function utmTrackingMiddleware(request: NextRequest): NextResponse {
       try {
         existingAttribution = JSON.parse(existingCookie.value)
       } catch (error) {
-        console.error('Failed to parse existing UTM cookie:', error)
+        logger.error('Failed to parse existing UTM cookie:', error)
       }
     }
 

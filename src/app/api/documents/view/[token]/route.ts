@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { jwtVerify } from 'jose'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/documents/view/[token]
@@ -24,9 +25,15 @@ export async function GET(
     const token = params.token
 
     // Verify JWT token
-    const secret = new TextEncoder().encode(
-      process.env.JWT_SECRET || process.env.CLERK_SECRET_KEY || 'default-secret-key-change-in-production'
-    )
+    const jwtSecret = process.env.JWT_SECRET || process.env.CLERK_SECRET_KEY
+    if (!jwtSecret) {
+      logger.error('CRITICAL: JWT_SECRET or CLERK_SECRET_KEY environment variable is missing')
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      )
+    }
+    const secret = new TextEncoder().encode(jwtSecret)
 
     let payload
     try {
@@ -102,7 +109,7 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Error serving document:', error)
+    logger.error('Error serving document:', error)
     return NextResponse.json(
       { error: 'Failed to serve document' },
       { status: 500 }

@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getJourneyStatus } from '@/lib/services/journey-tracking.service'
+import { logger } from '@/lib/logger'
 
 export async function GET(
   request: NextRequest,
@@ -35,7 +36,7 @@ export async function GET(
 
     return NextResponse.json(status)
   } catch (error) {
-    console.error('Get journey status error:', error)
+    logger.error('Get journey status error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

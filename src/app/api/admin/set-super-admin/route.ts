@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { clerkClient } from '@clerk/nextjs/server';
 import { PrismaClient } from '@prisma/client';
+import { logger } from '@/lib/logger'
 
 const prisma = new PrismaClient();
 
@@ -27,7 +28,7 @@ export async function POST() {
       );
     }
 
-    console.log(`🔐 Setting ${userEmail} as SUPER_ADMIN...`);
+    logger.info(`🔐 Setting ${userEmail} as SUPER_ADMIN...`);
 
     // Update Clerk metadata
     await (await clerkClient()).users.updateUserMetadata(user.id, {
@@ -36,7 +37,7 @@ export async function POST() {
       }
     });
 
-    console.log('✅ Clerk metadata updated');
+    logger.info('✅ Clerk metadata updated');
 
     // Update or create Profile in database
     const profile = await prisma.profile.findUnique({
@@ -44,7 +45,7 @@ export async function POST() {
     });
 
     if (!profile) {
-      console.log('Creating new profile...');
+      logger.info('Creating new profile...');
       await prisma.profile.create({
         data: {
           clerkUserId: user.id,
@@ -54,7 +55,7 @@ export async function POST() {
         }
       });
     } else {
-      console.log(`Updating profile from ${profile.role} to SUPER_ADMIN...`);
+      logger.info(`Updating profile from ${profile.role} to SUPER_ADMIN...`);
       await prisma.profile.update({
         where: { id: profile.id },
         data: { role: 'SUPER_ADMIN' }
@@ -69,7 +70,7 @@ export async function POST() {
     });
 
   } catch (error) {
-    console.error('Error setting super admin:', error);
+    logger.error('Error setting super admin:', error);
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

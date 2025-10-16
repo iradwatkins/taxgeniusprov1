@@ -15,6 +15,7 @@ import { UserRole } from '@/lib/permissions'
 import { ROLE_DISPLAY_CONFIG } from '@/types/role-switcher'
 import { useToast } from '@/hooks/use-toast'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { logger } from '@/lib/logger'
 
 interface ViewingAsBarProps {
   actualRole: UserRole
@@ -59,7 +60,7 @@ export function ViewingAsBar({
       // Refresh the page to apply admin role permissions
       router.refresh()
     } catch (error) {
-      console.error('Error exiting preview mode:', error)
+      logger.error('Error exiting preview mode:', error)
 
       toast({
         title: 'Error',

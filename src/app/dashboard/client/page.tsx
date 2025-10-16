@@ -4,107 +4,46 @@ import React from 'react'
 
 import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Textarea } from '@/components/ui/textarea'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Calendar } from '@/components/ui/calendar'
-import { Switch } from '@/components/ui/switch'
-import { Slider } from '@/components/ui/slider'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Checkbox } from '@/components/ui/checkbox'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import {
   FileText,
-  Upload,
-  DollarSign,
   MessageSquare,
-  Calendar as CalendarIcon,
   Clock,
   CheckCircle2,
-  AlertCircle,
   XCircle,
   Download,
   Eye,
-  Trash2,
   Send,
-  Paperclip,
-  User,
   CreditCard,
   Home,
-  Building,
-  Calculator,
   MoreVertical,
-  Plus,
-  Filter,
-  Search,
   Bell,
   Settings,
-  HelpCircle,
-  TrendingUp,
-  TrendingDown,
   Activity,
-  Receipt,
   FileCheck,
   FileX,
-  FolderOpen,
   Archive,
-  ChevronRight,
-  ChevronLeft,
-  ArrowUpRight,
-  ArrowDownRight,
-  Sparkles,
-  Shield,
-  Lock,
-  Zap,
   RefreshCw,
-  ExternalLink,
-  Info,
-  Star,
-  Heart,
   Share2,
-  Copy,
-  Edit,
-  BarChart3,
-  PieChart,
-  Wallet,
-  Banknote,
-  Coins,
-  HandCoins,
-  Users,
-  UserCheck,
-  Mail,
-  Phone,
-  Video,
-  Mic,
-  MicOff,
-  Camera,
-  CameraOff,
-  Loader2,
-  CheckSquare,
-  Square,
-  IndentDecrease,
-  Lightbulb
+  IndentDecrease
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { format } from 'date-fns'
+import { useQuery } from '@tanstack/react-query'
+import { StatsGrid } from '@/components/dashboard/client/StatsGrid'
+import { ProgressCard } from '@/components/dashboard/client/ProgressCard'
+import { OverviewTab } from '@/components/dashboard/client/OverviewTab'
+import { DocumentsTab } from '@/components/dashboard/client/DocumentsTab'
+import { MessagesTab } from '@/components/dashboard/client/MessagesTab'
+import { PaymentsTab } from '@/components/dashboard/client/PaymentsTab'
+import { DollarSign, CalendarIcon } from 'lucide-react'
 
 // Types
 interface TaxReturn {
@@ -152,20 +91,12 @@ interface Activity {
 }
 
 export default function ClientDashboard() {
-  const { toast } = useToast()
-  const queryClient = useQueryClient()
+  const { toast} = useToast()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const [selectedTab, setSelectedTab] = useState('overview')
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear() - 1)
-  const [uploadingFile, setUploadingFile] = useState(false)
-  const [messageContent, setMessageContent] = useState('')
-  const [isTyping, setIsTyping] = useState(false)
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null)
-  const [filterStatus, setFilterStatus] = useState('all')
-  const [searchQuery, setSearchQuery] = useState('')
   const [notifications, setNotifications] = useState(0)
-  const [date, setDate] = useState<Date | undefined>(new Date())
 
   // Fetch real dashboard data
   const { data: dashboardData, isLoading } = useQuery({
@@ -416,95 +347,10 @@ export default function ClientDashboard() {
           </motion.div>
 
           {/* Progress Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <Card className="overflow-hidden">
-              <div className="bg-gradient-to-r from-primary/10 via-orange-500/10 to-red-500/10 p-4 md:p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="font-semibold text-lg">Tax Return Progress</h3>
-                    <p className="text-sm text-muted-foreground">Complete these steps to file your return</p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold">{currentReturn.progress}%</div>
-                    <p className="text-xs text-muted-foreground">Complete</p>
-                  </div>
-                </div>
-                <Progress value={currentReturn.progress} className="h-3 mb-4" />
-
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-4">
-                  {[
-                    { label: 'Personal Info', complete: true },
-                    { label: 'Income', complete: true },
-                    { label: 'Deductions', complete: true },
-                    { label: 'Review', complete: false },
-                    { label: 'File', complete: false }
-                  ].map((step, i) => (
-                    <div key={i} className="text-center">
-                      <div className={cn(
-                        "w-8 h-8 md:w-10 md:h-10 rounded-full mx-auto mb-1 flex items-center justify-center transition-colors",
-                        step.complete ? "bg-primary text-primary-foreground" : "bg-muted"
-                      )}>
-                        {step.complete ? (
-                          <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5" />
-                        ) : (
-                          <span className="text-xs md:text-sm">{i + 1}</span>
-                        )}
-                      </div>
-                      <p className="text-xs md:text-sm">{step.label}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Card>
-          </motion.div>
+          <ProgressCard taxReturn={currentReturn} />
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 + index * 0.1 }}
-              >
-                <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                  <CardContent className="p-4 md:p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <p className="text-xs md:text-sm font-medium text-muted-foreground">
-                          {stat.title}
-                        </p>
-                        <p className="text-xl md:text-2xl font-bold">{stat.value}</p>
-                        <div className="flex items-center gap-1">
-                          {stat.changeType === 'increase' && (
-                            <TrendingUp className="h-3 w-3 text-green-500" />
-                          )}
-                          {stat.changeType === 'decrease' && (
-                            <TrendingDown className="h-3 w-3 text-red-500" />
-                          )}
-                          <span className={cn(
-                            "text-xs",
-                            stat.changeType === 'increase' && "text-green-600",
-                            stat.changeType === 'decrease' && "text-red-600",
-                            stat.changeType === 'neutral' && "text-muted-foreground"
-                          )}>
-                            {stat.change}
-                          </span>
-                        </div>
-                      </div>
-                      <div className={cn("p-2 rounded-lg bg-gradient-to-br", stat.color)}>
-                        <stat.icon className="h-4 w-4 md:h-5 md:w-5 text-white" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+          <StatsGrid stats={stats} />
 
           {/* Main Content Tabs */}
           <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">

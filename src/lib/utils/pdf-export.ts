@@ -9,6 +9,7 @@
 
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import { logger } from '@/lib/logger'
 
 export interface ReportSection {
   title: string
@@ -67,7 +68,7 @@ export async function generatePDFReport(params: {
       // Reset text color
       doc.setTextColor(0)
     } catch (headerError) {
-      console.error('PDF Header Generation Error:', headerError)
+      logger.error('PDF Header Generation Error:', headerError)
       // Continue with default positioning
       yPosition = 60
     }
@@ -103,7 +104,7 @@ export async function generatePDFReport(params: {
             })
             yPosition = (doc as any).lastAutoTable.finalY + 10
           } catch (tableError) {
-            console.error(`PDF Table Generation Error (${section.title}):`, tableError)
+            logger.error(`PDF Table Generation Error (${section.title}):`, tableError)
             doc.setFontSize(10)
             doc.setTextColor(200, 0, 0)
             doc.text('Error rendering table data', 30, yPosition)
@@ -128,7 +129,7 @@ export async function generatePDFReport(params: {
             })
             yPosition += 10
           } catch (metricsError) {
-            console.error(`PDF Metrics Generation Error (${section.title}):`, metricsError)
+            logger.error(`PDF Metrics Generation Error (${section.title}):`, metricsError)
             doc.setFontSize(10)
             doc.setTextColor(200, 0, 0)
             doc.text('Error rendering metrics data', 30, yPosition)
@@ -149,7 +150,7 @@ export async function generatePDFReport(params: {
             doc.text(lines, 20, yPosition)
             yPosition += (lines.length * 6) + 10
           } catch (textError) {
-            console.error(`PDF Text Generation Error (${section.title}):`, textError)
+            logger.error(`PDF Text Generation Error (${section.title}):`, textError)
             doc.setFontSize(10)
             doc.setTextColor(200, 0, 0)
             doc.text('Error rendering text content', 30, yPosition)
@@ -158,7 +159,7 @@ export async function generatePDFReport(params: {
           }
         }
       } catch (sectionError) {
-        console.error(`PDF Section Error (${section.title || 'Unknown'}):`, sectionError)
+        logger.error(`PDF Section Error (${section.title || 'Unknown'}):`, sectionError)
         // Continue to next section
       }
     }
@@ -174,7 +175,7 @@ export async function generatePDFReport(params: {
         doc.internal.pageSize.height - 10
       )
     } catch (footerError) {
-      console.error('PDF Footer Generation Error:', footerError)
+      logger.error('PDF Footer Generation Error:', footerError)
       // Footer is optional, continue
     }
 
@@ -182,11 +183,11 @@ export async function generatePDFReport(params: {
     try {
       return doc.output('blob')
     } catch (outputError) {
-      console.error('PDF Output Generation Error:', outputError)
+      logger.error('PDF Output Generation Error:', outputError)
       throw new Error('Failed to generate PDF file. Please try again.')
     }
   } catch (error) {
-    console.error('PDF Generation Critical Error:', error)
+    logger.error('PDF Generation Critical Error:', error)
     throw new Error(
       error instanceof Error
         ? `PDF Generation Failed: ${error.message}`
@@ -246,7 +247,7 @@ export async function exportDashboardReport(dashboardData: DashboardData): Promi
     // Download
     downloadBlob(blob, `dashboard-report-${new Date().toISOString().split('T')[0]}.pdf`)
   } catch (error) {
-    console.error('Dashboard Report Export Error:', error)
+    logger.error('Dashboard Report Export Error:', error)
     throw new Error(
       error instanceof Error
         ? `Failed to export dashboard report: ${error.message}`

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { customAlphabet } from 'nanoid';
+import { logger } from '@/lib/logger'
 
 // Generate unique referral codes
 const nanoid = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 8);
@@ -76,7 +77,7 @@ export async function POST(req: NextRequest) {
       message: 'Referral signup successful',
     });
   } catch (error) {
-    console.error('Error creating referral signup:', error);
+    logger.error('Error creating referral signup:', error);
     return NextResponse.json(
       { error: 'Failed to create referral signup' },
       { status: 500 }
@@ -118,7 +119,7 @@ export async function GET(req: NextRequest) {
       referralLink: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://taxgeniuspro.tax'}?ref=${application.referralCode}`,
     });
   } catch (error) {
-    console.error('Error fetching referrer:', error);
+    logger.error('Error fetching referrer:', error);
     return NextResponse.json(
       { error: 'Failed to fetch referrer' },
       { status: 500 }

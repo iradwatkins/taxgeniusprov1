@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireRole } from '@/lib/auth'
 import { ReferrerService } from '@/lib/services/referrer.service'
 import { z } from 'zod'
+import { logger } from '@/lib/logger'
 
 const vanitySlugSchema = z.object({
   slug: z.string()
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    console.error('Error fetching vanity URL:', error)
+    logger.error('Error fetching vanity URL:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    console.error('Error setting vanity slug:', error)
+    logger.error('Error setting vanity slug:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

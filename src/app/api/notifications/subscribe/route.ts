@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { NotificationService } from '@/lib/services/notification.service'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
       message: 'Push subscription saved successfully'
     })
   } catch (error) {
-    console.error('Push subscription error:', error)
+    logger.error('Push subscription error:', error)
     return NextResponse.json(
       { error: 'Failed to save push subscription' },
       { status: 500 }

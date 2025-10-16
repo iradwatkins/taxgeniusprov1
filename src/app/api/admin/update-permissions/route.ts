@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUser, clerkClient } from '@clerk/nextjs/server';
 import { UserRole, UserPermissions } from '@/lib/permissions';
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -114,7 +115,7 @@ export async function POST(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error('Error updating user permissions:', error);
+    logger.error('Error updating user permissions:', error);
     return NextResponse.json(
       { error: 'Failed to update permissions' },
       { status: 500 }
@@ -177,7 +178,7 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error('Error fetching user permissions:', error);
+    logger.error('Error fetching user permissions:', error);
     return NextResponse.json(
       { error: 'Failed to fetch permissions' },
       { status: 500 }

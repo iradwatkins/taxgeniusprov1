@@ -14,6 +14,13 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { QRCodeSVG } from 'qrcode.react'
+import { logger } from '@/lib/logger'
+import {
+  INPUT_DEBOUNCE_DELAY,
+  SHORT_LINK_CODE,
+  LINK_METADATA,
+  QR_CODE
+} from '@/lib/constants'
 
 type DestinationType = 'INTAKE_FORM' | 'CONTACT_FORM' | 'CUSTOM'
 
@@ -69,14 +76,14 @@ export function CreateShortLinkForm() {
         const data = await response.json()
         setAvailabilityStatus(data)
       } catch (error) {
-        console.error('Error checking availability:', error)
+        logger.error('Error checking availability:', error)
       } finally {
         setIsCheckingAvailability(false)
       }
     }
 
     // Debounce the check
-    const timeoutId = setTimeout(checkAvailability, 500)
+    const timeoutId = setTimeout(checkAvailability, INPUT_DEBOUNCE_DELAY)
     return () => clearTimeout(timeoutId)
   }, [shortCode])
 
@@ -244,9 +251,9 @@ export function CreateShortLinkForm() {
               <QRCodeSVG
                 id="qr-code"
                 value={generatedLink.url}
-                size={200}
-                level="H"
-                includeMargin={true}
+                size={QR_CODE.SIZE}
+                level={QR_CODE.ERROR_CORRECTION}
+                includeMargin={QR_CODE.INCLUDE_MARGIN}
               />
             </div>
             <button
@@ -303,9 +310,9 @@ export function CreateShortLinkForm() {
               onChange={(e) => setShortCode(e.target.value.toLowerCase())}
               placeholder="johnatlanta"
               required
-              minLength={3}
-              maxLength={30}
-              pattern="[a-z][a-z0-9-]*"
+              minLength={SHORT_LINK_CODE.MIN_LENGTH}
+              maxLength={SHORT_LINK_CODE.MAX_LENGTH}
+              pattern={SHORT_LINK_CODE.PATTERN.source}
               className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-r-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-900"
             />
           </div>
@@ -460,7 +467,7 @@ export function CreateShortLinkForm() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g., Instagram Profile Link"
-            maxLength={100}
+            maxLength={LINK_METADATA.TITLE_MAX_LENGTH}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-900"
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -478,7 +485,7 @@ export function CreateShortLinkForm() {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="e.g., Link shared on Instagram bio"
             rows={3}
-            maxLength={500}
+            maxLength={LINK_METADATA.DESCRIPTION_MAX_LENGTH}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-900"
           />
         </div>
@@ -493,7 +500,7 @@ export function CreateShortLinkForm() {
             value={campaign}
             onChange={(e) => setCampaign(e.target.value)}
             placeholder="e.g., Tax Season 2025"
-            maxLength={100}
+            maxLength={LINK_METADATA.CAMPAIGN_MAX_LENGTH}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-900"
           />
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">

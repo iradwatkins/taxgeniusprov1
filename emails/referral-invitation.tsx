@@ -65,14 +65,14 @@ export const ReferralInvitationEmail = ({
               </Heading>
 
               <Text style={invitationText}>
-                Since you had such a great experience with Tax Genius Pro, we'd like to invite
+                Since you had such a great experience with Tax Genius Pro, we&apos;d like to invite
                 you to join our <strong>Referral Rewards Program</strong>!
               </Text>
             </Section>
 
             {/* Benefits Grid */}
             <Section style={benefitsSection}>
-              <Heading style={h2}>Here's What You Can Earn:</Heading>
+              <Heading style={h2}>Here&apos;s What You Can Earn:</Heading>
 
               <Section style={benefitBox}>
                 <Text style={benefitEmoji}>💵</Text>
@@ -110,7 +110,7 @@ export const ReferralInvitationEmail = ({
             {/* CTA Section */}
             <Section style={ctaSection}>
               <Text style={ctaText}>
-                It's completely free to join and takes less than 2 minutes to set up!
+                It&apos;s completely free to join and takes less than 2 minutes to set up!
               </Text>
 
               <Section style={buttonContainer}>
@@ -150,8 +150,8 @@ export const ReferralInvitationEmail = ({
             {/* Social Proof */}
             <Section style={socialProofBox}>
               <Text style={socialProofText}>
-                "I've earned over $2,400 just by telling my friends about Tax Genius Pro!
-                The referral program is incredibly easy and the rewards are real."
+                &quot;I&apos;ve earned over $2,400 just by telling my friends about Tax Genius Pro!
+                The referral program is incredibly easy and the rewards are real.&quot;
               </Text>
               <Text style={socialProofAuthor}>
                 — Maria G., Top Referrer
@@ -176,13 +176,12 @@ export const ReferralInvitationEmail = ({
 
             {/* Footer */}
             <Text style={footer}>
-              Questions? Visit our <Link href="https://taxgeniuspro.tax/refer" style={link}>Referral Program page</Link> or
-              reply to this email.
+              Questions? Visit our <Link href="https://taxgeniuspro.tax/refer" style={link}>Referral Program page</Link> or reply to this email.
             </Text>
 
             <Text style={smallText}>
               © {new Date().getFullYear()} Tax Genius Pro. All rights reserved.<br />
-              You're receiving this email because you recently filed your taxes with us.
+              You&apos;re receiving this email because you recently filed your taxes with us.
               This is a one-time invitation to our referral program.
             </Text>
           </Section>

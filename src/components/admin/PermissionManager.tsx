@@ -21,6 +21,7 @@ import {
   Check,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/lib/logger'
 
 interface PermissionManagerProps {
   defaultPermissions: Partial<UserPermissions>;
@@ -113,7 +114,7 @@ export function PermissionManager({
 
       setHasChanges(false);
     } catch (error) {
-      console.error('Error saving permissions:', error);
+      logger.error('Error saving permissions:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to save permissions",

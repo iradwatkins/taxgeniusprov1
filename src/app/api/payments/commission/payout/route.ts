@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { EmailService } from '@/lib/services/email.service'
+import { logger } from '@/lib/logger'
 
 const MINIMUM_PAYOUT_AMOUNT = Number(process.env.MINIMUM_PAYOUT_AMOUNT) || 50
 
@@ -124,7 +125,7 @@ export async function GET(req: NextRequest) {
       })),
     })
   } catch (error) {
-    console.error('Error fetching commission balance:', error)
+    logger.error('Error fetching commission balance:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -254,7 +255,7 @@ export async function POST(req: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Error creating payout request:', error)
+    logger.error('Error creating payout request:', error)
     return NextResponse.json(
       {
         error: 'Failed to create payout request. Please try again later.',

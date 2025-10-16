@@ -4,7 +4,6 @@ import {
   Head,
   Heading,
   Html,
-  Img,
   Link,
   Preview,
   Section,
@@ -52,13 +51,13 @@ export const DocumentsReceivedEmail = ({
             </Text>
 
             <Text style={paragraph}>
-              Great news! We've received your {taxYear} tax documents and information.
+              Great news! We&apos;ve received your {taxYear} tax documents and information.
               Your submission includes <strong>{documentCount} document{documentCount !== 1 ? 's' : ''}</strong>.
             </Text>
 
             <Text style={paragraph}>
               {preparerName}, your dedicated tax preparer from Tax Genius Pro, will review
-              your submission and begin preparing your return. You'll receive another update
+              your submission and begin preparing your return. You&apos;ll receive another update
               when your return has been filed.
             </Text>
 
@@ -100,7 +99,7 @@ export const DocumentsReceivedEmail = ({
 
             <Text style={smallText}>
               © {new Date().getFullYear()} Tax Genius Pro. All rights reserved.<br />
-              You're receiving this email because you submitted tax documents through our platform.
+              You&apos;re receiving this email because you submitted tax documents through our platform.
             </Text>
           </Section>
         </Container>

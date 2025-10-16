@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { useShoppingCart } from '@/lib/hooks/useShoppingCart';
 import { CartItem } from '../_components/CartItem';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger'
 
 export default function CartPage() {
   const router = useRouter();
@@ -87,7 +88,7 @@ export default function CartPage() {
         throw new Error('No checkout URL returned');
       }
     } catch (error) {
-      console.error('Checkout error:', error);
+      logger.error('Checkout error:', error);
       toast.error('Checkout failed', {
         description: error instanceof Error ? error.message : 'Please try again later.',
       });

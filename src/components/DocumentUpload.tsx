@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Camera, Upload, X, FileText, CheckCircle, Image as ImageIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { logger } from '@/lib/logger'
 
 interface UploadedFile {
   id: string;
@@ -77,7 +78,7 @@ export default function DocumentUpload() {
         setUploadedFiles(prev => [...prev, fileObj]);
       }
     } catch (error) {
-      console.error('Error uploading files:', error);
+      logger.error('Error uploading files:', error);
       alert('Failed to upload one or more files. Please try again.');
     } finally {
       setIsUploading(false);

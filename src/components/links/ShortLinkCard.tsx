@@ -12,6 +12,8 @@
 
 import { useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
+import { logger } from '@/lib/logger'
+import { TOAST_DISMISS_DELAY, QR_CODE } from '@/lib/constants'
 import {
   Link2,
   Copy,
@@ -69,7 +71,7 @@ export function ShortLinkCard({ link, onUpdate, onDelete }: ShortLinkCardProps) 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
     setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    setTimeout(() => setCopied(false), TOAST_DISMISS_DELAY)
   }
 
   // Download QR code
@@ -112,7 +114,7 @@ export function ShortLinkCard({ link, onUpdate, onDelete }: ShortLinkCardProps) 
 
       onUpdate()
     } catch (error) {
-      console.error('Error toggling link status:', error)
+      logger.error('Error toggling link status:', error)
       alert('Failed to update link status')
     }
   }
@@ -138,7 +140,7 @@ export function ShortLinkCard({ link, onUpdate, onDelete }: ShortLinkCardProps) 
       setIsEditing(false)
       onUpdate()
     } catch (error) {
-      console.error('Error updating link:', error)
+      logger.error('Error updating link:', error)
       alert('Failed to update link')
     } finally {
       setIsSubmitting(false)
@@ -164,7 +166,7 @@ export function ShortLinkCard({ link, onUpdate, onDelete }: ShortLinkCardProps) 
 
       onDelete()
     } catch (error) {
-      console.error('Error deleting link:', error)
+      logger.error('Error deleting link:', error)
       alert('Failed to delete link')
       setIsDeleting(false)
     }
@@ -350,9 +352,9 @@ export function ShortLinkCard({ link, onUpdate, onDelete }: ShortLinkCardProps) 
               <QRCodeSVG
                 id={`qr-code-${link.code}`}
                 value={link.shortUrl}
-                size={160}
-                level="H"
-                includeMargin={true}
+                size={QR_CODE.SIZE}
+                level={QR_CODE.ERROR_CORRECTION}
+                includeMargin={QR_CODE.INCLUDE_MARGIN}
               />
             </div>
             <button

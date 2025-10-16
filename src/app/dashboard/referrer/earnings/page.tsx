@@ -46,6 +46,7 @@ import {
   AlertCircle
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { logger } from '@/lib/logger'
 
 interface Commission {
   id: string
@@ -105,7 +106,7 @@ export default function ReferrerEarningsPage() {
         })
       }
     } catch (error) {
-      console.error('Error fetching earnings:', error)
+      logger.error('Error fetching earnings:', error)
       toast({
         title: 'Error',
         description: 'Failed to load earnings data',

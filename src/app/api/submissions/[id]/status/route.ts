@@ -16,6 +16,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { EmailService } from '@/lib/services/email.service'
+import { logger } from '@/lib/logger'
 
 /**
  * Calculate commission amount based on tax package type
@@ -292,7 +293,7 @@ export async function PATCH(
           emailsSent.push('commission-earned')
         }
 
-        console.log(`✅ Commission created: $${commissionAmount} for referrer ${referral.referrerId}`)
+        logger.info(`✅ Commission created: $${commissionAmount} for referrer ${referral.referrerId}`)
       }
     }
 
@@ -303,7 +304,7 @@ export async function PATCH(
       message: `Status updated from ${oldStatus} to ${status}`,
     })
   } catch (error) {
-    console.error('Error updating tax return status:', error)
+    logger.error('Error updating tax return status:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -396,7 +397,7 @@ export async function GET(
 
     return NextResponse.json({ taxReturn })
   } catch (error) {
-    console.error('Error fetching tax return status:', error)
+    logger.error('Error fetching tax return status:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -1,4 +1,5 @@
 import Redis from 'ioredis'
+import { logger } from '@/lib/logger'
 
 const globalForRedis = global as unknown as {
   redis: Redis | undefined
@@ -34,7 +35,7 @@ export const cache = {
       const value = await redis.get(key)
       return value ? JSON.parse(value) : null
     } catch (error) {
-      console.error(`Redis GET error for key ${key}:`, error)
+      logger.error(`Redis GET error for key ${key}:`, error)
       return null
     }
   },
@@ -48,7 +49,7 @@ export const cache = {
         await redis.set(key, serialized)
       }
     } catch (error) {
-      console.error(`Redis SET error for key ${key}:`, error)
+      logger.error(`Redis SET error for key ${key}:`, error)
     }
   },
 
@@ -56,7 +57,7 @@ export const cache = {
     try {
       await redis.del(key)
     } catch (error) {
-      console.error(`Redis DEL error for key ${key}:`, error)
+      logger.error(`Redis DEL error for key ${key}:`, error)
     }
   },
 
@@ -67,7 +68,7 @@ export const cache = {
         await redis.del(...keys)
       }
     } catch (error) {
-      console.error(`Redis invalidate error for pattern ${pattern}:`, error)
+      logger.error(`Redis invalidate error for pattern ${pattern}:`, error)
     }
   },
 
@@ -93,7 +94,7 @@ export const cache = {
         reset,
       }
     } catch (error) {
-      console.error(`Redis rate limit error for key ${key}:`, error)
+      logger.error(`Redis rate limit error for key ${key}:`, error)
       // Fail open - allow the request if Redis is down
       return { allowed: true, remaining: limit, reset: Date.now() + windowSeconds * 1000 }
     }

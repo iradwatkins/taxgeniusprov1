@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { logger } from '@/lib/logger'
 
 // Track referral click and set cookie
 export async function POST(request: NextRequest) {
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
       clickedAt: new Date().toISOString()
     }
 
-    console.log('Referral click tracked:', clickData)
+    logger.info('Referral click tracked', clickData)
 
     // Set referral cookie (30 days)
     const cookieStore = cookies()
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
     }, { status: 200 })
 
   } catch (error) {
-    console.error('Referral tracking error:', error)
+    logger.error('Referral tracking error', error)
     return NextResponse.json(
       { error: 'Failed to track referral' },
       { status: 500 }

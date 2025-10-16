@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger'
 
 // Payment mode: 'test', 'stripe', or 'square'
 const PAYMENT_MODE = (process.env.PAYMENT_MODE || 'test') as 'test' | 'stripe' | 'square';
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (priceMismatches.length > 0) {
-      console.error('❌ Price tampering detected:', priceMismatches);
+      logger.error('❌ Price tampering detected:', priceMismatches);
       return NextResponse.json(
         {
           error: 'Price validation failed',
@@ -119,12 +120,12 @@ export async function POST(request: NextRequest) {
       return sum + (dbProduct.price * item.quantity);
     }, 0);
 
-    console.log(`💳 Payment mode: ${PAYMENT_MODE}`);
+    logger.info(`💳 Payment mode: ${PAYMENT_MODE}`);
 
     // STEP 7: Handle different payment modes
     if (PAYMENT_MODE === 'test') {
       // TEST MODE: Create order immediately, skip payment processor
-      console.log('🧪 TEST MODE: Creating test order without payment');
+      logger.info('🧪 TEST MODE: Creating test order without payment');
 
       const testSessionId = `test_session_${Date.now()}_${userId}`;
 
@@ -139,7 +140,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      console.log(`✅ Test order created: ${order.id}`);
+      logger.info(`✅ Test order created: ${order.id}`);
 
       // Redirect to success page with test session ID
       const successUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3005'}/store/success?session_id=${testSessionId}`;
@@ -152,7 +153,7 @@ export async function POST(request: NextRequest) {
 
     } else if (PAYMENT_MODE === 'stripe') {
       // STRIPE MODE: Create Stripe Checkout Session
-      console.log('💳 STRIPE MODE: Creating Stripe checkout session');
+      logger.info('💳 STRIPE MODE: Creating Stripe checkout session');
 
       const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = cartItems.map((item) => {
         const dbProduct = priceMap.get(item.productId)!;
@@ -187,13 +188,13 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      console.log(`✅ Stripe session created: ${session.id}`);
+      logger.info(`✅ Stripe session created: ${session.id}`);
 
       return NextResponse.json({ url: session.url, mode: 'stripe' });
 
     } else if (PAYMENT_MODE === 'square') {
       // SQUARE MODE: Placeholder for Square integration
-      console.log('🟦 SQUARE MODE: Square integration not yet implemented');
+      logger.info('🟦 SQUARE MODE: Square integration not yet implemented');
 
       return NextResponse.json(
         {
@@ -211,7 +212,7 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('❌ Checkout session creation failed:', error);
+    logger.error('❌ Checkout session creation failed:', error);
     return NextResponse.json(
       { error: 'Failed to create checkout session' },
       { status: 500 }

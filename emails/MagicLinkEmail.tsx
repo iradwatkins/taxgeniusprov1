@@ -45,13 +45,13 @@ export function MagicLinkEmail({ name, magicLinkUrl }: MagicLinkEmailProps) {
             </Text>
 
             <Text style={note}>
-              If you didn't request this login link, you can safely ignore this email.
+              If you didn&apos;t request this login link, you can safely ignore this email.
             </Text>
 
             <Hr style={hr} />
 
             <Text style={footer}>
-              If the button doesn't work, copy and paste this link into your browser:
+              If the button doesn&apos;t work, copy and paste this link into your browser:
               <br />
               <span style={linkText}>{magicLinkUrl}</span>
             </Text>

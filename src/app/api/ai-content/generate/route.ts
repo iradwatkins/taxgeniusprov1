@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { generateLandingPageContent, generateSlug, type GenerateContentInput } from '@/lib/services/ai-content.service';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { isAdmin } from '@/lib/auth';
+import { logger } from '@/lib/logger'
 
 // Zod validation schema for input
 const GenerateContentSchema = z.object({
@@ -105,7 +106,7 @@ export async function POST(request: Request) {
     });
 
   } catch (error) {
-    console.error('[AI Content Generation Error]:', error);
+    logger.error('[AI Content Generation Error]:', error);
 
     // Return user-friendly error messages
     if (error instanceof Error) {

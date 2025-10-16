@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ReferrerService } from '@/lib/services/referrer.service'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ available: isAvailable })
   } catch (error) {
-    console.error('Error checking vanity slug availability:', error)
+    logger.error('Error checking vanity slug availability:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

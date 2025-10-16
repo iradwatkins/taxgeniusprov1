@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
+import { logger } from '@/lib/logger'
 
 interface QRPosterGeneratorProps {
   referralUrl: string
@@ -84,7 +85,7 @@ export const QRPosterGenerator: React.FC<QRPosterGeneratorProps> = ({
         description: 'Your poster has been generated and downloaded.',
       })
     } catch (error) {
-      console.error('Error generating PDF:', error)
+      logger.error('Error generating PDF:', error)
       toast({
         title: 'Error',
         description: 'Failed to generate poster. Please try again.',

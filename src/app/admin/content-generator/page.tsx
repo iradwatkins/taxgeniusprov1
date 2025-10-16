@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { toast } from 'sonner';
 import { Loader2, Sparkles, Save, RefreshCw } from 'lucide-react';
+import { logger } from '@/lib/logger'
 
 // Form validation schema
 const ContentGeneratorSchema = z.object({
@@ -83,7 +84,7 @@ export default function ContentGeneratorPage() {
 
       toast.success('Content generated successfully!');
     } catch (error) {
-      console.error('Generation error:', error);
+      logger.error('Generation error:', error);
       toast.error(
         error instanceof Error
           ? error.message
@@ -142,7 +143,7 @@ export default function ContentGeneratorPage() {
       setEditableMetaTitle('');
       setEditableMetaDescription('');
     } catch (error) {
-      console.error('Save error:', error);
+      logger.error('Save error:', error);
       toast.error(
         error instanceof Error
           ? error.message

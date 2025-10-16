@@ -8,6 +8,7 @@
 
 import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
+import { logger } from '@/lib/logger'
 import {
   validateShortCode,
   isShortCodeAvailable,
@@ -52,7 +53,7 @@ export async function POST(req: Request) {
       reason: available ? undefined : 'Code is already taken',
     })
   } catch (error) {
-    console.error('Error checking code availability:', error)
+    logger.error('Error checking code availability:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

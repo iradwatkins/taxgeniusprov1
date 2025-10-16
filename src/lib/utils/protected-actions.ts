@@ -10,6 +10,7 @@ import { UserRole } from '@/lib/permissions'
 import { getEffectiveRole } from './role-switcher'
 import { logProtectedOperationAttempt } from '../services/audit-log.service'
 import type { ProtectedOperation } from '@/types/role-switcher'
+import { logger } from '@/lib/logger'
 
 /**
  * Error thrown when protected operation is attempted while viewing as another role
@@ -141,7 +142,7 @@ export async function getViewingStatus(): Promise<{
       viewingRoleName: roleInfo.viewingRoleName,
     }
   } catch (error) {
-    console.error('Error getting viewing status:', error)
+    logger.error('Error getting viewing status:', error)
     return null
   }
 }
@@ -158,7 +159,7 @@ export async function getViewingStatus(): Promise<{
  *         where: { id: params.id }
  *       })
  *
- *       console.log(`Admin ${adminInfo.email} deleted user ${params.id}`)
+ *       logger.info(`Admin ${adminInfo.email} deleted user ${params.id}`)
  *       return deletedUser
  *     })
  *

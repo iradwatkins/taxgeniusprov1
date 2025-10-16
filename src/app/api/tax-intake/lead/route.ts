@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { trackJourneyStage } from '@/lib/services/journey-tracking.service';
 import { getUTMCookie } from '@/lib/utils/cookie-manager';
+import { logger } from '@/lib/logger'
 
 export async function POST(req: NextRequest) {
   try {
@@ -93,7 +94,7 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error saving lead:', error);
+    logger.error('Error saving lead:', error);
     return NextResponse.json(
       { error: 'Failed to save lead information' },
       { status: 500 }

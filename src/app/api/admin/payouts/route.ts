@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 export async function GET(req: NextRequest) {
   try {
@@ -130,7 +131,7 @@ export async function GET(req: NextRequest) {
       stats,
     })
   } catch (error) {
-    console.error('Error fetching payouts:', error)
+    logger.error('Error fetching payouts:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

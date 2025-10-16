@@ -25,6 +25,7 @@ import { PermissionModal } from '@/components/PermissionModal';
 import { UserRole, UserPermissions } from '@/lib/permissions';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger'
 
 interface User {
   id: string;
@@ -99,7 +100,7 @@ export function UserManagementClient({ users: initialUsers, isSuperAdmin }: User
       toast.success('Permissions updated successfully');
       router.refresh();
     } catch (error) {
-      console.error('Error updating permissions:', error);
+      logger.error('Error updating permissions:', error);
       throw error;
     }
   };

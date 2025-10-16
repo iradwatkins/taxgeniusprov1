@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { clerkClient } from '@clerk/nextjs/server'
+import { logger } from '@/lib/logger'
 import {
   getTop15Preparers,
   getTop15Affiliates,
@@ -124,7 +125,7 @@ export async function GET(request: NextRequest) {
       generatedAt: new Date().toISOString(),
     })
   } catch (error) {
-    console.error('Admin analytics top performers error:', error)
+    logger.error('Admin analytics top performers error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch top performers' },
       { status: 500 }

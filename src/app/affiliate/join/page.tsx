@@ -21,6 +21,7 @@ import {
 import Image from 'next/image'
 import { motion, useInView, useMotionValue, useSpring } from 'framer-motion'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { logger } from '@/lib/logger'
 
 // Animated counter component
 function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
@@ -83,7 +84,7 @@ export default function AffiliateJoinPage() {
 
       setSubmitted(true)
     } catch (error) {
-      console.error('Error submitting form:', error)
+      logger.error('Error submitting form:', error)
       alert('An error occurred while submitting your application. Please try again.')
     } finally {
       setLoading(false)

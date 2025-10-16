@@ -40,6 +40,7 @@ import {
   CreditCard
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { logger } from '@/lib/logger'
 
 interface PayoutRequest {
   id: string
@@ -101,7 +102,7 @@ export default function PayoutDetailPage({
         })
       }
     } catch (error) {
-      console.error('Error fetching payout:', error)
+      logger.error('Error fetching payout:', error)
       toast({
         title: 'Error',
         description: 'Failed to load payout details',

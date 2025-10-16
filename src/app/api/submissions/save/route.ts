@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 /**
  * POST /api/submissions/save
@@ -96,7 +97,7 @@ export async function POST(req: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error saving tax submission:', error)
+    logger.error('Error saving tax submission:', error)
     return NextResponse.json(
       { error: 'Failed to save submission' },
       { status: 500 }
@@ -177,7 +178,7 @@ export async function GET(req: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error fetching tax submission:', error)
+    logger.error('Error fetching tax submission:', error)
     return NextResponse.json(
       { error: 'Failed to fetch submission' },
       { status: 500 }

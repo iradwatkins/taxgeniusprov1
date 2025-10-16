@@ -8,6 +8,7 @@ import { DocumentsReceivedEmail } from '../../../emails/documents-received'
 import { ReturnFiledEmail } from '../../../emails/return-filed'
 import { ReferralInvitationEmail } from '../../../emails/referral-invitation'
 import { CertificationCompleteEmail } from '../../../emails/certification-complete'
+import { logger } from '@/lib/logger'
 
 // Initialize Resend
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -35,7 +36,7 @@ export class EmailService {
       const magicLinkUrl = `${this.appUrl}/auth/verify?token=${token}`
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('Magic Link Email (Dev Mode):', {
+        logger.info('Magic Link Email (Dev Mode):', {
           to,
           magicLinkUrl,
           token,
@@ -54,14 +55,14 @@ export class EmailService {
       })
 
       if (error) {
-        console.error('Error sending magic link email:', error)
+        logger.error('Error sending magic link email:', error)
         return false
       }
 
-      console.log('Magic link email sent:', data?.id)
+      logger.info('Magic link email sent:', data?.id)
       return true
     } catch (error) {
-      console.error('Error sending magic link email:', error)
+      logger.error('Error sending magic link email:', error)
       return false
     }
   }
@@ -78,7 +79,7 @@ export class EmailService {
       const dashboardUrl = `${this.appUrl}/dashboard/${role.toLowerCase()}`
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('Welcome Email (Dev Mode):', { to, name, role })
+        logger.info('Welcome Email (Dev Mode):', { to, name, role })
         return true
       }
 
@@ -94,14 +95,14 @@ export class EmailService {
       })
 
       if (error) {
-        console.error('Error sending welcome email:', error)
+        logger.error('Error sending welcome email:', error)
         return false
       }
 
-      console.log('Welcome email sent:', data?.id)
+      logger.info('Welcome email sent:', data?.id)
       return true
     } catch (error) {
-      console.error('Error sending welcome email:', error)
+      logger.error('Error sending welcome email:', error)
       return false
     }
   }
@@ -119,7 +120,7 @@ export class EmailService {
       const dashboardUrl = `${this.appUrl}/dashboard/referrer`
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('Commission Email (Dev Mode):', { to, name, amount, clientName })
+        logger.info('Commission Email (Dev Mode):', { to, name, amount, clientName })
         return true
       }
 
@@ -136,14 +137,14 @@ export class EmailService {
       })
 
       if (error) {
-        console.error('Error sending commission email:', error)
+        logger.error('Error sending commission email:', error)
         return false
       }
 
-      console.log('Commission email sent:', data?.id)
+      logger.info('Commission email sent:', data?.id)
       return true
     } catch (error) {
-      console.error('Error sending commission email:', error)
+      logger.error('Error sending commission email:', error)
       return false
     }
   }
@@ -161,7 +162,7 @@ export class EmailService {
       const dashboardUrl = `${this.appUrl}/dashboard/client`
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('Status Update Email (Dev Mode):', { to, name, status })
+        logger.info('Status Update Email (Dev Mode):', { to, name, status })
         return true
       }
 
@@ -178,14 +179,14 @@ export class EmailService {
       })
 
       if (error) {
-        console.error('Error sending status update email:', error)
+        logger.error('Error sending status update email:', error)
         return false
       }
 
-      console.log('Status update email sent:', data?.id)
+      logger.info('Status update email sent:', data?.id)
       return true
     } catch (error) {
-      console.error('Error sending status update email:', error)
+      logger.error('Error sending status update email:', error)
       return false
     }
   }
@@ -200,7 +201,7 @@ export class EmailService {
   ): Promise<boolean> {
     try {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Generic Email (Dev Mode):', { to, subject })
+        logger.info('Generic Email (Dev Mode):', { to, subject })
         return true
       }
 
@@ -223,14 +224,14 @@ export class EmailService {
       const { data, error } = await resend.emails.send(emailOptions)
 
       if (error) {
-        console.error('Error sending email:', error)
+        logger.error('Error sending email:', error)
         return false
       }
 
-      console.log('Email sent:', data?.id)
+      logger.info('Email sent:', data?.id)
       return true
     } catch (error) {
-      console.error('Error sending email:', error)
+      logger.error('Error sending email:', error)
       return false
     }
   }
@@ -251,7 +252,7 @@ export class EmailService {
       const dashboardUrl = `${this.appUrl}/dashboard/client`
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('Documents Received Email (Dev Mode):', {
+        logger.info('Documents Received Email (Dev Mode):', {
           to,
           clientName,
           preparerName,
@@ -277,14 +278,14 @@ export class EmailService {
       })
 
       if (error) {
-        console.error('Error sending documents received email:', error)
+        logger.error('Error sending documents received email:', error)
         return false
       }
 
-      console.log('Documents received email sent:', data?.id)
+      logger.info('Documents received email sent:', data?.id)
       return true
     } catch (error) {
-      console.error('Error sending documents received email:', error)
+      logger.error('Error sending documents received email:', error)
       return false
     }
   }
@@ -306,7 +307,7 @@ export class EmailService {
       const dashboardUrl = `${this.appUrl}/dashboard/client`
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('Return Filed Email (Dev Mode):', {
+        logger.info('Return Filed Email (Dev Mode):', {
           to,
           clientName,
           preparerName,
@@ -338,14 +339,14 @@ export class EmailService {
       })
 
       if (error) {
-        console.error('Error sending return filed email:', error)
+        logger.error('Error sending return filed email:', error)
         return false
       }
 
-      console.log('Return filed email sent:', data?.id)
+      logger.info('Return filed email sent:', data?.id)
       return true
     } catch (error) {
-      console.error('Error sending return filed email:', error)
+      logger.error('Error sending return filed email:', error)
       return false
     }
   }
@@ -365,7 +366,7 @@ export class EmailService {
       const signupUrl = `${this.appUrl}/auth/signup?role=referrer`
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('Referral Invitation Email (Dev Mode):', {
+        logger.info('Referral Invitation Email (Dev Mode):', {
           to,
           clientName,
           preparerName,
@@ -389,14 +390,14 @@ export class EmailService {
       })
 
       if (error) {
-        console.error('Error sending referral invitation email:', error)
+        logger.error('Error sending referral invitation email:', error)
         return false
       }
 
-      console.log('Referral invitation email sent:', data?.id)
+      logger.info('Referral invitation email sent:', data?.id)
       return true
     } catch (error) {
-      console.error('Error sending referral invitation email:', error)
+      logger.error('Error sending referral invitation email:', error)
       return false
     }
   }
@@ -414,7 +415,7 @@ export class EmailService {
       const dashboardUrl = `${this.appUrl}/app/academy`
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('Certification Complete Email (Dev Mode):', {
+        logger.info('Certification Complete Email (Dev Mode):', {
           to,
           preparerName,
           dashboardUrl,
@@ -433,14 +434,14 @@ export class EmailService {
       })
 
       if (error) {
-        console.error('Error sending certification complete email:', error)
+        logger.error('Error sending certification complete email:', error)
         return false
       }
 
-      console.log('Certification complete email sent:', data?.id)
+      logger.info('Certification complete email sent:', data?.id)
       return true
     } catch (error) {
-      console.error('Error sending certification complete email:', error)
+      logger.error('Error sending certification complete email:', error)
       return false
     }
   }
@@ -457,7 +458,7 @@ export class EmailService {
   ): Promise<boolean> {
     try {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Commission Earned Email (Dev Mode):', {
+        logger.info('Commission Earned Email (Dev Mode):', {
           to,
           referrerName,
           clientName,
@@ -516,14 +517,14 @@ export class EmailService {
       })
 
       if (error) {
-        console.error('Error sending commission earned email:', error)
+        logger.error('Error sending commission earned email:', error)
         return false
       }
 
-      console.log('Commission earned email sent:', data?.id)
+      logger.info('Commission earned email sent:', data?.id)
       return true
     } catch (error) {
-      console.error('Error sending commission earned email:', error)
+      logger.error('Error sending commission earned email:', error)
       return false
     }
   }
@@ -540,7 +541,7 @@ export class EmailService {
   ): Promise<boolean> {
     try {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Payout Confirmation Email (Dev Mode):', {
+        logger.info('Payout Confirmation Email (Dev Mode):', {
           to,
           referrerName,
           payoutAmount,
@@ -632,14 +633,14 @@ export class EmailService {
       })
 
       if (error) {
-        console.error('Error sending payout confirmation email:', error)
+        logger.error('Error sending payout confirmation email:', error)
         return false
       }
 
-      console.log('Payout confirmation email sent:', data?.id)
+      logger.info('Payout confirmation email sent:', data?.id)
       return true
     } catch (error) {
-      console.error('Error sending payout confirmation email:', error)
+      logger.error('Error sending payout confirmation email:', error)
       return false
     }
   }
@@ -657,7 +658,7 @@ export class EmailService {
   ): Promise<boolean> {
     try {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Payout Request Email to Admin (Dev Mode):', {
+        logger.info('Payout Request Email to Admin (Dev Mode):', {
           to,
           referrerName,
           referrerEmail,
@@ -715,14 +716,14 @@ export class EmailService {
       })
 
       if (error) {
-        console.error('Error sending payout request email:', error)
+        logger.error('Error sending payout request email:', error)
         return false
       }
 
-      console.log('Payout request email sent to admin:', data?.id)
+      logger.info('Payout request email sent to admin:', data?.id)
       return true
     } catch (error) {
-      console.error('Error sending payout request email:', error)
+      logger.error('Error sending payout request email:', error)
       return false
     }
   }
@@ -739,7 +740,7 @@ export class EmailService {
   ): Promise<boolean> {
     try {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Payout Completed Email (Dev Mode):', {
+        logger.info('Payout Completed Email (Dev Mode):', {
           to,
           referrerName,
           amount,
@@ -817,14 +818,14 @@ export class EmailService {
       })
 
       if (error) {
-        console.error('Error sending payout completed email:', error)
+        logger.error('Error sending payout completed email:', error)
         return false
       }
 
-      console.log('Payout completed email sent:', data?.id)
+      logger.info('Payout completed email sent:', data?.id)
       return true
     } catch (error) {
-      console.error('Error sending payout completed email:', error)
+      logger.error('Error sending payout completed email:', error)
       return false
     }
   }
@@ -840,7 +841,7 @@ export class EmailService {
   ): Promise<boolean> {
     try {
       if (process.env.NODE_ENV === 'development') {
-        console.log('Payout Rejected Email (Dev Mode):', {
+        logger.info('Payout Rejected Email (Dev Mode):', {
           to,
           referrerName,
           amount,
@@ -903,14 +904,14 @@ export class EmailService {
       })
 
       if (error) {
-        console.error('Error sending payout rejected email:', error)
+        logger.error('Error sending payout rejected email:', error)
         return false
       }
 
-      console.log('Payout rejected email sent:', data?.id)
+      logger.info('Payout rejected email sent:', data?.id)
       return true
     } catch (error) {
-      console.error('Error sending payout rejected email:', error)
+      logger.error('Error sending payout rejected email:', error)
       return false
     }
   }

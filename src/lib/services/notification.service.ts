@@ -2,6 +2,7 @@ import { prisma as db } from '@/lib/db'
 import { NotificationType, NotificationChannel } from '@prisma/client'
 import { EmailService } from './email.service'
 import { RealtimeService } from './realtime.service'
+import { logger } from '@/lib/logger'
 
 interface NotificationPayload {
   userId: string
@@ -148,7 +149,7 @@ export class NotificationService {
 
   private static async sendSMS(userId: string, notification: any): Promise<void> {
     // Placeholder for SMS integration (Twilio, etc.)
-    console.log('SMS notification not implemented yet')
+    logger.info('SMS notification not implemented yet')
   }
 
   static async markAsRead(notificationId: string, userId: string): Promise<void> {

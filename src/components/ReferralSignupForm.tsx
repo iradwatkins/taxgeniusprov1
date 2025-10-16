@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CheckCircle, UserPlus, Mail, Phone, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { logger } from '@/lib/logger'
 
 interface ReferralFormData {
   firstName: string;
@@ -51,7 +52,7 @@ export default function ReferralSignupForm() {
 
       setIsSuccess(true);
     } catch (error) {
-      console.error('Error submitting:', error);
+      logger.error('Error submitting:', error);
       alert('Failed to submit. Please try again.');
     } finally {
       setIsSubmitting(false);

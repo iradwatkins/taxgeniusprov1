@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
+import { logger } from '@/lib/logger'
 
 // Application schema validation
 const applicationSchema = z.object({
@@ -116,7 +117,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Log application (in production, use proper logging)
-    console.log('Advance application processed:', {
+    logger.info('Advance application processed:', {
       id: applicationId,
       email: validatedData.email,
       amount: validatedData.requestedAmount,
@@ -134,7 +135,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.error('Application processing error:', error)
+    logger.error('Application processing error:', error)
     return NextResponse.json(
       { error: 'Failed to process application' },
       { status: 500 }

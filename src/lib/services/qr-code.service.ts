@@ -6,6 +6,7 @@
  */
 
 import QRCode from 'qrcode'
+import { logger } from '@/lib/logger'
 
 export interface GenerateQROptions {
   url: string
@@ -70,7 +71,7 @@ export async function generateQRCode(options: GenerateQROptions): Promise<QRCode
       size,
     }
   } catch (error) {
-    console.error('QR code generation failed:', error)
+    logger.error('QR code generation failed:', error)
     throw new Error('Failed to generate QR code')
   }
 }
@@ -111,7 +112,7 @@ export async function generateQRBuffer(options: GenerateQROptions): Promise<Buff
       })
     }
   } catch (error) {
-    console.error('QR code buffer generation failed:', error)
+    logger.error('QR code buffer generation failed:', error)
     throw new Error('Failed to generate QR code buffer')
   }
 }

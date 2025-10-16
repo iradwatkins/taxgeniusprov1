@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/marketing/materials
@@ -65,7 +66,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(materials, { status: 200 })
 
   } catch (error) {
-    console.error('Error fetching marketing materials:', error)
+    logger.error('Error fetching marketing materials:', error)
     return NextResponse.json(
       { error: 'Failed to fetch marketing materials' },
       { status: 500 }
@@ -147,7 +148,7 @@ export async function POST(req: NextRequest) {
     }, { status: 201 })
 
   } catch (error) {
-    console.error('Error creating marketing material:', error)
+    logger.error('Error creating marketing material:', error)
     return NextResponse.json(
       { error: 'Failed to create marketing material' },
       { status: 500 }

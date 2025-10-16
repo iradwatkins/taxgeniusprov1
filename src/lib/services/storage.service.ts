@@ -1,6 +1,7 @@
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import crypto from 'crypto'
+import { logger } from '@/lib/logger'
 
 // Initialize R2 client
 const r2Client = new S3Client({
@@ -93,7 +94,7 @@ export class StorageService {
 
       return { key, url, metadata }
     } catch (error) {
-      console.error('Error uploading file to R2:', error)
+      logger.error('Error uploading file to R2:', error)
       throw new Error('Failed to upload file')
     }
   }
@@ -116,7 +117,7 @@ export class StorageService {
       const url = await getSignedUrl(r2Client, command, { expiresIn })
       return url
     } catch (error) {
-      console.error('Error generating presigned upload URL:', error)
+      logger.error('Error generating presigned upload URL:', error)
       throw new Error('Failed to generate upload URL')
     }
   }
@@ -137,7 +138,7 @@ export class StorageService {
       const url = await getSignedUrl(r2Client, command, { expiresIn })
       return url
     } catch (error) {
-      console.error('Error generating presigned download URL:', error)
+      logger.error('Error generating presigned download URL:', error)
       throw new Error('Failed to generate download URL')
     }
   }
@@ -175,7 +176,7 @@ export class StorageService {
 
       return buffer
     } catch (error) {
-      console.error('Error downloading file from R2:', error)
+      logger.error('Error downloading file from R2:', error)
       throw new Error('Failed to download file')
     }
   }
@@ -192,7 +193,7 @@ export class StorageService {
 
       await r2Client.send(command)
     } catch (error) {
-      console.error('Error deleting file from R2:', error)
+      logger.error('Error deleting file from R2:', error)
       throw new Error('Failed to delete file')
     }
   }

@@ -4,6 +4,7 @@ import { clerkClient } from '@clerk/nextjs/server';
 import { getUserPermissions, UserRole, UserPermissions, Permission } from '@/lib/permissions';
 import { utmTrackingMiddleware } from '@/middleware/utm-tracking';
 import { getEffectiveRole } from '@/lib/utils/role-switcher';
+import { logger } from '@/lib/logger'
 
 const isPublicRoute = createRouteMatcher([
   '/auth/login(.*)',
@@ -60,10 +61,10 @@ export default clerkMiddleware(async (auth, req) => {
       // If database role differs from session role, log it
       const sessionRole = sessionClaims?.metadata?.role as string | undefined;
       if (sessionRole && role && sessionRole !== role) {
-        console.log(`🔄 Role mismatch - Session: "${sessionRole}", Database: "${role}" - Using database role`);
+        logger.info(`🔄 Role mismatch - Session: "${sessionRole}", Database: "${role}" - Using database role`);
       }
     } catch (error) {
-      console.error('Error fetching user from database:', error);
+      logger.error('Error fetching user from database:', error);
       // Fallback to session if database fails
       role = sessionClaims?.metadata?.role as string | undefined;
     }
@@ -83,10 +84,10 @@ export default clerkMiddleware(async (auth, req) => {
         viewingRoleName = roleInfo.viewingRoleName;
 
         if (isViewingAsOtherRole) {
-          console.log(`👁️  Admin ${userId} viewing as ${viewingRoleName} (${effectiveRole})`);
+          logger.info(`👁️  Admin ${userId} viewing as ${viewingRoleName} (${effectiveRole})`);
         }
       } catch (error) {
-        console.error('Error getting effective role:', error);
+        logger.error('Error getting effective role:', error);
         // Fall back to actual role if there's an error
         effectiveRole = role;
       }
@@ -103,7 +104,7 @@ export default clerkMiddleware(async (auth, req) => {
           return NextResponse.next(); // Allow access
         }
       } catch (error) {
-        console.error('Error checking user email:', error);
+        logger.error('Error checking user email:', error);
       }
       return NextResponse.redirect(new URL('/forbidden', req.url));
     }
@@ -146,7 +147,7 @@ export default clerkMiddleware(async (auth, req) => {
           }
         }
       } catch (error) {
-        console.error('Error checking permissions in middleware:', error);
+        logger.error('Error checking permissions in middleware:', error);
       }
     }
 
@@ -186,7 +187,7 @@ export default clerkMiddleware(async (auth, req) => {
 
       // For users without a valid role, redirect to role selection page
       // This prevents auto-assigning and overwriting roles
-      console.log(`⚠️  User ${userId} has no valid role, redirecting to role setup`);
+      logger.info(`⚠️  User ${userId} has no valid role, redirecting to role setup`);
 
       // If they're on a public route, let them through
       if (isPublicRoute(req)) {

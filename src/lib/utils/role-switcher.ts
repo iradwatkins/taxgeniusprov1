@@ -8,6 +8,7 @@
 import { cookies } from 'next/headers'
 import { UserRole } from '@/lib/permissions'
 import type { ViewingRoleState, EffectiveRoleInfo } from '@/types/role-switcher'
+import { logger } from '@/lib/logger'
 
 // Cookie configuration
 export const VIEWING_ROLE_COOKIE_NAME = '__tgp_view_role'
@@ -69,7 +70,7 @@ export async function getViewingRoleCookie(): Promise<ViewingRoleState | null> {
 
     return state
   } catch (error) {
-    console.error('Failed to parse viewing role cookie:', error)
+    logger.error('Failed to parse viewing role cookie:', error)
     return null
   }
 }
@@ -236,7 +237,7 @@ export function getViewingRoleCookieClient(): ViewingRoleState | null {
 
     return state
   } catch (error) {
-    console.error('Failed to parse viewing role cookie (client):', error)
+    logger.error('Failed to parse viewing role cookie (client):', error)
     return null
   }
 }
@@ -256,7 +257,7 @@ export async function setViewingRoleClient(role: UserRole): Promise<boolean> {
 
     return response.ok
   } catch (error) {
-    console.error('Failed to set viewing role via API:', error)
+    logger.error('Failed to set viewing role via API:', error)
     return false
   }
 }
@@ -272,7 +273,7 @@ export async function clearViewingRoleClient(): Promise<boolean> {
 
     return response.ok
   } catch (error) {
-    console.error('Failed to clear viewing role via API:', error)
+    logger.error('Failed to clear viewing role via API:', error)
     return false
   }
 }

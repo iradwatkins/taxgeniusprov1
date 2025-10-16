@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Header } from '@/components/header';
 import { ShortLinkTracker } from '@/components/tracking/ShortLinkTracker';
+import { logger } from '@/lib/logger'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -32,7 +33,7 @@ export default function ContactPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission
-    console.log('Form submitted:', formData);
+    logger.info('Form submitted:', formData);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

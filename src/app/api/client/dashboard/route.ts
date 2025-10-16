@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 /**
  * GET /api/client/dashboard
@@ -126,7 +127,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(response)
   } catch (error) {
-    console.error('Error fetching client dashboard:', error)
+    logger.error('Error fetching client dashboard:', error)
     return NextResponse.json(
       { error: 'Failed to fetch dashboard data' },
       { status: 500 }

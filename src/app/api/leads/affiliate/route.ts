@@ -1,13 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { z } from 'zod'
+import {
+  extractRequestMetadata,
+  extractUtmParams,
+  handleApiError,
+  createLeadSuccessResponse,
+  getLeadSuccessMessage,
+  queueAdminNotification,
+  queueConfirmationEmail,
+  commonLeadFields,
+} from '@/lib/api-helpers/lead-helpers'
 
 // Validation schema
 const affiliateLeadSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Invalid email address'),
-  phone: z.string().min(1, 'Phone number is required'),
+  ...commonLeadFields,
   experience: z.string().optional(),
   audience: z.string().optional(),
   message: z.string().optional(),
@@ -20,17 +27,9 @@ export async function POST(request: NextRequest) {
     // Validate input
     const validatedData = affiliateLeadSchema.parse(body)
 
-    // Extract metadata
-    const ipAddress = request.headers.get('x-forwarded-for') ||
-                     request.headers.get('x-real-ip') ||
-                     'unknown'
-    const userAgent = request.headers.get('user-agent') || 'unknown'
-    const referer = request.headers.get('referer') || null
-
-    // Extract UTM parameters if provided
-    const utmSource = body.utmSource || null
-    const utmMedium = body.utmMedium || null
-    const utmCampaign = body.utmCampaign || null
+    // Extract metadata and UTM parameters
+    const { ipAddress, userAgent, referer } = extractRequestMetadata(request)
+    const { utmSource, utmMedium, utmCampaign } = extractUtmParams(body)
 
     // Create lead in database
     const lead = await prisma.lead.create({
@@ -53,30 +52,15 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // TODO: Send notification email to affiliate management team
-    // TODO: Send welcome email with affiliate dashboard info
-    // TODO: Generate unique affiliate tracking code
+    // Queue notifications (async, non-blocking)
+    await Promise.allSettled([
+      queueAdminNotification('AFFILIATE', lead),
+      queueConfirmationEmail('AFFILIATE', lead.email, lead.firstName),
+    ])
 
-    return NextResponse.json({
-      success: true,
-      message: 'Welcome to the team! Check your email for affiliate dashboard login details.',
-      leadId: lead.id,
-    }, { status: 201 })
+    return createLeadSuccessResponse(lead.id, getLeadSuccessMessage('AFFILIATE'))
 
   } catch (error) {
-    console.error('Error creating affiliate lead:', error)
-
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({
-        success: false,
-        message: 'Invalid form data',
-        errors: error.errors,
-      }, { status: 400 })
-    }
-
-    return NextResponse.json({
-      success: false,
-      message: 'An error occurred while processing your application. Please try again.',
-    }, { status: 500 })
+    return handleApiError(error, 'creating affiliate lead')
   }
 }

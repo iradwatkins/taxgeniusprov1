@@ -35,6 +35,7 @@ import {
   type DashboardData
 } from '@/lib/utils/pdf-export'
 import { useToast } from '@/hooks/use-toast'
+import { logger } from '@/lib/logger'
 
 export interface ExportButtonProps {
   data: any
@@ -101,7 +102,7 @@ export function ExportButton({
         description: 'CSV file has been downloaded',
       })
     } catch (error) {
-      console.error('CSV export error:', error)
+      logger.error('CSV export error:', error)
       toast({
         title: 'Export Failed',
         description: error instanceof Error ? error.message : 'Failed to export CSV',
@@ -146,7 +147,7 @@ export function ExportButton({
         description: 'PDF report has been downloaded',
       })
     } catch (error) {
-      console.error('PDF export error:', error)
+      logger.error('PDF export error:', error)
       toast({
         title: 'Export Failed',
         description: error instanceof Error ? error.message : 'Failed to generate PDF',
@@ -264,7 +265,7 @@ export function SimpleExportButton({
         })
       }
     } catch (error) {
-      console.error('Export error:', error)
+      logger.error('Export error:', error)
       toast({
         title: 'Export Failed',
         description: error instanceof Error ? error.message : 'Failed to export',

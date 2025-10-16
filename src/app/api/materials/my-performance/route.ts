@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
 
 interface MaterialPerformance {
   id: string
@@ -181,7 +182,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('My materials performance error:', error)
+    logger.error('My materials performance error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch material performance' },
       { status: 500 }

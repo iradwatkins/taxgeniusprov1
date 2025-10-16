@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger'
 
 // POST /api/preparers/apply - Submit tax preparer application
 export async function POST(req: NextRequest) {
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest) {
       message: 'Application submitted successfully',
     });
   } catch (error) {
-    console.error('Error submitting preparer application:', error);
+    logger.error('Error submitting preparer application:', error);
     return NextResponse.json(
       { error: 'Failed to submit application' },
       { status: 500 }
@@ -97,7 +98,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ application });
   } catch (error) {
-    console.error('Error fetching application:', error);
+    logger.error('Error fetching application:', error);
     return NextResponse.json(
       { error: 'Failed to fetch application' },
       { status: 500 }

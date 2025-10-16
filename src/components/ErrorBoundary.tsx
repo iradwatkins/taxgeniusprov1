@@ -4,6 +4,7 @@ import React from 'react'
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { logger } from '@/lib/logger'
 
 interface ErrorBoundaryState {
   hasError: boolean
@@ -31,7 +32,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo)
+    logger.error('Error caught by boundary:', error, errorInfo)
 
     this.setState({
       error,
@@ -45,7 +46,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     // Report to error tracking service in production
     if (process.env.NODE_ENV === 'production') {
       // TODO: Add error reporting service (Sentry, LogRocket, etc.)
-      console.error('Production error:', {
+      logger.error('Production error:', {
         error: error.message,
         stack: error.stack,
         componentStack: errorInfo.componentStack,
