@@ -7,20 +7,17 @@
  * Epic 5 - Story 5.2: Admin Payout Management
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { currentUser } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { currentUser } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await currentUser()
+    const user = await currentUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Find user profile
@@ -30,10 +27,10 @@ export async function GET(
           email: user.emailAddresses[0]?.emailAddress,
         },
       },
-    })
+    });
 
     if (!profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
     // Only admins can access payout management
@@ -41,10 +38,10 @@ export async function GET(
       return NextResponse.json(
         { error: 'Only administrators can access payout management' },
         { status: 403 }
-      )
+      );
     }
 
-    const { id } = await params
+    const { id } = await params;
 
     // Fetch payout request with all related data
     const payout = await prisma.payoutRequest.findUnique({
@@ -60,10 +57,10 @@ export async function GET(
           },
         },
       },
-    })
+    });
 
     if (!payout) {
-      return NextResponse.json({ error: 'Payout request not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Payout request not found' }, { status: 404 });
     }
 
     // Fetch commission details
@@ -83,7 +80,7 @@ export async function GET(
           },
         },
       },
-    })
+    });
 
     // Format response
     const response = {
@@ -111,14 +108,11 @@ export async function GET(
       requestedAt: payout.requestedAt.toISOString(),
       processedAt: payout.processedAt?.toISOString() || null,
       paymentRef: payout.paymentRef,
-    }
+    };
 
-    return NextResponse.json(response)
+    return NextResponse.json(response);
   } catch (error) {
-    logger.error('Error fetching payout details:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    logger.error('Error fetching payout details:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

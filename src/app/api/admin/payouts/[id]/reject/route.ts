@@ -7,21 +7,18 @@
  * Epic 5 - Story 5.2: Admin Payout Management
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { currentUser } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma'
-import { EmailService } from '@/lib/services/email.service'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { currentUser } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/prisma';
+import { EmailService } from '@/lib/services/email.service';
+import { logger } from '@/lib/logger';
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await currentUser()
+    const user = await currentUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Find user profile
@@ -31,10 +28,10 @@ export async function POST(
           email: user.emailAddresses[0]?.emailAddress,
         },
       },
-    })
+    });
 
     if (!profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
     // Only admins can reject payouts
@@ -42,12 +39,12 @@ export async function POST(
       return NextResponse.json(
         { error: 'Only administrators can reject payouts' },
         { status: 403 }
-      )
+      );
     }
 
-    const { id } = await params
-    const body = await req.json().catch(() => ({}))
-    const { notes } = body
+    const { id } = await params;
+    const body = await req.json().catch(() => ({}));
+    const { notes } = body;
 
     // Fetch payout request
     const payout = await prisma.payoutRequest.findUnique({
@@ -63,10 +60,10 @@ export async function POST(
           },
         },
       },
-    })
+    });
 
     if (!payout) {
-      return NextResponse.json({ error: 'Payout request not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Payout request not found' }, { status: 404 });
     }
 
     // Validate payout is pending
@@ -74,7 +71,7 @@ export async function POST(
       return NextResponse.json(
         { error: `Cannot reject payout with status: ${payout.status}` },
         { status: 400 }
-      )
+      );
     }
 
     // Update payout request status to REJECTED
@@ -85,7 +82,7 @@ export async function POST(
         processedAt: new Date(),
         notes: notes || 'Payout request rejected by administrator',
       },
-    })
+    });
 
     // Return commissions back to PENDING status (so referrer can request again later)
     await prisma.commission.updateMany({
@@ -95,22 +92,22 @@ export async function POST(
       data: {
         status: 'PENDING',
       },
-    })
+    });
 
     // Send rejection email to referrer
     const referrerName = payout.referrer.firstName
       ? `${payout.referrer.firstName} ${payout.referrer.lastName || ''}`.trim()
-      : 'Referrer'
+      : 'Referrer';
 
     await EmailService.sendPayoutRejectedEmail(
       payout.referrer.user.email,
       referrerName,
       Number(payout.amount),
       notes || 'Your payout request has been rejected. Please contact support for more information.'
-    )
+    );
 
-    logger.info(`❌ Payout ${id} rejected by admin ${profile.id}`)
-    logger.info(`💵 $${payout.amount} returned to PENDING for referrer ${payout.referrerId}`)
+    logger.info(`❌ Payout ${id} rejected by admin ${profile.id}`);
+    logger.info(`💵 $${payout.amount} returned to PENDING for referrer ${payout.referrerId}`);
 
     return NextResponse.json({
       success: true,
@@ -120,12 +117,12 @@ export async function POST(
         status: updatedPayout.status,
         processedAt: updatedPayout.processedAt?.toISOString(),
       },
-    })
+    });
   } catch (error) {
-    logger.error('Error rejecting payout:', error)
+    logger.error('Error rejecting payout:', error);
     return NextResponse.json(
       { error: 'Failed to reject payout. Please try again.' },
       { status: 500 }
-    )
+    );
   }
 }

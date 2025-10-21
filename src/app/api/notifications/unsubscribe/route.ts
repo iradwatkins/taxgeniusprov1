@@ -1,39 +1,30 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { currentUser } from '@clerk/nextjs/server'
-import { NotificationService } from '@/lib/services/notification.service'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { currentUser } from '@clerk/nextjs/server';
+import { NotificationService } from '@/lib/services/notification.service';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await currentUser()
+    const user = await currentUser();
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { endpoint } = await request.json()
+    const { endpoint } = await request.json();
 
     if (!endpoint) {
-      return NextResponse.json(
-        { error: 'Endpoint is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Endpoint is required' }, { status: 400 });
     }
 
     // Remove subscription from database
-    await NotificationService.unsubscribeFromPush(user.id, endpoint)
+    await NotificationService.unsubscribeFromPush(user.id, endpoint);
 
     return NextResponse.json({
       success: true,
-      message: 'Push subscription removed successfully'
-    })
+      message: 'Push subscription removed successfully',
+    });
   } catch (error) {
-    logger.error('Push unsubscribe error:', error)
-    return NextResponse.json(
-      { error: 'Failed to remove push subscription' },
-      { status: 500 }
-    )
+    logger.error('Push unsubscribe error:', error);
+    return NextResponse.json({ error: 'Failed to remove push subscription' }, { status: 500 });
   }
 }

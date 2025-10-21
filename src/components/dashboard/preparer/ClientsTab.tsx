@@ -6,7 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -15,14 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  FileText,
-  Search,
-  Filter,
-  Eye,
-  MessageSquare,
-  ChevronRight
-} from 'lucide-react';
+import { FileText, Search, Filter, Eye, MessageSquare, ChevronRight } from 'lucide-react';
 
 interface Client {
   id: string;
@@ -53,14 +52,15 @@ export function ClientsTab({
   getStatusIcon,
   getStatusColor,
   getPriorityColor,
-  onSelectClient
+  onSelectClient,
 }: ClientsTabProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
 
-  const filteredClients = clients.filter(client => {
-    const matchesSearch = client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         client.email.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredClients = clients.filter((client) => {
+    const matchesSearch =
+      client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      client.email.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'ALL' || client.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -125,7 +125,10 @@ export function ClientsTab({
                     <div className="flex items-center gap-3">
                       <Avatar className="h-8 w-8">
                         <AvatarFallback>
-                          {client.name.split(' ').map(n => n[0]).join('')}
+                          {client.name
+                            .split(' ')
+                            .map((n) => n[0])
+                            .join('')}
                         </AvatarFallback>
                       </Avatar>
                       <div>
@@ -157,11 +160,7 @@ export function ClientsTab({
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onSelectClient(client)}
-                      >
+                      <Button variant="ghost" size="sm" onClick={() => onSelectClient(client)}>
                         <Eye className="h-4 w-4" />
                       </Button>
                       <Button variant="ghost" size="sm">

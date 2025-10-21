@@ -1,31 +1,31 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { currentUser } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { currentUser } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await currentUser()
+    const user = await currentUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Verify user is admin
-    const role = user.publicMetadata?.role
+    const role = user.publicMetadata?.role;
     if (role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Get query parameters for filtering
-    const { searchParams } = new URL(request.url)
-    const preparerId = searchParams.get('preparerId')
-    const status = searchParams.get('status')
+    const { searchParams } = new URL(request.url);
+    const preparerId = searchParams.get('preparerId');
+    const status = searchParams.get('status');
 
     // Build query
     const where: any = {
       role: 'CLIENT',
-    }
+    };
 
     // Fetch all clients with optional filtering
     const clients = await prisma.profile.findMany({
@@ -44,7 +44,9 @@ export async function GET(request: NextRequest) {
         clientPreparers: {
           where: {
             isActive: true,
-            ...(preparerId && preparerId !== 'all' && preparerId !== 'unassigned' ? { preparerId } : {}),
+            ...(preparerId && preparerId !== 'all' && preparerId !== 'unassigned'
+              ? { preparerId }
+              : {}),
           },
           include: {
             preparer: true,
@@ -54,17 +56,17 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: 'desc',
       },
-    })
+    });
 
     // Filter clients based on preparer assignment
-    let filteredClients = clients
+    let filteredClients = clients;
 
     if (preparerId === 'unassigned') {
-      filteredClients = clients.filter(c => c.clientPreparers.length === 0)
+      filteredClients = clients.filter((c) => c.clientPreparers.length === 0);
     } else if (preparerId && preparerId !== 'all') {
-      filteredClients = clients.filter(c =>
-        c.clientPreparers.some(cp => cp.preparerId === preparerId)
-      )
+      filteredClients = clients.filter((c) =>
+        c.clientPreparers.some((cp) => cp.preparerId === preparerId)
+      );
     }
 
     // Transform to CSV format
@@ -82,32 +84,36 @@ export async function GET(request: NextRequest) {
         'Return Status',
         'Documents Count',
         'Last Updated',
-        'Created Date'
-      ].join(',')
-    ]
+        'Created Date',
+      ].join(','),
+    ];
 
     filteredClients.forEach((client) => {
-      const latestReturn = client.taxReturns[0]
-      const assignedPreparer = client.clientPreparers[0]?.preparer
-      const returnStatus = latestReturn ? latestReturn.status : 'No Return'
+      const latestReturn = client.taxReturns[0];
+      const assignedPreparer = client.clientPreparers[0]?.preparer;
+      const returnStatus = latestReturn ? latestReturn.status : 'No Return';
 
-      csvRows.push([
-        client.id,
-        client.firstName || '',
-        client.lastName || '',
-        client.email || '',
-        client.phone || '',
-        assignedPreparer ? `${assignedPreparer.firstName || ''} ${assignedPreparer.lastName || ''}`.trim() : 'Unassigned',
-        assignedPreparer?.email || '',
-        latestReturn?.taxYear || '',
-        returnStatus,
-        latestReturn?.documents?.length || 0,
-        client.updatedAt.toISOString().split('T')[0],
-        client.createdAt.toISOString().split('T')[0],
-      ].join(','))
-    })
+      csvRows.push(
+        [
+          client.id,
+          client.firstName || '',
+          client.lastName || '',
+          client.email || '',
+          client.phone || '',
+          assignedPreparer
+            ? `${assignedPreparer.firstName || ''} ${assignedPreparer.lastName || ''}`.trim()
+            : 'Unassigned',
+          assignedPreparer?.email || '',
+          latestReturn?.taxYear || '',
+          returnStatus,
+          latestReturn?.documents?.length || 0,
+          client.updatedAt.toISOString().split('T')[0],
+          client.createdAt.toISOString().split('T')[0],
+        ].join(',')
+      );
+    });
 
-    const csv = csvRows.join('\n')
+    const csv = csvRows.join('\n');
 
     // Return CSV file
     return new NextResponse(csv, {
@@ -115,9 +121,9 @@ export async function GET(request: NextRequest) {
         'Content-Type': 'text/csv',
         'Content-Disposition': `attachment; filename="clients-export-${new Date().toISOString().split('T')[0]}.csv"`,
       },
-    })
+    });
   } catch (error) {
-    logger.error('Error exporting clients:', error)
-    return NextResponse.json({ error: 'Failed to export clients' }, { status: 500 })
+    logger.error('Error exporting clients:', error);
+    return NextResponse.json({ error: 'Failed to export clients' }, { status: 500 });
   }
 }

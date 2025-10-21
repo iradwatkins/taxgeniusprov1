@@ -1,71 +1,78 @@
-import React, { useState, useEffect } from 'react'
-import { Check, Copy, ExternalLink, AlertCircle, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { useVanityUrl, useSetVanitySlug, useCheckVanitySlugAvailability } from '@/hooks/useReferrerData'
-import { useToast } from '@/hooks/use-toast'
+import React, { useState, useEffect } from 'react';
+import { Check, Copy, ExternalLink, AlertCircle, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  useVanityUrl,
+  useSetVanitySlug,
+  useCheckVanitySlugAvailability,
+} from '@/hooks/useReferrerData';
+import { useToast } from '@/hooks/use-toast';
 
 interface VanityLinkManagerProps {
-  referrerId: string
-  currentSlug?: string
+  referrerId: string;
+  currentSlug?: string;
 }
 
-export const VanityLinkManager: React.FC<VanityLinkManagerProps> = ({ 
-  referrerId, 
-  currentSlug 
+export const VanityLinkManager: React.FC<VanityLinkManagerProps> = ({
+  referrerId,
+  currentSlug,
 }) => {
-  const { toast } = useToast()
-  const [inputSlug, setInputSlug] = useState('')
-  const [availabilityStatus, setAvailabilityStatus] = useState<'idle' | 'checking' | 'available' | 'unavailable'>('idle')
-  const [copied, setCopied] = useState(false)
-  
-  const { data: vanityUrl } = useVanityUrl(referrerId)
-  const { mutate: setVanitySlug, isPending: isSettingSlug } = useSetVanitySlug()
-  const { mutate: checkAvailability, isPending: isCheckingAvailability } = useCheckVanitySlugAvailability()
+  const { toast } = useToast();
+  const [inputSlug, setInputSlug] = useState('');
+  const [availabilityStatus, setAvailabilityStatus] = useState<
+    'idle' | 'checking' | 'available' | 'unavailable'
+  >('idle');
+  const [copied, setCopied] = useState(false);
 
-  const hasVanityUrl = Boolean(vanityUrl || currentSlug)
-  const displayUrl = vanityUrl || currentSlug
-  const fullUrl = displayUrl ? `https://taxgenius.com/${displayUrl}` : ''
+  const { data: vanityUrl } = useVanityUrl(referrerId);
+  const { mutate: setVanitySlug, isPending: isSettingSlug } = useSetVanitySlug();
+  const { mutate: checkAvailability, isPending: isCheckingAvailability } =
+    useCheckVanitySlugAvailability();
+
+  const hasVanityUrl = Boolean(vanityUrl || currentSlug);
+  const displayUrl = vanityUrl || currentSlug;
+  const fullUrl = displayUrl ? `https://taxgenius.com/${displayUrl}` : '';
 
   // Debounced availability check
   useEffect(() => {
     if (!inputSlug || inputSlug.length < 3 || hasVanityUrl) {
-      setAvailabilityStatus('idle')
-      return
+      setAvailabilityStatus('idle');
+      return;
     }
 
     // Basic validation
-    const slugRegex = /^[a-zA-Z0-9-_]+$/
+    const slugRegex = /^[a-zA-Z0-9-_]+$/;
     if (!slugRegex.test(inputSlug)) {
-      setAvailabilityStatus('unavailable')
-      return
+      setAvailabilityStatus('unavailable');
+      return;
     }
 
-    setAvailabilityStatus('checking')
+    setAvailabilityStatus('checking');
     const timeoutId = setTimeout(() => {
       checkAvailability(inputSlug.toLowerCase(), {
         onSuccess: (isAvailable) => {
-          setAvailabilityStatus(isAvailable ? 'available' : 'unavailable')
+          setAvailabilityStatus(isAvailable ? 'available' : 'unavailable');
         },
         onError: () => {
-          setAvailabilityStatus('idle')
+          setAvailabilityStatus('idle');
           toast({
             title: 'Error',
             description: 'Unable to check availability. Please try again.',
-            variant: 'destructive'
-          })
-        }
-      })
-    }, 500)
+            variant: 'destructive',
+          });
+        },
+      });
+    }, 500);
 
-    return () => clearTimeout(timeoutId)
-  }, [inputSlug, checkAvailability, hasVanityUrl, toast])
+    return () => clearTimeout(timeoutId);
+  }, [inputSlug, checkAvailability, hasVanityUrl, toast]);
 
   const handleSetVanitySlug = () => {
-    if (!inputSlug || availabilityStatus !== 'available') return
+    if (!inputSlug || availabilityStatus !== 'available') return;
 
     setVanitySlug(
       { referrerId, slug: inputSlug.toLowerCase() },
@@ -75,86 +82,86 @@ export const VanityLinkManager: React.FC<VanityLinkManagerProps> = ({
             toast({
               title: 'Success!',
               description: 'Your vanity URL has been set successfully.',
-            })
-            setInputSlug('')
-            setAvailabilityStatus('idle')
+            });
+            setInputSlug('');
+            setAvailabilityStatus('idle');
           } else {
             toast({
               title: 'Error',
               description: result.error || 'Failed to set vanity URL.',
-              variant: 'destructive'
-            })
+              variant: 'destructive',
+            });
           }
         },
         onError: () => {
           toast({
             title: 'Error',
             description: 'Failed to set vanity URL. Please try again.',
-            variant: 'destructive'
-          })
-        }
+            variant: 'destructive',
+          });
+        },
       }
-    )
-  }
+    );
+  };
 
   const handleCopyUrl = async () => {
-    if (!fullUrl) return
+    if (!fullUrl) return;
 
     try {
-      await navigator.clipboard.writeText(fullUrl)
-      setCopied(true)
+      await navigator.clipboard.writeText(fullUrl);
+      setCopied(true);
       toast({
         title: 'Copied!',
         description: 'Vanity URL copied to clipboard.',
-      })
-      setTimeout(() => setCopied(false), 2000)
+      });
+      setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       toast({
         title: 'Error',
         description: 'Failed to copy URL to clipboard.',
-        variant: 'destructive'
-      })
+        variant: 'destructive',
+      });
     }
-  }
+  };
 
   const getInputBorderClass = () => {
     switch (availabilityStatus) {
       case 'available':
-        return 'border-green-500 focus:border-green-500'
+        return 'border-green-500 focus:border-green-500';
       case 'unavailable':
-        return 'border-red-500 focus:border-red-500'
+        return 'border-red-500 focus:border-red-500';
       case 'checking':
-        return 'border-yellow-500 focus:border-yellow-500'
+        return 'border-yellow-500 focus:border-yellow-500';
       default:
-        return ''
+        return '';
     }
-  }
+  };
 
   const getStatusIcon = () => {
     switch (availabilityStatus) {
       case 'checking':
-        return <Loader2 className="h-4 w-4 animate-spin text-yellow-600" />
+        return <Loader2 className="h-4 w-4 animate-spin text-yellow-600" />;
       case 'available':
-        return <Check className="h-4 w-4 text-green-600" />
+        return <Check className="h-4 w-4 text-green-600" />;
       case 'unavailable':
-        return <AlertCircle className="h-4 w-4 text-red-600" />
+        return <AlertCircle className="h-4 w-4 text-red-600" />;
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   const getStatusMessage = () => {
     switch (availabilityStatus) {
       case 'checking':
-        return 'Checking availability...'
+        return 'Checking availability...';
       case 'available':
-        return 'Available! You can claim this URL.'
+        return 'Available! You can claim this URL.';
       case 'unavailable':
-        return 'Not available. Try a different name.'
+        return 'Not available. Try a different name.';
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
     <Card className="border-border">
@@ -176,12 +183,7 @@ export const VanityLinkManager: React.FC<VanityLinkManagerProps> = ({
                 <code className="text-sm bg-background px-2 py-1 rounded border flex-1">
                   {fullUrl}
                 </code>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleCopyUrl}
-                  className="shrink-0"
-                >
+                <Button size="sm" variant="outline" onClick={handleCopyUrl} className="shrink-0">
                   {copied ? (
                     <Check className="h-4 w-4 text-green-600" />
                   ) : (
@@ -224,11 +226,15 @@ export const VanityLinkManager: React.FC<VanityLinkManagerProps> = ({
                 </div>
               </div>
               {getStatusMessage() && (
-                <p className={`text-xs ${
-                  availabilityStatus === 'available' ? 'text-green-600' : 
-                  availabilityStatus === 'unavailable' ? 'text-red-600' : 
-                  'text-yellow-600'
-                }`}>
+                <p
+                  className={`text-xs ${
+                    availabilityStatus === 'available'
+                      ? 'text-green-600'
+                      : availabilityStatus === 'unavailable'
+                        ? 'text-red-600'
+                        : 'text-yellow-600'
+                  }`}
+                >
                   {getStatusMessage()}
                 </p>
               )}
@@ -237,9 +243,9 @@ export const VanityLinkManager: React.FC<VanityLinkManagerProps> = ({
             <Button
               onClick={handleSetVanitySlug}
               disabled={
-                !inputSlug || 
-                availabilityStatus !== 'available' || 
-                isSettingSlug || 
+                !inputSlug ||
+                availabilityStatus !== 'available' ||
+                isSettingSlug ||
                 isCheckingAvailability
               }
               className="w-full"
@@ -257,14 +263,15 @@ export const VanityLinkManager: React.FC<VanityLinkManagerProps> = ({
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Choose carefully! You can only set your vanity URL once. Use letters, numbers, hyphens, and underscores only.
+                Choose carefully! You can only set your vanity URL once. Use letters, numbers,
+                hyphens, and underscores only.
               </AlertDescription>
             </Alert>
           </div>
         )}
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default VanityLinkManager
+export default VanityLinkManager;

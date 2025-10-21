@@ -10,23 +10,23 @@
  * Epic 5 - Story 5.2: Commission Automation
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { currentUser } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma'
-import { EmailService } from '@/lib/services/email.service'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { currentUser } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/prisma';
+import { EmailService } from '@/lib/services/email.service';
+import { logger } from '@/lib/logger';
 
-const MINIMUM_PAYOUT_AMOUNT = Number(process.env.MINIMUM_PAYOUT_AMOUNT) || 50
+const MINIMUM_PAYOUT_AMOUNT = Number(process.env.MINIMUM_PAYOUT_AMOUNT) || 50;
 
 /**
  * GET: Return pending commission balance and payout eligibility
  */
 export async function GET(req: NextRequest) {
   try {
-    const user = await currentUser()
+    const user = await currentUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Find user profile
@@ -36,10 +36,10 @@ export async function GET(req: NextRequest) {
           email: user.emailAddresses[0]?.emailAddress,
         },
       },
-    })
+    });
 
     if (!profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
     // Only referrers can request payouts
@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(
         { error: 'Only referrers can request commission payouts' },
         { status: 403 }
-      )
+      );
     }
 
     // Get all pending commissions
@@ -71,13 +71,10 @@ export async function GET(req: NextRequest) {
       orderBy: {
         createdAt: 'desc',
       },
-    })
+    });
 
     // Calculate total pending balance
-    const totalPending = pendingCommissions.reduce(
-      (sum, c) => sum + Number(c.amount),
-      0
-    )
+    const totalPending = pendingCommissions.reduce((sum, c) => sum + Number(c.amount), 0);
 
     // Get processing/paid commissions for history
     const paidCommissions = await prisma.commission.findMany({
@@ -89,7 +86,7 @@ export async function GET(req: NextRequest) {
         updatedAt: 'desc',
       },
       take: 10,
-    })
+    });
 
     const totalPaid = await prisma.commission.aggregate({
       where: {
@@ -99,7 +96,7 @@ export async function GET(req: NextRequest) {
       _sum: {
         amount: true,
       },
-    })
+    });
 
     return NextResponse.json({
       pendingBalance: totalPending,
@@ -123,13 +120,10 @@ export async function GET(req: NextRequest) {
         paidAt: c.paidAt?.toISOString(),
         paymentRef: c.paymentRef,
       })),
-    })
+    });
   } catch (error) {
-    logger.error('Error fetching commission balance:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    logger.error('Error fetching commission balance:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -138,10 +132,10 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
-    const user = await currentUser()
+    const user = await currentUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Find user profile
@@ -151,10 +145,10 @@ export async function POST(req: NextRequest) {
           email: user.emailAddresses[0]?.emailAddress,
         },
       },
-    })
+    });
 
     if (!profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
     // Only referrers can request payouts
@@ -162,7 +156,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: 'Only referrers can request commission payouts' },
         { status: 403 }
-      )
+      );
     }
 
     // Get all pending commissions
@@ -171,13 +165,10 @@ export async function POST(req: NextRequest) {
         referrerId: profile.id,
         status: 'PENDING',
       },
-    })
+    });
 
     // Calculate total amount
-    const totalAmount = pendingCommissions.reduce(
-      (sum, c) => sum + Number(c.amount),
-      0
-    )
+    const totalAmount = pendingCommissions.reduce((sum, c) => sum + Number(c.amount), 0);
 
     // Validate minimum payout amount
     if (totalAmount < MINIMUM_PAYOUT_AMOUNT) {
@@ -188,12 +179,12 @@ export async function POST(req: NextRequest) {
           minimumRequired: MINIMUM_PAYOUT_AMOUNT,
         },
         { status: 400 }
-      )
+      );
     }
 
     // Parse request body for payment method (optional)
-    const body = await req.json().catch(() => ({}))
-    const { paymentMethod, notes } = body
+    const body = await req.json().catch(() => ({}));
+    const { paymentMethod, notes } = body;
 
     // Create payout request
     // Note: In production, this would integrate with Square/Stripe for automatic payout
@@ -207,7 +198,7 @@ export async function POST(req: NextRequest) {
         paymentMethod: paymentMethod || 'BANK_TRANSFER',
         notes: notes || null,
       },
-    })
+    });
 
     // Update commissions to "PROCESSING" status
     await prisma.commission.updateMany({
@@ -217,12 +208,12 @@ export async function POST(req: NextRequest) {
       data: {
         status: 'PROCESSING',
       },
-    })
+    });
 
     // Send payout request notification to admin
     const referrerName = profile.firstName
       ? `${profile.firstName} ${profile.lastName || ''}`.trim()
-      : 'Referrer'
+      : 'Referrer';
 
     await EmailService.sendPayoutRequestEmail(
       process.env.ADMIN_EMAIL || 'admin@taxgeniuspro.tax',
@@ -231,7 +222,7 @@ export async function POST(req: NextRequest) {
       totalAmount,
       pendingCommissions.length,
       payoutRequest.id
-    )
+    );
 
     // Send confirmation email to referrer
     await EmailService.sendPayoutConfirmationEmail(
@@ -240,7 +231,7 @@ export async function POST(req: NextRequest) {
       totalAmount,
       paymentMethod || 'bank transfer',
       new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
-    )
+    );
 
     return NextResponse.json({
       success: true,
@@ -253,14 +244,14 @@ export async function POST(req: NextRequest) {
         requestedAt: payoutRequest.createdAt.toISOString(),
         estimatedProcessingTime: '5-7 business days',
       },
-    })
+    });
   } catch (error) {
-    logger.error('Error creating payout request:', error)
+    logger.error('Error creating payout request:', error);
     return NextResponse.json(
       {
         error: 'Failed to create payout request. Please try again later.',
       },
       { status: 500 }
-    )
+    );
   }
 }

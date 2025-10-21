@@ -5,9 +5,9 @@
  * for security monitoring and compliance
  */
 
-import { UserRole } from '@/lib/permissions'
-import type { RoleSwitchAuditLog } from '@/types/role-switcher'
-import { logger } from '@/lib/logger'
+import { UserRole } from '@/lib/permissions';
+import type { RoleSwitchAuditLog } from '@/types/role-switcher';
+import { logger } from '@/lib/logger';
 
 /**
  * Log a role switch event
@@ -23,8 +23,8 @@ export async function logRoleSwitch(
   fromRole: UserRole,
   toRole: UserRole,
   metadata?: {
-    ipAddress?: string
-    userAgent?: string
+    ipAddress?: string;
+    userAgent?: string;
   }
 ): Promise<void> {
   const logEntry: RoleSwitchAuditLog = {
@@ -36,7 +36,7 @@ export async function logRoleSwitch(
     timestamp: new Date(),
     ipAddress: metadata?.ipAddress,
     userAgent: metadata?.userAgent,
-  }
+  };
 
   // Console logging for development
   logger.info('📋 Audit Log - Role Switch:', {
@@ -45,7 +45,7 @@ export async function logRoleSwitch(
     to: toRole,
     timestamp: logEntry.timestamp.toISOString(),
     ip: logEntry.ipAddress,
-  })
+  });
 
   // TODO: Store in database
   // await prisma.auditLog.create({
@@ -72,9 +72,9 @@ export async function logProtectedOperationAttempt(
   operation: string,
   viewingRole: UserRole,
   metadata?: {
-    ipAddress?: string
-    userAgent?: string
-    resourceId?: string
+    ipAddress?: string;
+    userAgent?: string;
+    resourceId?: string;
   }
 ): Promise<void> {
   logger.info('⚠️  Audit Log - Protected Operation Blocked:', {
@@ -83,7 +83,7 @@ export async function logProtectedOperationAttempt(
     viewingRole,
     timestamp: new Date().toISOString(),
     resourceId: metadata?.resourceId,
-  })
+  });
 
   // TODO: Store in database
   // await prisma.auditLog.create({
@@ -109,13 +109,13 @@ export async function logProtectedOperationAttempt(
 export async function getAuditLogsForAdmin(
   adminUserId: string,
   options?: {
-    limit?: number
-    offset?: number
-    startDate?: Date
-    endDate?: Date
+    limit?: number;
+    offset?: number;
+    startDate?: Date;
+    endDate?: Date;
   }
 ): Promise<RoleSwitchAuditLog[]> {
-  logger.info('📋 Fetching audit logs for admin:', adminUserId, options)
+  logger.info('📋 Fetching audit logs for admin:', adminUserId, options);
 
   // TODO: Query database
   // return await prisma.auditLog.findMany({
@@ -131,7 +131,7 @@ export async function getAuditLogsForAdmin(
   //   skip: options?.offset || 0,
   // })
 
-  return []
+  return [];
 }
 
 /**
@@ -140,14 +140,14 @@ export async function getAuditLogsForAdmin(
  * TODO: Implement database query with filters
  */
 export async function getAllAuditLogs(options?: {
-  limit?: number
-  offset?: number
-  startDate?: Date
-  endDate?: Date
-  userId?: string
-  type?: string
+  limit?: number;
+  offset?: number;
+  startDate?: Date;
+  endDate?: Date;
+  userId?: string;
+  type?: string;
 }): Promise<RoleSwitchAuditLog[]> {
-  logger.info('📋 Fetching all audit logs:', options)
+  logger.info('📋 Fetching all audit logs:', options);
 
   // TODO: Query database with filters
   // return await prisma.auditLog.findMany({
@@ -164,14 +164,14 @@ export async function getAllAuditLogs(options?: {
   //   skip: options?.offset || 0,
   // })
 
-  return []
+  return [];
 }
 
 /**
  * Generate a unique audit log ID
  */
 function generateAuditId(): string {
-  return `audit_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
+  return `audit_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 }
 
 /**
@@ -179,16 +179,13 @@ function generateAuditId(): string {
  *
  * TODO: Implement database aggregation
  */
-export async function getAuditLogStats(options?: {
-  startDate?: Date
-  endDate?: Date
-}): Promise<{
-  totalEvents: number
-  roleSwitchEvents: number
-  protectedOperationAttempts: number
-  uniqueAdmins: number
+export async function getAuditLogStats(options?: { startDate?: Date; endDate?: Date }): Promise<{
+  totalEvents: number;
+  roleSwitchEvents: number;
+  protectedOperationAttempts: number;
+  uniqueAdmins: number;
 }> {
-  logger.info('📊 Fetching audit log statistics:', options)
+  logger.info('📊 Fetching audit log statistics:', options);
 
   // TODO: Aggregate from database
   // const stats = await prisma.auditLog.aggregate({
@@ -208,7 +205,7 @@ export async function getAuditLogStats(options?: {
     roleSwitchEvents: 0,
     protectedOperationAttempts: 0,
     uniqueAdmins: 0,
-  }
+  };
 }
 
 /**

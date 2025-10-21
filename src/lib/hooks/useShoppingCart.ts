@@ -27,9 +27,7 @@ export const useShoppingCart = create<ShoppingCartState>()(
       addItem: (item) => {
         set((state) => {
           // Check if item already exists in cart
-          const existingItemIndex = state.items.findIndex(
-            (i) => i.productId === item.productId
-          );
+          const existingItemIndex = state.items.findIndex((i) => i.productId === item.productId);
 
           if (existingItemIndex !== -1) {
             // Item exists - increment quantity
@@ -63,9 +61,7 @@ export const useShoppingCart = create<ShoppingCartState>()(
 
         set((state) => ({
           items: state.items.map((item) =>
-            item.productId === productId
-              ? { ...item, quantity }
-              : item
+            item.productId === productId ? { ...item, quantity } : item
           ),
         }));
       },
@@ -76,10 +72,7 @@ export const useShoppingCart = create<ShoppingCartState>()(
 
       getTotal: () => {
         const state = get();
-        return state.items.reduce(
-          (total, item) => total + item.price * item.quantity,
-          0
-        );
+        return state.items.reduce((total, item) => total + item.price * item.quantity, 0);
       },
 
       getItemCount: () => {

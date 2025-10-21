@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { LandingPageTemplate } from '@/components/landing-page/LandingPageTemplate';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 // ISR: Revalidate every 1 hour (AC8)
 export const revalidate = 3600;
@@ -27,9 +27,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const page = await prisma.landingPage.findUnique({
-    where: { 
+    where: {
       slug: city,
-      isPublished: true // AC6
+      isPublished: true, // AC6
     },
   });
 
@@ -45,7 +45,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: {
       canonical: url, // AC12
     },
-    openGraph: { // AC11
+    openGraph: {
+      // AC11
       title: page.metaTitle,
       description: page.metaDescription,
       url: url,
@@ -74,7 +75,7 @@ export async function generateStaticParams() {
       select: { slug: true },
     });
 
-    return topCities.map(page => ({ city: page.slug }));
+    return topCities.map((page) => ({ city: page.slug }));
   } catch (error) {
     // During Docker build, database isn't available - return empty array
     // Pages will be generated on-demand via ISR instead
@@ -98,9 +99,9 @@ export default async function CityLandingPage({ params }: PageProps) {
 
   // Fetch landing page data from database (AC5, AC6, AC7)
   const page = await prisma.landingPage.findUnique({
-    where: { 
+    where: {
       slug: city,
-      isPublished: true // AC6: Only show published pages
+      isPublished: true, // AC6: Only show published pages
     },
   });
 

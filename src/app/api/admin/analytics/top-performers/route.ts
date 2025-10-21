@@ -7,10 +7,10 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 6.3
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
-import { clerkClient } from '@clerk/nextjs/server'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
+import { clerkClient } from '@clerk/nextjs/server';
+import { logger } from '@/lib/logger';
 import {
   getTop15Preparers,
   getTop15Affiliates,
@@ -20,75 +20,72 @@ import {
   getTop15MaterialTypes,
   parseDateRange,
   type DateRange,
-} from '@/lib/services/admin-analytics.service'
+} from '@/lib/services/admin-analytics.service';
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth()
+    const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user is admin or super admin
-    const clerk = await clerkClient()
-    const user = await clerk.users.getUser(userId)
-    const role = user.publicMetadata?.role as string
+    const clerk = await clerkClient();
+    const user = await clerk.users.getUser(userId);
+    const role = user.publicMetadata?.role as string;
 
     if (role !== 'admin' && role !== 'super_admin') {
-      return NextResponse.json(
-        { error: 'Forbidden - Admin access required' },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 
-    const url = new URL(request.url)
-    const category = url.searchParams.get('category') || 'all'
-    const dateRangeParam = url.searchParams.get('dateRange') || 'month'
-    const limit = parseInt(url.searchParams.get('limit') || '15')
+    const url = new URL(request.url);
+    const category = url.searchParams.get('category') || 'all';
+    const dateRangeParam = url.searchParams.get('dateRange') || 'month';
+    const limit = parseInt(url.searchParams.get('limit') || '15');
 
     // Parse date range
-    const dateRange: DateRange = parseDateRange(dateRangeParam)
+    const dateRange: DateRange = parseDateRange(dateRangeParam);
 
     // Fetch rankings based on category
-    let rankings: any
+    let rankings: any;
 
     switch (category) {
       case 'preparers':
         rankings = {
           preparers: await getTop15Preparers(dateRange),
-        }
-        break
+        };
+        break;
 
       case 'affiliates':
         rankings = {
           affiliates: await getTop15Affiliates(dateRange),
-        }
-        break
+        };
+        break;
 
       case 'referrers':
         rankings = {
           referrers: await getTop15Referrers(dateRange),
-        }
-        break
+        };
+        break;
 
       case 'materials':
         rankings = {
           materials: await getTop15Materials(dateRange),
-        }
-        break
+        };
+        break;
 
       case 'locations':
         rankings = {
           locations: await getTop15Locations(dateRange),
-        }
-        break
+        };
+        break;
 
       case 'types':
         rankings = {
           materialTypes: await getTop15MaterialTypes(dateRange),
-        }
-        break
+        };
+        break;
 
       case 'all':
       default:
@@ -101,7 +98,7 @@ export async function GET(request: NextRequest) {
             getTop15Materials(dateRange),
             getTop15Locations(dateRange),
             getTop15MaterialTypes(dateRange),
-          ])
+          ]);
 
         rankings = {
           preparers,
@@ -110,8 +107,8 @@ export async function GET(request: NextRequest) {
           materials,
           locations,
           materialTypes,
-        }
-        break
+        };
+        break;
     }
 
     return NextResponse.json({
@@ -123,12 +120,9 @@ export async function GET(request: NextRequest) {
       },
       limit,
       generatedAt: new Date().toISOString(),
-    })
+    });
   } catch (error) {
-    logger.error('Admin analytics top performers error:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch top performers' },
-      { status: 500 }
-    )
+    logger.error('Admin analytics top performers error:', error);
+    return NextResponse.json({ error: 'Failed to fetch top performers' }, { status: 500 });
   }
 }

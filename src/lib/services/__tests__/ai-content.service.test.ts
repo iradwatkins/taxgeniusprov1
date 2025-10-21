@@ -35,7 +35,7 @@ describe('AI Content Service - Unit Tests', () => {
         bodyContent: '<p>Body content</p>',
         metaTitle: 'Meta Title',
         metaDescription: 'Meta Description',
-        qaAccordion: []
+        qaAccordion: [],
       };
 
       const sanitized = sanitizeAIContent(maliciousContent);
@@ -51,7 +51,7 @@ describe('AI Content Service - Unit Tests', () => {
         bodyContent: '<p>Content</p><script>fetch("evil.com")</script><p>More content</p>',
         metaTitle: 'Meta Title',
         metaDescription: 'Meta Description',
-        qaAccordion: []
+        qaAccordion: [],
       };
 
       const sanitized = sanitizeAIContent(maliciousContent);
@@ -68,7 +68,7 @@ describe('AI Content Service - Unit Tests', () => {
         bodyContent: '<p onclick="alert(\'xss\')">Click me</p>',
         metaTitle: 'Meta Title',
         metaDescription: 'Meta Description',
-        qaAccordion: []
+        qaAccordion: [],
       };
 
       const sanitized = sanitizeAIContent(maliciousContent);
@@ -84,7 +84,7 @@ describe('AI Content Service - Unit Tests', () => {
         bodyContent: '<p><a href="javascript:alert(\'xss\')">Click</a></p>',
         metaTitle: 'Meta Title',
         metaDescription: 'Meta Description',
-        qaAccordion: []
+        qaAccordion: [],
       };
 
       const sanitized = sanitizeAIContent(maliciousContent);
@@ -100,7 +100,7 @@ describe('AI Content Service - Unit Tests', () => {
         bodyContent: '<p>Content</p><iframe src="evil.com"></iframe>',
         metaTitle: 'Meta Title',
         metaDescription: 'Meta Description',
-        qaAccordion: []
+        qaAccordion: [],
       };
 
       const sanitized = sanitizeAIContent(maliciousContent);
@@ -115,7 +115,7 @@ describe('AI Content Service - Unit Tests', () => {
         bodyContent: '<img src="x" onerror="alert(\'xss\')">',
         metaTitle: 'Meta Title',
         metaDescription: 'Meta Description',
-        qaAccordion: []
+        qaAccordion: [],
       };
 
       const sanitized = sanitizeAIContent(maliciousContent);
@@ -128,10 +128,11 @@ describe('AI Content Service - Unit Tests', () => {
     it('should allow safe HTML tags in bodyContent', () => {
       const safeContent: GeneratedLandingPageContent = {
         headline: 'Atlanta Tax Preparation Services',
-        bodyContent: '<p>Welcome to <strong>Tax Genius</strong> in Atlanta.</p><ul><li>Tax Filing</li><li>IRS Audit</li></ul><h2>Our Services</h2>',
+        bodyContent:
+          '<p>Welcome to <strong>Tax Genius</strong> in Atlanta.</p><ul><li>Tax Filing</li><li>IRS Audit</li></ul><h2>Our Services</h2>',
         metaTitle: 'Atlanta Tax Prep | Tax Genius',
         metaDescription: 'Professional tax services in Atlanta',
-        qaAccordion: []
+        qaAccordion: [],
       };
 
       const sanitized = sanitizeAIContent(safeContent);
@@ -149,7 +150,7 @@ describe('AI Content Service - Unit Tests', () => {
         bodyContent: '<p>Content</p><div>Should be removed</div><span>Also removed</span>',
         metaTitle: 'Meta Title',
         metaDescription: 'Meta Description',
-        qaAccordion: []
+        qaAccordion: [],
       };
 
       const sanitized = sanitizeAIContent(unsafeContent);
@@ -171,13 +172,13 @@ describe('AI Content Service - Unit Tests', () => {
         qaAccordion: [
           {
             question: 'What is tax prep? <script>alert("xss")</script>',
-            answer: '<p>Answer text</p><script>fetch("evil.com")</script>'
+            answer: '<p>Answer text</p><script>fetch("evil.com")</script>',
           },
           {
             question: 'Safe question',
-            answer: '<p onclick="alert(\'xss\')">Safe answer</p>'
-          }
-        ]
+            answer: '<p onclick="alert(\'xss\')">Safe answer</p>',
+          },
+        ],
       };
 
       const sanitized = sanitizeAIContent(maliciousContent);
@@ -195,7 +196,7 @@ describe('AI Content Service - Unit Tests', () => {
         bodyContent: '<p>Body</p>',
         metaTitle: 'Title <script>alert("xss")</script>',
         metaDescription: 'Description <img src=x onerror="alert(\'xss\')">',
-        qaAccordion: []
+        qaAccordion: [],
       };
 
       const sanitized = sanitizeAIContent(maliciousContent);
@@ -216,7 +217,7 @@ describe('AI Content Service - Unit Tests', () => {
         bodyContent: '',
         metaTitle: '',
         metaDescription: '',
-        qaAccordion: []
+        qaAccordion: [],
       };
 
       const sanitized = sanitizeAIContent(emptyContent);
@@ -236,8 +237,8 @@ describe('AI Content Service - Unit Tests', () => {
         metaDescription: 'Meta Description',
         qaAccordion: [
           { question: 'Q1', answer: 'A1' },
-          { question: '', answer: '' }
-        ]
+          { question: '', answer: '' },
+        ],
       };
 
       const sanitized = sanitizeAIContent(content);
@@ -250,10 +251,11 @@ describe('AI Content Service - Unit Tests', () => {
     it('should preserve legitimate formatting in bodyContent', () => {
       const formattedContent: GeneratedLandingPageContent = {
         headline: 'Tax Services',
-        bodyContent: '<p>Tax Genius provides <strong>expert</strong> <em>tax preparation</em> services.</p><ul><li>Individual taxes</li><li>Business taxes</li></ul><h2>Why Choose Us?</h2><ol><li>Experienced</li><li>Affordable</li></ol>',
+        bodyContent:
+          '<p>Tax Genius provides <strong>expert</strong> <em>tax preparation</em> services.</p><ul><li>Individual taxes</li><li>Business taxes</li></ul><h2>Why Choose Us?</h2><ol><li>Experienced</li><li>Affordable</li></ol>',
         metaTitle: 'Meta Title',
         metaDescription: 'Meta Description',
-        qaAccordion: []
+        qaAccordion: [],
       };
 
       const sanitized = sanitizeAIContent(formattedContent);
@@ -270,19 +272,22 @@ describe('AI Content Service - Unit Tests', () => {
     it('should not modify safe content', () => {
       const safeContent: GeneratedLandingPageContent = {
         headline: 'Atlanta Tax Preparation Services - Expert Tax Filing',
-        bodyContent: '<p>Welcome to Tax Genius Atlanta. We offer professional tax preparation services for individuals and businesses.</p><h2>Our Services</h2><ul><li>Individual Tax Filing</li><li>Business Tax Returns</li><li>IRS Audit Support</li></ul>',
+        bodyContent:
+          '<p>Welcome to Tax Genius Atlanta. We offer professional tax preparation services for individuals and businesses.</p><h2>Our Services</h2><ul><li>Individual Tax Filing</li><li>Business Tax Returns</li><li>IRS Audit Support</li></ul>',
         metaTitle: 'Atlanta Tax Prep | Expert Tax Services | Tax Genius',
-        metaDescription: 'Professional tax preparation services in Atlanta. Expert tax filing, IRS audit support, and business tax returns. Book your appointment today.',
+        metaDescription:
+          'Professional tax preparation services in Atlanta. Expert tax filing, IRS audit support, and business tax returns. Book your appointment today.',
         qaAccordion: [
           {
             question: 'What are your hours?',
-            answer: '<p>We are open Monday-Friday 9am-6pm.</p>'
+            answer: '<p>We are open Monday-Friday 9am-6pm.</p>',
           },
           {
             question: 'Do you offer virtual appointments?',
-            answer: '<p>Yes, we offer <strong>secure virtual appointments</strong> via video call.</p>'
-          }
-        ]
+            answer:
+              '<p>Yes, we offer <strong>secure virtual appointments</strong> via video call.</p>',
+          },
+        ],
       };
 
       const sanitized = sanitizeAIContent(safeContent);

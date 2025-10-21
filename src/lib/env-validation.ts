@@ -7,8 +7,8 @@
  * Usage: Import this file in your root layout or API route to trigger validation.
  */
 
-import { z } from 'zod'
-import { logger } from '@/lib/logger'
+import { z } from 'zod';
+import { logger } from '@/lib/logger';
 
 const envSchema = z.object({
   // Authentication & Security
@@ -36,8 +36,14 @@ const envSchema = z.object({
   R2_PUBLIC_URL: z.string().url().optional(),
 
   // Payment Processing
-  STRIPE_SECRET_KEY: z.string().startsWith('sk_', 'STRIPE_SECRET_KEY must start with sk_').optional(),
-  STRIPE_WEBHOOK_SECRET: z.string().startsWith('whsec_', 'STRIPE_WEBHOOK_SECRET must start with whsec_').optional(),
+  STRIPE_SECRET_KEY: z
+    .string()
+    .startsWith('sk_', 'STRIPE_SECRET_KEY must start with sk_')
+    .optional(),
+  STRIPE_WEBHOOK_SECRET: z
+    .string()
+    .startsWith('whsec_', 'STRIPE_WEBHOOK_SECRET must start with whsec_')
+    .optional(),
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().startsWith('pk_').optional(),
 
   SQUARE_ACCESS_TOKEN: z.string().optional(),
@@ -55,7 +61,7 @@ const envSchema = z.object({
   // Sentry (Error Monitoring)
   SENTRY_DSN: z.string().url().optional(),
   NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
-})
+});
 
 /**
  * Validated and type-safe environment variables
@@ -63,57 +69,57 @@ const envSchema = z.object({
  */
 export const env = (() => {
   try {
-    return envSchema.parse(process.env)
+    return envSchema.parse(process.env);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      logger.error('❌ Invalid environment variables:')
+      logger.error('❌ Invalid environment variables:');
       error.errors.forEach((err) => {
-        logger.error(`  - ${err.path.join('.')}: ${err.message}`)
-      })
+        logger.error(`  - ${err.path.join('.')}: ${err.message}`);
+      });
 
       // In production, throw error to prevent app from starting with invalid config
       if (process.env.NODE_ENV === 'production') {
-        throw new Error('Invalid environment configuration. Check logs above.')
+        throw new Error('Invalid environment configuration. Check logs above.');
       }
 
       // In development, show warnings but allow app to continue
-      logger.warn('\n⚠️  WARNING: Running with invalid environment configuration')
-      logger.warn('Some features may not work correctly.\n')
+      logger.warn('\n⚠️  WARNING: Running with invalid environment configuration');
+      logger.warn('Some features may not work correctly.\n');
     }
 
     // Return process.env as fallback (with type assertion for development)
-    return process.env as z.infer<typeof envSchema>
+    return process.env as z.infer<typeof envSchema>;
   }
-})()
+})();
 
 /**
  * Runtime environment variable getter with validation
  * Use this for optional environment variables that might not be set
  */
-export function getEnv<K extends keyof typeof env>(key: K): typeof env[K] | undefined {
-  return env[key]
+export function getEnv<K extends keyof typeof env>(key: K): (typeof env)[K] | undefined {
+  return env[key];
 }
 
 /**
  * Require a specific environment variable or throw an error
  * Use this for critical variables that MUST be set
  */
-export function requireEnv<K extends keyof typeof env>(key: K): NonNullable<typeof env[K]> {
-  const value = env[key]
+export function requireEnv<K extends keyof typeof env>(key: K): NonNullable<(typeof env)[K]> {
+  const value = env[key];
   if (value === undefined || value === null || value === '') {
-    throw new Error(`Required environment variable ${key} is not set`)
+    throw new Error(`Required environment variable ${key} is not set`);
   }
-  return value as NonNullable<typeof env[K]>
+  return value as NonNullable<(typeof env)[K]>;
 }
 
 /**
  * Check if we're in a specific environment
  */
-export const isDevelopment = env.NODE_ENV === 'development'
-export const isProduction = env.NODE_ENV === 'production'
-export const isTest = env.NODE_ENV === 'test'
+export const isDevelopment = env.NODE_ENV === 'development';
+export const isProduction = env.NODE_ENV === 'production';
+export const isTest = env.NODE_ENV === 'test';
 
 // Log environment validation status
 if (isDevelopment) {
-  logger.info('✅ Environment variables validated successfully')
+  logger.info('✅ Environment variables validated successfully');
 }

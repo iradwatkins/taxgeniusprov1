@@ -1,14 +1,14 @@
-'use client'
+'use client';
 
-import { useState, useEffect, use } from 'react'
-import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { useState, useEffect, use } from 'react';
+import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,15 +18,15 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from '@/components/ui/alert-dialog';
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
-} from '@/components/ui/table'
+  TableRow,
+} from '@/components/ui/table';
 import {
   DollarSign,
   Clock,
@@ -37,167 +37,163 @@ import {
   User,
   Mail,
   Calendar,
-  CreditCard
-} from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
-import { logger } from '@/lib/logger'
+  CreditCard,
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/lib/logger';
 
 interface PayoutRequest {
-  id: string
+  id: string;
   referrer: {
-    id: string
-    firstName: string
-    lastName: string
-    email: string
-    phone: string | null
-  }
-  amount: number
-  commissionIds: string[]
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string | null;
+  };
+  amount: number;
+  commissionIds: string[];
   commissions: Array<{
-    id: string
-    amount: number
-    clientName: string
-    createdAt: string
-  }>
-  status: string
-  paymentMethod: string
-  notes: string | null
-  requestedAt: string
-  processedAt: string | null
-  paymentRef: string | null
+    id: string;
+    amount: number;
+    clientName: string;
+    createdAt: string;
+  }>;
+  status: string;
+  paymentMethod: string;
+  notes: string | null;
+  requestedAt: string;
+  processedAt: string | null;
+  paymentRef: string | null;
 }
 
-export default function PayoutDetailPage({
-  params
-}: {
-  params: Promise<{ id: string }>
-}) {
-  const resolvedParams = use(params)
-  const router = useRouter()
-  const { toast } = useToast()
-  const [payout, setPayout] = useState<PayoutRequest | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [processing, setProcessing] = useState(false)
-  const [showApproveDialog, setShowApproveDialog] = useState(false)
-  const [showRejectDialog, setShowRejectDialog] = useState(false)
-  const [paymentRef, setPaymentRef] = useState('')
-  const [rejectionNotes, setRejectionNotes] = useState('')
+export default function PayoutDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
+  const router = useRouter();
+  const { toast } = useToast();
+  const [payout, setPayout] = useState<PayoutRequest | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
+  const [showApproveDialog, setShowApproveDialog] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [paymentRef, setPaymentRef] = useState('');
+  const [rejectionNotes, setRejectionNotes] = useState('');
 
   useEffect(() => {
-    fetchPayoutDetails()
-  }, [resolvedParams.id])
+    fetchPayoutDetails();
+  }, [resolvedParams.id]);
 
   const fetchPayoutDetails = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const response = await fetch(`/api/admin/payouts/${resolvedParams.id}`)
+      const response = await fetch(`/api/admin/payouts/${resolvedParams.id}`);
       if (response.ok) {
-        const data = await response.json()
-        setPayout(data)
+        const data = await response.json();
+        setPayout(data);
       } else {
         toast({
           title: 'Error',
           description: 'Failed to load payout details',
-          variant: 'destructive'
-        })
+          variant: 'destructive',
+        });
       }
     } catch (error) {
-      logger.error('Error fetching payout:', error)
+      logger.error('Error fetching payout:', error);
       toast({
         title: 'Error',
         description: 'Failed to load payout details',
-        variant: 'destructive'
-      })
+        variant: 'destructive',
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleApprovePayout = async () => {
     if (!paymentRef.trim()) {
       toast({
         title: 'Validation Error',
         description: 'Please enter a payment reference number',
-        variant: 'destructive'
-      })
-      return
+        variant: 'destructive',
+      });
+      return;
     }
 
-    setProcessing(true)
+    setProcessing(true);
     try {
       const response = await fetch(`/api/admin/payouts/${resolvedParams.id}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentRef })
-      })
+        body: JSON.stringify({ paymentRef }),
+      });
 
       if (response.ok) {
         toast({
           title: 'Success',
-          description: 'Payout approved and processed successfully'
-        })
-        router.push('/admin/payouts')
+          description: 'Payout approved and processed successfully',
+        });
+        router.push('/admin/payouts');
       } else {
-        const error = await response.json()
+        const error = await response.json();
         toast({
           title: 'Error',
           description: error.error || 'Failed to approve payout',
-          variant: 'destructive'
-        })
+          variant: 'destructive',
+        });
       }
     } catch (error) {
       toast({
         title: 'Error',
         description: 'Failed to approve payout',
-        variant: 'destructive'
-      })
+        variant: 'destructive',
+      });
     } finally {
-      setProcessing(false)
-      setShowApproveDialog(false)
+      setProcessing(false);
+      setShowApproveDialog(false);
     }
-  }
+  };
 
   const handleRejectPayout = async () => {
-    setProcessing(true)
+    setProcessing(true);
     try {
       const response = await fetch(`/api/admin/payouts/${resolvedParams.id}/reject`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notes: rejectionNotes })
-      })
+        body: JSON.stringify({ notes: rejectionNotes }),
+      });
 
       if (response.ok) {
         toast({
           title: 'Success',
-          description: 'Payout rejected'
-        })
-        router.push('/admin/payouts')
+          description: 'Payout rejected',
+        });
+        router.push('/admin/payouts');
       } else {
-        const error = await response.json()
+        const error = await response.json();
         toast({
           title: 'Error',
           description: error.error || 'Failed to reject payout',
-          variant: 'destructive'
-        })
+          variant: 'destructive',
+        });
       }
     } catch (error) {
       toast({
         title: 'Error',
         description: 'Failed to reject payout',
-        variant: 'destructive'
-      })
+        variant: 'destructive',
+      });
     } finally {
-      setProcessing(false)
-      setShowRejectDialog(false)
+      setProcessing(false);
+      setShowRejectDialog(false);
     }
-  }
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
-    }).format(amount)
-  }
+      currency: 'USD',
+    }).format(amount);
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -205,28 +201,31 @@ export default function PayoutDetailPage({
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+      minute: '2-digit',
+    });
+  };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline', icon: any }> = {
+    const variants: Record<
+      string,
+      { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: any }
+    > = {
       PENDING: { variant: 'outline', icon: Clock },
       APPROVED: { variant: 'secondary', icon: CheckCircle },
       PAID: { variant: 'default', icon: CheckCircle },
-      REJECTED: { variant: 'destructive', icon: XCircle }
-    }
+      REJECTED: { variant: 'destructive', icon: XCircle },
+    };
 
-    const config = variants[status] || variants.PENDING
-    const Icon = config.icon
+    const config = variants[status] || variants.PENDING;
+    const Icon = config.icon;
 
     return (
       <Badge variant={config.variant} className="flex items-center gap-1 w-fit">
         <Icon className="h-3 w-3" />
         {status}
       </Badge>
-    )
-  }
+    );
+  };
 
   if (loading) {
     return (
@@ -239,7 +238,7 @@ export default function PayoutDetailPage({
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (!payout) {
@@ -255,10 +254,10 @@ export default function PayoutDetailPage({
           </div>
         </div>
       </div>
-    )
+    );
   }
 
-  const isPending = payout.status === 'PENDING'
+  const isPending = payout.status === 'PENDING';
 
   return (
     <div className="min-h-screen bg-background">
@@ -301,7 +300,9 @@ export default function PayoutDetailPage({
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <div>
                     <p className="text-sm font-medium">Requested At</p>
-                    <p className="text-sm text-muted-foreground">{formatDate(payout.requestedAt)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {formatDate(payout.requestedAt)}
+                    </p>
                   </div>
                 </div>
 
@@ -332,9 +333,7 @@ export default function PayoutDetailPage({
                     <CreditCard className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium">Payment Reference</p>
-                      <p className="text-sm font-mono text-muted-foreground">
-                        {payout.paymentRef}
-                      </p>
+                      <p className="text-sm font-mono text-muted-foreground">{payout.paymentRef}</p>
                     </div>
                   </div>
                 )}
@@ -481,7 +480,8 @@ export default function PayoutDetailPage({
             <AlertDialogHeader>
               <AlertDialogTitle>Approve Payout Request</AlertDialogTitle>
               <AlertDialogDescription>
-                You are about to approve a payout of <strong>{formatCurrency(payout.amount)}</strong> to{' '}
+                You are about to approve a payout of{' '}
+                <strong>{formatCurrency(payout.amount)}</strong> to{' '}
                 <strong>
                   {payout.referrer.firstName} {payout.referrer.lastName}
                 </strong>
@@ -550,5 +550,5 @@ export default function PayoutDetailPage({
         </AlertDialog>
       </div>
     </div>
-  )
+  );
 }

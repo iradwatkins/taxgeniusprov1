@@ -5,14 +5,14 @@
  * Allows admins to preview the application from other roles' perspectives
  */
 
-import { cookies } from 'next/headers'
-import { UserRole } from '@/lib/permissions'
-import type { ViewingRoleState, EffectiveRoleInfo } from '@/types/role-switcher'
-import { logger } from '@/lib/logger'
+import { cookies } from 'next/headers';
+import { UserRole } from '@/lib/permissions';
+import type { ViewingRoleState, EffectiveRoleInfo } from '@/types/role-switcher';
+import { logger } from '@/lib/logger';
 
 // Cookie configuration
-export const VIEWING_ROLE_COOKIE_NAME = '__tgp_view_role'
-export const VIEWING_ROLE_COOKIE_MAX_AGE = 7 * 24 * 60 * 60 // 7 days in seconds
+export const VIEWING_ROLE_COOKIE_NAME = '__tgp_view_role';
+export const VIEWING_ROLE_COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 days in seconds
 
 /**
  * Set viewing role cookie (server-side)
@@ -22,14 +22,14 @@ export async function setViewingRoleCookie(
   viewingRole: UserRole,
   adminUserId: string
 ): Promise<void> {
-  const cookieStore = await cookies()
+  const cookieStore = await cookies();
 
   const state: ViewingRoleState = {
     viewingRole,
     viewingRoleName: formatRoleName(viewingRole),
     timestamp: Date.now(),
     adminUserId,
-  }
+  };
 
   cookieStore.set(VIEWING_ROLE_COOKIE_NAME, JSON.stringify(state), {
     httpOnly: true,
@@ -37,41 +37,41 @@ export async function setViewingRoleCookie(
     sameSite: 'lax',
     maxAge: VIEWING_ROLE_COOKIE_MAX_AGE,
     path: '/',
-  })
+  });
 }
 
 /**
  * Get viewing role from cookie (server-side)
  */
 export async function getViewingRoleCookie(): Promise<ViewingRoleState | null> {
-  const cookieStore = await cookies()
-  const cookie = cookieStore.get(VIEWING_ROLE_COOKIE_NAME)
+  const cookieStore = await cookies();
+  const cookie = cookieStore.get(VIEWING_ROLE_COOKIE_NAME);
 
   if (!cookie?.value) {
-    return null
+    return null;
   }
 
   try {
-    const state = JSON.parse(cookie.value) as ViewingRoleState
+    const state = JSON.parse(cookie.value) as ViewingRoleState;
 
     // Validate required fields
     if (!state.viewingRole || !state.adminUserId || !state.timestamp) {
-      return null
+      return null;
     }
 
     // Check if expired (7-day window)
-    const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000
-    const now = Date.now()
+    const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
     if (now - state.timestamp > sevenDaysInMs) {
       // Cookie expired, clear it
-      await clearViewingRoleCookie()
-      return null
+      await clearViewingRoleCookie();
+      return null;
     }
 
-    return state
+    return state;
   } catch (error) {
-    logger.error('Failed to parse viewing role cookie:', error)
-    return null
+    logger.error('Failed to parse viewing role cookie:', error);
+    return null;
   }
 }
 
@@ -79,8 +79,8 @@ export async function getViewingRoleCookie(): Promise<ViewingRoleState | null> {
  * Clear viewing role cookie (server-side)
  */
 export async function clearViewingRoleCookie(): Promise<void> {
-  const cookieStore = await cookies()
-  cookieStore.delete(VIEWING_ROLE_COOKIE_NAME)
+  const cookieStore = await cookies();
+  cookieStore.delete(VIEWING_ROLE_COOKIE_NAME);
 }
 
 /**
@@ -97,29 +97,29 @@ export async function getEffectiveRole(
       actualRole,
       effectiveRole: actualRole,
       isViewingAsOtherRole: false,
-    }
+    };
   }
 
   // Check for viewing role cookie
-  const viewingState = await getViewingRoleCookie()
+  const viewingState = await getViewingRoleCookie();
 
   if (!viewingState) {
     return {
       actualRole,
       effectiveRole: actualRole,
       isViewingAsOtherRole: false,
-    }
+    };
   }
 
   // Verify the viewing role is for this admin
   if (viewingState.adminUserId !== userId) {
     // Cookie is for a different admin, clear it
-    await clearViewingRoleCookie()
+    await clearViewingRoleCookie();
     return {
       actualRole,
       effectiveRole: actualRole,
       isViewingAsOtherRole: false,
-    }
+    };
   }
 
   // Return effective role info
@@ -128,7 +128,7 @@ export async function getEffectiveRole(
     effectiveRole: viewingState.viewingRole,
     isViewingAsOtherRole: true,
     viewingRoleName: viewingState.viewingRoleName,
-  }
+  };
 }
 
 /**
@@ -138,20 +138,20 @@ export async function getEffectiveRole(
 export function canSwitchToRole(actualRole: UserRole, targetRole: UserRole): boolean {
   // Only admins can switch roles
   if (actualRole !== 'super_admin' && actualRole !== 'admin') {
-    return false
+    return false;
   }
 
   // Super admins can view as any role including admin
   if (actualRole === 'super_admin') {
-    return true
+    return true;
   }
 
   // Regular admins cannot view as super_admin (privilege escalation prevention)
   if (actualRole === 'admin' && targetRole === 'super_admin') {
-    return false
+    return false;
   }
 
-  return true
+  return true;
 }
 
 /**
@@ -165,9 +165,9 @@ export function formatRoleName(role: UserRole): string {
     affiliate: 'Affiliate',
     referrer: 'Referrer',
     client: 'Client',
-  }
+  };
 
-  return roleNames[role] || role
+  return roleNames[role] || role;
 }
 
 /**
@@ -181,9 +181,9 @@ export function getRoleColor(role: UserRole): string {
     affiliate: 'purple',
     referrer: 'green',
     client: 'gray',
-  }
+  };
 
-  return colors[role] || 'gray'
+  return colors[role] || 'gray';
 }
 
 /**
@@ -197,9 +197,9 @@ export function getRoleBadgeClasses(role: UserRole): string {
     affiliate: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
     referrer: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
     client: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300',
-  }
+  };
 
-  return classes[role] || classes.client
+  return classes[role] || classes.client;
 }
 
 /**
@@ -207,38 +207,36 @@ export function getRoleBadgeClasses(role: UserRole): string {
  */
 export function getViewingRoleCookieClient(): ViewingRoleState | null {
   if (typeof document === 'undefined') {
-    return null
+    return null;
   }
 
-  const cookies = document.cookie.split(';')
-  const viewingCookie = cookies.find((c) =>
-    c.trim().startsWith(`${VIEWING_ROLE_COOKIE_NAME}=`)
-  )
+  const cookies = document.cookie.split(';');
+  const viewingCookie = cookies.find((c) => c.trim().startsWith(`${VIEWING_ROLE_COOKIE_NAME}=`));
 
   if (!viewingCookie) {
-    return null
+    return null;
   }
 
   try {
-    const value = viewingCookie.split('=')[1]
-    const state = JSON.parse(decodeURIComponent(value)) as ViewingRoleState
+    const value = viewingCookie.split('=')[1];
+    const state = JSON.parse(decodeURIComponent(value)) as ViewingRoleState;
 
     // Validate required fields
     if (!state.viewingRole || !state.adminUserId || !state.timestamp) {
-      return null
+      return null;
     }
 
     // Check if expired (7-day window)
-    const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000
-    const now = Date.now()
+    const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
     if (now - state.timestamp > sevenDaysInMs) {
-      return null
+      return null;
     }
 
-    return state
+    return state;
   } catch (error) {
-    logger.error('Failed to parse viewing role cookie (client):', error)
-    return null
+    logger.error('Failed to parse viewing role cookie (client):', error);
+    return null;
   }
 }
 
@@ -253,12 +251,12 @@ export async function setViewingRoleClient(role: UserRole): Promise<boolean> {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ role }),
-    })
+    });
 
-    return response.ok
+    return response.ok;
   } catch (error) {
-    logger.error('Failed to set viewing role via API:', error)
-    return false
+    logger.error('Failed to set viewing role via API:', error);
+    return false;
   }
 }
 
@@ -269,11 +267,11 @@ export async function clearViewingRoleClient(): Promise<boolean> {
   try {
     const response = await fetch('/api/admin/switch-view-role', {
       method: 'DELETE',
-    })
+    });
 
-    return response.ok
+    return response.ok;
   } catch (error) {
-    logger.error('Failed to clear viewing role via API:', error)
-    return false
+    logger.error('Failed to clear viewing role via API:', error);
+    return false;
   }
 }

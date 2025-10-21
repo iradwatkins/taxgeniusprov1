@@ -1,74 +1,74 @@
-import React, { useState } from 'react'
-import { Bell, Gift, Trophy, Target, X, ExternalLink } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import React, { useState } from 'react';
+import { Bell, Gift, Trophy, Target, X, ExternalLink } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useNotifications, useMarkNotificationAsRead, useMarkNotificationAsActioned } from '@/hooks/useReferrerData'
-import { useToast } from '@/hooks/use-toast'
-import type { Notification } from '@/lib/supabase'
+  useNotifications,
+  useMarkNotificationAsRead,
+  useMarkNotificationAsActioned,
+} from '@/hooks/useReferrerData';
+import { useToast } from '@/hooks/use-toast';
+import type { Notification } from '@/lib/supabase';
 
 interface NotificationBellProps {
-  userId?: string
+  userId?: string;
 }
 
 export const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) => {
-  const { toast } = useToast()
-  const [open, setOpen] = useState(false)
-  
-  const { data: notifications, isLoading } = useNotifications(userId)
-  const { mutate: markAsRead } = useMarkNotificationAsRead()
-  const { mutate: markAsActioned } = useMarkNotificationAsActioned()
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
 
-  const unreadCount = notifications?.filter(n => !n.is_read).length || 0
+  const { data: notifications, isLoading } = useNotifications(userId);
+  const { mutate: markAsRead } = useMarkNotificationAsRead();
+  const { mutate: markAsActioned } = useMarkNotificationAsActioned();
+
+  const unreadCount = notifications?.filter((n) => !n.is_read).length || 0;
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'trip_reward':
-        return <Gift className="h-4 w-4 text-green-600" />
+        return <Gift className="h-4 w-4 text-green-600" />;
       case 'contest_win':
-        return <Trophy className="h-4 w-4 text-yellow-600" />
+        return <Trophy className="h-4 w-4 text-yellow-600" />;
       case 'milestone':
-        return <Target className="h-4 w-4 text-blue-600" />
+        return <Target className="h-4 w-4 text-blue-600" />;
       default:
-        return <Bell className="h-4 w-4 text-gray-600" />
+        return <Bell className="h-4 w-4 text-gray-600" />;
     }
-  }
+  };
 
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.is_read) {
-      markAsRead(notification.id)
+      markAsRead(notification.id);
     }
-  }
+  };
 
   const handleActionClick = (notification: Notification) => {
     if (notification.action_url) {
-      window.open(notification.action_url, '_blank')
+      window.open(notification.action_url, '_blank');
     }
-    markAsActioned(notification.id)
-    
+    markAsActioned(notification.id);
+
     toast({
       title: 'Action completed',
       description: 'You have been redirected to complete the action.',
-    })
-  }
+    });
+  };
 
   const formatNotificationDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
-    
-    if (diffInHours < 1) return 'Just now'
-    if (diffInHours < 24) return `${diffInHours}h ago`
-    if (diffInHours < 48) return 'Yesterday'
-    return date.toLocaleDateString()
-  }
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
 
-  if (!userId) return null
+    if (diffInHours < 1) return 'Just now';
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    if (diffInHours < 48) return 'Yesterday';
+    return date.toLocaleDateString();
+  };
+
+  if (!userId) return null;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -76,8 +76,8 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) =>
         <Button variant="ghost" size="sm" className="relative">
           <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
-            <Badge 
-              variant="destructive" 
+            <Badge
+              variant="destructive"
               className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
             >
               {unreadCount > 9 ? '9+' : unreadCount}
@@ -94,7 +94,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) =>
             </p>
           )}
         </div>
-        
+
         <div className="max-h-96 overflow-y-auto">
           {isLoading ? (
             <div className="p-4 space-y-3">
@@ -124,9 +124,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) =>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <h5 className="text-sm font-medium truncate">
-                          {notification.title}
-                        </h5>
+                        <h5 className="text-sm font-medium truncate">{notification.title}</h5>
                         {!notification.is_read && (
                           <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-1" />
                         )}
@@ -144,8 +142,8 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) =>
                             variant="outline"
                             className="h-6 px-2 text-xs"
                             onClick={(e) => {
-                              e.stopPropagation()
-                              handleActionClick(notification)
+                              e.stopPropagation();
+                              handleActionClick(notification);
                             }}
                           >
                             <ExternalLink className="h-3 w-3 mr-1" />
@@ -166,7 +164,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) =>
             </div>
           )}
         </div>
-        
+
         {notifications && notifications.length > 10 && (
           <div className="border-t border-border p-2">
             <Button variant="ghost" size="sm" className="w-full">
@@ -176,7 +174,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ userId }) =>
         )}
       </PopoverContent>
     </Popover>
-  )
-}
+  );
+};
 
-export default NotificationBell
+export default NotificationBell;

@@ -15,181 +15,181 @@
  * - Client/Referrer: Can ONLY see their own referral data
  */
 
-import { prisma } from '@/lib/prisma'
-import { UserRole } from '@/lib/permissions'
+import { prisma } from '@/lib/prisma';
+import { UserRole } from '@prisma/client';
 
 // ============ TypeScript Interfaces ============
 
 export interface LeadMetrics {
-  clicks: number
-  leads: number
-  conversions: number
-  returnsFiled: number
-  conversionRate: number
-  revenue: number
-  growthRate: number
+  clicks: number;
+  leads: number;
+  conversions: number;
+  returnsFiled: number;
+  conversionRate: number;
+  revenue: number;
+  growthRate: number;
 }
 
 export interface PeriodComparison {
-  current: LeadMetrics
-  previous: LeadMetrics
+  current: LeadMetrics;
+  previous: LeadMetrics;
   changePercent: {
-    clicks: number
-    leads: number
-    conversions: number
-    returnsFiled: number
-    revenue: number
-  }
+    clicks: number;
+    leads: number;
+    conversions: number;
+    returnsFiled: number;
+    revenue: number;
+  };
 }
 
 export interface CompanyLeadsSummary {
-  taxGeniusLeads: LeadMetrics
-  taxPreparerLeads: LeadMetrics
-  affiliateLeads: LeadMetrics
-  clientReferrals: LeadMetrics
-  totalRevenue: number
-  period: '7d' | '30d' | '90d' | 'all'
-  periodStartDate: Date
-  periodEndDate: Date
+  taxGeniusLeads: LeadMetrics;
+  taxPreparerLeads: LeadMetrics;
+  affiliateLeads: LeadMetrics;
+  clientReferrals: LeadMetrics;
+  totalRevenue: number;
+  period: '7d' | '30d' | '90d' | 'all';
+  periodStartDate: Date;
+  periodEndDate: Date;
 }
 
 export interface LinkPerformance {
-  linkId: string
-  linkCode: string
-  linkType: string
-  title: string | null
-  linkName: string // Human-readable name
-  linkUrl: string // Full URL
-  clicks: number
-  leads: number // Count of leads generated
-  conversions: number
-  conversionRate: number
-  revenue: number
-  commission?: number // For affiliates
-  reward?: number // For referrers
-  createdAt: Date
+  linkId: string;
+  linkCode: string;
+  linkType: string;
+  title: string | null;
+  linkName: string; // Human-readable name
+  linkUrl: string; // Full URL
+  clicks: number;
+  leads: number; // Count of leads generated
+  conversions: number;
+  conversionRate: number;
+  revenue: number;
+  commission?: number; // For affiliates
+  reward?: number; // For referrers
+  createdAt: Date;
 }
 
 export interface LeadSummary {
-  id: string
-  firstName: string
-  lastName: string
-  name: string // Computed: firstName + lastName
-  email: string
-  phone: string
-  status: string
-  source: string | null
-  createdAt: Date
-  lastContactedAt: Date | null
-  contactMethod: string | null
+  id: string;
+  firstName: string;
+  lastName: string;
+  name: string; // Computed: firstName + lastName
+  email: string;
+  phone: string;
+  status: string;
+  source: string | null;
+  createdAt: Date;
+  lastContactedAt: Date | null;
+  contactMethod: string | null;
 }
 
 export interface PreparerAnalytics {
-  preparerId: string
-  preparerName: string
-  preparerEmail: string
-  marketingLinksCount: number
-  clicks: number
-  leads: number
-  conversions: number
-  returnsFiled: number
-  conversionRate: number
-  revenue: number
-  lastActive: Date | null
-  linkBreakdown: LinkPerformance[]
-  recentLeads: LeadSummary[]
+  preparerId: string;
+  preparerName: string;
+  preparerEmail: string;
+  marketingLinksCount: number;
+  clicks: number;
+  leads: number;
+  conversions: number;
+  returnsFiled: number;
+  conversionRate: number;
+  revenue: number;
+  lastActive: Date | null;
+  linkBreakdown: LinkPerformance[];
+  recentLeads: LeadSummary[];
 }
 
 export interface CampaignPerformance {
-  campaignId: string
-  campaignName: string
-  campaignType: string
-  clicks: number
-  leads: number
-  signups: number
-  conversionRate: number
-  createdAt: Date
+  campaignId: string;
+  campaignName: string;
+  campaignType: string;
+  clicks: number;
+  leads: number;
+  signups: number;
+  conversionRate: number;
+  createdAt: Date;
 }
 
 export interface AffiliateAnalytics {
-  affiliateId: string
-  affiliateName: string
-  affiliateEmail: string
-  campaignsCount: number // Alias for marketingLinksCount
-  marketingLinksCount: number
-  clicks: number
-  leads: number
-  signups: number
-  conversions: number // Same as signups for affiliates
-  returnsFiled: number
-  conversionRate: number
-  revenue: number // Total commissions earned
-  commissionsEarned: number
-  commissionsPaid: number
-  commissionsPending: number
-  lastActive: Date | null
-  campaignBreakdown: CampaignPerformance[]
-  linkBreakdown: LinkPerformance[]
-  recentLeads: LeadSummary[]
+  affiliateId: string;
+  affiliateName: string;
+  affiliateEmail: string;
+  campaignsCount: number; // Alias for marketingLinksCount
+  marketingLinksCount: number;
+  clicks: number;
+  leads: number;
+  signups: number;
+  conversions: number; // Same as signups for affiliates
+  returnsFiled: number;
+  conversionRate: number;
+  revenue: number; // Total commissions earned
+  commissionsEarned: number;
+  commissionsPaid: number;
+  commissionsPending: number;
+  lastActive: Date | null;
+  campaignBreakdown: CampaignPerformance[];
+  linkBreakdown: LinkPerformance[];
+  recentLeads: LeadSummary[];
 }
 
 export interface ReferralRecord {
-  referralId: string
-  referredName: string
-  referredEmail: string
-  status: string
-  signupDate: Date
-  returnFiledDate: Date | null
-  commissionEarned: number
+  referralId: string;
+  referredName: string;
+  referredEmail: string;
+  status: string;
+  signupDate: Date;
+  returnFiledDate: Date | null;
+  commissionEarned: number;
 }
 
 export interface ClientReferralAnalytics {
-  clientId: string
-  clientName: string
-  clientEmail: string
-  referralLinksCount: number
-  referralsSent: number // Alias for leads
-  clicks: number
-  leads: number // Same as referralsSent
-  conversions: number
-  returnsFiled: number
-  conversionRate: number
-  revenue: number // Total rewards value
-  rewardsEarned: number
-  rewardsPending: number
-  lastActive: Date | null
-  linkBreakdown: LinkPerformance[]
-  referralHistory: ReferralRecord[]
-  recentLeads: LeadSummary[]
+  clientId: string;
+  clientName: string;
+  clientEmail: string;
+  referralLinksCount: number;
+  referralsSent: number; // Alias for leads
+  clicks: number;
+  leads: number; // Same as referralsSent
+  conversions: number;
+  returnsFiled: number;
+  conversionRate: number;
+  revenue: number; // Total rewards value
+  rewardsEarned: number;
+  rewardsPending: number;
+  lastActive: Date | null;
+  linkBreakdown: LinkPerformance[];
+  referralHistory: ReferralRecord[];
+  recentLeads: LeadSummary[];
 }
 
 export interface ConversionFunnelData {
   stages: {
-    name: string
-    count: number
-    percentage: number
-    dropoff: number
-  }[]
+    name: string;
+    count: number;
+    percentage: number;
+    dropoff: number;
+  }[];
 }
 
 export interface SourceBreakdownData {
   sources: {
-    name: string
-    count: number
-    percentage: number
-    revenue: number
-  }[]
+    name: string;
+    count: number;
+    percentage: number;
+    revenue: number;
+  }[];
 }
 
 export interface TopPerformer {
-  id: string
-  name: string
-  email: string
-  type: 'preparer' | 'affiliate' | 'client'
-  totalLeads: number
-  conversions: number
-  conversionRate: number
-  revenue: number
+  id: string;
+  name: string;
+  email: string;
+  type: 'preparer' | 'affiliate' | 'client';
+  totalLeads: number;
+  conversions: number;
+  conversionRate: number;
+  revenue: number;
 }
 
 // ============ Helper Functions ============
@@ -203,63 +203,69 @@ async function getProfileId(userIdOrProfileId: string): Promise<string | null> {
   let profile = await prisma.profile.findUnique({
     where: { clerkUserId: userIdOrProfileId },
     select: { id: true },
-  })
+  });
 
   // If not found, check if it's already a profile ID
   if (!profile) {
     profile = await prisma.profile.findUnique({
       where: { id: userIdOrProfileId },
       select: { id: true },
-    })
+    });
   }
 
-  return profile?.id || null
+  return profile?.id || null;
 }
 
 /**
  * Get date range based on period
  */
-function getPeriodDateRange(period: '7d' | '30d' | '90d' | 'all' = '30d'): { start: Date; end: Date } {
-  const end = new Date()
-  let start = new Date()
+function getPeriodDateRange(period: '7d' | '30d' | '90d' | 'all' = '30d'): {
+  start: Date;
+  end: Date;
+} {
+  const end = new Date();
+  let start = new Date();
 
   switch (period) {
     case '7d':
-      start.setDate(end.getDate() - 7)
-      break
+      start.setDate(end.getDate() - 7);
+      break;
     case '30d':
-      start.setDate(end.getDate() - 30)
-      break
+      start.setDate(end.getDate() - 30);
+      break;
     case '90d':
-      start.setDate(end.getDate() - 90)
-      break
+      start.setDate(end.getDate() - 90);
+      break;
     case 'all':
-      start = new Date('2020-01-01') // Company inception
-      break
+      start = new Date('2020-01-01'); // Company inception
+      break;
   }
 
-  return { start, end }
+  return { start, end };
 }
 
 /**
  * Get previous period date range for comparison
  */
-function getPreviousPeriodDateRange(period: '7d' | '30d' | '90d' | 'all' = '30d'): { start: Date; end: Date } {
-  const currentRange = getPeriodDateRange(period)
-  const duration = currentRange.end.getTime() - currentRange.start.getTime()
+function getPreviousPeriodDateRange(period: '7d' | '30d' | '90d' | 'all' = '30d'): {
+  start: Date;
+  end: Date;
+} {
+  const currentRange = getPeriodDateRange(period);
+  const duration = currentRange.end.getTime() - currentRange.start.getTime();
 
-  const end = new Date(currentRange.start.getTime() - 1)
-  const start = new Date(end.getTime() - duration)
+  const end = new Date(currentRange.start.getTime() - 1);
+  const start = new Date(end.getTime() - duration);
 
-  return { start, end }
+  return { start, end };
 }
 
 /**
  * Calculate growth rate percentage
  */
 function calculateGrowthRate(current: number, previous: number): number {
-  if (previous === 0) return current > 0 ? 100 : 0
-  return Math.round(((current - previous) / previous) * 100)
+  if (previous === 0) return current > 0 ? 100 : 0;
+  return Math.round(((current - previous) / previous) * 100);
 }
 
 /**
@@ -269,15 +275,15 @@ async function checkAnalyticsPermission(
   requestingUserId: string,
   requestingRole: UserRole
 ): Promise<boolean> {
-  if (requestingRole === 'super_admin') return true
+  if (requestingRole === 'super_admin') return true;
 
   if (requestingRole === 'admin') {
     // Check if admin has analytics permission
     // This would come from Clerk metadata or database
-    return true // For now, allow all admins
+    return true; // For now, allow all admins
   }
 
-  return false
+  return false;
 }
 
 // ============ ADMIN FUNCTIONS ============
@@ -292,30 +298,30 @@ export async function getCompanyLeadsSummary(
   period: '7d' | '30d' | '90d' | 'all' = '30d'
 ): Promise<CompanyLeadsSummary> {
   // Check permissions
-  if (!await checkAnalyticsPermission(requestingUserId, requestingRole)) {
-    throw new Error('Forbidden: Insufficient permissions to view analytics')
+  if (!(await checkAnalyticsPermission(requestingUserId, requestingRole))) {
+    throw new Error('Forbidden: Insufficient permissions to view analytics');
   }
 
-  const dateRange = getPeriodDateRange(period)
-  const previousRange = getPreviousPeriodDateRange(period)
+  const dateRange = getPeriodDateRange(period);
+  const previousRange = getPreviousPeriodDateRange(period);
 
   // Tax Genius Leads (company-owned, no specific preparer)
-  const taxGeniusLeads = await getTaxGeniusLeadMetrics(dateRange, previousRange)
+  const taxGeniusLeads = await getTaxGeniusLeadMetrics(dateRange, previousRange);
 
   // Tax Preparer Leads (all preparers combined)
-  const taxPreparerLeads = await getTaxPreparerLeadMetrics(dateRange, previousRange)
+  const taxPreparerLeads = await getTaxPreparerLeadMetrics(dateRange, previousRange);
 
   // Affiliate Leads (all affiliates combined)
-  const affiliateLeads = await getAffiliateLeadMetrics(dateRange, previousRange)
+  const affiliateLeads = await getAffiliateLeadMetrics(dateRange, previousRange);
 
   // Client Referrals (all client referrals combined)
-  const clientReferrals = await getClientReferralMetrics(dateRange, previousRange)
+  const clientReferrals = await getClientReferralMetrics(dateRange, previousRange);
 
   const totalRevenue =
     taxGeniusLeads.revenue +
     taxPreparerLeads.revenue +
     affiliateLeads.revenue +
-    clientReferrals.revenue
+    clientReferrals.revenue;
 
   return {
     taxGeniusLeads,
@@ -326,7 +332,7 @@ export async function getCompanyLeadsSummary(
     period,
     periodStartDate: dateRange.start,
     periodEndDate: dateRange.end,
-  }
+  };
 }
 
 /**
@@ -340,19 +346,16 @@ async function getTaxGeniusLeadMetrics(
   const currentLeads = await prisma.lead.count({
     where: {
       createdAt: { gte: currentRange.start, lte: currentRange.end },
-      OR: [
-        { assignedPreparerId: null },
-        { source: { contains: 'taxgeniuspro.tax' } },
-      ],
+      OR: [{ assignedPreparerId: null }, { source: { contains: 'taxgeniuspro.tax' } }],
     },
-  })
+  });
 
   const currentConversions = await prisma.clientIntake.count({
     where: {
       createdAt: { gte: currentRange.start, lte: currentRange.end },
       assignedPreparerId: null,
     },
-  })
+  });
 
   const currentReturns = await prisma.taxReturn.count({
     where: {
@@ -365,7 +368,7 @@ async function getTaxGeniusLeadMetrics(
         },
       },
     },
-  })
+  });
 
   const currentRevenue = await prisma.payment.aggregate({
     where: {
@@ -373,22 +376,19 @@ async function getTaxGeniusLeadMetrics(
       createdAt: { gte: currentRange.start, lte: currentRange.end },
     },
     _sum: { amount: true },
-  })
+  });
 
   // Previous period for comparison
   const previousLeads = await prisma.lead.count({
     where: {
       createdAt: { gte: previousRange.start, lte: previousRange.end },
-      OR: [
-        { assignedPreparerId: null },
-        { source: { contains: 'taxgeniuspro.tax' } },
-      ],
+      OR: [{ assignedPreparerId: null }, { source: { contains: 'taxgeniuspro.tax' } }],
     },
-  })
+  });
 
-  const clicks = 0 // Tax Genius doesn't track clicks separately
-  const revenue = Number(currentRevenue._sum.amount || 0)
-  const conversionRate = currentLeads > 0 ? (currentConversions / currentLeads) * 100 : 0
+  const clicks = 0; // Tax Genius doesn't track clicks separately
+  const revenue = Number(currentRevenue._sum.amount || 0);
+  const conversionRate = currentLeads > 0 ? (currentConversions / currentLeads) * 100 : 0;
 
   return {
     clicks,
@@ -398,7 +398,7 @@ async function getTaxGeniusLeadMetrics(
     conversionRate: Math.round(conversionRate * 10) / 10,
     revenue,
     growthRate: calculateGrowthRate(currentLeads, previousLeads),
-  }
+  };
 }
 
 /**
@@ -414,10 +414,10 @@ async function getTaxPreparerLeadMetrics(
       creatorType: 'TAX_PREPARER',
     },
     select: { id: true, code: true },
-  })
+  });
 
-  const linkIds = preparerLinks.map(l => l.id)
-  const linkCodes = preparerLinks.map(l => l.code)
+  const linkIds = preparerLinks.map((l) => l.id);
+  const linkCodes = preparerLinks.map((l) => l.code);
 
   // Current period
   const currentClicks = await prisma.linkClick.count({
@@ -425,21 +425,21 @@ async function getTaxPreparerLeadMetrics(
       linkId: { in: linkIds },
       clickedAt: { gte: currentRange.start, lte: currentRange.end },
     },
-  })
+  });
 
   const currentLeads = await prisma.lead.count({
     where: {
       createdAt: { gte: currentRange.start, lte: currentRange.end },
       source: { in: linkCodes },
     },
-  })
+  });
 
   const currentConversions = await prisma.clientIntake.count({
     where: {
       createdAt: { gte: currentRange.start, lte: currentRange.end },
       sourceLink: { in: linkCodes },
     },
-  })
+  });
 
   const currentReturns = await prisma.taxReturn.count({
     where: {
@@ -452,7 +452,7 @@ async function getTaxPreparerLeadMetrics(
         },
       },
     },
-  })
+  });
 
   const currentRevenue = await prisma.payment.aggregate({
     where: {
@@ -467,7 +467,7 @@ async function getTaxPreparerLeadMetrics(
       },
     },
     _sum: { amount: true },
-  })
+  });
 
   // Previous period
   const previousLeads = await prisma.lead.count({
@@ -475,10 +475,10 @@ async function getTaxPreparerLeadMetrics(
       createdAt: { gte: previousRange.start, lte: previousRange.end },
       source: { in: linkCodes },
     },
-  })
+  });
 
-  const revenue = Number(currentRevenue._sum.amount || 0)
-  const conversionRate = currentClicks > 0 ? (currentConversions / currentClicks) * 100 : 0
+  const revenue = Number(currentRevenue._sum.amount || 0);
+  const conversionRate = currentClicks > 0 ? (currentConversions / currentClicks) * 100 : 0;
 
   return {
     clicks: currentClicks,
@@ -488,7 +488,7 @@ async function getTaxPreparerLeadMetrics(
     conversionRate: Math.round(conversionRate * 10) / 10,
     revenue,
     growthRate: calculateGrowthRate(currentLeads, previousLeads),
-  }
+  };
 }
 
 /**
@@ -504,10 +504,10 @@ async function getAffiliateLeadMetrics(
       creatorType: 'AFFILIATE',
     },
     select: { id: true, code: true },
-  })
+  });
 
-  const linkIds = affiliateLinks.map(l => l.id)
-  const linkCodes = affiliateLinks.map(l => l.code)
+  const linkIds = affiliateLinks.map((l) => l.id);
+  const linkCodes = affiliateLinks.map((l) => l.code);
 
   // Current period
   const currentClicks = await prisma.linkClick.count({
@@ -515,28 +515,28 @@ async function getAffiliateLeadMetrics(
       linkId: { in: linkIds },
       clickedAt: { gte: currentRange.start, lte: currentRange.end },
     },
-  })
+  });
 
   const currentLeads = await prisma.lead.count({
     where: {
       createdAt: { gte: currentRange.start, lte: currentRange.end },
       source: { in: linkCodes },
     },
-  })
+  });
 
   const currentSignups = await prisma.profile.count({
     where: {
       createdAt: { gte: currentRange.start, lte: currentRange.end },
       // Track signups from affiliate campaigns
     },
-  })
+  });
 
   const currentCommissions = await prisma.commission.aggregate({
     where: {
       createdAt: { gte: currentRange.start, lte: currentRange.end },
     },
     _sum: { amount: true },
-  })
+  });
 
   // Previous period
   const previousLeads = await prisma.lead.count({
@@ -544,10 +544,10 @@ async function getAffiliateLeadMetrics(
       createdAt: { gte: previousRange.start, lte: previousRange.end },
       source: { in: linkCodes },
     },
-  })
+  });
 
-  const revenue = Number(currentCommissions._sum.amount || 0)
-  const conversionRate = currentClicks > 0 ? (currentSignups / currentClicks) * 100 : 0
+  const revenue = Number(currentCommissions._sum.amount || 0);
+  const conversionRate = currentClicks > 0 ? (currentSignups / currentClicks) * 100 : 0;
 
   return {
     clicks: currentClicks,
@@ -557,7 +557,7 @@ async function getAffiliateLeadMetrics(
     conversionRate: Math.round(conversionRate * 10) / 10,
     revenue,
     growthRate: calculateGrowthRate(currentLeads, previousLeads),
-  }
+  };
 }
 
 /**
@@ -572,37 +572,37 @@ async function getClientReferralMetrics(
     where: {
       createdAt: { gte: currentRange.start, lte: currentRange.end },
     },
-  })
+  });
 
   const currentConversions = await prisma.referral.count({
     where: {
       createdAt: { gte: currentRange.start, lte: currentRange.end },
       status: { in: ['ACTIVE', 'COMPLETED'] },
     },
-  })
+  });
 
   const currentReturns = await prisma.referral.count({
     where: {
       returnFiledDate: { gte: currentRange.start, lte: currentRange.end },
     },
-  })
+  });
 
   const currentCommissions = await prisma.referral.aggregate({
     where: {
       createdAt: { gte: currentRange.start, lte: currentRange.end },
     },
     _sum: { commissionEarned: true },
-  })
+  });
 
   // Previous period
   const previousReferrals = await prisma.referral.count({
     where: {
       createdAt: { gte: previousRange.start, lte: previousRange.end },
     },
-  })
+  });
 
-  const revenue = Number(currentCommissions._sum.commissionEarned || 0)
-  const conversionRate = currentReferrals > 0 ? (currentConversions / currentReferrals) * 100 : 0
+  const revenue = Number(currentCommissions._sum.commissionEarned || 0);
+  const conversionRate = currentReferrals > 0 ? (currentConversions / currentReferrals) * 100 : 0;
 
   return {
     clicks: 0, // Referrals don't track clicks
@@ -612,7 +612,7 @@ async function getClientReferralMetrics(
     conversionRate: Math.round(conversionRate * 10) / 10,
     revenue,
     growthRate: calculateGrowthRate(currentReferrals, previousReferrals),
-  }
+  };
 }
 
 /**
@@ -625,8 +625,8 @@ export async function getPreparersAnalytics(
   filterPreparerId?: string
 ): Promise<PreparerAnalytics[]> {
   // Check permissions
-  if (!await checkAnalyticsPermission(requestingUserId, requestingRole)) {
-    throw new Error('Forbidden: Insufficient permissions to view analytics')
+  if (!(await checkAnalyticsPermission(requestingUserId, requestingRole))) {
+    throw new Error('Forbidden: Insufficient permissions to view analytics');
   }
 
   // Get all tax preparers or specific one
@@ -641,13 +641,13 @@ export async function getPreparersAnalytics(
       lastName: true,
       clerkUserId: true,
     },
-  })
+  });
 
   const analyticsPromises = preparers.map(async (preparer) => {
-    return await getMyPreparerAnalytics(preparer.id)
-  })
+    return await getMyPreparerAnalytics(preparer.id);
+  });
 
-  return await Promise.all(analyticsPromises)
+  return await Promise.all(analyticsPromises);
 }
 
 /**
@@ -660,8 +660,8 @@ export async function getAffiliatesAnalytics(
   filterAffiliateId?: string
 ): Promise<AffiliateAnalytics[]> {
   // Check permissions
-  if (!await checkAnalyticsPermission(requestingUserId, requestingRole)) {
-    throw new Error('Forbidden: Insufficient permissions to view analytics')
+  if (!(await checkAnalyticsPermission(requestingUserId, requestingRole))) {
+    throw new Error('Forbidden: Insufficient permissions to view analytics');
   }
 
   // Get all affiliates or specific one
@@ -676,13 +676,13 @@ export async function getAffiliatesAnalytics(
       lastName: true,
       clerkUserId: true,
     },
-  })
+  });
 
   const analyticsPromises = affiliates.map(async (affiliate) => {
-    return await getMyAffiliateAnalytics(affiliate.id)
-  })
+    return await getMyAffiliateAnalytics(affiliate.id);
+  });
 
-  return await Promise.all(analyticsPromises)
+  return await Promise.all(analyticsPromises);
 }
 
 /**
@@ -695,8 +695,8 @@ export async function getClientsReferralAnalytics(
   filterClientId?: string
 ): Promise<ClientReferralAnalytics[]> {
   // Check permissions
-  if (!await checkAnalyticsPermission(requestingUserId, requestingRole)) {
-    throw new Error('Forbidden: Insufficient permissions to view analytics')
+  if (!(await checkAnalyticsPermission(requestingUserId, requestingRole))) {
+    throw new Error('Forbidden: Insufficient permissions to view analytics');
   }
 
   // Get all clients who have made referrals or specific one
@@ -714,13 +714,13 @@ export async function getClientsReferralAnalytics(
       lastName: true,
       clerkUserId: true,
     },
-  })
+  });
 
   const analyticsPromises = clients.map(async (client) => {
-    return await getMyReferralAnalytics(client.id)
-  })
+    return await getMyReferralAnalytics(client.id);
+  });
 
-  return await Promise.all(analyticsPromises)
+  return await Promise.all(analyticsPromises);
 }
 
 // ============ ROLE-SPECIFIC FUNCTIONS ============
@@ -730,9 +730,11 @@ export async function getClientsReferralAnalytics(
  * Access: Tax Preparer (their own data), Admin/Super Admin (any preparer)
  * @param userIdOrProfileId - Clerk user ID or Profile ID
  */
-export async function getMyPreparerAnalytics(userIdOrProfileId: string): Promise<PreparerAnalytics> {
+export async function getMyPreparerAnalytics(
+  userIdOrProfileId: string
+): Promise<PreparerAnalytics> {
   // Convert Clerk ID to Profile ID if needed
-  const preparerId = await getProfileId(userIdOrProfileId)
+  const preparerId = await getProfileId(userIdOrProfileId);
 
   if (!preparerId) {
     // Return empty analytics for new users without profiles
@@ -750,7 +752,7 @@ export async function getMyPreparerAnalytics(userIdOrProfileId: string): Promise
       lastActive: null,
       linkBreakdown: [],
       recentLeads: [],
-    }
+    };
   }
 
   const preparer = await prisma.profile.findUnique({
@@ -761,7 +763,7 @@ export async function getMyPreparerAnalytics(userIdOrProfileId: string): Promise
       lastName: true,
       clerkUserId: true,
     },
-  })
+  });
 
   if (!preparer) {
     // Return empty analytics if profile not found
@@ -779,7 +781,7 @@ export async function getMyPreparerAnalytics(userIdOrProfileId: string): Promise
       lastActive: null,
       linkBreakdown: [],
       recentLeads: [],
-    }
+    };
   }
 
   // Get preparer's marketing links
@@ -788,35 +790,29 @@ export async function getMyPreparerAnalytics(userIdOrProfileId: string): Promise
       creatorId: preparerId,
       creatorType: 'TAX_PREPARER',
     },
-  })
+  });
 
-  const linkIds = marketingLinks.map(l => l.id)
-  const linkCodes = marketingLinks.map(l => l.code)
+  const linkIds = marketingLinks.map((l) => l.id);
+  const linkCodes = marketingLinks.map((l) => l.code);
 
   // Get clicks
   const totalClicks = await prisma.linkClick.count({
     where: { linkId: { in: linkIds } },
-  })
+  });
 
   // Get leads
   const totalLeads = await prisma.lead.count({
     where: {
-      OR: [
-        { source: { in: linkCodes } },
-        { assignedPreparerId: preparerId },
-      ],
+      OR: [{ source: { in: linkCodes } }, { assignedPreparerId: preparerId }],
     },
-  })
+  });
 
   // Get conversions (intake forms submitted)
   const totalConversions = await prisma.clientIntake.count({
     where: {
-      OR: [
-        { sourceLink: { in: linkCodes } },
-        { assignedPreparerId: preparerId },
-      ],
+      OR: [{ sourceLink: { in: linkCodes } }, { assignedPreparerId: preparerId }],
     },
-  })
+  });
 
   // Get returns filed
   const totalReturnsFiled = await prisma.taxReturn.count({
@@ -829,7 +825,7 @@ export async function getMyPreparerAnalytics(userIdOrProfileId: string): Promise
         },
       },
     },
-  })
+  });
 
   // Get revenue
   const revenueResult = await prisma.payment.aggregate({
@@ -844,22 +840,22 @@ export async function getMyPreparerAnalytics(userIdOrProfileId: string): Promise
       },
     },
     _sum: { amount: true },
-  })
+  });
 
   // Get link breakdown
   const linkBreakdown: LinkPerformance[] = await Promise.all(
     marketingLinks.map(async (link) => {
       const linkClicksCount = await prisma.linkClick.count({
         where: { linkId: link.id },
-      })
+      });
 
       const linkLeads = await prisma.lead.count({
         where: { source: link.code },
-      })
+      });
 
       const linkConversions = await prisma.clientIntake.count({
         where: { sourceLink: link.code },
-      })
+      });
 
       const linkRevenue = await prisma.payment.aggregate({
         where: {
@@ -871,7 +867,7 @@ export async function getMyPreparerAnalytics(userIdOrProfileId: string): Promise
           },
         },
         _sum: { amount: true },
-      })
+      });
 
       return {
         linkId: link.id,
@@ -886,23 +882,20 @@ export async function getMyPreparerAnalytics(userIdOrProfileId: string): Promise
         conversionRate: linkClicksCount > 0 ? (linkConversions / linkClicksCount) * 100 : 0,
         revenue: Number(linkRevenue._sum.amount || 0),
         createdAt: link.createdAt,
-      }
+      };
     })
-  )
+  );
 
   // Get recent leads
   const recentLeadsData = await prisma.lead.findMany({
     where: {
-      OR: [
-        { source: { in: linkCodes } },
-        { assignedPreparerId: preparerId },
-      ],
+      OR: [{ source: { in: linkCodes } }, { assignedPreparerId: preparerId }],
     },
     orderBy: { createdAt: 'desc' },
     take: 10,
-  })
+  });
 
-  const recentLeads: LeadSummary[] = recentLeadsData.map(lead => ({
+  const recentLeads: LeadSummary[] = recentLeadsData.map((lead) => ({
     id: lead.id,
     firstName: lead.firstName,
     lastName: lead.lastName,
@@ -914,9 +907,9 @@ export async function getMyPreparerAnalytics(userIdOrProfileId: string): Promise
     createdAt: lead.createdAt,
     lastContactedAt: lead.lastContactedAt,
     contactMethod: lead.contactMethod,
-  }))
+  }));
 
-  const conversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0
+  const conversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0;
 
   return {
     preparerId: preparer.id,
@@ -932,7 +925,7 @@ export async function getMyPreparerAnalytics(userIdOrProfileId: string): Promise
     lastActive: marketingLinks.length > 0 ? marketingLinks[0].updatedAt : null,
     linkBreakdown,
     recentLeads,
-  }
+  };
 }
 
 /**
@@ -940,9 +933,11 @@ export async function getMyPreparerAnalytics(userIdOrProfileId: string): Promise
  * Access: Affiliate (their own data), Admin/Super Admin (any affiliate)
  * @param userIdOrProfileId - Clerk user ID or Profile ID
  */
-export async function getMyAffiliateAnalytics(userIdOrProfileId: string): Promise<AffiliateAnalytics> {
+export async function getMyAffiliateAnalytics(
+  userIdOrProfileId: string
+): Promise<AffiliateAnalytics> {
   // Convert Clerk ID to Profile ID if needed
-  const affiliateId = await getProfileId(userIdOrProfileId)
+  const affiliateId = await getProfileId(userIdOrProfileId);
 
   if (!affiliateId) {
     // Return empty analytics for new users without profiles
@@ -966,7 +961,7 @@ export async function getMyAffiliateAnalytics(userIdOrProfileId: string): Promis
       campaignBreakdown: [],
       linkBreakdown: [],
       recentLeads: [],
-    }
+    };
   }
 
   const affiliate = await prisma.profile.findUnique({
@@ -977,7 +972,7 @@ export async function getMyAffiliateAnalytics(userIdOrProfileId: string): Promis
       lastName: true,
       clerkUserId: true,
     },
-  })
+  });
 
   if (!affiliate) {
     // Return empty analytics if profile not found
@@ -1001,33 +996,33 @@ export async function getMyAffiliateAnalytics(userIdOrProfileId: string): Promis
       campaignBreakdown: [],
       linkBreakdown: [],
       recentLeads: [],
-    }
+    };
   }
 
   // Get affiliate's campaigns/links
   const campaigns = await prisma.marketingCampaign.findMany({
     where: { creatorId: affiliateId },
-  })
+  });
 
   const marketingLinks = await prisma.marketingLink.findMany({
     where: {
       creatorId: affiliateId,
       creatorType: 'AFFILIATE',
     },
-  })
+  });
 
-  const linkIds = marketingLinks.map(l => l.id)
-  const linkCodes = marketingLinks.map(l => l.code)
+  const linkIds = marketingLinks.map((l) => l.id);
+  const linkCodes = marketingLinks.map((l) => l.code);
 
   // Get clicks
   const totalClicks = await prisma.linkClick.count({
     where: { linkId: { in: linkIds } },
-  })
+  });
 
   // Get leads
   const totalLeads = await prisma.lead.count({
     where: { source: { in: linkCodes } },
-  })
+  });
 
   // Get signups (profiles created from affiliate campaigns)
   const totalSignups = await prisma.linkClick.count({
@@ -1035,23 +1030,23 @@ export async function getMyAffiliateAnalytics(userIdOrProfileId: string): Promis
       linkId: { in: linkIds },
       signedUp: true,
     },
-  })
+  });
 
   // Get commissions
   const commissionsResult = await prisma.commission.findMany({
     where: { referrerId: affiliateId },
-  })
+  });
 
-  const commissionsEarned = commissionsResult.reduce((sum, c) => sum + Number(c.amount), 0)
+  const commissionsEarned = commissionsResult.reduce((sum, c) => sum + Number(c.amount), 0);
   const commissionsPaid = commissionsResult
-    .filter(c => c.status === 'COMPLETED')
-    .reduce((sum, c) => sum + Number(c.amount), 0)
+    .filter((c) => c.status === 'COMPLETED')
+    .reduce((sum, c) => sum + Number(c.amount), 0);
   const commissionsPending = commissionsResult
-    .filter(c => c.status === 'PENDING')
-    .reduce((sum, c) => sum + Number(c.amount), 0)
+    .filter((c) => c.status === 'PENDING')
+    .reduce((sum, c) => sum + Number(c.amount), 0);
 
   // Campaign breakdown
-  const campaignBreakdown: CampaignPerformance[] = campaigns.map(campaign => ({
+  const campaignBreakdown: CampaignPerformance[] = campaigns.map((campaign) => ({
     campaignId: campaign.id,
     campaignName: campaign.name,
     campaignType: campaign.type,
@@ -1060,16 +1055,16 @@ export async function getMyAffiliateAnalytics(userIdOrProfileId: string): Promis
     signups: campaign.signups,
     conversionRate: campaign.clicks > 0 ? (campaign.signups / campaign.clicks) * 100 : 0,
     createdAt: campaign.createdAt,
-  }))
+  }));
 
   // Recent leads
   const recentLeadsData = await prisma.lead.findMany({
     where: { source: { in: linkCodes } },
     orderBy: { createdAt: 'desc' },
     take: 10,
-  })
+  });
 
-  const recentLeads: LeadSummary[] = recentLeadsData.map(lead => ({
+  const recentLeads: LeadSummary[] = recentLeadsData.map((lead) => ({
     id: lead.id,
     firstName: lead.firstName,
     lastName: lead.lastName,
@@ -1081,30 +1076,30 @@ export async function getMyAffiliateAnalytics(userIdOrProfileId: string): Promis
     createdAt: lead.createdAt,
     lastContactedAt: lead.lastContactedAt,
     contactMethod: lead.contactMethod,
-  }))
+  }));
 
   // Get returns filed (for completeness, even though affiliates don't directly track this)
-  const totalReturnsFiled = 0 // Affiliates don't track returns filed
+  const totalReturnsFiled = 0; // Affiliates don't track returns filed
 
   // Build linkBreakdown from marketingLinks
   const linkBreakdown: LinkPerformance[] = await Promise.all(
     marketingLinks.map(async (link) => {
       const linkClicksCount = await prisma.linkClick.count({
         where: { linkId: link.id },
-      })
+      });
 
       const linkLeads = await prisma.lead.count({
         where: { source: link.code },
-      })
+      });
 
       const linkConversions = await prisma.linkClick.count({
         where: { linkId: link.id, signedUp: true },
-      })
+      });
 
       // Get commission for this link
       const linkCommissions = commissionsResult
-        .filter(c => c.referralId === link.id)
-        .reduce((sum, c) => sum + Number(c.amount), 0)
+        .filter((c) => c.referralId === link.id)
+        .reduce((sum, c) => sum + Number(c.amount), 0);
 
       return {
         linkId: link.id,
@@ -1120,11 +1115,11 @@ export async function getMyAffiliateAnalytics(userIdOrProfileId: string): Promis
         revenue: linkCommissions,
         commission: linkCommissions,
         createdAt: link.createdAt,
-      }
+      };
     })
-  )
+  );
 
-  const conversionRate = totalClicks > 0 ? (totalSignups / totalClicks) * 100 : 0
+  const conversionRate = totalClicks > 0 ? (totalSignups / totalClicks) * 100 : 0;
 
   return {
     affiliateId: affiliate.id,
@@ -1146,7 +1141,7 @@ export async function getMyAffiliateAnalytics(userIdOrProfileId: string): Promis
     campaignBreakdown,
     linkBreakdown,
     recentLeads,
-  }
+  };
 }
 
 /**
@@ -1154,9 +1149,11 @@ export async function getMyAffiliateAnalytics(userIdOrProfileId: string): Promis
  * Access: Client (their own data), Admin/Super Admin (any client)
  * @param userIdOrProfileId - Clerk user ID or Profile ID
  */
-export async function getMyReferralAnalytics(userIdOrProfileId: string): Promise<ClientReferralAnalytics> {
+export async function getMyReferralAnalytics(
+  userIdOrProfileId: string
+): Promise<ClientReferralAnalytics> {
   // Convert Clerk ID to Profile ID if needed
-  const clientId = await getProfileId(userIdOrProfileId)
+  const clientId = await getProfileId(userIdOrProfileId);
 
   if (!clientId) {
     // Return empty analytics for new users without profiles
@@ -1178,7 +1175,7 @@ export async function getMyReferralAnalytics(userIdOrProfileId: string): Promise
       linkBreakdown: [],
       referralHistory: [],
       recentLeads: [],
-    }
+    };
   }
 
   const client = await prisma.profile.findUnique({
@@ -1189,7 +1186,7 @@ export async function getMyReferralAnalytics(userIdOrProfileId: string): Promise
       lastName: true,
       clerkUserId: true,
     },
-  })
+  });
 
   if (!client) {
     // Return empty analytics if profile not found
@@ -1211,7 +1208,7 @@ export async function getMyReferralAnalytics(userIdOrProfileId: string): Promise
       linkBreakdown: [],
       referralHistory: [],
       recentLeads: [],
-    }
+    };
   }
 
   // Get client's referral links
@@ -1220,7 +1217,7 @@ export async function getMyReferralAnalytics(userIdOrProfileId: string): Promise
       creatorId: clientId,
       creatorType: 'REFERRER',
     },
-  })
+  });
 
   // Get referrals
   const referrals = await prisma.referral.findMany({
@@ -1234,24 +1231,24 @@ export async function getMyReferralAnalytics(userIdOrProfileId: string): Promise
         },
       },
     },
-  })
+  });
 
-  const linkIds = referralLinks.map(l => l.id)
-  const linkCodes = referralLinks.map(l => l.code)
+  const linkIds = referralLinks.map((l) => l.id);
+  const linkCodes = referralLinks.map((l) => l.code);
 
   // Get clicks from referral links
   const totalClicks = await prisma.linkClick.count({
     where: { linkId: { in: linkIds } },
-  })
+  });
 
   // Get recent leads through referral links
   const recentLeadsData = await prisma.lead.findMany({
     where: { source: { in: linkCodes } },
     orderBy: { createdAt: 'desc' },
     take: 10,
-  })
+  });
 
-  const recentLeads: LeadSummary[] = recentLeadsData.map(lead => ({
+  const recentLeads: LeadSummary[] = recentLeadsData.map((lead) => ({
     id: lead.id,
     firstName: lead.firstName,
     lastName: lead.lastName,
@@ -1263,37 +1260,38 @@ export async function getMyReferralAnalytics(userIdOrProfileId: string): Promise
     createdAt: lead.createdAt,
     lastContactedAt: lead.lastContactedAt,
     contactMethod: lead.contactMethod,
-  }))
+  }));
 
-  const referralsSent = referrals.length
-  const conversions = referrals.filter(r => r.status === 'ACTIVE' || r.status === 'COMPLETED').length
-  const returnsFiled = referrals.filter(r => r.returnFiledDate !== null).length
-  const rewardsEarned = referrals.reduce((sum, r) => sum + Number(r.commissionEarned), 0)
+  const referralsSent = referrals.length;
+  const conversions = referrals.filter(
+    (r) => r.status === 'ACTIVE' || r.status === 'COMPLETED'
+  ).length;
+  const returnsFiled = referrals.filter((r) => r.returnFiledDate !== null).length;
+  const rewardsEarned = referrals.reduce((sum, r) => sum + Number(r.commissionEarned), 0);
   const rewardsPending = referrals
-    .filter(r => r.status === 'PENDING')
-    .reduce((sum, r) => sum + Number(r.commissionEarned), 0)
+    .filter((r) => r.status === 'PENDING')
+    .reduce((sum, r) => sum + Number(r.commissionEarned), 0);
 
   // Build linkBreakdown from referral links
   const linkBreakdown: LinkPerformance[] = await Promise.all(
     referralLinks.map(async (link) => {
       const linkClicksCount = await prisma.linkClick.count({
         where: { linkId: link.id },
-      })
+      });
 
       const linkLeads = await prisma.lead.count({
         where: { source: link.code },
-      })
+      });
 
       const linkConversions = await prisma.referral.count({
         where: {
           referrerId: clientId,
-          status: { in: ['ACTIVE', 'COMPLETED'] }
+          status: { in: ['ACTIVE', 'COMPLETED'] },
         },
-      })
+      });
 
       // Get rewards for this link
-      const linkRewards = referrals
-        .reduce((sum, r) => sum + Number(r.commissionEarned), 0)
+      const linkRewards = referrals.reduce((sum, r) => sum + Number(r.commissionEarned), 0);
 
       return {
         linkId: link.id,
@@ -1309,12 +1307,12 @@ export async function getMyReferralAnalytics(userIdOrProfileId: string): Promise
         revenue: linkRewards,
         reward: linkRewards,
         createdAt: link.createdAt,
-      }
+      };
     })
-  )
+  );
 
   // Referral history
-  const referralHistory: ReferralRecord[] = referrals.map(r => ({
+  const referralHistory: ReferralRecord[] = referrals.map((r) => ({
     referralId: r.id,
     referredName: `${r.client.firstName || ''} ${r.client.lastName || ''}`.trim(),
     referredEmail: r.client.clerkUserId || '',
@@ -1322,9 +1320,9 @@ export async function getMyReferralAnalytics(userIdOrProfileId: string): Promise
     signupDate: r.signupDate,
     returnFiledDate: r.returnFiledDate,
     commissionEarned: Number(r.commissionEarned),
-  }))
+  }));
 
-  const conversionRate = referralsSent > 0 ? (conversions / referralsSent) * 100 : 0
+  const conversionRate = referralsSent > 0 ? (conversions / referralsSent) * 100 : 0;
 
   return {
     clientId: client.id,
@@ -1344,7 +1342,7 @@ export async function getMyReferralAnalytics(userIdOrProfileId: string): Promise
     linkBreakdown,
     referralHistory,
     recentLeads,
-  }
+  };
 }
 
 // ============ SHARED UTILITY FUNCTIONS ============
@@ -1357,21 +1355,21 @@ export async function getLeadConversionFunnel(
   creatorType?: string,
   period: '7d' | '30d' | '90d' | 'all' = '30d'
 ): Promise<ConversionFunnelData> {
-  const dateRange = getPeriodDateRange(period)
+  const dateRange = getPeriodDateRange(period);
 
-  let linkIds: string[] = []
-  let linkCodes: string[] = []
+  let linkIds: string[] = [];
+  let linkCodes: string[] = [];
 
   if (creatorId && creatorType) {
     const links = await prisma.marketingLink.findMany({
       where: {
         creatorId,
-        creatorType: creatorType as any,
+        creatorType,
       },
       select: { id: true, code: true },
-    })
-    linkIds = links.map(l => l.id)
-    linkCodes = links.map(l => l.code)
+    });
+    linkIds = links.map((l) => l.id);
+    linkCodes = links.map((l) => l.code);
   }
 
   // Stage 1: Clicks
@@ -1380,7 +1378,7 @@ export async function getLeadConversionFunnel(
       ...(linkIds.length > 0 && { linkId: { in: linkIds } }),
       clickedAt: { gte: dateRange.start, lte: dateRange.end },
     },
-  })
+  });
 
   // Stage 2: Leads
   const leads = await prisma.lead.count({
@@ -1388,7 +1386,7 @@ export async function getLeadConversionFunnel(
       ...(linkCodes.length > 0 && { source: { in: linkCodes } }),
       createdAt: { gte: dateRange.start, lte: dateRange.end },
     },
-  })
+  });
 
   // Stage 3: Intake Started
   const intakeStarted = await prisma.clientIntake.count({
@@ -1396,7 +1394,7 @@ export async function getLeadConversionFunnel(
       ...(linkCodes.length > 0 && { sourceLink: { in: linkCodes } }),
       createdAt: { gte: dateRange.start, lte: dateRange.end },
     },
-  })
+  });
 
   // Stage 4: Intake Completed
   const intakeCompleted = await prisma.clientIntake.count({
@@ -1405,7 +1403,7 @@ export async function getLeadConversionFunnel(
       status: 'COMPLETED',
       createdAt: { gte: dateRange.start, lte: dateRange.end },
     },
-  })
+  });
 
   // Stage 5: Returns Filed
   const returnsFiled = await prisma.taxReturn.count({
@@ -1413,9 +1411,9 @@ export async function getLeadConversionFunnel(
       status: { in: ['FILED', 'ACCEPTED'] },
       createdAt: { gte: dateRange.start, lte: dateRange.end },
     },
-  })
+  });
 
-  const baseCount = clicks || 1
+  const baseCount = clicks || 1;
 
   const stages = [
     {
@@ -1448,9 +1446,9 @@ export async function getLeadConversionFunnel(
       percentage: Math.round((returnsFiled / baseCount) * 100),
       dropoff: intakeCompleted - returnsFiled,
     },
-  ]
+  ];
 
-  return { stages }
+  return { stages };
 }
 
 /**
@@ -1461,7 +1459,7 @@ export async function getSourceBreakdown(
   creatorType?: string,
   period: '7d' | '30d' | '90d' | 'all' = '30d'
 ): Promise<SourceBreakdownData> {
-  const dateRange = getPeriodDateRange(period)
+  const dateRange = getPeriodDateRange(period);
 
   const sources = await prisma.lead.groupBy({
     by: ['source'],
@@ -1469,9 +1467,9 @@ export async function getSourceBreakdown(
       createdAt: { gte: dateRange.start, lte: dateRange.end },
     },
     _count: { source: true },
-  })
+  });
 
-  const total = sources.reduce((sum, s) => sum + s._count.source, 0)
+  const total = sources.reduce((sum, s) => sum + s._count.source, 0);
 
   const sourcesData = await Promise.all(
     sources.map(async (source) => {
@@ -1488,18 +1486,18 @@ export async function getSourceBreakdown(
           },
         },
         _sum: { amount: true },
-      })
+      });
 
       return {
         name: source.source || 'Direct',
         count: source._count.source,
         percentage: total > 0 ? Math.round((source._count.source / total) * 100) : 0,
         revenue: Number(revenue._sum.amount || 0),
-      }
+      };
     })
-  )
+  );
 
-  return { sources: sourcesData }
+  return { sources: sourcesData };
 }
 
 /**
@@ -1509,23 +1507,23 @@ export async function getTopPerformers(
   type: 'preparer' | 'affiliate' | 'client',
   limit: number = 10
 ): Promise<TopPerformer[]> {
-  let role: UserRole
+  let role: UserRole;
 
   switch (type) {
     case 'preparer':
-      role = 'tax_preparer'
-      break
+      role = UserRole.TAX_PREPARER;
+      break;
     case 'affiliate':
-      role = 'affiliate'
-      break
+      role = UserRole.AFFILIATE;
+      break;
     case 'client':
-      role = 'client'
-      break
+      role = UserRole.CLIENT;
+      break;
   }
 
   const profiles = await prisma.profile.findMany({
     where: {
-      role: role.toUpperCase() as any,
+      role,
     },
     select: {
       id: true,
@@ -1534,14 +1532,14 @@ export async function getTopPerformers(
       clerkUserId: true,
     },
     take: limit * 2, // Get extra to filter
-  })
+  });
 
   const performersData = await Promise.all(
     profiles.map(async (profile) => {
-      let analytics
+      let analytics;
 
       if (type === 'preparer') {
-        analytics = await getMyPreparerAnalytics(profile.id)
+        analytics = await getMyPreparerAnalytics(profile.id);
         return {
           id: profile.id,
           name: analytics.preparerName,
@@ -1551,9 +1549,9 @@ export async function getTopPerformers(
           conversions: analytics.conversions,
           conversionRate: analytics.conversionRate,
           revenue: analytics.revenue,
-        }
+        };
       } else if (type === 'affiliate') {
-        analytics = await getMyAffiliateAnalytics(profile.id)
+        analytics = await getMyAffiliateAnalytics(profile.id);
         return {
           id: profile.id,
           name: analytics.affiliateName,
@@ -1563,9 +1561,9 @@ export async function getTopPerformers(
           conversions: analytics.signups,
           conversionRate: analytics.conversionRate,
           revenue: analytics.commissionsEarned,
-        }
+        };
       } else {
-        analytics = await getMyReferralAnalytics(profile.id)
+        analytics = await getMyReferralAnalytics(profile.id);
         return {
           id: profile.id,
           name: analytics.clientName,
@@ -1575,13 +1573,11 @@ export async function getTopPerformers(
           conversions: analytics.conversions,
           conversionRate: analytics.conversionRate,
           revenue: analytics.rewardsEarned,
-        }
+        };
       }
     })
-  )
+  );
 
   // Sort by revenue and take top N
-  return performersData
-    .sort((a, b) => b.revenue - a.revenue)
-    .slice(0, limit)
+  return performersData.sort((a, b) => b.revenue - a.revenue).slice(0, limit);
 }

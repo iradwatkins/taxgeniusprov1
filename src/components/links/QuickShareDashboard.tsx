@@ -8,11 +8,11 @@
  * - QR code generation
  */
 
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { CreateShortLinkForm } from './CreateShortLinkForm'
-import { ShortLinkCard } from './ShortLinkCard'
+import { useState, useEffect } from 'react';
+import { CreateShortLinkForm } from './CreateShortLinkForm';
+import { ShortLinkCard } from './ShortLinkCard';
 import {
   Link2,
   Plus,
@@ -22,102 +22,102 @@ import {
   Eye,
   Filter,
   Search,
-} from 'lucide-react'
+} from 'lucide-react';
 
 interface ShortLink {
-  id: string
-  code: string
-  url: string
-  shortUrl: string
+  id: string;
+  code: string;
+  url: string;
+  shortUrl: string;
   destination: {
-    type: string
-    customUrl?: string
-  }
-  title?: string
-  description?: string
-  campaign?: string
-  isActive: boolean
-  clicks: number
-  uniqueClicks: number
-  leads: number
-  conversions: number
-  createdAt: string
+    type: string;
+    customUrl?: string;
+  };
+  title?: string;
+  description?: string;
+  campaign?: string;
+  isActive: boolean;
+  clicks: number;
+  uniqueClicks: number;
+  leads: number;
+  conversions: number;
+  createdAt: string;
 }
 
-type ViewMode = 'list' | 'create'
-type FilterType = 'all' | 'active' | 'inactive' | 'intake' | 'contact' | 'custom'
+type ViewMode = 'list' | 'create';
+type FilterType = 'all' | 'active' | 'inactive' | 'intake' | 'contact' | 'custom';
 
 export function QuickShareDashboard() {
-  const [viewMode, setViewMode] = useState<ViewMode>('list')
-  const [links, setLinks] = useState<ShortLink[]>([])
-  const [filteredLinks, setFilteredLinks] = useState<ShortLink[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [filterType, setFilterType] = useState<FilterType>('all')
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [links, setLinks] = useState<ShortLink[]>([]);
+  const [filteredLinks, setFilteredLinks] = useState<ShortLink[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState<FilterType>('all');
 
   // Fetch links
   const fetchLinks = async () => {
-    setIsLoading(true)
-    setError(null)
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const response = await fetch('/api/links')
-      const data = await response.json()
+      const response = await fetch('/api/links');
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch links')
+        throw new Error(data.error || 'Failed to fetch links');
       }
 
-      setLinks(data.data || [])
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch links')
+      setLinks(data.data || []);
+    } catch (err) {
+      setError(err.message || 'Failed to fetch links');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   // Initial fetch
   useEffect(() => {
-    fetchLinks()
-  }, [])
+    fetchLinks();
+  }, []);
 
   // Handle link creation success
   const handleLinkCreated = () => {
-    fetchLinks()
-    setViewMode('list')
-  }
+    fetchLinks();
+    setViewMode('list');
+  };
 
   // Filter and search links
   useEffect(() => {
-    let filtered = links
+    let filtered = links;
 
     // Apply filter
     if (filterType !== 'all') {
       filtered = filtered.filter((link) => {
-        if (filterType === 'active') return link.isActive
-        if (filterType === 'inactive') return !link.isActive
-        if (filterType === 'intake') return link.destination.type === 'INTAKE_FORM'
-        if (filterType === 'contact') return link.destination.type === 'CONTACT_FORM'
-        if (filterType === 'custom') return link.destination.type === 'CUSTOM'
-        return true
-      })
+        if (filterType === 'active') return link.isActive;
+        if (filterType === 'inactive') return !link.isActive;
+        if (filterType === 'intake') return link.destination.type === 'INTAKE_FORM';
+        if (filterType === 'contact') return link.destination.type === 'CONTACT_FORM';
+        if (filterType === 'custom') return link.destination.type === 'CUSTOM';
+        return true;
+      });
     }
 
     // Apply search
     if (searchQuery) {
-      const query = searchQuery.toLowerCase()
+      const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (link) =>
           link.code.toLowerCase().includes(query) ||
           link.title?.toLowerCase().includes(query) ||
           link.description?.toLowerCase().includes(query) ||
           link.campaign?.toLowerCase().includes(query)
-      )
+      );
     }
 
-    setFilteredLinks(filtered)
-  }, [links, filterType, searchQuery])
+    setFilteredLinks(filtered);
+  }, [links, filterType, searchQuery]);
 
   // Calculate totals
   const totals = {
@@ -127,11 +127,13 @@ export function QuickShareDashboard() {
     activeLinks: links.filter((link) => link.isActive).length,
     conversionRate:
       links.reduce((sum, link) => sum + link.clicks, 0) > 0
-        ? ((links.reduce((sum, link) => sum + link.conversions, 0) /
-            links.reduce((sum, link) => sum + link.clicks, 0)) *
-            100).toFixed(1)
+        ? (
+            (links.reduce((sum, link) => sum + link.conversions, 0) /
+              links.reduce((sum, link) => sum + link.clicks, 0)) *
+            100
+          ).toFixed(1)
         : '0.0',
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -177,9 +179,7 @@ export function QuickShareDashboard() {
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
               <div className="flex items-center justify-between mb-2">
                 <MousePointerClick className="w-8 h-8 text-blue-600" />
-                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  TOTAL
-                </span>
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">TOTAL</span>
               </div>
               <p className="text-3xl font-bold">{totals.totalClicks.toLocaleString()}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Clicks</p>
@@ -188,9 +188,7 @@ export function QuickShareDashboard() {
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
               <div className="flex items-center justify-between mb-2">
                 <Users className="w-8 h-8 text-green-600" />
-                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  LEADS
-                </span>
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">LEADS</span>
               </div>
               <p className="text-3xl font-bold">{totals.totalLeads.toLocaleString()}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400">Total Leads</p>
@@ -199,9 +197,7 @@ export function QuickShareDashboard() {
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
               <div className="flex items-center justify-between mb-2">
                 <TrendingUp className="w-8 h-8 text-purple-600" />
-                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  RATE
-                </span>
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">RATE</span>
               </div>
               <p className="text-3xl font-bold">{totals.conversionRate}%</p>
               <p className="text-sm text-gray-500 dark:text-gray-400">Conversion Rate</p>
@@ -210,9 +206,7 @@ export function QuickShareDashboard() {
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
               <div className="flex items-center justify-between mb-2">
                 <Link2 className="w-8 h-8 text-orange-600" />
-                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                  ACTIVE
-                </span>
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">ACTIVE</span>
               </div>
               <p className="text-3xl font-bold">{totals.activeLinks}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400">Active Links</p>
@@ -281,9 +275,7 @@ export function QuickShareDashboard() {
               <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-12 text-center">
                 <Link2 className="w-16 h-16 text-gray-300 dark:text-gray-700 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2">
-                  {searchQuery || filterType !== 'all'
-                    ? 'No links found'
-                    : 'No short links yet'}
+                  {searchQuery || filterType !== 'all' ? 'No links found' : 'No short links yet'}
                 </h3>
                 <p className="text-gray-500 dark:text-gray-400 mb-6">
                   {searchQuery || filterType !== 'all'
@@ -316,5 +308,5 @@ export function QuickShareDashboard() {
         )}
       </div>
     </div>
-  )
+  );
 }

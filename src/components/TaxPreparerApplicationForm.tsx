@@ -5,10 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Calendar, CheckCircle, UserPlus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 interface PreparerFormData {
   firstName: string;
@@ -17,6 +23,8 @@ interface PreparerFormData {
   email: string;
   phone: string;
   languages: string;
+  experienceLevel: string;
+  taxSoftware: string[];
   smsConsent: 'yes' | 'no' | '';
 }
 
@@ -24,7 +32,9 @@ interface TaxPreparerApplicationFormProps {
   onSubmitSuccess?: () => void;
 }
 
-export default function TaxPreparerApplicationForm({ onSubmitSuccess }: TaxPreparerApplicationFormProps) {
+export default function TaxPreparerApplicationForm({
+  onSubmitSuccess,
+}: TaxPreparerApplicationFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [formData, setFormData] = useState<PreparerFormData>({
@@ -34,6 +44,8 @@ export default function TaxPreparerApplicationForm({ onSubmitSuccess }: TaxPrepa
     email: '',
     phone: '',
     languages: '',
+    experienceLevel: '',
+    taxSoftware: [],
     smsConsent: '',
   });
 
@@ -83,6 +95,7 @@ export default function TaxPreparerApplicationForm({ onSubmitSuccess }: TaxPrepa
       formData.email &&
       formData.phone &&
       formData.languages &&
+      formData.experienceLevel &&
       formData.smsConsent === 'yes'
     );
   };
@@ -118,7 +131,9 @@ export default function TaxPreparerApplicationForm({ onSubmitSuccess }: TaxPrepa
           <div className="bg-muted p-6 rounded-lg space-y-2">
             <p className="font-semibold">✓ We've received your application:</p>
             <ul className="text-sm space-y-1 text-muted-foreground">
-              <li>• Name: {formData.firstName} {formData.middleName} {formData.lastName}</li>
+              <li>
+                • Name: {formData.firstName} {formData.middleName} {formData.lastName}
+              </li>
               <li>• Email: {formData.email}</li>
               <li>• Phone: {formData.phone}</li>
               <li>• Languages: {formData.languages}</li>
@@ -252,11 +267,78 @@ export default function TaxPreparerApplicationForm({ onSubmitSuccess }: TaxPrepa
               </Select>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="experienceLevel">Tax Preparation Experience *</Label>
+              <Select
+                value={formData.experienceLevel}
+                onValueChange={(value) => setFormData({ ...formData, experienceLevel: value })}
+                required
+              >
+                <SelectTrigger className="text-lg p-6">
+                  <SelectValue placeholder="- Select -" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="NEW">New to Tax Preparation - Need Training</SelectItem>
+                  <SelectItem value="INTERMEDIATE">1-3 Years of Experience</SelectItem>
+                  <SelectItem value="SEASONED">Seasoned Tax Professional (3+ years)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {(formData.experienceLevel === 'INTERMEDIATE' || formData.experienceLevel === 'SEASONED') && (
+              <div className="space-y-3 p-4 border-2 border-primary/30 rounded-lg bg-primary/5">
+                <Label className="text-base font-semibold">Tax Software Experience</Label>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Select all tax software programs you have used (check all that apply)
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    'ATX',
+                    'CCH ProSystem',
+                    'Crosslink',
+                    'Drake',
+                    'Lacerte',
+                    'MyTaxPrep Office',
+                    'ProSeries',
+                    'Taxact',
+                    'Taxslayer',
+                    'TaxWise',
+                    'Turbo Tax',
+                    'Ultra Tax',
+                    'None',
+                    'Other',
+                  ].map((software) => (
+                    <label key={software} className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                        checked={formData.taxSoftware.includes(software)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setFormData({
+                              ...formData,
+                              taxSoftware: [...formData.taxSoftware, software],
+                            });
+                          } else {
+                            setFormData({
+                              ...formData,
+                              taxSoftware: formData.taxSoftware.filter((s) => s !== software),
+                            });
+                          }
+                        }}
+                      />
+                      <span className="text-sm">{software}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
               <Label className="text-sm leading-relaxed">
-                By selecting Yes below, I consent to receive text messages from Tax Genius or its service providers,
-                regarding employment opportunities at the phone number above. I understand my consent is not
-                a condition of employment. *
+                By selecting Yes below, I consent to receive text messages from Tax Genius or its
+                service providers, regarding employment opportunities at the phone number above. I
+                understand my consent is not a condition of employment. *
               </Label>
               <Select
                 value={formData.smsConsent}
@@ -275,8 +357,9 @@ export default function TaxPreparerApplicationForm({ onSubmitSuccess }: TaxPrepa
 
             <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg text-sm">
               <p className="text-blue-900 dark:text-blue-100">
-                By submitting this form, you acknowledge that Tax Genius may process the data you provide to contact
-                you with information related to your request/submission as described in our Privacy Statement.
+                By submitting this form, you acknowledge that Tax Genius may process the data you
+                provide to contact you with information related to your request/submission as
+                described in our Privacy Statement.
               </p>
             </div>
           </div>

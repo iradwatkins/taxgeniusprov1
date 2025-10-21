@@ -1,27 +1,27 @@
-import React, { useState, useRef } from 'react'
-import { Download, QrCode, User, Palette } from 'lucide-react'
-import { QRCodeSVG } from 'qrcode.react'
-import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useToast } from '@/hooks/use-toast'
-import { logger } from '@/lib/logger'
+import React, { useState, useRef } from 'react';
+import { Download, QrCode, User, Palette } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/lib/logger';
 
 interface QRPosterGeneratorProps {
-  referralUrl: string
-  referrerName?: string
+  referralUrl: string;
+  referrerName?: string;
 }
 
 interface PosterTemplate {
-  id: string
-  name: string
-  description: string
-  className: string
+  id: string;
+  name: string;
+  description: string;
+  className: string;
 }
 
 const posterTemplates: PosterTemplate[] = [
@@ -29,32 +29,33 @@ const posterTemplates: PosterTemplate[] = [
     id: 'professional',
     name: 'Tangerine Professional',
     description: 'Clean professional design with tangerine theme',
-    className: 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground'
+    className: 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground',
   },
   {
     id: 'modern',
     name: 'Modern Purple',
     description: 'Fresh modern design with purple accents',
-    className: 'bg-gradient-to-br from-accent to-accent-foreground text-foreground'
-  }
-]
+    className: 'bg-gradient-to-br from-accent to-accent-foreground text-foreground',
+  },
+];
 
 export const QRPosterGenerator: React.FC<QRPosterGeneratorProps> = ({
   referralUrl,
-  referrerName = 'Your Name'
+  referrerName = 'Your Name',
 }) => {
-  const { toast } = useToast()
-  const [selectedTemplate, setSelectedTemplate] = useState(posterTemplates[0].id)
-  const [customName, setCustomName] = useState(referrerName)
-  const [isGenerating, setIsGenerating] = useState(false)
-  const posterRef = useRef<HTMLDivElement>(null)
+  const { toast } = useToast();
+  const [selectedTemplate, setSelectedTemplate] = useState(posterTemplates[0].id);
+  const [customName, setCustomName] = useState(referrerName);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const posterRef = useRef<HTMLDivElement>(null);
 
-  const selectedTemplateData = posterTemplates.find(t => t.id === selectedTemplate) || posterTemplates[0]
+  const selectedTemplateData =
+    posterTemplates.find((t) => t.id === selectedTemplate) || posterTemplates[0];
 
   const generatePDF = async () => {
-    if (!posterRef.current) return
+    if (!posterRef.current) return;
 
-    setIsGenerating(true)
+    setIsGenerating(true);
     try {
       // Create canvas from the poster element
       const canvas = await html2canvas(posterRef.current, {
@@ -63,38 +64,38 @@ export const QRPosterGenerator: React.FC<QRPosterGeneratorProps> = ({
         allowTaint: false,
         backgroundColor: null,
         width: 600,
-        height: 800
-      })
+        height: 800,
+      });
 
       // Create PDF
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'px',
-        format: [600, 800]
-      })
+        format: [600, 800],
+      });
 
-      const imgData = canvas.toDataURL('image/png')
-      pdf.addImage(imgData, 'PNG', 0, 0, 600, 800)
-      
+      const imgData = canvas.toDataURL('image/png');
+      pdf.addImage(imgData, 'PNG', 0, 0, 600, 800);
+
       // Download the PDF
-      const fileName = `tax-genius-poster-${customName.toLowerCase().replace(/\s+/g, '-')}.pdf`
-      pdf.save(fileName)
+      const fileName = `tax-genius-poster-${customName.toLowerCase().replace(/\s+/g, '-')}.pdf`;
+      pdf.save(fileName);
 
       toast({
         title: 'Success!',
         description: 'Your poster has been generated and downloaded.',
-      })
+      });
     } catch (error) {
-      logger.error('Error generating PDF:', error)
+      logger.error('Error generating PDF:', error);
       toast({
         title: 'Error',
         description: 'Failed to generate poster. Please try again.',
-        variant: 'destructive'
-      })
+        variant: 'destructive',
+      });
     } finally {
-      setIsGenerating(false)
+      setIsGenerating(false);
     }
-  }
+  };
 
   const PosterPreview = () => (
     <div
@@ -141,7 +142,7 @@ export const QRPosterGenerator: React.FC<QRPosterGeneratorProps> = ({
         <p className="text-sm opacity-75">www.taxgenius.com</p>
       </div>
     </div>
-  )
+  );
 
   return (
     <Card className="border-border">
@@ -222,7 +223,10 @@ export const QRPosterGenerator: React.FC<QRPosterGeneratorProps> = ({
           <div className="space-y-2">
             <Label>Preview</Label>
             <div className="border border-border rounded-lg overflow-hidden">
-              <div className="transform scale-50 origin-top-left" style={{ width: '1200px', height: '1600px' }}>
+              <div
+                className="transform scale-50 origin-top-left"
+                style={{ width: '1200px', height: '1600px' }}
+              >
                 <PosterPreview />
               </div>
             </div>
@@ -231,7 +235,9 @@ export const QRPosterGenerator: React.FC<QRPosterGeneratorProps> = ({
 
         {/* Usage Instructions */}
         <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-md">
-          <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">How to Use Your Poster</h4>
+          <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
+            How to Use Your Poster
+          </h4>
           <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
             <li>• Print the poster in high quality (recommended: 8.5" x 11" or A4)</li>
             <li>• Display in local businesses, offices, or community centers</li>
@@ -241,7 +247,7 @@ export const QRPosterGenerator: React.FC<QRPosterGeneratorProps> = ({
         </div>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default QRPosterGenerator
+export default QRPosterGenerator;

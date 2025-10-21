@@ -80,17 +80,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     logger.error('[CRM API] Error getting contact', { error: error.message, contactId: params.id });
 
     if (error.message.includes('not found')) {
-      return NextResponse.json(
-        { success: false, error: 'Contact not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: 'Contact not found' }, { status: 404 });
     }
 
     if (error.message.includes('Access denied') || error.message.includes('Unauthorized')) {
-      return NextResponse.json(
-        { success: false, error: 'Access denied' },
-        { status: 403 }
-      );
+      return NextResponse.json({ success: false, error: 'Access denied' }, { status: 403 });
     }
 
     return NextResponse.json(
@@ -148,20 +142,17 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       data: contact,
     });
   } catch (error: any) {
-    logger.error('[CRM API] Error updating contact', { error: error.message, contactId: params.id });
+    logger.error('[CRM API] Error updating contact', {
+      error: error.message,
+      contactId: params.id,
+    });
 
     if (error.message.includes('not found')) {
-      return NextResponse.json(
-        { success: false, error: 'Contact not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: 'Contact not found' }, { status: 404 });
     }
 
     if (error.message.includes('Access denied') || error.message.includes('Unauthorized')) {
-      return NextResponse.json(
-        { success: false, error: 'Access denied' },
-        { status: 403 }
-      );
+      return NextResponse.json({ success: false, error: 'Access denied' }, { status: 403 });
     }
 
     if (error instanceof z.ZodError) {
@@ -206,13 +197,13 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       data: result,
     });
   } catch (error: any) {
-    logger.error('[CRM API] Error deleting contact', { error: error.message, contactId: params.id });
+    logger.error('[CRM API] Error deleting contact', {
+      error: error.message,
+      contactId: params.id,
+    });
 
     if (error.message.includes('not found')) {
-      return NextResponse.json(
-        { success: false, error: 'Contact not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: 'Contact not found' }, { status: 404 });
     }
 
     if (error.message.includes('Access denied') || error.message.includes('Unauthorized')) {

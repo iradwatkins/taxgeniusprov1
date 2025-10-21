@@ -1,4 +1,4 @@
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 /**
  * Tracking Code Integration Utilities
  *
@@ -7,12 +7,12 @@ import { logger } from '@/lib/logger'
  */
 
 export interface TrackingParams {
-  trackingCode: string
-  source?: string
-  medium?: string
-  campaign?: string
-  content?: string
-  term?: string
+  trackingCode: string;
+  source?: string;
+  medium?: string;
+  campaign?: string;
+  content?: string;
+  term?: string;
 }
 
 /**
@@ -35,22 +35,22 @@ export interface TrackingParams {
  */
 export function buildTrackingUrl(baseUrl: string, params: TrackingParams): string {
   try {
-    const url = new URL(baseUrl)
+    const url = new URL(baseUrl);
 
     // Add tracking code as 'ref' parameter
-    url.searchParams.set('ref', params.trackingCode)
+    url.searchParams.set('ref', params.trackingCode);
 
     // Add UTM parameters if provided
-    if (params.source) url.searchParams.set('utm_source', params.source)
-    if (params.medium) url.searchParams.set('utm_medium', params.medium)
-    if (params.campaign) url.searchParams.set('utm_campaign', params.campaign)
-    if (params.content) url.searchParams.set('utm_content', params.content)
-    if (params.term) url.searchParams.set('utm_term', params.term)
+    if (params.source) url.searchParams.set('utm_source', params.source);
+    if (params.medium) url.searchParams.set('utm_medium', params.medium);
+    if (params.campaign) url.searchParams.set('utm_campaign', params.campaign);
+    if (params.content) url.searchParams.set('utm_content', params.content);
+    if (params.term) url.searchParams.set('utm_term', params.term);
 
-    return url.toString()
+    return url.toString();
   } catch (error) {
-    logger.error('Error building tracking URL:', error)
-    return baseUrl
+    logger.error('Error building tracking URL:', error);
+    return baseUrl;
   }
 }
 
@@ -68,11 +68,11 @@ export function buildTrackingUrl(baseUrl: string, params: TrackingParams): strin
  */
 export function extractTrackingCode(url: string): string | null {
   try {
-    const urlObj = new URL(url)
-    return urlObj.searchParams.get('ref')
+    const urlObj = new URL(url);
+    return urlObj.searchParams.get('ref');
   } catch (error) {
-    logger.error('Error extracting tracking code:', error)
-    return null
+    logger.error('Error extracting tracking code:', error);
+    return null;
   }
 }
 
@@ -83,24 +83,24 @@ export function extractTrackingCode(url: string): string | null {
  * @returns Object with UTM parameters
  */
 export function extractUTMParams(url: string): {
-  source?: string
-  medium?: string
-  campaign?: string
-  content?: string
-  term?: string
+  source?: string;
+  medium?: string;
+  campaign?: string;
+  content?: string;
+  term?: string;
 } {
   try {
-    const urlObj = new URL(url)
+    const urlObj = new URL(url);
     return {
       source: urlObj.searchParams.get('utm_source') || undefined,
       medium: urlObj.searchParams.get('utm_medium') || undefined,
       campaign: urlObj.searchParams.get('utm_campaign') || undefined,
       content: urlObj.searchParams.get('utm_content') || undefined,
       term: urlObj.searchParams.get('utm_term') || undefined,
-    }
+    };
   } catch (error) {
-    logger.error('Error extracting UTM params:', error)
-    return {}
+    logger.error('Error extracting UTM params:', error);
+    return {};
   }
 }
 
@@ -132,26 +132,26 @@ export function buildMarketingLinkUrl(
   materialType?: string
 ): string {
   try {
-    const url = new URL(baseUrl)
+    const url = new URL(baseUrl);
 
     // Add universal tracking code
-    url.searchParams.set('ref', trackingCode)
+    url.searchParams.set('ref', trackingCode);
 
     // Add marketing link specific code if provided
     if (linkCode) {
-      url.searchParams.set('link', linkCode)
+      url.searchParams.set('link', linkCode);
     }
 
     // Add material type as UTM medium
     if (materialType) {
-      const medium = materialType.toLowerCase().replace('_', '-')
-      url.searchParams.set('utm_medium', medium)
+      const medium = materialType.toLowerCase().replace('_', '-');
+      url.searchParams.set('utm_medium', medium);
     }
 
-    return url.toString()
+    return url.toString();
   } catch (error) {
-    logger.error('Error building marketing link URL:', error)
-    return baseUrl
+    logger.error('Error building marketing link URL:', error);
+    return baseUrl;
   }
 }
 
@@ -173,13 +173,13 @@ export const MATERIAL_TYPE_UTM: Record<string, { medium: string; recommendedSour
   BUSINESS_CARD: { medium: 'business-card', recommendedSource: 'networking' },
   FLYER: { medium: 'print', recommendedSource: 'flyer' },
   REFERRAL: { medium: 'referral', recommendedSource: 'word-of-mouth' },
-}
+};
 
 /**
  * Get recommended UTM parameters for a material type
  */
 export function getRecommendedUTM(materialType: string) {
-  return MATERIAL_TYPE_UTM[materialType] || { medium: 'unknown', recommendedSource: 'other' }
+  return MATERIAL_TYPE_UTM[materialType] || { medium: 'unknown', recommendedSource: 'other' };
 }
 
 /**
@@ -188,12 +188,12 @@ export function getRecommendedUTM(materialType: string) {
  */
 export function isValidTrackingCodeFormat(code: string): boolean {
   // Auto-generated format: TGP-XXXXXX (6 digits)
-  const autoFormat = /^TGP-\d{6}$/
+  const autoFormat = /^TGP-\d{6}$/;
 
   // Custom format: 3-20 chars, alphanumeric + hyphens/underscores
-  const customFormat = /^[a-zA-Z0-9_-]{3,20}$/
+  const customFormat = /^[a-zA-Z0-9_-]{3,20}$/;
 
-  return autoFormat.test(code) || customFormat.test(code)
+  return autoFormat.test(code) || customFormat.test(code);
 }
 
 /**
@@ -202,7 +202,7 @@ export function isValidTrackingCodeFormat(code: string): boolean {
  */
 export function trackMaterialView(trackingCode: string, materialType: string) {
   if (typeof window !== 'undefined' && window.trackReferralClick) {
-    window.trackReferralClick(trackingCode, materialType)
+    window.trackReferralClick(trackingCode, materialType);
   }
 }
 
@@ -212,6 +212,6 @@ export function trackMaterialView(trackingCode: string, materialType: string) {
  */
 export function trackQRCodeScan(trackingCode: string, location?: string) {
   if (typeof window !== 'undefined' && window.trackQRScan) {
-    window.trackQRScan(trackingCode, location)
+    window.trackQRScan(trackingCode, location);
   }
 }

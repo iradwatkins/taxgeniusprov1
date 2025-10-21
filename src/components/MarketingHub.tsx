@@ -1,86 +1,83 @@
-import React, { useState } from 'react'
-import { 
-  Share2, 
-  Copy, 
-  Download, 
-  Image as ImageIcon, 
-  Type, 
+import React, { useState } from 'react';
+import {
+  Share2,
+  Copy,
+  Download,
+  Image as ImageIcon,
+  Type,
   ExternalLink,
   Check,
   Facebook,
-  Twitter 
-} from 'lucide-react'
-import { 
-  FacebookShareButton,
-  TwitterShareButton,
-  FacebookIcon,
-  TwitterIcon
-} from 'react-share'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useMarketingMaterials } from '@/hooks/useReferrerData'
-import { useToast } from '@/hooks/use-toast'
-import type { MarketingMaterial } from '@/lib/types'
+  Twitter,
+} from 'lucide-react';
+import { FacebookShareButton, TwitterShareButton, FacebookIcon, TwitterIcon } from 'react-share';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useMarketingMaterials } from '@/hooks/useReferrerData';
+import { useToast } from '@/hooks/use-toast';
+import type { MarketingMaterial } from '@/lib/types';
 
 interface MarketingHubProps {
-  referralUrl?: string
+  referralUrl?: string;
 }
 
-export const MarketingHub: React.FC<MarketingHubProps> = ({ referralUrl = 'https://taxgenius.com/refer' }) => {
-  const { toast } = useToast()
-  const { data: materials, isLoading } = useMarketingMaterials()
-  const [copiedId, setCopiedId] = useState<string | null>(null)
+export const MarketingHub: React.FC<MarketingHubProps> = ({
+  referralUrl = 'https://taxgenius.com/refer',
+}) => {
+  const { toast } = useToast();
+  const { data: materials, isLoading } = useMarketingMaterials();
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleCopyText = async (text: string, materialId: string) => {
     try {
-      await navigator.clipboard.writeText(text)
-      setCopiedId(materialId)
+      await navigator.clipboard.writeText(text);
+      setCopiedId(materialId);
       toast({
         title: 'Copied!',
         description: 'Marketing text copied to clipboard.',
-      })
-      setTimeout(() => setCopiedId(null), 2000)
+      });
+      setTimeout(() => setCopiedId(null), 2000);
     } catch (error) {
       toast({
         title: 'Error',
         description: 'Failed to copy text to clipboard.',
-        variant: 'destructive'
-      })
+        variant: 'destructive',
+      });
     }
-  }
+  };
 
   const handleShareUrl = (platform: string, material: any) => {
-    const shareText = material.adCopy ?
-      `${material.adCopy} ${referralUrl}` :
-      `Check out Tax Genius! ${referralUrl}`
+    const shareText = material.adCopy
+      ? `${material.adCopy} ${referralUrl}`
+      : `Check out Tax Genius! ${referralUrl}`;
 
     if (platform === 'twitter') {
       window.open(
         `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`,
         '_blank',
         'width=600,height=400'
-      )
+      );
     } else if (platform === 'facebook') {
       window.open(
         `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralUrl)}&quote=${encodeURIComponent(material.adCopy || 'Check out Tax Genius!')}`,
         '_blank',
         'width=600,height=400'
-      )
+      );
     }
-  }
+  };
 
   const handleDownloadImage = (imageUrl: string, title: string) => {
-    const link = document.createElement('a')
-    link.href = imageUrl
-    link.download = `${title.toLowerCase().replace(/\s+/g, '-')}.png`
-    link.target = '_blank'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = `${title.toLowerCase().replace(/\s+/g, '-')}.png`;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const renderMaterialCard = (material: any) => (
     <Card key={material.id} className="border-border">
@@ -175,11 +172,11 @@ export const MarketingHub: React.FC<MarketingHubProps> = ({ referralUrl = 'https
         )}
       </CardContent>
     </Card>
-  )
+  );
 
   const filterMaterialsByType = (type: string) => {
-    return materials?.filter(material => material.materialType === type) || []
-  }
+    return materials?.filter((material) => material.materialType === type) || [];
+  };
 
   if (isLoading) {
     return (
@@ -202,7 +199,7 @@ export const MarketingHub: React.FC<MarketingHubProps> = ({ referralUrl = 'https
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -286,7 +283,7 @@ export const MarketingHub: React.FC<MarketingHubProps> = ({ referralUrl = 'https
         </Tabs>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default MarketingHub
+export default MarketingHub;

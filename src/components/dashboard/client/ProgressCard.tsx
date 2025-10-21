@@ -26,7 +26,7 @@ const steps = [
   { label: 'Documents Uploaded', value: 25 },
   { label: 'Under Review', value: 50 },
   { label: 'Return Filed', value: 75 },
-  { label: 'Accepted', value: 100 }
+  { label: 'Accepted', value: 100 },
 ];
 
 export function ProgressCard({ taxReturn }: ProgressCardProps) {
@@ -55,30 +55,37 @@ export function ProgressCard({ taxReturn }: ProgressCardProps) {
           <div className="space-y-4">
             {steps.map((step, index) => {
               const isComplete = taxReturn.progress >= step.value;
-              const isActive = taxReturn.progress >= step.value - 25 && taxReturn.progress < step.value;
+              const isActive =
+                taxReturn.progress >= step.value - 25 && taxReturn.progress < step.value;
 
               return (
                 <div key={index} className="flex items-center gap-3">
-                  <div className={cn(
-                    "flex items-center justify-center w-6 h-6 rounded-full border-2",
-                    isComplete && "bg-primary border-primary",
-                    isActive && "border-primary",
-                    !isComplete && !isActive && "border-muted-foreground"
-                  )}>
+                  <div
+                    className={cn(
+                      'flex items-center justify-center w-6 h-6 rounded-full border-2',
+                      isComplete && 'bg-primary border-primary',
+                      isActive && 'border-primary',
+                      !isComplete && !isActive && 'border-muted-foreground'
+                    )}
+                  >
                     {isComplete ? (
                       <CheckCircle2 className="h-4 w-4 text-white" />
                     ) : (
-                      <Circle className={cn(
-                        "h-3 w-3",
-                        isActive ? "text-primary" : "text-muted-foreground"
-                      )} />
+                      <Circle
+                        className={cn(
+                          'h-3 w-3',
+                          isActive ? 'text-primary' : 'text-muted-foreground'
+                        )}
+                      />
                     )}
                   </div>
-                  <span className={cn(
-                    "text-sm",
-                    isComplete && "font-medium",
-                    !isComplete && !isActive && "text-muted-foreground"
-                  )}>
+                  <span
+                    className={cn(
+                      'text-sm',
+                      isComplete && 'font-medium',
+                      !isComplete && !isActive && 'text-muted-foreground'
+                    )}
+                  >
                     {step.label}
                   </span>
                 </div>

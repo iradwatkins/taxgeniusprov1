@@ -1,16 +1,16 @@
-'use client'
+'use client';
 
-import { useState, useCallback } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { useState, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -18,90 +18,90 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
-import { Search, Filter, Download, Upload } from 'lucide-react'
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Search, Filter, Download, Upload } from 'lucide-react';
 
 interface ClientsManagementProps {
   preparers: Array<{
-    id: string
-    firstName: string | null
-    lastName: string | null
-    email: string | null
-  }>
+    id: string;
+    firstName: string | null;
+    lastName: string | null;
+    email: string | null;
+  }>;
 }
 
 export function ClientsManagement({ preparers }: ClientsManagementProps) {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [search, setSearch] = useState(searchParams.get('search') || '')
-  const [status, setStatus] = useState(searchParams.get('status') || 'all')
-  const [preparerId, setPreparerId] = useState(searchParams.get('preparer') || 'all')
-  const [importing, setImporting] = useState(false)
-  const [importPreparerId, setImportPreparerId] = useState<string>('none')
-  const [importDialogOpen, setImportDialogOpen] = useState(false)
+  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [status, setStatus] = useState(searchParams.get('status') || 'all');
+  const [preparerId, setPreparerId] = useState(searchParams.get('preparer') || 'all');
+  const [importing, setImporting] = useState(false);
+  const [importPreparerId, setImportPreparerId] = useState<string>('none');
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
 
   const applyFilters = useCallback(() => {
-    const params = new URLSearchParams()
-    if (search) params.set('search', search)
-    if (status && status !== 'all') params.set('status', status)
-    if (preparerId && preparerId !== 'all') params.set('preparer', preparerId)
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
+    if (preparerId && preparerId !== 'all') params.set('preparer', preparerId);
 
-    router.push(`/admin/clients-status?${params.toString()}`)
-  }, [search, status, preparerId, router])
+    router.push(`/admin/clients-status?${params.toString()}`);
+  }, [search, status, preparerId, router]);
 
   const handleExport = () => {
-    const params = new URLSearchParams()
-    if (status && status !== 'all') params.set('status', status)
-    if (preparerId && preparerId !== 'all') params.set('preparerId', preparerId)
+    const params = new URLSearchParams();
+    if (status && status !== 'all') params.set('status', status);
+    if (preparerId && preparerId !== 'all') params.set('preparerId', preparerId);
 
-    const url = `/api/admin/clients/export?${params.toString()}`
-    window.location.href = url
-  }
+    const url = `/api/admin/clients/export?${params.toString()}`;
+    window.location.href = url;
+  };
 
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    setImporting(true)
+    setImporting(true);
 
     try {
-      const formData = new FormData()
-      formData.append('file', file)
+      const formData = new FormData();
+      formData.append('file', file);
 
-      const params = new URLSearchParams()
+      const params = new URLSearchParams();
       if (importPreparerId && importPreparerId !== 'none') {
-        params.set('preparerId', importPreparerId)
+        params.set('preparerId', importPreparerId);
       }
 
       const response = await fetch(`/api/admin/clients/import?${params.toString()}`, {
         method: 'POST',
         body: formData,
-      })
+      });
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (result.success) {
         alert(
           `Successfully imported ${result.imported} new clients.\n` +
-          `Updated ${result.updated} existing clients.\n` +
-          `${result.skipped} skipped.` +
-          (result.errors ? `\n\nErrors:\n${result.errors.slice(0, 5).join('\n')}` : '')
-        )
-        setImportDialogOpen(false)
-        router.refresh()
+            `Updated ${result.updated} existing clients.\n` +
+            `${result.skipped} skipped.` +
+            (result.errors ? `\n\nErrors:\n${result.errors.slice(0, 5).join('\n')}` : '')
+        );
+        setImportDialogOpen(false);
+        router.refresh();
       } else {
-        alert(`Error: ${result.error}${result.details ? '\n' + result.details : ''}`)
+        alert(`Error: ${result.error}${result.details ? '\n' + result.details : ''}`);
       }
     } catch (error) {
-      alert(`Failed to import: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      alert(`Failed to import: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
-      setImporting(false)
+      setImporting(false);
       // Reset file input
-      e.target.value = ''
+      e.target.value = '';
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
@@ -117,7 +117,7 @@ export function ClientsManagement({ preparers }: ClientsManagementProps) {
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  applyFilters()
+                  applyFilters();
                 }
               }}
             />
@@ -176,7 +176,8 @@ export function ClientsManagement({ preparers }: ClientsManagementProps) {
             <DialogHeader>
               <DialogTitle>Import Clients</DialogTitle>
               <DialogDescription>
-                Upload a CSV file to import clients. Optionally assign them to a specific tax preparer.
+                Upload a CSV file to import clients. Optionally assign them to a specific tax
+                preparer.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -214,5 +215,5 @@ export function ClientsManagement({ preparers }: ClientsManagementProps) {
         </Dialog>
       </div>
     </div>
-  )
+  );
 }

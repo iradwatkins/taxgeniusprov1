@@ -1,81 +1,78 @@
-import React from 'react'
-import { Trophy, Calendar, Target, Gift, Crown, Medal, Award } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useActiveContests, useContestLeaderboard } from '@/hooks/useReferrerData'
-import type { Contest } from '@/lib/types'
-import type { ContestLeaderboardEntry } from '@/lib/types'
+import React from 'react';
+import { Trophy, Calendar, Target, Gift, Crown, Medal, Award } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useActiveContests, useContestLeaderboard } from '@/hooks/useReferrerData';
+import type { Contest } from '@/lib/types';
+import type { ContestLeaderboardEntry } from '@/lib/types';
 
 interface ContestDisplayProps {
-  currentUserId?: string
-  referrerId?: string
+  currentUserId?: string;
+  referrerId?: string;
 }
 
-export const ContestDisplay: React.FC<ContestDisplayProps> = ({
-  currentUserId,
-  referrerId
-}) => {
-  const { data: contests, isLoading: contestsLoading } = useActiveContests()
-  const { data: leaderboard, isLoading: leaderboardLoading } = useContestLeaderboard(10)
+export const ContestDisplay: React.FC<ContestDisplayProps> = ({ currentUserId, referrerId }) => {
+  const { data: contests, isLoading: contestsLoading } = useActiveContests();
+  const { data: leaderboard, isLoading: leaderboardLoading } = useContestLeaderboard(10);
 
-  const activeContest = contests?.[0] // Get the most recent active contest
+  const activeContest = contests?.[0]; // Get the most recent active contest
 
   const getUserRankInfo = () => {
-    if (!referrerId || !leaderboard) return null
-    
-    const userEntry = leaderboard.find(entry => entry.referrer_id === referrerId)
+    if (!referrerId || !leaderboard) return null;
+
+    const userEntry = leaderboard.find((entry) => entry.referrer_id === referrerId);
     if (userEntry) {
       return {
         rank: userEntry.rank,
         score: userEntry.score,
-        isInTopTen: true
-      }
+        isInTopTen: true,
+      };
     }
-    
+
     // If not in top 10, we would need to fetch their actual rank
     // For now, return a placeholder
     return {
       rank: null,
       score: 0,
-      isInTopTen: false
-    }
-  }
+      isInTopTen: false,
+    };
+  };
 
-  const userRankInfo = getUserRankInfo()
+  const userRankInfo = getUserRankInfo();
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Crown className="h-5 w-5 text-accent-foreground" />
+        return <Crown className="h-5 w-5 text-accent-foreground" />;
       case 2:
-        return <Medal className="h-5 w-5 text-gray-400" />
+        return <Medal className="h-5 w-5 text-gray-400" />;
       case 3:
-        return <Award className="h-5 w-5 text-amber-600" />
+        return <Award className="h-5 w-5 text-amber-600" />;
       default:
-        return <Trophy className="h-5 w-5 text-muted-foreground" />
+        return <Trophy className="h-5 w-5 text-muted-foreground" />;
     }
-  }
+  };
 
   const formatContestDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
-    })
-  }
+      year: 'numeric',
+    });
+  };
 
   const getProgressPercentage = () => {
-    if (!activeContest || !userRankInfo) return 0
-    
+    if (!activeContest || !userRankInfo) return 0;
+
     // Calculate progress based on contest rules
-    const rules = activeContest.rules as any
-    const minReferrals = rules?.min_referrals || 5
-    const userScore = userRankInfo.score || 0
-    
-    return Math.min((userScore / minReferrals) * 100, 100)
-  }
+    const rules = activeContest.rules as any;
+    const minReferrals = rules?.min_referrals || 5;
+    const userScore = userRankInfo.score || 0;
+
+    return Math.min((userScore / minReferrals) * 100, 100);
+  };
 
   if (contestsLoading) {
     return (
@@ -87,7 +84,7 @@ export const ContestDisplay: React.FC<ContestDisplayProps> = ({
           <Skeleton className="h-32 w-full" />
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (!activeContest) {
@@ -107,7 +104,7 @@ export const ContestDisplay: React.FC<ContestDisplayProps> = ({
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -122,7 +119,8 @@ export const ContestDisplay: React.FC<ContestDisplayProps> = ({
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
-              {formatContestDate(activeContest.start_date)} - {formatContestDate(activeContest.end_date)}
+              {formatContestDate(activeContest.start_date)} -{' '}
+              {formatContestDate(activeContest.end_date)}
             </div>
             <Badge variant="secondary" className="capitalize">
               {activeContest.contest_type.replace('_', ' ')}
@@ -133,7 +131,7 @@ export const ContestDisplay: React.FC<ContestDisplayProps> = ({
           {activeContest.description && (
             <p className="text-sm text-muted-foreground">{activeContest.description}</p>
           )}
-          
+
           {/* User Progress */}
           {userRankInfo && (
             <div className="space-y-2">
@@ -147,9 +145,7 @@ export const ContestDisplay: React.FC<ContestDisplayProps> = ({
               {userRankInfo.rank && (
                 <div className="flex items-center gap-2 text-sm">
                   {getRankIcon(userRankInfo.rank)}
-                  <span className="font-medium">
-                    Current Rank: #{userRankInfo.rank}
-                  </span>
+                  <span className="font-medium">Current Rank: #{userRankInfo.rank}</span>
                 </div>
               )}
             </div>
@@ -161,9 +157,7 @@ export const ContestDisplay: React.FC<ContestDisplayProps> = ({
               <div className="flex items-start gap-2">
                 <Gift className="h-4 w-4 text-accent-foreground mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-accent-foreground">
-                    Prizes
-                  </p>
+                  <p className="text-sm font-medium text-accent-foreground">Prizes</p>
                   <div className="text-sm text-muted-foreground whitespace-pre-line">
                     {activeContest.prize_description}
                   </div>
@@ -186,7 +180,10 @@ export const ContestDisplay: React.FC<ContestDisplayProps> = ({
           {leaderboardLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-md bg-muted/50">
+                <div
+                  key={i}
+                  className="flex items-center justify-between p-3 rounded-md bg-muted/50"
+                >
                   <div className="flex items-center gap-3">
                     <Skeleton className="h-4 w-6" />
                     <Skeleton className="h-4 w-24" />
@@ -201,19 +198,20 @@ export const ContestDisplay: React.FC<ContestDisplayProps> = ({
           ) : leaderboard && leaderboard.length > 0 ? (
             <div className="space-y-2">
               {leaderboard.map((entry) => {
-                const isCurrentUser = entry.referrer_id === referrerId
-                const displayName = isCurrentUser 
-                  ? 'You' 
-                  : `${entry.referrer?.first_name || ''} ${entry.referrer?.last_name || ''}`.trim() || 
-                    entry.referrer?.vanity_slug || 'Anonymous'
-                
+                const isCurrentUser = entry.referrer_id === referrerId;
+                const displayName = isCurrentUser
+                  ? 'You'
+                  : `${entry.referrer?.first_name || ''} ${entry.referrer?.last_name || ''}`.trim() ||
+                    entry.referrer?.vanity_slug ||
+                    'Anonymous';
+
                 return (
                   <div
                     key={entry.id}
                     className={`flex items-center justify-between p-3 rounded-md transition-colors ${
-                      isCurrentUser 
-                        ? "bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border border-blue-200 dark:border-blue-800" 
-                        : "bg-muted/30 hover:bg-muted/50"
+                      isCurrentUser
+                        ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border border-blue-200 dark:border-blue-800'
+                        : 'bg-muted/30 hover:bg-muted/50'
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -222,7 +220,9 @@ export const ContestDisplay: React.FC<ContestDisplayProps> = ({
                         <span className="font-bold text-sm">#{entry.rank}</span>
                       </div>
                       <div>
-                        <p className={`font-medium ${isCurrentUser ? 'text-blue-900 dark:text-blue-100' : ''}`}>
+                        <p
+                          className={`font-medium ${isCurrentUser ? 'text-blue-900 dark:text-blue-100' : ''}`}
+                        >
                           {displayName}
                         </p>
                         {isCurrentUser && (
@@ -239,9 +239,9 @@ export const ContestDisplay: React.FC<ContestDisplayProps> = ({
                       </p>
                     </div>
                   </div>
-                )
+                );
               })}
-              
+
               {/* Show user rank if not in top 10 */}
               {userRankInfo && !userRankInfo.isInTopTen && userRankInfo.rank && (
                 <div className="mt-4 pt-4 border-t border-border">
@@ -262,7 +262,9 @@ export const ContestDisplay: React.FC<ContestDisplayProps> = ({
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-medium">{Math.floor(userRankInfo.score)} referrals</p>
+                      <p className="text-sm font-medium">
+                        {Math.floor(userRankInfo.score)} referrals
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         ~${(userRankInfo.score * 50).toFixed(0)} earned
                       </p>
@@ -281,7 +283,7 @@ export const ContestDisplay: React.FC<ContestDisplayProps> = ({
         </CardContent>
       </Card>
     </div>
-  )
-}
+  );
+};
 
-export default ContestDisplay
+export default ContestDisplay;

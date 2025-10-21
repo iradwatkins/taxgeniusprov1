@@ -45,7 +45,13 @@ interface PermissionModalProps {
   isSuperAdmin?: boolean; // Whether the current user is a super_admin
 }
 
-export function PermissionModal({ open, onOpenChange, user, onSave, isSuperAdmin = false }: PermissionModalProps) {
+export function PermissionModal({
+  open,
+  onOpenChange,
+  user,
+  onSave,
+  isSuperAdmin = false,
+}: PermissionModalProps) {
   const [selectedRole, setSelectedRole] = useState<UserRole>(user.role);
   const [permissions, setPermissions] = useState<Partial<UserPermissions>>(
     user.permissions || DEFAULT_PERMISSIONS[user.role] || {}
@@ -81,9 +87,8 @@ export function PermissionModal({ open, onOpenChange, user, onSave, isSuperAdmin
     }
   };
 
-  const userName = user.firstName && user.lastName
-    ? `${user.firstName} ${user.lastName}`
-    : user.email;
+  const userName =
+    user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.email;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -155,10 +160,7 @@ export function PermissionModal({ open, onOpenChange, user, onSave, isSuperAdmin
                     className="flex items-center justify-between p-3 hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex-1">
-                      <Label
-                        htmlFor={permission}
-                        className="text-sm font-medium cursor-pointer"
-                      >
+                      <Label htmlFor={permission} className="text-sm font-medium cursor-pointer">
                         {label}
                       </Label>
                       {permission === 'adminManagement' && (
@@ -194,11 +196,7 @@ export function PermissionModal({ open, onOpenChange, user, onSave, isSuperAdmin
         </div>
 
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={isSaving}
-          >
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
             Cancel
           </Button>
           <Button onClick={handleSave} disabled={isSaving}>

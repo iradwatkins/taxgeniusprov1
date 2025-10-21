@@ -1,9 +1,9 @@
-import { redirect } from 'next/navigation'
+import { redirect } from 'next/navigation';
 
 interface PageProps {
   params: {
-    username: string
-  }
+    username: string;
+  };
 }
 
 // Reserved routes that should not be treated as usernames
@@ -53,15 +53,15 @@ const RESERVED_ROUTES = [
   'favicon.ico',
   'robots.txt',
   'sitemap.xml',
-  'manifest.json'
-]
+  'manifest.json',
+];
 
 export default async function VanityUrlPage({ params }: PageProps) {
-  const { username } = params
+  const { username } = params;
 
   // Check if this is a reserved route
   if (RESERVED_ROUTES.includes(username.toLowerCase())) {
-    redirect('/404')
+    redirect('/404');
   }
 
   // In production, validate username exists in database
@@ -69,8 +69,8 @@ export default async function VanityUrlPage({ params }: PageProps) {
 
   // Convert username to referral code format
   // In production, look up the actual referral code from the database
-  const referralCode = username.toUpperCase()
+  const referralCode = username.toUpperCase();
 
   // Redirect to referral page with the code
-  redirect(`/refer?code=${referralCode}`)
+  redirect(`/refer?code=${referralCode}`);
 }

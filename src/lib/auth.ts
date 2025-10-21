@@ -112,7 +112,12 @@ export function getDashboardUrl(role: UserRole): string {
  */
 export async function hasStoreAccess(): Promise<boolean> {
   const userRole = await getUserRole();
-  return userRole === 'tax_preparer' || userRole === 'affiliate' || userRole === 'admin' || userRole === 'super_admin';
+  return (
+    userRole === 'tax_preparer' ||
+    userRole === 'affiliate' ||
+    userRole === 'admin' ||
+    userRole === 'super_admin'
+  );
 }
 
 /**

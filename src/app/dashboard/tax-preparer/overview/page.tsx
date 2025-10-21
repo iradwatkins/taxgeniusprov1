@@ -1,8 +1,8 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   AlertTriangle,
   Calendar,
@@ -13,43 +13,43 @@ import {
   Link as LinkIcon,
   PhoneCall,
   CheckCircle,
-  Clock
-} from 'lucide-react'
-import Link from 'next/link'
+  Clock,
+} from 'lucide-react';
+import Link from 'next/link';
 import {
   getPreparerDashboardStats,
   getPreparerMissedFollowUps,
   getPreparerTopReferrers,
-  getPreparerTopLinks
-} from '@/lib/services/preparer-analytics.service'
+  getPreparerTopLinks,
+} from '@/lib/services/preparer-analytics.service';
 
 export const metadata = {
   title: 'Preparer Dashboard - Tax Genius Pro',
   description: 'Your tax preparer operational dashboard',
-}
+};
 
 async function isTaxPreparer() {
-  const user = await currentUser()
-  if (!user) return false
-  const role = user.publicMetadata?.role as string
-  return role === 'TAX_PREPARER' || role === 'super_admin'
+  const user = await currentUser();
+  if (!user) return false;
+  const role = user.publicMetadata?.role as string;
+  return role === 'TAX_PREPARER' || role === 'super_admin';
 }
 
 export default async function PreparerOverviewDashboard() {
-  const userIsPrepar = await isTaxPreparer()
+  const userIsPrepar = await isTaxPreparer();
 
   if (!userIsPrepar) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
-  const user = await currentUser()
-  const preparerId = user?.id || ''
+  const user = await currentUser();
+  const preparerId = user?.id || '';
 
   // Fetch all dashboard data
-  const stats = await getPreparerDashboardStats(preparerId)
-  const missedFollowUps = await getPreparerMissedFollowUps(preparerId)
-  const topReferrers = await getPreparerTopReferrers(preparerId, 10)
-  const topLinks = await getPreparerTopLinks(preparerId, 10)
+  const stats = await getPreparerDashboardStats(preparerId);
+  const missedFollowUps = await getPreparerMissedFollowUps(preparerId);
+  const topReferrers = await getPreparerTopReferrers(preparerId, 10);
+  const topLinks = await getPreparerTopLinks(preparerId, 10);
 
   return (
     <div className="min-h-screen bg-background">
@@ -57,9 +57,7 @@ export default async function PreparerOverviewDashboard() {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Preparer Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back, {user?.firstName || 'Preparer'}
-          </p>
+          <p className="text-muted-foreground">Welcome back, {user?.firstName || 'Preparer'}</p>
         </div>
 
         {/* CRITICAL ALERTS - Missed Follow-Ups */}
@@ -83,8 +81,8 @@ export default async function PreparerOverviewDashboard() {
                       followUp.urgency === 'critical'
                         ? 'border-red-300 bg-red-100 dark:bg-red-900/20'
                         : followUp.urgency === 'high'
-                        ? 'border-orange-300 bg-orange-100 dark:bg-orange-900/20'
-                        : 'border-yellow-300 bg-yellow-100 dark:bg-yellow-900/20'
+                          ? 'border-orange-300 bg-orange-100 dark:bg-orange-900/20'
+                          : 'border-yellow-300 bg-yellow-100 dark:bg-yellow-900/20'
                     }`}
                   >
                     <div className="flex items-start justify-between">
@@ -95,8 +93,8 @@ export default async function PreparerOverviewDashboard() {
                               followUp.urgency === 'critical'
                                 ? 'destructive'
                                 : followUp.urgency === 'high'
-                                ? 'default'
-                                : 'secondary'
+                                  ? 'default'
+                                  : 'secondary'
                             }
                           >
                             {followUp.daysWaiting} days waiting
@@ -164,9 +162,7 @@ export default async function PreparerOverviewDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.returnsCompleted}</div>
-              <p className="text-xs text-muted-foreground">
-                {stats.returnsInProgress} in progress
-              </p>
+              <p className="text-xs text-muted-foreground">{stats.returnsInProgress} in progress</p>
             </CardContent>
           </Card>
 
@@ -319,9 +315,7 @@ export default async function PreparerOverviewDashboard() {
                     : 0}
                   <span className="text-base font-normal text-muted-foreground ml-1">%</span>
                 </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Intakes → Filed returns
-                </p>
+                <p className="text-xs text-muted-foreground mt-1">Intakes → Filed returns</p>
               </div>
             </div>
           </CardContent>
@@ -361,5 +355,5 @@ export default async function PreparerOverviewDashboard() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

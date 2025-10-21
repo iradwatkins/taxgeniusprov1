@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
+import { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -8,37 +8,37 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react'
-import { cn } from '@/lib/utils'
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export interface PerformanceData {
-  id: string
-  name: string
-  email: string
-  [key: string]: any
+  id: string;
+  name: string;
+  email: string;
+  [key: string]: any;
 }
 
 export interface Column {
-  key: string
-  label: string
-  sortable?: boolean
-  format?: 'number' | 'currency' | 'percent' | 'date' | 'text'
-  className?: string
-  render?: (value: any, row: PerformanceData) => React.ReactNode
+  key: string;
+  label: string;
+  sortable?: boolean;
+  format?: 'number' | 'currency' | 'percent' | 'date' | 'text';
+  className?: string;
+  render?: (value: any, row: PerformanceData) => React.ReactNode;
 }
 
 interface PerformanceTableProps {
-  data: PerformanceData[]
-  columns: Column[]
-  onRowClick?: (row: PerformanceData) => void
-  loading?: boolean
-  emptyMessage?: string
+  data: PerformanceData[];
+  columns: Column[];
+  onRowClick?: (row: PerformanceData) => void;
+  loading?: boolean;
+  emptyMessage?: string;
 }
 
-type SortDirection = 'asc' | 'desc' | null
+type SortDirection = 'asc' | 'desc' | null;
 
 export function PerformanceTable({
   data,
@@ -47,65 +47,65 @@ export function PerformanceTable({
   loading = false,
   emptyMessage = 'No data available',
 }: PerformanceTableProps) {
-  const [sortKey, setSortKey] = useState<string | null>(null)
-  const [sortDirection, setSortDirection] = useState<SortDirection>(null)
+  const [sortKey, setSortKey] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
   const handleSort = (columnKey: string) => {
     if (sortKey === columnKey) {
       // Cycle through: asc -> desc -> null
       if (sortDirection === 'asc') {
-        setSortDirection('desc')
+        setSortDirection('desc');
       } else if (sortDirection === 'desc') {
-        setSortKey(null)
-        setSortDirection(null)
+        setSortKey(null);
+        setSortDirection(null);
       }
     } else {
-      setSortKey(columnKey)
-      setSortDirection('asc')
+      setSortKey(columnKey);
+      setSortDirection('asc');
     }
-  }
+  };
 
   const getSortedData = () => {
-    if (!sortKey || !sortDirection) return data
+    if (!sortKey || !sortDirection) return data;
 
     return [...data].sort((a, b) => {
-      const aValue = a[sortKey]
-      const bValue = b[sortKey]
+      const aValue = a[sortKey];
+      const bValue = b[sortKey];
 
-      if (aValue === bValue) return 0
+      if (aValue === bValue) return 0;
 
-      let comparison = 0
+      let comparison = 0;
       if (typeof aValue === 'number' && typeof bValue === 'number') {
-        comparison = aValue - bValue
+        comparison = aValue - bValue;
       } else if (aValue instanceof Date && bValue instanceof Date) {
-        comparison = aValue.getTime() - bValue.getTime()
+        comparison = aValue.getTime() - bValue.getTime();
       } else {
-        comparison = String(aValue).localeCompare(String(bValue))
+        comparison = String(aValue).localeCompare(String(bValue));
       }
 
-      return sortDirection === 'asc' ? comparison : -comparison
-    })
-  }
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+  };
 
   const formatValue = (value: any, format?: Column['format']): string => {
-    if (value === null || value === undefined) return '-'
+    if (value === null || value === undefined) return '-';
 
     switch (format) {
       case 'currency':
-        return typeof value === 'number' ? `$${value.toLocaleString()}` : value
+        return typeof value === 'number' ? `$${value.toLocaleString()}` : value;
       case 'percent':
-        return typeof value === 'number' ? `${value.toFixed(1)}%` : value
+        return typeof value === 'number' ? `${value.toFixed(1)}%` : value;
       case 'number':
-        return typeof value === 'number' ? value.toLocaleString() : value
+        return typeof value === 'number' ? value.toLocaleString() : value;
       case 'date':
-        return value instanceof Date ? value.toLocaleDateString() : value
+        return value instanceof Date ? value.toLocaleDateString() : value;
       case 'text':
       default:
-        return String(value)
+        return String(value);
     }
-  }
+  };
 
-  const sortedData = getSortedData()
+  const sortedData = getSortedData();
 
   if (loading) {
     return (
@@ -131,7 +131,7 @@ export function PerformanceTable({
           </TableBody>
         </Table>
       </div>
-    )
+    );
   }
 
   if (sortedData.length === 0) {
@@ -139,7 +139,7 @@ export function PerformanceTable({
       <div className="border rounded-lg p-8 text-center text-muted-foreground">
         <p>{emptyMessage}</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -193,7 +193,7 @@ export function PerformanceTable({
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }
 
 // Helper component for rendering badges in tables
@@ -203,11 +203,7 @@ export function StatusBadge({ status }: { status: string }) {
     pending: 'secondary',
     completed: 'outline',
     failed: 'destructive',
-  }
+  };
 
-  return (
-    <Badge variant={variants[status.toLowerCase()] || 'outline'}>
-      {status}
-    </Badge>
-  )
+  return <Badge variant={variants[status.toLowerCase()] || 'outline'}>{status}</Badge>;
 }

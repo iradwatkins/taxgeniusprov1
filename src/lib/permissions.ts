@@ -51,28 +51,34 @@ export type SectionPermission =
 
 // Map sections to their display names
 export const SECTION_NAMES: Record<SectionPermission, string> = {
-  'section_general': '🔔 General',
-  'section_client_management': '👥 Client Management',
-  'section_communications': '📧 Communications',
-  'section_analytics': '📊 Analytics & Reporting',
-  'section_growth_marketing': '🚀 Growth & Marketing',
-  'section_content_learning': '🎓 Content & Learning',
-  'section_marketing_materials': '📢 Marketing Materials',
-  'section_financial': '💰 Financial',
-  'section_system_admin': '⚙️ System Administration',
+  section_general: '🔔 General',
+  section_client_management: '👥 Client Management',
+  section_communications: '📧 Communications',
+  section_analytics: '📊 Analytics & Reporting',
+  section_growth_marketing: '🚀 Growth & Marketing',
+  section_content_learning: '🎓 Content & Learning',
+  section_marketing_materials: '📢 Marketing Materials',
+  section_financial: '💰 Financial',
+  section_system_admin: '⚙️ System Administration',
 };
 
 // Map sections to their permissions
 export const SECTION_PERMISSIONS: Record<SectionPermission, Permission[]> = {
-  'section_general': ['dashboard', 'alerts'],
-  'section_client_management': ['clientsStatus', 'clients', 'clientFileCenter', 'documents', 'uploadDocuments'],
-  'section_communications': ['emails', 'calendar', 'addressBook'],
-  'section_analytics': ['analytics', 'googleAnalytics', 'referralsAnalytics'],
-  'section_growth_marketing': ['referralsStatus', 'contest', 'quickShareLinks'],
-  'section_content_learning': ['learningCenter', 'academy', 'contentGenerator'],
-  'section_marketing_materials': ['marketingHub', 'marketing'],
-  'section_financial': ['payouts', 'earnings', 'store'],
-  'section_system_admin': ['users', 'adminManagement', 'database', 'settings'],
+  section_general: ['dashboard', 'alerts'],
+  section_client_management: [
+    'clientsStatus',
+    'clients',
+    'clientFileCenter',
+    'documents',
+    'uploadDocuments',
+  ],
+  section_communications: ['emails', 'calendar', 'addressBook'],
+  section_analytics: ['analytics', 'googleAnalytics', 'referralsAnalytics'],
+  section_growth_marketing: ['referralsStatus', 'contest', 'quickShareLinks'],
+  section_content_learning: ['learningCenter', 'academy', 'contentGenerator'],
+  section_marketing_materials: ['marketingHub', 'marketing'],
+  section_financial: ['payouts', 'earnings', 'store'],
+  section_system_admin: ['users', 'adminManagement', 'database', 'settings'],
 };
 
 export type UserPermissions = Record<Permission, boolean>;
@@ -231,6 +237,8 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     clients: true, // ✅ Their assigned clients only (filtered in backend by assignedPreparer)
     documents: true, // ✅ Documents for their clients only (filtered in backend)
     clientFileCenter: true, // ✅ Files for their clients only (filtered in backend)
+    addressBook: true, // ✅ CRM access for managing their contacts (scoped to their assigned contacts)
+    calendar: true, // ✅ Calendar for managing client appointments
     store: true, // Can purchase marketing materials
     academy: true, // Access training and certification
     settings: true,
@@ -240,8 +248,6 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     // clientsStatus: false - Removed (admins manage this)
     // referralsStatus: false - Removed (not their responsibility)
     // emails: false - Removed (system-wide email management is admin-only)
-    // calendar: false - Removed (system-wide calendar is admin-only)
-    // addressBook: false - Removed (system-wide contacts are admin-only)
     earnings: false, // Removed from all dashboards
     quickShareLinks: false, // Removed from all dashboards
   },
@@ -261,7 +267,7 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     // Leads are NEW SIGNUPS pending admin approval
     // NO access until admin changes role to CLIENT, AFFILIATE, or TAX_PREPARER
     dashboard: false, // Shows pending approval page instead
-    settings: false,   // No access until approved
+    settings: false, // No access until approved
   },
   client: {
     // Clients have completed tax preparation and can refer new clients
@@ -269,9 +275,9 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     uploadDocuments: true,
     settings: true,
     // Referral features (conditional - shown if shortLinkUsername exists)
-    analytics: true,      // View referral analytics
-    trackingCode: true,   // Personal referral link
-    marketing: true,      // Sharing tools
+    analytics: true, // View referral analytics
+    trackingCode: true, // Personal referral link
+    marketing: true, // Sharing tools
   },
 };
 
@@ -395,15 +401,17 @@ export function getEditablePermissions(role: UserRole): Permission[] {
       // Tax preparers have these fixed features (scoped to their assigned clients)
       return [
         'dashboard',
-        'clients',          // Their assigned clients only (filtered in backend)
-        'documents',        // Their clients' documents only (filtered in backend)
+        'clients', // Their assigned clients only (filtered in backend)
+        'documents', // Their clients' documents only (filtered in backend)
         'clientFileCenter', // Their clients' files only (filtered in backend)
-        'store',           // Can purchase marketing materials
-        'academy',         // Access training
+        'addressBook', // CRM access for managing their contacts (scoped to their assigned contacts)
+        'calendar', // Calendar for managing client appointments
+        'store', // Can purchase marketing materials
+        'academy', // Access training
         'settings',
-        'analytics',       // Their own performance analytics
-        'trackingCode',    // Their personal tracking link
-        // REMOVED: clientsStatus, referralsStatus, emails, calendar, addressBook
+        'analytics', // Their own performance analytics
+        'trackingCode', // Their personal tracking link
+        // REMOVED: clientsStatus, referralsStatus, emails
         // (These are system-wide admin tools, not for individual tax preparers)
       ];
 
@@ -411,10 +419,10 @@ export function getEditablePermissions(role: UserRole): Permission[] {
       // Affiliates are professional external marketers
       return [
         'dashboard',
-        'store',        // ✅ Access to marketing materials store
-        'marketing',    // Professional marketing assets
+        'store', // ✅ Access to marketing materials store
+        'marketing', // Professional marketing assets
         'settings',
-        'analytics',    // Detailed conversion tracking
+        'analytics', // Detailed conversion tracking
         'trackingCode', // Sophisticated tracking codes
       ];
 
@@ -427,9 +435,9 @@ export function getEditablePermissions(role: UserRole): Permission[] {
         'dashboard',
         'uploadDocuments',
         'settings',
-        'analytics',    // View referral analytics (conditional)
+        'analytics', // View referral analytics (conditional)
         'trackingCode', // Personal referral link (conditional)
-        'marketing',    // Sharing tools (conditional)
+        'marketing', // Sharing tools (conditional)
       ];
 
     default:

@@ -1,22 +1,22 @@
-'use client'
+'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 export interface SourceData {
-  name: string
-  value: number
-  percentage: number
-  color: string
+  name: string;
+  value: number;
+  percentage: number;
+  color: string;
 }
 
 interface SourceBreakdownChartProps {
-  data: SourceData[]
-  title?: string
-  subtitle?: string
-  loading?: boolean
-  className?: string
-  showLegend?: boolean
+  data: SourceData[];
+  title?: string;
+  subtitle?: string;
+  loading?: boolean;
+  className?: string;
+  showLegend?: boolean;
 }
 
 export function SourceBreakdownChart({
@@ -48,10 +48,10 @@ export function SourceBreakdownChart({
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
-  const total = data.reduce((sum, item) => sum + item.value, 0)
+  const total = data.reduce((sum, item) => sum + item.value, 0);
 
   if (total === 0 || data.length === 0) {
     return (
@@ -66,24 +66,24 @@ export function SourceBreakdownChart({
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   // Calculate pie chart segments
-  let cumulativePercentage = 0
+  let cumulativePercentage = 0;
   const segments = data.map((item) => {
-    const percentage = (item.value / total) * 100
-    const startAngle = (cumulativePercentage * 360) / 100
-    const endAngle = ((cumulativePercentage + percentage) * 360) / 100
-    cumulativePercentage += percentage
+    const percentage = (item.value / total) * 100;
+    const startAngle = (cumulativePercentage * 360) / 100;
+    const endAngle = ((cumulativePercentage + percentage) * 360) / 100;
+    cumulativePercentage += percentage;
 
     return {
       ...item,
       startAngle,
       endAngle,
       percentage,
-    }
-  })
+    };
+  });
 
   return (
     <Card className={className}>
@@ -95,10 +95,7 @@ export function SourceBreakdownChart({
         <div className="flex flex-col lg:flex-row items-center gap-8">
           {/* Donut Chart */}
           <div className="relative flex-shrink-0">
-            <svg
-              viewBox="0 0 200 200"
-              className="w-48 h-48 transform -rotate-90"
-            >
+            <svg viewBox="0 0 200 200" className="w-48 h-48 transform -rotate-90">
               {/* Background circle */}
               <circle
                 cx="100"
@@ -112,16 +109,16 @@ export function SourceBreakdownChart({
 
               {/* Segments */}
               {segments.map((segment, index) => {
-                const radius = 80
-                const circumference = 2 * Math.PI * radius
-                const startAngle = (segment.startAngle * Math.PI) / 180
-                const endAngle = (segment.endAngle * Math.PI) / 180
-                const angleDiff = endAngle - startAngle
+                const radius = 80;
+                const circumference = 2 * Math.PI * radius;
+                const startAngle = (segment.startAngle * Math.PI) / 180;
+                const endAngle = (segment.endAngle * Math.PI) / 180;
+                const angleDiff = endAngle - startAngle;
 
                 const strokeDasharray = `${
                   (angleDiff / (2 * Math.PI)) * circumference
-                } ${circumference}`
-                const strokeDashoffset = -((segment.startAngle / 360) * circumference)
+                } ${circumference}`;
+                const strokeDashoffset = -((segment.startAngle / 360) * circumference);
 
                 return (
                   <circle
@@ -139,7 +136,7 @@ export function SourceBreakdownChart({
                       filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))',
                     }}
                   />
-                )
+                );
               })}
             </svg>
 
@@ -166,9 +163,7 @@ export function SourceBreakdownChart({
                     <span className="text-sm font-medium truncate">{segment.name}</span>
                   </div>
                   <div className="flex items-center gap-4 flex-shrink-0">
-                    <span className="text-sm font-semibold">
-                      {segment.value.toLocaleString()}
-                    </span>
+                    <span className="text-sm font-semibold">{segment.value.toLocaleString()}</span>
                     <span className="text-xs text-muted-foreground w-12 text-right">
                       {segment.percentage.toFixed(1)}%
                     </span>
@@ -180,7 +175,7 @@ export function SourceBreakdownChart({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // Helper function to create source breakdown from analytics
@@ -215,5 +210,5 @@ export function createSourceBreakdown(
       percentage: 0,
       color: '#10b981', // green
     },
-  ].filter((source) => source.value > 0) // Only show sources with data
+  ].filter((source) => source.value > 0); // Only show sources with data
 }

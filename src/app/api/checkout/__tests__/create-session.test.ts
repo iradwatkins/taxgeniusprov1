@@ -74,9 +74,7 @@ describe('Checkout API - Price Validation (AC24)', () => {
     const cartItemIds = ['product-1', 'product-2', 'invalid-product'];
     const databaseProductIds = ['product-1', 'product-2'];
 
-    const missingProducts = cartItemIds.filter(
-      (id) => !databaseProductIds.includes(id)
-    );
+    const missingProducts = cartItemIds.filter((id) => !databaseProductIds.includes(id));
 
     expect(missingProducts).toContain('invalid-product');
     expect(missingProducts).toHaveLength(1);

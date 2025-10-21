@@ -16,13 +16,13 @@ export default function AnimatedCounter({
   duration = 2,
   prefix = '',
   suffix = '',
-  className = ''
+  className = '',
 }: AnimatedCounterProps) {
   const ref = useRef<HTMLSpanElement>(null);
   const motionValue = useMotionValue(0);
   const springValue = useSpring(motionValue, {
     damping: 60,
-    stiffness: 100
+    stiffness: 100,
   });
   const isInView = useInView(ref, { once: true, margin: '0px' });
   const [displayValue, setDisplayValue] = useState('0');
@@ -41,7 +41,9 @@ export default function AnimatedCounter({
 
   return (
     <span ref={ref} className={className}>
-      {prefix}{displayValue}{suffix}
+      {prefix}
+      {displayValue}
+      {suffix}
     </span>
   );
 }

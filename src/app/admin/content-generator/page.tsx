@@ -9,16 +9,21 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { toast } from 'sonner';
 import { Loader2, Sparkles, Save, RefreshCw } from 'lucide-react';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 // Form validation schema
 const ContentGeneratorSchema = z.object({
   city: z.string().min(1, 'City is required').max(100, 'City name too long'),
   state: z.string().max(50, 'State name too long').optional(),
-  keywords: z.string().min(1, 'Keywords are required').max(500, 'Keywords too long')
+  keywords: z.string().min(1, 'Keywords are required').max(500, 'Keywords too long'),
 });
 
 type ContentGeneratorForm = z.infer<typeof ContentGeneratorSchema>;
@@ -52,8 +57,8 @@ export default function ContentGeneratorPage() {
     defaultValues: {
       city: '',
       state: '',
-      keywords: ''
-    }
+      keywords: '',
+    },
   });
 
   const onGenerate = async (data: ContentGeneratorForm) => {
@@ -63,7 +68,7 @@ export default function ContentGeneratorPage() {
       const response = await fetch('/api/ai-content/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
 
       const result = await response.json();
@@ -86,9 +91,7 @@ export default function ContentGeneratorPage() {
     } catch (error) {
       logger.error('Generation error:', error);
       toast.error(
-        error instanceof Error
-          ? error.message
-          : 'Failed to generate content. Please try again.'
+        error instanceof Error ? error.message : 'Failed to generate content. Please try again.'
       );
     } finally {
       setIsGenerating(false);
@@ -123,8 +126,8 @@ export default function ContentGeneratorPage() {
           metaTitle: editableMetaTitle,
           metaDescription: editableMetaDescription,
           qaAccordion: generatedContent.qaAccordion,
-          generatedBy: generatedContent.generatedBy
-        })
+          generatedBy: generatedContent.generatedBy,
+        }),
       });
 
       const result = await response.json();
@@ -145,16 +148,15 @@ export default function ContentGeneratorPage() {
     } catch (error) {
       logger.error('Save error:', error);
       toast.error(
-        error instanceof Error
-          ? error.message
-          : 'Failed to save landing page. Please try again.'
+        error instanceof Error ? error.message : 'Failed to save landing page. Please try again.'
       );
     } finally {
       setIsSaving(false);
     }
   };
 
-  const hasRequiredContent = editableHeadline && editableBodyContent && editableMetaTitle && editableMetaDescription;
+  const hasRequiredContent =
+    editableHeadline && editableBodyContent && editableMetaTitle && editableMetaDescription;
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
@@ -189,9 +191,7 @@ export default function ContentGeneratorPage() {
                   disabled={isGenerating}
                 />
                 {form.formState.errors.city && (
-                  <p className="text-sm text-destructive">
-                    {form.formState.errors.city.message}
-                  </p>
+                  <p className="text-sm text-destructive">{form.formState.errors.city.message}</p>
                 )}
               </div>
 
@@ -205,9 +205,7 @@ export default function ContentGeneratorPage() {
                   disabled={isGenerating}
                 />
                 {form.formState.errors.state && (
-                  <p className="text-sm text-destructive">
-                    {form.formState.errors.state.message}
-                  </p>
+                  <p className="text-sm text-destructive">{form.formState.errors.state.message}</p>
                 )}
               </div>
 
@@ -221,9 +219,7 @@ export default function ContentGeneratorPage() {
                   {...form.register('keywords')}
                   disabled={isGenerating}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Separate keywords with commas
-                </p>
+                <p className="text-xs text-muted-foreground">Separate keywords with commas</p>
                 {form.formState.errors.keywords && (
                   <p className="text-sm text-destructive">
                     {form.formState.errors.keywords.message}
@@ -232,11 +228,7 @@ export default function ContentGeneratorPage() {
               </div>
 
               {/* Generate Button */}
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isGenerating}
-              >
+              <Button type="submit" className="w-full" disabled={isGenerating}>
                 {isGenerating ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

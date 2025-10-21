@@ -1,12 +1,12 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { Input } from '@/components/ui/input'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   DollarSign,
   Users,
@@ -25,35 +25,35 @@ import {
   Award,
   ChevronUp,
   ChevronDown,
-  CheckCircle
-} from 'lucide-react'
+  CheckCircle,
+} from 'lucide-react';
 
 interface ReferralData {
-  referralCode: string
-  vanityUrl: string
-  tier: 'bronze' | 'silver' | 'gold' | 'platinum'
-  totalReferrals: number
-  qualifiedReferrals: number
-  pendingReferrals: number
-  totalEarnings: number
-  availableBalance: number
-  thisMonthReferrals: number
-  lastMonthReferrals: number
-  conversionRate: number
-  nextTierProgress: number
-  nextTierRequirement: number
+  referralCode: string;
+  vanityUrl: string;
+  tier: 'bronze' | 'silver' | 'gold' | 'platinum';
+  totalReferrals: number;
+  qualifiedReferrals: number;
+  pendingReferrals: number;
+  totalEarnings: number;
+  availableBalance: number;
+  thisMonthReferrals: number;
+  lastMonthReferrals: number;
+  conversionRate: number;
+  nextTierProgress: number;
+  nextTierRequirement: number;
 }
 
 interface ReferralDashboardProps {
-  userId?: string
-  language?: 'en' | 'es'
+  userId?: string;
+  language?: 'en' | 'es';
 }
 
 export default function ReferralDashboard({ userId, language = 'en' }: ReferralDashboardProps) {
-  const [referralData, setReferralData] = useState<ReferralData | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [copied, setCopied] = useState(false)
-  const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'all'>('month')
+  const [referralData, setReferralData] = useState<ReferralData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'all'>('month');
 
   const content = {
     en: {
@@ -87,20 +87,20 @@ export default function ReferralDashboard({ userId, language = 'en' }: ReferralD
         'Share your unique referral link',
         'Friends sign up and get their advance',
         'Earn $100 for each qualified referral',
-        'Cash out anytime over $100'
+        'Cash out anytime over $100',
       ],
       tiers: {
         bronze: { name: 'Bronze', color: 'bg-accent', icon: '🥉', bonus: '$50' },
         silver: { name: 'Silver', color: 'bg-gray-400', icon: '🥈', bonus: '$75' },
         gold: { name: 'Gold', color: 'bg-yellow-500', icon: '🥇', bonus: '$100' },
-        platinum: { name: 'Platinum', color: 'bg-purple-600', icon: '💎', bonus: '$150' }
+        platinum: { name: 'Platinum', color: 'bg-purple-600', icon: '💎', bonus: '$150' },
       },
       recentReferrals: [
         { name: 'John D.', status: 'qualified', amount: 100, date: '2 hours ago' },
         { name: 'Maria S.', status: 'pending', amount: 0, date: '5 hours ago' },
         { name: 'Robert K.', status: 'qualified', amount: 100, date: 'Yesterday' },
-        { name: 'Lisa M.', status: 'qualified', amount: 100, date: '2 days ago' }
-      ]
+        { name: 'Lisa M.', status: 'qualified', amount: 100, date: '2 days ago' },
+      ],
     },
     es: {
       title: 'Panel de Referencias',
@@ -133,31 +133,31 @@ export default function ReferralDashboard({ userId, language = 'en' }: ReferralD
         'Comparte tu enlace único de referencia',
         'Amigos se registran y obtienen su adelanto',
         'Gana $100 por cada referencia calificada',
-        'Retira en cualquier momento sobre $100'
+        'Retira en cualquier momento sobre $100',
       ],
       tiers: {
         bronze: { name: 'Bronce', color: 'bg-accent', icon: '🥉', bonus: '$50' },
         silver: { name: 'Plata', color: 'bg-gray-400', icon: '🥈', bonus: '$75' },
         gold: { name: 'Oro', color: 'bg-yellow-500', icon: '🥇', bonus: '$100' },
-        platinum: { name: 'Platino', color: 'bg-purple-600', icon: '💎', bonus: '$150' }
+        platinum: { name: 'Platino', color: 'bg-purple-600', icon: '💎', bonus: '$150' },
       },
       recentReferrals: [
         { name: 'Juan D.', status: 'qualified', amount: 100, date: 'Hace 2 horas' },
         { name: 'María S.', status: 'pending', amount: 0, date: 'Hace 5 horas' },
         { name: 'Roberto K.', status: 'qualified', amount: 100, date: 'Ayer' },
-        { name: 'Lisa M.', status: 'qualified', amount: 100, date: 'Hace 2 días' }
-      ]
-    }
-  }
+        { name: 'Lisa M.', status: 'qualified', amount: 100, date: 'Hace 2 días' },
+      ],
+    },
+  };
 
-  const t = content[language]
+  const t = content[language];
 
   useEffect(() => {
-    fetchReferralData()
-  }, [userId])
+    fetchReferralData();
+  }, [userId]);
 
   const fetchReferralData = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     // Simulate API call (in production, fetch from database)
     setTimeout(() => {
@@ -174,35 +174,35 @@ export default function ReferralDashboard({ userId, language = 'en' }: ReferralD
         lastMonthReferrals: 12,
         conversionRate: 0.74,
         nextTierProgress: 35,
-        nextTierRequirement: 50
-      })
-      setIsLoading(false)
-    }, 1000)
-  }
+        nextTierRequirement: 50,
+      });
+      setIsLoading(false);
+    }, 1000);
+  };
 
   const copyReferralLink = () => {
     if (referralData) {
-      navigator.clipboard.writeText(`https://${referralData.vanityUrl}`)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      navigator.clipboard.writeText(`https://${referralData.vanityUrl}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
-  }
+  };
 
   const shareOnSocial = (platform: string) => {
-    if (!referralData) return
+    if (!referralData) return;
 
-    const message = `Get $7,000 cash advance in 10 minutes! Use my link for $50 bonus:`
-    const url = `https://${referralData.vanityUrl}`
+    const message = `Get $7,000 cash advance in 10 minutes! Use my link for $50 bonus:`;
+    const url = `https://${referralData.vanityUrl}`;
 
     const shareUrls = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
       twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(url)}`,
       whatsapp: `https://wa.me/?text=${encodeURIComponent(message + ' ' + url)}`,
-      email: `mailto:?subject=Get%20%247000%20Cash%20Advance&body=${encodeURIComponent(message + ' ' + url)}`
-    }
+      email: `mailto:?subject=Get%20%247000%20Cash%20Advance&body=${encodeURIComponent(message + ' ' + url)}`,
+    };
 
-    window.open(shareUrls[platform as keyof typeof shareUrls], '_blank')
-  }
+    window.open(shareUrls[platform as keyof typeof shareUrls], '_blank');
+  };
 
   if (isLoading || !referralData) {
     return (
@@ -213,11 +213,11 @@ export default function ReferralDashboard({ userId, language = 'en' }: ReferralD
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
-  const tierInfo = t.tiers[referralData.tier]
-  const progressPercent = (referralData.nextTierProgress / referralData.nextTierRequirement) * 100
+  const tierInfo = t.tiers[referralData.tier];
+  const progressPercent = (referralData.nextTierProgress / referralData.nextTierRequirement) * 100;
 
   return (
     <div className="space-y-6">
@@ -243,9 +243,7 @@ export default function ReferralDashboard({ userId, language = 'en' }: ReferralD
             <CardDescription>{t.availableBalance}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">
-              ${referralData.availableBalance.toLocaleString()}
-            </p>
+            <p className="text-2xl font-bold">${referralData.availableBalance.toLocaleString()}</p>
             <Button size="sm" className="mt-2">
               {t.cashOut}
             </Button>
@@ -274,12 +272,8 @@ export default function ReferralDashboard({ userId, language = 'en' }: ReferralD
             <CardDescription>{t.conversionRate}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">
-              {(referralData.conversionRate * 100).toFixed(0)}%
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Industry avg: 45%
-            </p>
+            <p className="text-2xl font-bold">{(referralData.conversionRate * 100).toFixed(0)}%</p>
+            <p className="text-xs text-muted-foreground mt-1">Industry avg: 45%</p>
           </CardContent>
         </Card>
       </div>
@@ -308,7 +302,10 @@ export default function ReferralDashboard({ userId, language = 'en' }: ReferralD
                 {referralData.nextTierProgress} / {referralData.nextTierRequirement} referrals
               </span>
               <span className="font-medium">
-                {t.referralsNeeded.replace('{count}', String(referralData.nextTierRequirement - referralData.nextTierProgress))}
+                {t.referralsNeeded.replace(
+                  '{count}',
+                  String(referralData.nextTierRequirement - referralData.nextTierProgress)
+                )}
               </span>
             </div>
             <div className="grid grid-cols-4 gap-2 pt-2">
@@ -415,7 +412,10 @@ export default function ReferralDashboard({ userId, language = 'en' }: ReferralD
 
             <TabsContent value={selectedPeriod} className="space-y-3 mt-4">
               {t.recentReferrals.map((referral, index) => (
-                <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                       <Users className="w-4 h-4 text-primary" />
@@ -430,9 +430,7 @@ export default function ReferralDashboard({ userId, language = 'en' }: ReferralD
                       {referral.status}
                     </Badge>
                     {referral.amount > 0 && (
-                      <span className="font-semibold text-green-600">
-                        +${referral.amount}
-                      </span>
+                      <span className="font-semibold text-green-600">+${referral.amount}</span>
                     )}
                   </div>
                 </div>
@@ -461,5 +459,5 @@ export default function ReferralDashboard({ userId, language = 'en' }: ReferralD
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

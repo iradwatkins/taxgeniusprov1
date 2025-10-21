@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 /**
  * Earnings Overview Card
@@ -9,11 +9,11 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 6
  */
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import {
   DollarSign,
   TrendingUp,
@@ -22,57 +22,57 @@ import {
   CheckCircle,
   Wallet,
   Loader2,
-  ArrowUpRight
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { logger } from '@/lib/logger'
+  ArrowUpRight,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { logger } from '@/lib/logger';
 
 interface EarningsSummary {
-  totalEarnings: number
-  pendingEarnings: number
-  approvedEarnings: number
-  paidEarnings: number
-  totalLeads: number
-  convertedLeads: number
-  averageCommission: number
-  thisMonthEarnings: number
-  lastMonthEarnings: number
+  totalEarnings: number;
+  pendingEarnings: number;
+  approvedEarnings: number;
+  paidEarnings: number;
+  totalLeads: number;
+  convertedLeads: number;
+  averageCommission: number;
+  thisMonthEarnings: number;
+  lastMonthEarnings: number;
 }
 
 interface EarningsOverviewCardProps {
-  className?: string
-  onRequestPayout?: () => void
+  className?: string;
+  onRequestPayout?: () => void;
 }
 
 export function EarningsOverviewCard({ className, onRequestPayout }: EarningsOverviewCardProps) {
-  const [earnings, setEarnings] = useState<EarningsSummary | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [earnings, setEarnings] = useState<EarningsSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchEarnings()
-  }, [])
+    fetchEarnings();
+  }, []);
 
   const fetchEarnings = async () => {
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
-      const response = await fetch('/api/earnings/summary')
+      const response = await fetch('/api/earnings/summary');
 
       if (!response.ok) {
-        throw new Error('Failed to fetch earnings')
+        throw new Error('Failed to fetch earnings');
       }
 
-      const data = await response.json()
-      setEarnings(data)
-    } catch (err: any) {
-      logger.error('Failed to fetch earnings summary', { error: err })
-      setError(err.message || 'Failed to load earnings')
+      const data = await response.json();
+      setEarnings(data);
+    } catch (err) {
+      logger.error('Failed to fetch earnings summary', { error: err });
+      setError(err.message || 'Failed to load earnings');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -87,7 +87,7 @@ export function EarningsOverviewCard({ className, onRequestPayout }: EarningsOve
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (error || !earnings) {
@@ -106,17 +106,20 @@ export function EarningsOverviewCard({ className, onRequestPayout }: EarningsOve
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   // Calculate month-over-month growth
-  const monthGrowth = earnings.lastMonthEarnings > 0
-    ? ((earnings.thisMonthEarnings - earnings.lastMonthEarnings) / earnings.lastMonthEarnings) * 100
-    : earnings.thisMonthEarnings > 0 ? 100 : 0
+  const monthGrowth =
+    earnings.lastMonthEarnings > 0
+      ? ((earnings.thisMonthEarnings - earnings.lastMonthEarnings) / earnings.lastMonthEarnings) *
+        100
+      : earnings.thisMonthEarnings > 0
+        ? 100
+        : 0;
 
-  const conversionRate = earnings.totalLeads > 0
-    ? (earnings.convertedLeads / earnings.totalLeads) * 100
-    : 0
+  const conversionRate =
+    earnings.totalLeads > 0 ? (earnings.convertedLeads / earnings.totalLeads) * 100 : 0;
 
   return (
     <Card className={className}>
@@ -124,9 +127,7 @@ export function EarningsOverviewCard({ className, onRequestPayout }: EarningsOve
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Earnings Overview</CardTitle>
-            <CardDescription>
-              Your commission earnings and payout status
-            </CardDescription>
+            <CardDescription>Your commission earnings and payout status</CardDescription>
           </div>
           <Button onClick={onRequestPayout} disabled={earnings.approvedEarnings === 0}>
             <Wallet className="mr-2 h-4 w-4" />
@@ -191,7 +192,11 @@ export function EarningsOverviewCard({ className, onRequestPayout }: EarningsOve
               <p className="text-sm font-bold">${earnings.pendingEarnings.toLocaleString()}</p>
             </div>
             <Progress
-              value={earnings.totalEarnings > 0 ? (earnings.pendingEarnings / earnings.totalEarnings) * 100 : 0}
+              value={
+                earnings.totalEarnings > 0
+                  ? (earnings.pendingEarnings / earnings.totalEarnings) * 100
+                  : 0
+              }
               className="h-2 bg-yellow-100 dark:bg-yellow-900/20"
             />
           </div>
@@ -213,7 +218,11 @@ export function EarningsOverviewCard({ className, onRequestPayout }: EarningsOve
               </p>
             </div>
             <Progress
-              value={earnings.totalEarnings > 0 ? (earnings.approvedEarnings / earnings.totalEarnings) * 100 : 0}
+              value={
+                earnings.totalEarnings > 0
+                  ? (earnings.approvedEarnings / earnings.totalEarnings) * 100
+                  : 0
+              }
               className="h-2 bg-green-100 dark:bg-green-900/20"
             />
           </div>
@@ -233,7 +242,11 @@ export function EarningsOverviewCard({ className, onRequestPayout }: EarningsOve
               <p className="text-sm font-bold">${earnings.paidEarnings.toLocaleString()}</p>
             </div>
             <Progress
-              value={earnings.totalEarnings > 0 ? (earnings.paidEarnings / earnings.totalEarnings) * 100 : 0}
+              value={
+                earnings.totalEarnings > 0
+                  ? (earnings.paidEarnings / earnings.totalEarnings) * 100
+                  : 0
+              }
               className="h-2 bg-blue-100 dark:bg-blue-900/20"
             />
           </div>
@@ -273,5 +286,5 @@ export function EarningsOverviewCard({ className, onRequestPayout }: EarningsOve
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

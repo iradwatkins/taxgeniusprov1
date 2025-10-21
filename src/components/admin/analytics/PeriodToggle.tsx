@@ -1,14 +1,14 @@
-'use client'
+'use client';
 
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
-export type Period = '7d' | '30d' | '90d' | 'all'
+export type Period = '7d' | '30d' | '90d' | 'all';
 
 interface PeriodToggleProps {
-  selected: Period
-  onChange: (period: Period) => void
-  className?: string
+  selected: Period;
+  onChange: (period: Period) => void;
+  className?: string;
 }
 
 const periods: { value: Period; label: string }[] = [
@@ -16,7 +16,7 @@ const periods: { value: Period; label: string }[] = [
   { value: '30d', label: '30 Days' },
   { value: '90d', label: '90 Days' },
   { value: 'all', label: 'All Time' },
-]
+];
 
 export function PeriodToggle({ selected, onChange, className }: PeriodToggleProps) {
   return (
@@ -38,5 +38,5 @@ export function PeriodToggle({ selected, onChange, className }: PeriodToggleProp
         </Button>
       ))}
     </div>
-  )
+  );
 }

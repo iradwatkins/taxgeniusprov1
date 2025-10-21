@@ -1,8 +1,8 @@
 'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   ArrowRight,
   DollarSign,
@@ -18,7 +18,7 @@ import {
   MessageCircle,
   BarChart3,
   Award,
-  Zap
+  Zap,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -68,21 +68,27 @@ export default function ReferralPage() {
               Get a Cash Bonus up to <span className="text-yellow-400">$50</span>
             </h1>
 
-            <p className="text-2xl lg:text-3xl">
-              For Each Friend You Refer*
-            </p>
+            <p className="text-2xl lg:text-3xl">For Each Friend You Refer*</p>
 
             <p className="text-xl opacity-90 max-w-2xl mx-auto">
-              Earn up to $50 for each friend who completes their tax return with us. It's easy money during tax season!
+              Earn up to $50 for each friend who completes their tax return with us. It's easy money
+              during tax season!
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               <Link href="/auth/signup?role=client">
-                <Button size="lg" className="bg-yellow-400 text-blue-900 hover:bg-yellow-300 text-lg px-8 shadow-xl hover:scale-105 transition-transform">
+                <Button
+                  size="lg"
+                  className="bg-yellow-400 text-blue-900 hover:bg-yellow-300 text-lg px-8 shadow-xl hover:scale-105 transition-transform"
+                >
                   Start Referring Now <ArrowRight className="ml-2" />
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="text-lg px-8 border-2 border-white text-white hover:bg-white/10">
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-lg px-8 border-2 border-white text-white hover:bg-white/10"
+              >
                 How It Works
               </Button>
             </div>
@@ -98,11 +104,10 @@ export default function ReferralPage() {
                     <p className="text-lg font-semibold text-white mb-2">
                       [Replace with referral hero image]
                     </p>
-                    <p className="text-sm text-white/80">
-                      Recommended: 1200x675px (16:9)
-                    </p>
+                    <p className="text-sm text-white/80">Recommended: 1200x675px (16:9)</p>
                     <p className="text-xs text-white/70 mt-2">
-                      Suggestion: Happy people receiving money, friends celebrating, or mobile app screenshot
+                      Suggestion: Happy people receiving money, friends celebrating, or mobile app
+                      screenshot
                     </p>
                   </div>
                 </div>
@@ -125,23 +130,26 @@ export default function ReferralPage() {
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {[
               {
-                referrals: "5 Referrals",
-                amount: "$250",
-                description: "Part-time income"
+                referrals: '5 Referrals',
+                amount: '$250',
+                description: 'Part-time income',
               },
               {
-                referrals: "10 Referrals",
-                amount: "$500",
-                description: "Nice bonus",
-                highlight: true
+                referrals: '10 Referrals',
+                amount: '$500',
+                description: 'Nice bonus',
+                highlight: true,
               },
               {
-                referrals: "20+ Referrals",
-                amount: "$1,000+",
-                description: "Serious earnings"
-              }
+                referrals: '20+ Referrals',
+                amount: '$1,000+',
+                description: 'Serious earnings',
+              },
             ].map((tier, index) => (
-              <Card key={index} className={`text-center ${tier.highlight ? 'border-primary border-2 shadow-xl scale-105' : ''}`}>
+              <Card
+                key={index}
+                className={`text-center ${tier.highlight ? 'border-primary border-2 shadow-xl scale-105' : ''}`}
+              >
                 <CardHeader>
                   {tier.highlight && (
                     <Badge className="w-fit mx-auto mb-2 bg-primary">Most Popular</Badge>
@@ -170,23 +178,26 @@ export default function ReferralPage() {
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
               {
-                step: "1",
+                step: '1',
                 icon: Share2,
-                title: "Share Your Link",
-                description: "Get your unique referral link and share it with friends, family, and on social media"
+                title: 'Share Your Link',
+                description:
+                  'Get your unique referral link and share it with friends, family, and on social media',
               },
               {
-                step: "2",
+                step: '2',
                 icon: Users,
-                title: "They File Their Taxes",
-                description: "Your friends use your link to sign up and complete their tax return with us"
+                title: 'They File Their Taxes',
+                description:
+                  'Your friends use your link to sign up and complete their tax return with us',
               },
               {
-                step: "3",
+                step: '3',
                 icon: Wallet,
-                title: "You Get Paid",
-                description: "Earn up to $50 per referral, paid directly to your account. No limits!"
-              }
+                title: 'You Get Paid',
+                description:
+                  'Earn up to $50 per referral, paid directly to your account. No limits!',
+              },
             ].map((item, index) => (
               <div key={index} className="text-center">
                 <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 relative">
@@ -214,46 +225,49 @@ export default function ReferralPage() {
             {[
               {
                 icon: DollarSign,
-                title: "High Payouts",
-                description: "Earn up to $50 per successful referral"
+                title: 'High Payouts',
+                description: 'Earn up to $50 per successful referral',
               },
               {
                 icon: Zap,
-                title: "No Limits",
-                description: "Refer as many people as you want - unlimited earning potential"
+                title: 'No Limits',
+                description: 'Refer as many people as you want - unlimited earning potential',
               },
               {
                 icon: Clock,
-                title: "Quick Payments",
-                description: "Get paid within 7 days of successful referral"
+                title: 'Quick Payments',
+                description: 'Get paid within 7 days of successful referral',
               },
               {
                 icon: BarChart3,
-                title: "Track Everything",
-                description: "Real-time dashboard to track all your referrals and earnings"
+                title: 'Track Everything',
+                description: 'Real-time dashboard to track all your referrals and earnings',
               },
               {
                 icon: Smartphone,
-                title: "Easy Sharing",
-                description: "Share via text, email, social media, or messaging apps"
+                title: 'Easy Sharing',
+                description: 'Share via text, email, social media, or messaging apps',
               },
               {
                 icon: Award,
-                title: "Bonus Rewards",
-                description: "Extra bonuses for top referrers each month"
+                title: 'Bonus Rewards',
+                description: 'Extra bonuses for top referrers each month',
               },
               {
                 icon: TrendingUp,
-                title: "Passive Income",
-                description: "Earn money without any ongoing work"
+                title: 'Passive Income',
+                description: 'Earn money without any ongoing work',
               },
               {
                 icon: Gift,
-                title: "Friends Save Too",
-                description: "Your friends get special discounts when they use your link"
-              }
+                title: 'Friends Save Too',
+                description: 'Your friends get special discounts when they use your link',
+              },
             ].map((benefit, index) => (
-              <Card key={index} className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <Card
+                key={index}
+                className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+              >
                 <CardHeader>
                   <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3">
                     <benefit.icon className="w-6 h-6 text-primary" />
@@ -272,27 +286,25 @@ export default function ReferralPage() {
       {/* How to Share */}
       <section className="py-20">
         <div className="container mx-auto px-4 lg:px-8">
-          <h2 className="text-3xl lg:text-5xl font-bold text-center mb-12">
-            Easy Ways to Share
-          </h2>
+          <h2 className="text-3xl lg:text-5xl font-bold text-center mb-12">Easy Ways to Share</h2>
 
           <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {[
               {
                 icon: MessageCircle,
-                title: "Social Media",
-                description: "Post your link on Facebook, Instagram, Twitter, TikTok"
+                title: 'Social Media',
+                description: 'Post your link on Facebook, Instagram, Twitter, TikTok',
               },
               {
                 icon: Mail,
-                title: "Email & Text",
-                description: "Send to your contacts via email or SMS"
+                title: 'Email & Text',
+                description: 'Send to your contacts via email or SMS',
               },
               {
                 icon: Users,
-                title: "Word of Mouth",
-                description: "Tell friends, family, coworkers about the benefits"
-              }
+                title: 'Word of Mouth',
+                description: 'Tell friends, family, coworkers about the benefits',
+              },
             ].map((method, index) => (
               <Card key={index} className="text-center hover:shadow-lg transition-all">
                 <CardHeader>
@@ -314,32 +326,35 @@ export default function ReferralPage() {
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl lg:text-5xl font-bold text-center mb-12">
-              Common Questions
-            </h2>
+            <h2 className="text-3xl lg:text-5xl font-bold text-center mb-12">Common Questions</h2>
 
             <div className="space-y-4">
               {[
                 {
-                  question: "How much can I earn per referral?",
-                  answer: "You can earn up to $50 per successful referral. The exact amount depends on the tax package your referral purchases."
+                  question: 'How much can I earn per referral?',
+                  answer:
+                    'You can earn up to $50 per successful referral. The exact amount depends on the tax package your referral purchases.',
                 },
                 {
-                  question: "Is there a limit to how many people I can refer?",
-                  answer: "No! There's no limit. Refer as many people as you want and earn unlimited income."
+                  question: 'Is there a limit to how many people I can refer?',
+                  answer:
+                    "No! There's no limit. Refer as many people as you want and earn unlimited income.",
                 },
                 {
-                  question: "When do I get paid?",
-                  answer: "You'll receive payment within 7 days after your referral successfully completes their tax return and payment."
+                  question: 'When do I get paid?',
+                  answer:
+                    "You'll receive payment within 7 days after your referral successfully completes their tax return and payment.",
                 },
                 {
-                  question: "How do I track my referrals?",
-                  answer: "You'll have access to a real-time dashboard showing all your referrals, their status, and your earnings."
+                  question: 'How do I track my referrals?',
+                  answer:
+                    "You'll have access to a real-time dashboard showing all your referrals, their status, and your earnings.",
                 },
                 {
-                  question: "Can I refer my own family members?",
-                  answer: "Yes! You can refer anyone - friends, family, coworkers, or anyone who needs tax help."
-                }
+                  question: 'Can I refer my own family members?',
+                  answer:
+                    'Yes! You can refer anyone - friends, family, coworkers, or anyone who needs tax help.',
+                },
               ].map((faq, index) => (
                 <Card key={index}>
                   <CardHeader>
@@ -371,20 +386,32 @@ export default function ReferralPage() {
                 Join thousands of people earning extra money by referring friends to Tax Genius Pro
               </p>
               <Link href="/auth/signup?role=client">
-                <Button size="lg" className="bg-yellow-400 text-blue-900 hover:bg-yellow-300 text-lg px-8 shadow-xl hover:scale-105 transition-transform">
+                <Button
+                  size="lg"
+                  className="bg-yellow-400 text-blue-900 hover:bg-yellow-300 text-lg px-8 shadow-xl hover:scale-105 transition-transform"
+                >
                   Get Your Referral Link <ArrowRight className="ml-2" />
                 </Button>
               </Link>
               <div className="flex flex-wrap justify-center gap-4 mt-8">
-                <Badge variant="secondary" className="px-3 py-1 bg-white/20 text-white border-white/30">
+                <Badge
+                  variant="secondary"
+                  className="px-3 py-1 bg-white/20 text-white border-white/30"
+                >
                   <DollarSign className="w-4 h-4 mr-1" />
                   Up to $50 per referral
                 </Badge>
-                <Badge variant="secondary" className="px-3 py-1 bg-white/20 text-white border-white/30">
+                <Badge
+                  variant="secondary"
+                  className="px-3 py-1 bg-white/20 text-white border-white/30"
+                >
                   <Zap className="w-4 h-4 mr-1" />
                   No limits
                 </Badge>
-                <Badge variant="secondary" className="px-3 py-1 bg-white/20 text-white border-white/30">
+                <Badge
+                  variant="secondary"
+                  className="px-3 py-1 bg-white/20 text-white border-white/30"
+                >
                   <Clock className="w-4 h-4 mr-1" />
                   Quick payouts
                 </Badge>
@@ -410,8 +437,8 @@ export default function ReferralPage() {
             © 2024 Tax Genius Pro. All rights reserved.
           </p>
           <p className="text-xs text-muted-foreground">
-            *Referral bonuses are paid when referred customers complete their tax return and payment.
-            Bonus amounts vary by package selected. See full terms and conditions.
+            *Referral bonuses are paid when referred customers complete their tax return and
+            payment. Bonus amounts vary by package selected. See full terms and conditions.
           </p>
         </div>
       </footer>

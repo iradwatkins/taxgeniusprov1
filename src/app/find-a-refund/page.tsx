@@ -1,20 +1,16 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert";
+} from '@/components/ui/accordion';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   Search,
   Shield,
@@ -31,14 +27,13 @@ import {
   Lock,
   RefreshCw,
   ArrowRight,
-  HelpCircle
+  HelpCircle,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Header } from '@/components/header';
 
 export default function FindARefundPage() {
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -63,7 +58,8 @@ export default function FindARefundPage() {
                   Where's My <span className="text-primary">Refund?</span>
                 </h1>
                 <p className="text-lg lg:text-xl text-muted-foreground leading-relaxed">
-                  Track your federal tax refund status in real-time. Get updates on your refund processing and estimated arrival date.
+                  Track your federal tax refund status in real-time. Get updates on your refund
+                  processing and estimated arrival date.
                 </p>
               </div>
 
@@ -88,9 +84,15 @@ export default function FindARefundPage() {
                 <Info className="h-4 w-4 text-primary" />
                 <AlertTitle className="text-primary">When Can I Check?</AlertTitle>
                 <AlertDescription className="text-sm text-muted-foreground space-y-1">
-                  <p>• <strong>E-Filed 2024 Returns:</strong> 24 hours after filing</p>
-                  <p>• <strong>E-Filed 2022-2023:</strong> 3-4 days after filing</p>
-                  <p>• <strong>Paper Returns:</strong> 4 weeks after mailing</p>
+                  <p>
+                    • <strong>E-Filed 2024 Returns:</strong> 24 hours after filing
+                  </p>
+                  <p>
+                    • <strong>E-Filed 2022-2023:</strong> 3-4 days after filing
+                  </p>
+                  <p>
+                    • <strong>Paper Returns:</strong> 4 weeks after mailing
+                  </p>
                 </AlertDescription>
               </Alert>
             </motion.div>
@@ -126,7 +128,9 @@ export default function FindARefundPage() {
                     </div>
                     <div>
                       <p className="text-xl font-bold text-foreground">Fast Refunds</p>
-                      <p className="text-sm text-muted-foreground">Most e-filed returns processed in 21 days or less</p>
+                      <p className="text-sm text-muted-foreground">
+                        Most e-filed returns processed in 21 days or less
+                      </p>
                     </div>
                   </div>
                 </motion.div>
@@ -175,7 +179,9 @@ export default function FindARefundPage() {
       <section className="py-16 lg:py-20 bg-muted/30">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Understanding Your Refund Status</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">
+              Understanding Your Refund Status
+            </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Your refund goes through three main stages. Here's what to expect at each step.
             </p>
@@ -201,7 +207,8 @@ export default function FindARefundPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground leading-relaxed">
-                    The IRS has received your tax return and is processing it. This typically happens within 24 hours of e-filing.
+                    The IRS has received your tax return and is processing it. This typically
+                    happens within 24 hours of e-filing.
                   </p>
                 </CardContent>
               </Card>
@@ -226,7 +233,8 @@ export default function FindARefundPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground leading-relaxed">
-                    Your refund has been approved and the IRS is preparing to send your refund. This usually takes 1-2 weeks.
+                    Your refund has been approved and the IRS is preparing to send your refund. This
+                    usually takes 1-2 weeks.
                   </p>
                 </CardContent>
               </Card>
@@ -251,7 +259,8 @@ export default function FindARefundPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground leading-relaxed">
-                    Your refund has been sent! Direct deposits arrive in 1-5 business days. Paper checks take 2-3 weeks.
+                    Your refund has been sent! Direct deposits arrive in 1-5 business days. Paper
+                    checks take 2-3 weeks.
                   </p>
                 </CardContent>
               </Card>
@@ -348,7 +357,8 @@ export default function FindARefundPage() {
                 <RefreshCw className="h-4 w-4" />
                 <AlertTitle>Information Updated Daily</AlertTitle>
                 <AlertDescription>
-                  The IRS updates refund status information once a day, overnight. Check back every 24 hours for updates.
+                  The IRS updates refund status information once a day, overnight. Check back every
+                  24 hours for updates.
                 </AlertDescription>
               </Alert>
             </motion.div>
@@ -370,17 +380,26 @@ export default function FindARefundPage() {
               <Smartphone className="w-16 h-16 text-primary mx-auto" />
               <h2 className="text-3xl lg:text-4xl font-bold">Using a Mobile Device?</h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Download the official IRS2Go mobile app to check your refund status on the go. Available for iOS and Android.
+                Download the official IRS2Go mobile app to check your refund status on the go.
+                Available for iOS and Android.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                 <Button size="lg" variant="outline" asChild>
-                  <a href="https://apps.apple.com/us/app/irs2go/id414113282" target="_blank" rel="noopener noreferrer">
+                  <a
+                    href="https://apps.apple.com/us/app/irs2go/id414113282"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <Smartphone className="w-5 h-5 mr-2" />
                     Download for iOS
                   </a>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <a href="https://play.google.com/store/apps/details?id=gov.irs" target="_blank" rel="noopener noreferrer">
+                  <a
+                    href="https://play.google.com/store/apps/details?id=gov.irs"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <Smartphone className="w-5 h-5 mr-2" />
                     Download for Android
                   </a>
@@ -414,10 +433,14 @@ export default function FindARefundPage() {
                 <AccordionContent className="text-muted-foreground leading-relaxed">
                   <div className="space-y-4 pt-2">
                     <p className="font-medium text-foreground">
-                      Filing the same tax return again typically won't speed up your refund, and could even lead to delays.
+                      Filing the same tax return again typically won't speed up your refund, and
+                      could even lead to delays.
                     </p>
                     <div>
-                      <p className="font-medium text-foreground mb-2">However, you should resubmit your tax return (electronically if possible) if ALL of these apply:</p>
+                      <p className="font-medium text-foreground mb-2">
+                        However, you should resubmit your tax return (electronically if possible) if
+                        ALL of these apply:
+                      </p>
                       <ul className="list-disc list-inside space-y-1 ml-4">
                         <li>You are due a refund</li>
                         <li>You filed on paper more than 6 months ago</li>
@@ -445,7 +468,9 @@ export default function FindARefundPage() {
                 <AccordionContent className="text-muted-foreground leading-relaxed">
                   <div className="space-y-4 pt-2">
                     <p>
-                      Call the IRS about your refund status <strong className="text-foreground">only if</strong> Where's My Refund directs you to contact them.
+                      Call the IRS about your refund status{' '}
+                      <strong className="text-foreground">only if</strong> Where's My Refund directs
+                      you to contact them.
                     </p>
                     <div className="bg-muted/50 border rounded-lg p-4">
                       <p className="font-semibold text-foreground mb-2">IRS Contact Information:</p>
@@ -453,7 +478,9 @@ export default function FindARefundPage() {
                         <Phone className="w-4 h-4" />
                         1-800-829-1040 (Individual Tax Returns)
                       </p>
-                      <p className="text-sm mt-2">Hours: Monday - Friday, 7:00 AM - 7:00 PM local time</p>
+                      <p className="text-sm mt-2">
+                        Hours: Monday - Friday, 7:00 AM - 7:00 PM local time
+                      </p>
                     </div>
                     <p className="text-sm">
                       Have your tax return and supporting documents ready when you call.
@@ -473,14 +500,21 @@ export default function FindARefundPage() {
                 <AccordionContent className="text-muted-foreground leading-relaxed">
                   <div className="space-y-4 pt-2">
                     <p>
-                      Your refund may be delayed if your return needs corrections or extra review. If the IRS needs more information to process your return, they'll contact you by mail.
+                      Your refund may be delayed if your return needs corrections or extra review.
+                      If the IRS needs more information to process your return, they'll contact you
+                      by mail.
                     </p>
                     <div>
-                      <p className="font-semibold text-foreground mb-2">Common reasons for delays:</p>
+                      <p className="font-semibold text-foreground mb-2">
+                        Common reasons for delays:
+                      </p>
                       <ul className="list-disc list-inside space-y-1 ml-4">
                         <li>Your return contains errors or is incomplete</li>
                         <li>Your return is flagged for identity theft or fraud prevention</li>
-                        <li>You claimed the Earned Income Tax Credit (EITC) or Additional Child Tax Credit</li>
+                        <li>
+                          You claimed the Earned Income Tax Credit (EITC) or Additional Child Tax
+                          Credit
+                        </li>
                         <li>Your return needs further review in general</li>
                         <li>You filed a paper return during peak tax season</li>
                       </ul>
@@ -488,7 +522,8 @@ export default function FindARefundPage() {
                     <Alert>
                       <Info className="h-4 w-4" />
                       <AlertDescription>
-                        The IRS processes most refunds within 21 days of acceptance. Some returns require additional review and may take longer.
+                        The IRS processes most refunds within 21 days of acceptance. Some returns
+                        require additional review and may take longer.
                       </AlertDescription>
                     </Alert>
                   </div>
@@ -534,7 +569,8 @@ export default function FindARefundPage() {
                     <Alert className="bg-primary/5 border-primary/20">
                       <CheckCircle className="h-4 w-4 text-primary" />
                       <AlertDescription className="text-foreground">
-                        <strong>Recommendation:</strong> E-file your returns for faster processing and refunds. We offer professional e-filing services with expert CPA review.
+                        <strong>Recommendation:</strong> E-file your returns for faster processing
+                        and refunds. We offer professional e-filing services with expert CPA review.
                       </AlertDescription>
                     </Alert>
                   </div>
@@ -564,7 +600,8 @@ export default function FindARefundPage() {
                     <div className="space-y-3">
                       <h2 className="text-3xl lg:text-4xl font-bold">Need Help With Your Taxes?</h2>
                       <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                        Let our certified CPAs handle your tax preparation. We'll maximize your refund and ensure everything is filed correctly.
+                        Let our certified CPAs handle your tax preparation. We'll maximize your
+                        refund and ensure everything is filed correctly.
                       </p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">

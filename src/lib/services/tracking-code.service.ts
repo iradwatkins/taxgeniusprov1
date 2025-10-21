@@ -5,15 +5,16 @@
  * Each user gets a unique code on signup that can be customized once.
  */
 
-import { prisma } from '@/lib/prisma'
-import { generateQRCode, type QRCodeResult } from './qr-code.service'
-import { logger } from '@/lib/logger'
+import { prisma } from '@/lib/prisma';
+import { generateQRCode, type QRCodeResult } from './qr-code.service';
+import { logger } from '@/lib/logger';
+import { buildTrackingUrl } from '@/lib/utils/tracking-integration';
 
 export interface TrackingCodeData {
-  code: string
-  isCustom: boolean
-  qrCodeUrl: string | null
-  canCustomize: boolean
+  code: string;
+  isCustom: boolean;
+  qrCodeUrl: string | null;
+  canCustomize: boolean;
 }
 
 /**
@@ -21,35 +22,32 @@ export interface TrackingCodeData {
  * Format: TGP-XXXXXX (6 digits)
  */
 export async function generateUniqueTrackingCode(): Promise<string> {
-  let code: string
-  let exists = true
-  let attempts = 0
-  const maxAttempts = 10
+  let code: string;
+  let exists = true;
+  let attempts = 0;
+  const maxAttempts = 10;
 
   while (exists && attempts < maxAttempts) {
     // Generate 6-digit random number
-    const random = Math.floor(100000 + Math.random() * 900000)
-    code = `TGP-${random}`
+    const random = Math.floor(100000 + Math.random() * 900000);
+    code = `TGP-${random}`;
 
     // Check if code already exists
     const existing = await prisma.profile.findFirst({
       where: {
-        OR: [
-          { trackingCode: code },
-          { customTrackingCode: code }
-        ]
-      }
-    })
+        OR: [{ trackingCode: code }, { customTrackingCode: code }],
+      },
+    });
 
-    exists = !!existing
-    attempts++
+    exists = !!existing;
+    attempts++;
   }
 
   if (exists) {
-    throw new Error('Failed to generate unique tracking code after multiple attempts')
+    throw new Error('Failed to generate unique tracking code after multiple attempts');
   }
 
-  return code!
+  return code!;
 }
 
 /**
@@ -59,7 +57,7 @@ export async function generateTrackingQRCode(
   trackingCode: string,
   baseUrl: string = 'https://taxgeniuspro.tax'
 ): Promise<QRCodeResult> {
-  const trackingUrl = `${baseUrl}/ref/${trackingCode}`
+  const trackingUrl = `${baseUrl}/ref/${trackingCode}`;
 
   return await generateQRCode({
     url: trackingUrl,
@@ -68,7 +66,138 @@ export async function generateTrackingQRCode(
     size: 512,
     brandColor: '#f9d938', // Tax Genius brand color (yellow)
     errorCorrectionLevel: 'H', // High error correction for print materials
-  })
+  });
+}
+
+/**
+ * Auto-generate referral links for a user (intake + appointment)
+ * Called when tracking code is assigned or customized
+ */
+export async function autoGenerateReferralLinks(
+  profileId: string,
+  trackingCode: string,
+  baseUrl: string = 'https://taxgeniuspro.tax'
+): Promise<{ intakeLink: any; appointmentLink: any }> {
+  // Get profile info
+  const profile = await prisma.profile.findUnique({
+    where: { id: profileId },
+    select: { role: true },
+  });
+
+  if (!profile) {
+    throw new Error('Profile not found');
+  }
+
+  // Generate short codes based on tracking code
+  const intakeCode = `${trackingCode}-intake`.toLowerCase();
+  const appointmentCode = `${trackingCode}-appt`.toLowerCase();
+
+  // Check if links already exist (for re-customization scenarios)
+  const existingIntakeLink = await prisma.marketingLink.findUnique({
+    where: { code: intakeCode },
+  });
+
+  const existingAppointmentLink = await prisma.marketingLink.findUnique({
+    where: { code: appointmentCode },
+  });
+
+  // Build URLs with tracking
+  const intakeUrl = buildTrackingUrl(`${baseUrl}/start-filing/form`, {
+    trackingCode,
+    source: 'referral-link',
+    medium: 'direct',
+    campaign: 'auto-referral',
+    content: 'intake',
+  });
+
+  const appointmentUrl = buildTrackingUrl(`${baseUrl}/book-appointment`, {
+    trackingCode,
+    source: 'referral-link',
+    medium: 'direct',
+    campaign: 'auto-referral',
+    content: 'appointment',
+  });
+
+  // Generate QR codes
+  const intakeQR = await generateQRCode({
+    url: intakeUrl,
+    materialId: intakeCode,
+    format: 'PNG',
+    size: 512,
+    brandColor: '#f9d938',
+    errorCorrectionLevel: 'H',
+  });
+
+  const appointmentQR = await generateQRCode({
+    url: appointmentUrl,
+    materialId: appointmentCode,
+    format: 'PNG',
+    size: 512,
+    brandColor: '#f9d938',
+    errorCorrectionLevel: 'H',
+  });
+
+  // Create or update intake link
+  const intakeLink = existingIntakeLink
+    ? await prisma.marketingLink.update({
+        where: { id: existingIntakeLink.id },
+        data: {
+          code: intakeCode,
+          url: intakeUrl,
+          shortUrl: `${baseUrl}/go/${intakeCode}`,
+          qrCodeImageUrl: intakeQR.dataUrl,
+          title: `Referral Link - Tax Filing`,
+        },
+      })
+    : await prisma.marketingLink.create({
+        data: {
+          creatorId: profileId,
+          creatorType: profile.role,
+          linkType: 'LANDING_PAGE',
+          code: intakeCode,
+          url: intakeUrl,
+          shortUrl: `${baseUrl}/go/${intakeCode}`,
+          title: `Referral Link - Tax Filing`,
+          description: 'Auto-generated referral link for tax filing intake form',
+          campaign: 'auto-referral',
+          targetPage: '/start-filing/form',
+          qrCodeImageUrl: intakeQR.dataUrl,
+          isActive: true,
+        },
+      });
+
+  // Create or update appointment link
+  const appointmentLink = existingAppointmentLink
+    ? await prisma.marketingLink.update({
+        where: { id: existingAppointmentLink.id },
+        data: {
+          code: appointmentCode,
+          url: appointmentUrl,
+          shortUrl: `${baseUrl}/go/${appointmentCode}`,
+          qrCodeImageUrl: appointmentQR.dataUrl,
+          title: `Referral Link - Book Appointment`,
+        },
+      })
+    : await prisma.marketingLink.create({
+        data: {
+          creatorId: profileId,
+          creatorType: profile.role,
+          linkType: 'LANDING_PAGE',
+          code: appointmentCode,
+          url: appointmentUrl,
+          shortUrl: `${baseUrl}/go/${appointmentCode}`,
+          title: `Referral Link - Book Appointment`,
+          description: 'Auto-generated referral link for booking appointments',
+          campaign: 'auto-referral',
+          targetPage: '/book-appointment',
+          qrCodeImageUrl: appointmentQR.dataUrl,
+          isActive: true,
+        },
+      });
+
+  logger.info(`✅ Auto-generated referral links for ${trackingCode}: ${intakeCode}, ${appointmentCode}`);
+
+  return { intakeLink, appointmentLink };
 }
 
 /**
@@ -77,36 +206,39 @@ export async function generateTrackingQRCode(
 export function validateCustomTrackingCode(code: string): { valid: boolean; error?: string } {
   // Must be 3-20 characters
   if (code.length < 3 || code.length > 20) {
-    return { valid: false, error: 'Code must be between 3 and 20 characters' }
+    return { valid: false, error: 'Code must be between 3 and 20 characters' };
   }
 
   // Only alphanumeric, hyphens, and underscores
   if (!/^[a-zA-Z0-9-_]+$/.test(code)) {
-    return { valid: false, error: 'Code can only contain letters, numbers, hyphens, and underscores' }
+    return {
+      valid: false,
+      error: 'Code can only contain letters, numbers, hyphens, and underscores',
+    };
   }
 
   // Cannot start with hyphen or underscore
   if (/^[-_]/.test(code)) {
-    return { valid: false, error: 'Code cannot start with a hyphen or underscore' }
+    return { valid: false, error: 'Code cannot start with a hyphen or underscore' };
   }
 
   // Cannot end with hyphen or underscore
   if (/[-_]$/.test(code)) {
-    return { valid: false, error: 'Code cannot end with a hyphen or underscore' }
+    return { valid: false, error: 'Code cannot end with a hyphen or underscore' };
   }
 
   // Cannot be all numbers (would conflict with auto-generated codes)
   if (/^\d+$/.test(code)) {
-    return { valid: false, error: 'Code cannot be all numbers' }
+    return { valid: false, error: 'Code cannot be all numbers' };
   }
 
   // Reserved words (case-insensitive)
-  const reserved = ['admin', 'api', 'dashboard', 'auth', 'test', 'demo', 'support', 'help']
+  const reserved = ['admin', 'api', 'dashboard', 'auth', 'test', 'demo', 'support', 'help'];
   if (reserved.includes(code.toLowerCase())) {
-    return { valid: false, error: 'This code is reserved and cannot be used' }
+    return { valid: false, error: 'This code is reserved and cannot be used' };
   }
 
-  return { valid: true }
+  return { valid: true };
 }
 
 /**
@@ -115,28 +247,28 @@ export function validateCustomTrackingCode(code: string): { valid: boolean; erro
 export async function isTrackingCodeAvailable(code: string): Promise<boolean> {
   const existing = await prisma.profile.findFirst({
     where: {
-      OR: [
-        { trackingCode: code },
-        { customTrackingCode: code }
-      ]
-    }
-  })
+      OR: [{ trackingCode: code }, { customTrackingCode: code }],
+    },
+  });
 
-  return !existing
+  return !existing;
 }
 
 /**
  * Assign tracking code to user (for new signups)
+ * Also auto-generates referral links for intake and appointment
  */
 export async function assignTrackingCodeToUser(
   profileId: string,
   baseUrl?: string
 ): Promise<TrackingCodeData> {
+  const url = baseUrl || process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax';
+
   // Generate unique code
-  const trackingCode = await generateUniqueTrackingCode()
+  const trackingCode = await generateUniqueTrackingCode();
 
   // Generate QR code
-  const qrCode = await generateTrackingQRCode(trackingCode, baseUrl)
+  const qrCode = await generateTrackingQRCode(trackingCode, url);
 
   // Update profile
   await prisma.profile.update({
@@ -144,56 +276,91 @@ export async function assignTrackingCodeToUser(
     data: {
       trackingCode,
       trackingCodeQRUrl: qrCode.dataUrl,
-    }
-  })
+    },
+  });
+
+  // Auto-generate referral links (intake + appointment)
+  try {
+    await autoGenerateReferralLinks(profileId, trackingCode, url);
+    logger.info(`✅ Auto-generated referral links for new user ${profileId}`);
+  } catch (error) {
+    logger.error(`❌ Failed to auto-generate referral links for ${profileId}:`, error);
+    // Don't throw - tracking code assignment should still succeed
+  }
 
   return {
     code: trackingCode,
     isCustom: false,
     qrCodeUrl: qrCode.dataUrl,
     canCustomize: true,
-  }
+  };
 }
 
 /**
  * Customize tracking code (one-time only)
+ * Also updates referral links with new vanity code
  */
 export async function customizeTrackingCode(
   profileId: string,
   customCode: string,
   baseUrl?: string
 ): Promise<{ success: boolean; error?: string; data?: TrackingCodeData }> {
+  const url = baseUrl || process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax';
+
   // Get profile
   const profile = await prisma.profile.findUnique({
     where: { id: profileId },
     select: {
+      trackingCode: true,
       trackingCodeChanged: true,
-    }
-  })
+    },
+  });
 
   if (!profile) {
-    return { success: false, error: 'Profile not found' }
+    return { success: false, error: 'Profile not found' };
   }
 
   // Check if already customized
   if (profile.trackingCodeChanged) {
-    return { success: false, error: 'Tracking code has already been customized (one-time change only)' }
+    return {
+      success: false,
+      error: 'Tracking code has already been customized (one-time change only)',
+    };
   }
 
   // Validate format
-  const validation = validateCustomTrackingCode(customCode)
+  const validation = validateCustomTrackingCode(customCode);
   if (!validation.valid) {
-    return { success: false, error: validation.error }
+    return { success: false, error: validation.error };
   }
 
   // Check availability
-  const available = await isTrackingCodeAvailable(customCode)
+  const available = await isTrackingCodeAvailable(customCode);
   if (!available) {
-    return { success: false, error: 'This tracking code is already taken' }
+    return { success: false, error: 'This tracking code is already taken' };
   }
 
   // Generate new QR code with custom code
-  const qrCode = await generateTrackingQRCode(customCode, baseUrl)
+  const qrCode = await generateTrackingQRCode(customCode, url);
+
+  // Delete old referral links (based on old tracking code)
+  const oldIntakeCode = `${profile.trackingCode}-intake`.toLowerCase();
+  const oldAppointmentCode = `${profile.trackingCode}-appt`.toLowerCase();
+
+  try {
+    await prisma.marketingLink.deleteMany({
+      where: {
+        creatorId: profileId,
+        code: {
+          in: [oldIntakeCode, oldAppointmentCode],
+        },
+      },
+    });
+    logger.info(`🗑️  Deleted old referral links for ${profile.trackingCode}`);
+  } catch (error) {
+    logger.error('Error deleting old referral links:', error);
+    // Continue anyway
+  }
 
   // Update profile
   await prisma.profile.update({
@@ -202,8 +369,17 @@ export async function customizeTrackingCode(
       customTrackingCode: customCode,
       trackingCodeChanged: true,
       trackingCodeQRUrl: qrCode.dataUrl,
-    }
-  })
+    },
+  });
+
+  // Auto-generate new referral links with custom code
+  try {
+    await autoGenerateReferralLinks(profileId, customCode, url);
+    logger.info(`✅ Regenerated referral links with custom code ${customCode}`);
+  } catch (error) {
+    logger.error(`❌ Failed to regenerate referral links for ${customCode}:`, error);
+    // Don't throw - customization should still succeed
+  }
 
   return {
     success: true,
@@ -212,8 +388,8 @@ export async function customizeTrackingCode(
       isCustom: true,
       qrCodeUrl: qrCode.dataUrl,
       canCustomize: false,
-    }
-  }
+    },
+  };
 }
 
 /**
@@ -227,17 +403,17 @@ export async function getUserTrackingCode(profileId: string): Promise<TrackingCo
       customTrackingCode: true,
       trackingCodeChanged: true,
       trackingCodeQRUrl: true,
-    }
-  })
+    },
+  });
 
   if (!profile) {
-    return null
+    return null;
   }
 
   // Custom code takes precedence
-  const activeCode = profile.customTrackingCode || profile.trackingCode
+  const activeCode = profile.customTrackingCode || profile.trackingCode;
   if (!activeCode) {
-    return null
+    return null;
   }
 
   return {
@@ -245,56 +421,57 @@ export async function getUserTrackingCode(profileId: string): Promise<TrackingCo
     isCustom: !!profile.customTrackingCode,
     qrCodeUrl: profile.trackingCodeQRUrl,
     canCustomize: !profile.trackingCodeChanged,
-  }
+  };
 }
 
 /**
  * Get user by tracking code (for attribution)
  */
-export async function getUserByTrackingCode(code: string): Promise<{ id: string; clerkUserId: string | null; role: string } | null> {
+export async function getUserByTrackingCode(
+  code: string
+): Promise<{ id: string; clerkUserId: string | null; role: string } | null> {
   const profile = await prisma.profile.findFirst({
     where: {
-      OR: [
-        { trackingCode: code },
-        { customTrackingCode: code }
-      ]
+      OR: [{ trackingCode: code }, { customTrackingCode: code }],
     },
     select: {
       id: true,
       clerkUserId: true,
       role: true,
-    }
-  })
+    },
+  });
 
-  return profile
+  return profile;
 }
 
 /**
  * Backfill tracking codes for existing users
  * (Run this once after adding the tracking code feature)
  */
-export async function backfillTrackingCodes(baseUrl?: string): Promise<{ updated: number; errors: number }> {
+export async function backfillTrackingCodes(
+  baseUrl?: string
+): Promise<{ updated: number; errors: number }> {
   const profiles = await prisma.profile.findMany({
     where: {
       trackingCode: null,
     },
     select: {
       id: true,
-    }
-  })
+    },
+  });
 
-  let updated = 0
-  let errors = 0
+  let updated = 0;
+  let errors = 0;
 
   for (const profile of profiles) {
     try {
-      await assignTrackingCodeToUser(profile.id, baseUrl)
-      updated++
+      await assignTrackingCodeToUser(profile.id, baseUrl);
+      updated++;
     } catch (error) {
-      logger.error(`Failed to assign tracking code to profile ${profile.id}:`, error)
-      errors++
+      logger.error(`Failed to assign tracking code to profile ${profile.id}:`, error);
+      errors++;
     }
   }
 
-  return { updated, errors }
+  return { updated, errors };
 }

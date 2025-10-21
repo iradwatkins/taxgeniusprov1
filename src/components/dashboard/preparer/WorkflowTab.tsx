@@ -28,9 +28,9 @@ interface WorkflowTabProps {
 }
 
 export function WorkflowTab({ clients, getPriorityColor, onUpdateStatus }: WorkflowTabProps) {
-  const draftClients = clients.filter(c => c.status === 'DRAFT');
-  const inReviewClients = clients.filter(c => c.status === 'IN_REVIEW');
-  const completedClients = clients.filter(c => ['FILED', 'ACCEPTED'].includes(c.status));
+  const draftClients = clients.filter((c) => c.status === 'DRAFT');
+  const inReviewClients = clients.filter((c) => c.status === 'IN_REVIEW');
+  const completedClients = clients.filter((c) => ['FILED', 'ACCEPTED'].includes(c.status));
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
@@ -119,9 +119,7 @@ export function WorkflowTab({ clients, getPriorityColor, onUpdateStatus }: Workf
       {/* Completed Column */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">
-            Completed ({completedClients.length})
-          </CardTitle>
+          <CardTitle className="text-base">Completed ({completedClients.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[400px]">
@@ -136,7 +134,9 @@ export function WorkflowTab({ clients, getPriorityColor, onUpdateStatus }: Workf
                       </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {client.refundAmount ? `Refund: $${client.refundAmount}` : `Owe: $${client.oweAmount}`}
+                      {client.refundAmount
+                        ? `Refund: $${client.refundAmount}`
+                        : `Owe: $${client.oweAmount}`}
                     </p>
                     <div className="flex gap-1">
                       <Button size="sm" variant="outline" className="h-7 text-xs">

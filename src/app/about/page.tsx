@@ -1,9 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Award,
   Users,
@@ -14,7 +14,7 @@ import {
   Building,
   GraduationCap,
   Target,
-  ArrowRight
+  ArrowRight,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -145,8 +145,8 @@ export default function AboutPage() {
                 <p>
                   Over 30 years ago, Tax Genius was born out of a small, family-run operation
                   serving the local communities of Atlanta and Chicago. Back then, we worked
-                  side-by-side with neighbors, small business owners, and hardworking families
-                  who needed guidance through the complexities of the tax code.
+                  side-by-side with neighbors, small business owners, and hardworking families who
+                  needed guidance through the complexities of the tax code.
                 </p>
                 <p>
                   In those early days, our commitment was simple: help every client feel supported,
@@ -184,8 +184,8 @@ export default function AboutPage() {
                 </p>
                 <p>
                   By offering transparent advice, personalized tax solutions, and hands-on support,
-                  we became more than just another tax preparation service—we became trusted partners
-                  who cared deeply about improving our clients' financial well-being.
+                  we became more than just another tax preparation service—we became trusted
+                  partners who cared deeply about improving our clients&apos; financial well-being.
                 </p>
               </div>
 
@@ -254,7 +254,9 @@ export default function AboutPage() {
                       <GraduationCap className="w-8 h-8 text-primary" />
                       <div>
                         <p className="font-semibold text-foreground">Community Programs</p>
-                        <p className="text-sm text-muted-foreground">Financial literacy workshops</p>
+                        <p className="text-sm text-muted-foreground">
+                          Financial literacy workshops
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -279,9 +281,9 @@ export default function AboutPage() {
               </div>
               <div className="space-y-4 text-muted-foreground leading-relaxed text-lg">
                 <p>
-                  Our commitment to community has always been at the heart of Tax Genius. We've
+                  Our commitment to community has always been at the heart of Tax Genius. We&apos;ve
                   created jobs, supported local training initiatives, and invested in charitable
-                  programs that give back to the neighborhoods we've served from the start.
+                  programs that give back to the neighborhoods we&apos;ve served from the start.
                 </p>
                 <p>
                   By offering financial literacy workshops, sponsoring educational endeavors, and
@@ -297,7 +299,9 @@ export default function AboutPage() {
                   </div>
                   <div>
                     <p className="font-medium text-foreground">Job Creation</p>
-                    <p className="text-sm text-muted-foreground">Supporting local employment and career growth</p>
+                    <p className="text-sm text-muted-foreground">
+                      Supporting local employment and career growth
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -306,7 +310,9 @@ export default function AboutPage() {
                   </div>
                   <div>
                     <p className="font-medium text-foreground">Training Programs</p>
-                    <p className="text-sm text-muted-foreground">Investing in professional development and education</p>
+                    <p className="text-sm text-muted-foreground">
+                      Investing in professional development and education
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -315,7 +321,9 @@ export default function AboutPage() {
                   </div>
                   <div>
                     <p className="font-medium text-foreground">Charitable Giving</p>
-                    <p className="text-sm text-muted-foreground">Supporting community causes and volunteer initiatives</p>
+                    <p className="text-sm text-muted-foreground">
+                      Supporting community causes and volunteer initiatives
+                    </p>
                   </div>
                 </div>
               </div>
@@ -421,12 +429,12 @@ export default function AboutPage() {
                 <div className="space-y-6 text-muted-foreground leading-relaxed text-lg">
                   <p>
                     Today, Tax Genius stands as a modern, forward-looking company rooted in the
-                    values that shaped our early days. As we continue to grow and adapt, our
-                    mission remains constant: to provide expert guidance, accessible tools, and
-                    unwavering support to everyone who trusts us with their tax needs.
+                    values that shaped our early days. As we continue to grow and adapt, our mission
+                    remains constant: to provide expert guidance, accessible tools, and unwavering
+                    support to everyone who trusts us with their tax needs.
                   </p>
                   <p className="text-xl font-medium text-foreground">
-                    It's our honor to help you find clarity, confidence, and comfort in your
+                    It&apos;s our honor to help you find clarity, confidence, and comfort in your
                     financial journey—now, and for many years to come.
                   </p>
                 </div>
@@ -468,12 +476,12 @@ export default function AboutPage() {
               Ready to Experience the Tax Genius Difference?
             </h2>
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Join over 100,000 satisfied clients who trust us with their tax needs.
-              Let's write the next chapter of your financial success together.
+              Join over 100,000 satisfied clients who trust us with their tax needs. Let&apos;s write the
+              next chapter of your financial success together.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg" asChild>
-                <Link href="/start-filing">
+                <Link href="/start-filing/form">
                   Get Started Today
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>

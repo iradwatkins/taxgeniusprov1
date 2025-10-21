@@ -22,20 +22,20 @@ export type {
   PaymentStatus,
   PaymentType,
   MaterialType,
-  AnalyticsEventType
-} from '@prisma/client'
+  AnalyticsEventType,
+} from '@prisma/client';
 
 // Custom types for leaderboard
 export interface ContestLeaderboardEntry {
-  id: string
-  contest_id: string
-  referrer_id: string
-  rank: number
-  score: number
-  last_calculated: string
+  id: string;
+  contest_id: string;
+  referrer_id: string;
+  rank: number;
+  score: number;
+  last_calculated: string;
   referrer: {
-    first_name?: string | null
-    last_name?: string | null
-    vanity_slug?: string | null
-  }
+    first_name?: string | null;
+    last_name?: string | null;
+    vanity_slug?: string | null;
+  };
 }

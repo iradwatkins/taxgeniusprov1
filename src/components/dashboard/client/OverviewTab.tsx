@@ -12,7 +12,7 @@ import {
   Download,
   Calendar,
   FileText,
-  Lightbulb
+  Lightbulb,
 } from 'lucide-react';
 
 interface Activity {
@@ -33,7 +33,7 @@ const quickActions = [
   { icon: Upload, label: 'Upload Documents', variant: 'default' as const },
   { icon: MessageSquare, label: 'Message Preparer', variant: 'outline' as const },
   { icon: CreditCard, label: 'Make Payment', variant: 'outline' as const },
-  { icon: Download, label: 'Download Returns', variant: 'outline' as const }
+  { icon: Download, label: 'Download Returns', variant: 'outline' as const },
 ];
 
 export function OverviewTab({ activities }: OverviewTabProps) {
@@ -101,15 +101,17 @@ export function OverviewTab({ activities }: OverviewTabProps) {
             <div className="space-y-2">
               <h4 className="font-semibold">Maximize Your Deductions</h4>
               <p className="text-sm text-muted-foreground">
-                Don't forget to claim home office expenses if you work from home. You may be eligible
-                for deductions on a portion of your rent, utilities, and internet costs.
+                Don't forget to claim home office expenses if you work from home. You may be
+                eligible for deductions on a portion of your rent, utilities, and internet costs.
               </p>
             </div>
             <div className="flex items-center gap-2 p-3 bg-background rounded-lg">
               <FileText className="h-4 w-4 text-primary" />
               <div className="flex-1">
                 <p className="text-sm font-medium">Required Documents</p>
-                <p className="text-xs text-muted-foreground">Keep receipts for all business expenses</p>
+                <p className="text-xs text-muted-foreground">
+                  Keep receipts for all business expenses
+                </p>
               </div>
             </div>
             <Button variant="outline" size="sm" className="w-full">

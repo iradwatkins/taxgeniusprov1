@@ -3,7 +3,8 @@ import { CheckCircle, DollarSign, Users, TrendingUp } from 'lucide-react';
 
 export const metadata = {
   title: 'Sign Up for Tax Genius Referral Program | Get Your Link',
-  description: 'Quick signup - get your referral link instantly. Start earning $50 per referral today!',
+  description:
+    'Quick signup - get your referral link instantly. Start earning $50 per referral today!',
 };
 
 export default function ReferralSignupPage() {
@@ -12,9 +13,7 @@ export default function ReferralSignupPage() {
       {/* Header */}
       <section className="bg-gradient-to-r from-green-600 to-emerald-600 text-white py-12 px-4">
         <div className="container mx-auto max-w-4xl text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            You're Almost There!
-          </h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">You're Almost There!</h1>
           <p className="text-xl">
             Fill out the quick form below and you'll get your referral link in seconds!
           </p>
@@ -31,8 +30,12 @@ export default function ReferralSignupPage() {
                 <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-emerald-500/5 flex items-center justify-center">
                   <div className="text-center space-y-4 p-8">
                     <div className="text-8xl mb-4">💸</div>
-                    <p className="text-lg font-semibold text-muted-foreground">[Referral Success Image]</p>
-                    <p className="text-sm text-muted-foreground">Person celebrating earning money</p>
+                    <p className="text-lg font-semibold text-muted-foreground">
+                      [Referral Success Image]
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Person celebrating earning money
+                    </p>
                     <p className="text-xs text-muted-foreground/60">Recommended size: 600x800px</p>
                   </div>
                 </div>
@@ -56,7 +59,9 @@ export default function ReferralSignupPage() {
                   </div>
                   <div>
                     <p className="font-semibold">Share Everywhere</p>
-                    <p className="text-sm text-muted-foreground">Social media, text, email, anywhere!</p>
+                    <p className="text-sm text-muted-foreground">
+                      Social media, text, email, anywhere!
+                    </p>
                   </div>
                 </div>
 

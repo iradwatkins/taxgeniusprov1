@@ -1,8 +1,8 @@
 'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   ArrowRight,
   DollarSign,
@@ -16,7 +16,7 @@ import {
   Laptop,
   FileText,
   BarChart3,
-  Star
+  Star,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -68,7 +68,9 @@ export default function PreparerPage() {
               </h1>
 
               <p className="text-xl text-muted-foreground">
-                Join our network of professional tax preparers and build a rewarding career helping clients maximize their refunds. Work on your schedule, earn competitive pay, and grow your practice.
+                Join our network of professional tax preparers and build a rewarding career helping
+                clients maximize their refunds. Work on your schedule, earn competitive pay, and
+                grow your practice.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
@@ -108,11 +110,10 @@ export default function PreparerPage() {
                     <p className="text-lg font-semibold text-muted-foreground mb-2">
                       [Replace with professional tax preparer hero image]
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      Recommended: 800x800px
-                    </p>
+                    <p className="text-sm text-muted-foreground">Recommended: 800x800px</p>
                     <p className="text-xs text-muted-foreground mt-2">
-                      Suggestion: Professional working at desk, happy preparer with clients, or team photo
+                      Suggestion: Professional working at desk, happy preparer with clients, or team
+                      photo
                     </p>
                   </div>
                 </div>
@@ -136,42 +137,48 @@ export default function PreparerPage() {
             {[
               {
                 icon: DollarSign,
-                title: "Competitive Earnings",
-                description: "Earn $45-75 per return with bonus opportunities during peak season",
-                highlight: "Up to $5,000/month"
+                title: 'Competitive Earnings',
+                description: 'Earn $45-75 per return with bonus opportunities during peak season',
+                highlight: 'Up to $5,000/month',
               },
               {
                 icon: Clock,
-                title: "Flexible Schedule",
-                description: "Work when you want, from wherever you want. Perfect for side income or full-time",
-                highlight: "Your hours, your way"
+                title: 'Flexible Schedule',
+                description:
+                  'Work when you want, from wherever you want. Perfect for side income or full-time',
+                highlight: 'Your hours, your way',
               },
               {
                 icon: Laptop,
-                title: "Work Remotely",
-                description: "All you need is a computer and internet connection. Work from home or anywhere",
-                highlight: "100% remote"
+                title: 'Work Remotely',
+                description:
+                  'All you need is a computer and internet connection. Work from home or anywhere',
+                highlight: '100% remote',
               },
               {
                 icon: Users,
-                title: "Client Support",
-                description: "We handle marketing, client acquisition, and payment processing for you",
-                highlight: "Focus on what you do best"
+                title: 'Client Support',
+                description:
+                  'We handle marketing, client acquisition, and payment processing for you',
+                highlight: 'Focus on what you do best',
               },
               {
                 icon: Shield,
-                title: "E&O Insurance",
-                description: "Professional liability insurance included at no cost to you",
-                highlight: "Full coverage"
+                title: 'E&O Insurance',
+                description: 'Professional liability insurance included at no cost to you',
+                highlight: 'Full coverage',
               },
               {
                 icon: BarChart3,
-                title: "Modern Platform",
-                description: "State-of-the-art tax software and client management tools included",
-                highlight: "All tools provided"
-              }
+                title: 'Modern Platform',
+                description: 'State-of-the-art tax software and client management tools included',
+                highlight: 'All tools provided',
+              },
             ].map((benefit, index) => (
-              <Card key={index} className="hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <Card
+                key={index}
+                className="hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+              >
                 <CardHeader>
                   <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mb-4">
                     <benefit.icon className="w-7 h-7 text-primary" />
@@ -255,25 +262,25 @@ export default function PreparerPage() {
           <div className="grid md:grid-cols-4 gap-6">
             {[
               {
-                step: "1",
-                title: "Apply Online",
-                description: "Submit your application with credentials"
+                step: '1',
+                title: 'Apply Online',
+                description: 'Submit your application with credentials',
               },
               {
-                step: "2",
-                title: "Background Check",
-                description: "We verify your credentials and experience"
+                step: '2',
+                title: 'Background Check',
+                description: 'We verify your credentials and experience',
               },
               {
-                step: "3",
-                title: "Platform Training",
-                description: "Get onboarded to our tax platform"
+                step: '3',
+                title: 'Platform Training',
+                description: 'Get onboarded to our tax platform',
               },
               {
-                step: "4",
-                title: "Start Preparing",
-                description: "Receive clients and start earning"
-              }
+                step: '4',
+                title: 'Start Preparing',
+                description: 'Receive clients and start earning',
+              },
             ].map((item, index) => (
               <Card key={index} className="text-center hover:shadow-lg transition-all">
                 <CardHeader>
@@ -297,11 +304,10 @@ export default function PreparerPage() {
           <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 overflow-hidden relative">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
             <CardContent className="p-12 text-center relative">
-              <h2 className="text-3xl lg:text-5xl font-bold mb-6">
-                Ready to Join Our Team?
-              </h2>
+              <h2 className="text-3xl lg:text-5xl font-bold mb-6">Ready to Join Our Team?</h2>
               <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Start your application today and become part of our growing network of tax professionals
+                Start your application today and become part of our growing network of tax
+                professionals
               </p>
               <Link href="/auth/signup?role=preparer">
                 <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg px-8 shadow-xl">

@@ -94,11 +94,7 @@ export default function LiveStats({ type }: { type: 'preparer' | 'affiliate' }) 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
       {stats.map((stat, index) => (
-        <StatItem
-          key={stat.label}
-          {...stat}
-          delay={index * 0.1}
-        />
+        <StatItem key={stat.label} {...stat} delay={index * 0.1} />
       ))}
     </div>
   );

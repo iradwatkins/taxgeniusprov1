@@ -1,15 +1,15 @@
-'use client'
+'use client';
 
 import { useState } from 'react';
 import { redirect } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
-import { getUserPermissions, UserRole } from '@/lib/permissions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
+import { getUserPermissions, UserRole, type UserPermissions } from '@/lib/permissions';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 import {
   BookOpen,
   Search,
@@ -58,8 +58,30 @@ interface Contact {
 // Generate mock contacts with varied types
 const generateMockContacts = (): Contact[] => {
   const contacts: Contact[] = [];
-  const firstNames = ['John', 'Jane', 'Michael', 'Sarah', 'David', 'Emily', 'Robert', 'Lisa', 'James', 'Maria'];
-  const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez'];
+  const firstNames = [
+    'John',
+    'Jane',
+    'Michael',
+    'Sarah',
+    'David',
+    'Emily',
+    'Robert',
+    'Lisa',
+    'James',
+    'Maria',
+  ];
+  const lastNames = [
+    'Smith',
+    'Johnson',
+    'Williams',
+    'Brown',
+    'Jones',
+    'Garcia',
+    'Miller',
+    'Davis',
+    'Rodriguez',
+    'Martinez',
+  ];
 
   // Generate varied contact types
   for (let i = 0; i < 50; i++) {
@@ -79,7 +101,9 @@ const generateMockContacts = (): Contact[] => {
       // Leads
       type = 'lead';
       tags = ['Potential', '2025 Tax Season'];
-      source = ['website', 'qr_code', 'walk_in', 'phone'][Math.floor(Math.random() * 4)] as ContactSource;
+      source = ['website', 'qr_code', 'walk_in', 'phone'][
+        Math.floor(Math.random() * 4)
+      ] as ContactSource;
     } else if (i < 20) {
       // Referrals
       type = 'referral';
@@ -113,7 +137,10 @@ const generateMockContacts = (): Contact[] => {
       source,
       tags,
       dateAdded: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000), // Random date within last 30 days
-      lastContact: Math.random() > 0.3 ? new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000) : undefined,
+      lastContact:
+        Math.random() > 0.3
+          ? new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000)
+          : undefined,
       taxIntakeCompleted,
       referredBy,
       yearStarted,
@@ -136,7 +163,7 @@ export default function AddressBookPage() {
   }
 
   const role = user.publicMetadata?.role as UserRole | undefined;
-  const customPermissions = user.publicMetadata?.permissions as any;
+  const customPermissions = user.publicMetadata?.permissions as Partial<UserPermissions> | undefined;
   const permissions = getUserPermissions(role || 'client', customPermissions);
 
   if (!permissions.addressBook) {
@@ -144,9 +171,10 @@ export default function AddressBookPage() {
   }
 
   // Filter contacts based on selected tab
-  const filteredContacts = contacts.filter(contact => {
+  const filteredContacts = contacts.filter((contact) => {
     // Apply search filter
-    const matchesSearch = searchTerm === '' ||
+    const matchesSearch =
+      searchTerm === '' ||
       `${contact.firstName} ${contact.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.phone.includes(searchTerm);
@@ -177,10 +205,10 @@ export default function AddressBookPage() {
   // Calculate counts for each type
   const counts = {
     all: contacts.length,
-    leads: contacts.filter(c => c.type === 'lead').length,
-    new_clients: contacts.filter(c => c.type === 'new_client').length,
-    old_clients: contacts.filter(c => c.type === 'old_client').length,
-    referrals: contacts.filter(c => c.type === 'referral').length,
+    leads: contacts.filter((c) => c.type === 'lead').length,
+    new_clients: contacts.filter((c) => c.type === 'new_client').length,
+    old_clients: contacts.filter((c) => c.type === 'old_client').length,
+    referrals: contacts.filter((c) => c.type === 'referral').length,
   };
 
   // Today's and this week's leads
@@ -189,13 +217,9 @@ export default function AddressBookPage() {
   const weekAgo = new Date(today);
   weekAgo.setDate(weekAgo.getDate() - 7);
 
-  const todaysLeads = contacts.filter(c =>
-    c.type === 'lead' && c.dateAdded >= today
-  ).length;
+  const todaysLeads = contacts.filter((c) => c.type === 'lead' && c.dateAdded >= today).length;
 
-  const weeksLeads = contacts.filter(c =>
-    c.type === 'lead' && c.dateAdded >= weekAgo
-  ).length;
+  const weeksLeads = contacts.filter((c) => c.type === 'lead' && c.dateAdded >= weekAgo).length;
 
   // Get badge variant based on contact type
   const getBadgeVariant = (type: ContactType) => {
@@ -282,8 +306,12 @@ export default function AddressBookPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">{counts.old_clients}</p>
-                  <p className="text-sm font-medium text-blue-600 dark:text-blue-400">Old Clients</p>
+                  <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">
+                    {counts.old_clients}
+                  </p>
+                  <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                    Old Clients
+                  </p>
                 </div>
                 <Users className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
@@ -294,8 +322,12 @@ export default function AddressBookPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-3xl font-bold text-green-700 dark:text-green-300">{counts.new_clients}</p>
-                  <p className="text-sm font-medium text-green-600 dark:text-green-400">New Clients</p>
+                  <p className="text-3xl font-bold text-green-700 dark:text-green-300">
+                    {counts.new_clients}
+                  </p>
+                  <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                    New Clients
+                  </p>
                 </div>
                 <UserCheck className="w-8 h-8 text-green-600 dark:text-green-400" />
               </div>
@@ -306,8 +338,12 @@ export default function AddressBookPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-3xl font-bold text-purple-700 dark:text-purple-300">{counts.referrals}</p>
-                  <p className="text-sm font-medium text-purple-600 dark:text-purple-400">Referrals</p>
+                  <p className="text-3xl font-bold text-purple-700 dark:text-purple-300">
+                    {counts.referrals}
+                  </p>
+                  <p className="text-sm font-medium text-purple-600 dark:text-purple-400">
+                    Referrals
+                  </p>
                 </div>
                 <TrendingUp className="w-8 h-8 text-purple-600 dark:text-purple-400" />
               </div>
@@ -318,8 +354,12 @@ export default function AddressBookPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-3xl font-bold text-yellow-700 dark:text-yellow-300">{counts.leads}</p>
-                  <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">Total Leads</p>
+                  <p className="text-3xl font-bold text-yellow-700 dark:text-yellow-300">
+                    {counts.leads}
+                  </p>
+                  <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
+                    Total Leads
+                  </p>
                 </div>
                 <UserPlus className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
               </div>
@@ -330,12 +370,20 @@ export default function AddressBookPage() {
             <CardContent className="pt-6">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-orange-600 dark:text-orange-400">Today's Leads</p>
-                  <span className="text-xl font-bold text-orange-700 dark:text-orange-300">{todaysLeads}</span>
+                  <p className="text-sm font-medium text-orange-600 dark:text-orange-400">
+                    Today's Leads
+                  </p>
+                  <span className="text-xl font-bold text-orange-700 dark:text-orange-300">
+                    {todaysLeads}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-orange-600 dark:text-orange-400">This Week</p>
-                  <span className="text-xl font-bold text-orange-700 dark:text-orange-300">{weeksLeads}</span>
+                  <p className="text-sm font-medium text-orange-600 dark:text-orange-400">
+                    This Week
+                  </p>
+                  <span className="text-xl font-bold text-orange-700 dark:text-orange-300">
+                    {weeksLeads}
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -400,34 +448,48 @@ export default function AddressBookPage() {
                       const badgeColor = getBadgeColor(contact.type);
 
                       return (
-                        <div key={contact.id} className="border rounded-lg p-4 hover:shadow-md transition-all hover:border-primary/50">
+                        <div
+                          key={contact.id}
+                          className="border rounded-lg p-4 hover:shadow-md transition-all hover:border-primary/50"
+                        >
                           <div className="flex items-start justify-between mb-3">
-                            <div className={cn(
-                              "w-12 h-12 rounded-full flex items-center justify-center",
-                              contact.type === 'lead' && "bg-yellow-100 dark:bg-yellow-900",
-                              contact.type === 'new_client' && "bg-green-100 dark:bg-green-900",
-                              contact.type === 'old_client' && "bg-blue-100 dark:bg-blue-900",
-                              contact.type === 'referral' && "bg-purple-100 dark:bg-purple-900"
-                            )}>
+                            <div
+                              className={cn(
+                                'w-12 h-12 rounded-full flex items-center justify-center',
+                                contact.type === 'lead' && 'bg-yellow-100 dark:bg-yellow-900',
+                                contact.type === 'new_client' && 'bg-green-100 dark:bg-green-900',
+                                contact.type === 'old_client' && 'bg-blue-100 dark:bg-blue-900',
+                                contact.type === 'referral' && 'bg-purple-100 dark:bg-purple-900'
+                              )}
+                            >
                               <Icon className="w-6 h-6" />
                             </div>
                             <div className="flex flex-col gap-1 items-end">
                               <Badge className={badgeColor}>
-                                {contact.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                {contact.type
+                                  .replace('_', ' ')
+                                  .replace(/\b\w/g, (l) => l.toUpperCase())}
                               </Badge>
                               {contact.status === 'pending' && (
-                                <Badge variant="outline" className="text-xs">Pending</Badge>
+                                <Badge variant="outline" className="text-xs">
+                                  Pending
+                                </Badge>
                               )}
                             </div>
                           </div>
 
-                          <h3 className="font-medium mb-1">{contact.firstName} {contact.lastName}</h3>
+                          <h3 className="font-medium mb-1">
+                            {contact.firstName} {contact.lastName}
+                          </h3>
 
                           {/* Contact Tags */}
                           {contact.tags.length > 0 && (
                             <div className="flex flex-wrap gap-1 mb-2">
                               {contact.tags.map((tag, idx) => (
-                                <span key={idx} className="inline-flex items-center gap-1 text-xs bg-muted px-2 py-0.5 rounded-full">
+                                <span
+                                  key={idx}
+                                  className="inline-flex items-center gap-1 text-xs bg-muted px-2 py-0.5 rounded-full"
+                                >
                                   <Tag className="w-3 h-3" />
                                   {tag}
                                 </span>
@@ -489,13 +551,21 @@ export default function AddressBookPage() {
                           </div>
 
                           <div className="flex gap-2 mt-4">
-                            <Button size="sm" variant="outline" className="flex-1">View</Button>
-                            <Button size="sm" variant="outline" className="flex-1">Edit</Button>
+                            <Button size="sm" variant="outline" className="flex-1">
+                              View
+                            </Button>
+                            <Button size="sm" variant="outline" className="flex-1">
+                              Edit
+                            </Button>
                             {contact.type === 'lead' && (
-                              <Button size="sm" className="flex-1">Convert</Button>
+                              <Button size="sm" className="flex-1">
+                                Convert
+                              </Button>
                             )}
                             {contact.type === 'referral' && !contact.taxIntakeCompleted && (
-                              <Button size="sm" className="flex-1">Send Intake</Button>
+                              <Button size="sm" className="flex-1">
+                                Send Intake
+                              </Button>
                             )}
                           </div>
                         </div>

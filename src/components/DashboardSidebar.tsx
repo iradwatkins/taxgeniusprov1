@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
+import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Home,
   FileText,
@@ -37,93 +37,18 @@ import {
   Megaphone,
   Globe,
   Link2,
-} from 'lucide-react'
-import { UserRole, UserPermissions, Permission } from '@/lib/permissions'
-import { logger } from '@/lib/logger'
-
-interface NavItem {
-  label: string
-  href: string
-  icon: React.ElementType
-  badge?: string
-  permission: Permission
-  section?: string // Add section for grouping
-  roles?: UserRole[] // Restrict to specific roles
-}
+  CreditCard,
+} from 'lucide-react';
+import { UserRole, UserPermissions } from '@/lib/permissions';
+import { logger } from '@/lib/logger';
+import { ALL_NAV_ITEMS, ROLE_DASHBOARD_ROUTES, type NavItem } from '@/lib/navigation-items';
 
 interface DashboardSidebarProps {
-  role: UserRole
-  permissions: Partial<UserPermissions>
-  isCollapsed?: boolean
-  onCollapsedChange?: (collapsed: boolean) => void
-  className?: string
-}
-
-// All possible navigation items with their permission requirements
-const ALL_NAV_ITEMS: NavItem[] = [
-  // 🧩 Dashboard Section
-  { label: 'Dashboard', href: '/dashboard', icon: Home, permission: 'dashboard', section: '🧩 Dashboard' },
-
-  // 👥 Client Management Section
-  { label: 'Clients Status', href: '/admin/clients-status', icon: UserCheck, permission: 'clientsStatus', section: '👥 Client Management' },
-  { label: 'Referrals Status', href: '/admin/referrals-status', icon: Users, permission: 'referralsStatus', section: '👥 Client Management' },
-  { label: 'Calendar & Appointments', href: '/admin/calendar', icon: Calendar, permission: 'calendar', section: '👥 Client Management' },
-  { label: 'Client File Center', href: '/admin/file-center', icon: FolderOpen, permission: 'clientFileCenter', section: '👥 Client Management' },
-
-  // 💬 Communication Section
-  { label: 'Emails', href: '/admin/emails', icon: Mail, permission: 'emails', section: '💬 Communication' },
-  { label: 'Address Book', href: '/admin/address-book', icon: BookOpen, permission: 'addressBook', section: '💬 Communication' },
-
-  // 💰 Financials Section
-  { label: 'Earnings', href: '/admin/earnings', icon: DollarSign, permission: 'earnings', section: '💰 Financials', roles: ['admin', 'super_admin'] },
-  { label: 'My Earnings', href: '/dashboard/tax-preparer/earnings', icon: DollarSign, permission: 'earnings', section: '💰 Financials', roles: ['tax_preparer'] },
-  { label: 'My Earnings', href: '/dashboard/affiliate/earnings', icon: DollarSign, permission: 'earnings', section: '💰 Financials', roles: ['affiliate'] },
-  { label: 'Payouts', href: '/admin/payouts', icon: DollarSign, permission: 'payouts', section: '💰 Financials' },
-
-  // 📊 Analytics Section
-  { label: 'Analytics Overview', href: '/admin/analytics', icon: BarChart3, permission: 'analytics', section: '📊 Analytics', roles: ['admin', 'super_admin'] },
-  { label: 'Tax Genius Analytics', href: '/admin/analytics/tax-genius', icon: Sparkles, permission: 'analytics', section: '📊 Analytics', roles: ['admin', 'super_admin'] },
-  { label: 'Tax Preparers Analytics', href: '/admin/analytics/preparers', icon: Users, permission: 'analytics', section: '📊 Analytics', roles: ['admin', 'super_admin'] },
-  { label: 'Affiliates Analytics', href: '/admin/analytics/affiliates', icon: Trophy, permission: 'analytics', section: '📊 Analytics', roles: ['admin', 'super_admin'] },
-  { label: 'Clients Analytics', href: '/admin/analytics/clients', icon: TrendingUp, permission: 'analytics', section: '📊 Analytics', roles: ['admin', 'super_admin'] },
-
-  // Role-specific Analytics (for non-admin users)
-  { label: 'My Analytics', href: '/dashboard/tax-preparer/analytics', icon: BarChart3, permission: 'analytics', section: '📊 Analytics', roles: ['tax_preparer'] },
-  { label: 'My Analytics', href: '/dashboard/affiliate/analytics', icon: BarChart3, permission: 'analytics', section: '📊 Analytics', roles: ['affiliate'] },
-
-  // 📢 Marketing Section
-  { label: 'Marketing Hub', href: '/admin/marketing-hub', icon: Megaphone, permission: 'marketingHub', section: '📢 Marketing', roles: ['admin', 'super_admin'] },
-  { label: 'Tracking Codes', href: '/admin/tracking-codes', icon: QrCode, permission: 'marketingHub', section: '📢 Marketing', roles: ['admin', 'super_admin'] },
-  { label: 'Content Generator', href: '/admin/content-generator', icon: Sparkles, permission: 'contentGenerator', section: '📢 Marketing', roles: ['admin', 'super_admin'] },
-
-  // Role-specific Marketing (for non-admin users)
-  { label: 'My Tracking Code', href: '/dashboard/tax-preparer/tracking', icon: QrCode, permission: 'trackingCode', section: '📢 Marketing', roles: ['tax_preparer'] },
-  { label: 'My Marketing', href: '/dashboard/affiliate/marketing', icon: Briefcase, permission: 'marketing', section: '📢 Marketing', roles: ['affiliate'] },
-  { label: 'My Tracking Code', href: '/dashboard/affiliate/tracking', icon: QrCode, permission: 'trackingCode', section: '📢 Marketing', roles: ['affiliate'] },
-
-  // 🎓 Learning & Resources Section
-  { label: 'Learning Center', href: '/admin/learning-center', icon: GraduationCap, permission: 'learningCenter', section: '🎓 Learning & Resources' },
-  { label: 'Academy', href: '/app/academy', icon: GraduationCap, permission: 'academy', section: '🎓 Learning & Resources' },
-  { label: 'Store', href: '/store', icon: Package, permission: 'store', section: '🎓 Learning & Resources' },
-
-  // 🔗 Quick Share Tools Section
-  { label: 'Quick Share Links', href: '/admin/quick-share', icon: Link2, permission: 'quickShareLinks', section: '🔗 Quick Share Tools', roles: ['admin', 'super_admin'] },
-
-  // ⚙️ System Controls Section
-  { label: 'User Management', href: '/admin/users', icon: Users, permission: 'users', section: '⚙️ System Controls' },
-  { label: 'Permissions', href: '/admin/permissions', icon: ShieldCheck, permission: 'users', section: '⚙️ System Controls', roles: ['super_admin'] },
-  { label: 'Database', href: '/admin/database', icon: Database, permission: 'database', section: '⚙️ System Controls' },
-  { label: 'Settings', href: '/dashboard/settings', icon: Settings, permission: 'settings', section: '⚙️ System Controls' },
-]
-
-// Dashboard routes by role (for redirecting to correct dashboard)
-const ROLE_DASHBOARD_ROUTES: Record<UserRole, string> = {
-  super_admin: '/dashboard/admin',
-  admin: '/dashboard/admin',
-  lead: '/dashboard/lead',
-  tax_preparer: '/dashboard/tax-preparer',
-  affiliate: '/dashboard/affiliate',
-  client: '/dashboard/client',
+  role: UserRole;
+  permissions: Partial<UserPermissions>;
+  isCollapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
+  className?: string;
 }
 
 export function DashboardSidebar({
@@ -133,82 +58,85 @@ export function DashboardSidebar({
   onCollapsedChange,
   className,
 }: DashboardSidebarProps) {
-  const [internalCollapsed, setInternalCollapsed] = useState(false)
+  const [internalCollapsed, setInternalCollapsed] = useState(false);
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
     '⚙️ System Controls': true, // Keep System Controls collapsed by default
-  })
-  const pathname = usePathname()
+    // Ensure client dashboard section is NOT collapsed
+    '📱 My Dashboard': false,
+  });
+  const pathname = usePathname();
 
   // Use controlled state if provided, otherwise use internal state
-  const isCollapsed = controlledCollapsed !== undefined ? controlledCollapsed : internalCollapsed
+  const isCollapsed = controlledCollapsed !== undefined ? controlledCollapsed : internalCollapsed;
 
   const handleCollapsedChange = (collapsed: boolean) => {
     if (onCollapsedChange) {
-      onCollapsedChange(collapsed)
+      onCollapsedChange(collapsed);
     } else {
-      setInternalCollapsed(collapsed)
+      setInternalCollapsed(collapsed);
     }
-  }
+  };
 
   // Generate navigation items dynamically based on user's permissions AND role
-  const navItems = ALL_NAV_ITEMS
-    .filter((item) => {
-      // Check permission first
-      if (permissions[item.permission] !== true) return false
+  const navItems = ALL_NAV_ITEMS.filter((item) => {
+    // Check permission first
+    if (permissions[item.permission] !== true) return false;
 
-      // If item has role restrictions, check if user's role is included
-      if (item.roles && item.roles.length > 0) {
-        return item.roles.includes(role)
-      }
+    // If item has role restrictions, check if user's role is included
+    if (item.roles && item.roles.length > 0) {
+      return item.roles.includes(role);
+    }
 
-      // No role restrictions, show to all users with permission
-      return true
-    })
-    .map((item) => {
-      // Dashboard is special - update href based on role
-      if (item.permission === 'dashboard') {
-        return { ...item, href: ROLE_DASHBOARD_ROUTES[role] }
-      }
+    // No role restrictions, show to all users with permission
+    return true;
+  }).map((item) => {
+    // Dashboard Home is special - update href based on role (but only for the generic /dashboard route)
+    if (item.permission === 'dashboard' && item.href === '/dashboard') {
+      return { ...item, href: ROLE_DASHBOARD_ROUTES[role] };
+    }
 
-      // Earnings is special - update href based on role
-      if (item.permission === 'earnings') {
-        const earningsRoutes: Record<UserRole, string> = {
-          super_admin: '/admin/earnings',
-          admin: '/admin/earnings',
-          lead: '/dashboard/lead/earnings',
-          tax_preparer: '/dashboard/tax-preparer/earnings',
-          affiliate: '/dashboard/affiliate/earnings',
-          client: '/dashboard/client/earnings',
-        }
-        return { ...item, href: earningsRoutes[role] }
-      }
+    // Earnings is special - update href based on role
+    if (item.permission === 'earnings') {
+      const earningsRoutes: Record<UserRole, string> = {
+        super_admin: '/admin/earnings',
+        admin: '/admin/earnings',
+        lead: '/dashboard/lead/earnings',
+        tax_preparer: '/dashboard/tax-preparer/earnings',
+        affiliate: '/dashboard/affiliate/earnings',
+        client: '/dashboard/client/earnings',
+      };
+      return { ...item, href: earningsRoutes[role] };
+    }
 
-      // Settings is special - update href based on role
-      if (item.permission === 'settings') {
-        const settingsRoutes: Record<UserRole, string> = {
-          super_admin: '/admin/settings',
-          admin: '/admin/settings',
-          lead: '/dashboard/lead/settings',
-          tax_preparer: '/dashboard/tax-preparer/settings',
-          affiliate: '/dashboard/affiliate/settings',
-          client: '/dashboard/client/settings',
-        }
-        return { ...item, href: settingsRoutes[role] }
-      }
+    // Settings is special - update href based on role
+    if (item.permission === 'settings') {
+      const settingsRoutes: Record<UserRole, string> = {
+        super_admin: '/admin/settings',
+        admin: '/admin/settings',
+        lead: '/dashboard/lead/settings',
+        tax_preparer: '/dashboard/tax-preparer/settings',
+        affiliate: '/dashboard/affiliate/settings',
+        client: '/dashboard/client/settings',
+      };
+      return { ...item, href: settingsRoutes[role] };
+    }
 
-      // Return item as-is for all other cases
-      return item
-    })
+    // Return item as-is for all other cases
+    return item;
+  });
 
   // Group items by section for admin users
-  const groupedItems = navItems.reduce((acc, item) => {
-    const section = item.section || 'Other'
-    if (!acc[section]) {
-      acc[section] = []
-    }
-    acc[section].push(item)
-    return acc
-  }, {} as Record<string, typeof navItems>)
+  const groupedItems = navItems.reduce(
+    (acc, item) => {
+      const section = item.section || 'Other';
+      if (!acc[section]) {
+        acc[section] = [];
+      }
+      acc[section].push(item);
+      return acc;
+    },
+    {} as Record<string, typeof navItems>
+  );
 
   // Debug: Log the role and grouped items
   logger.info('Dashboard Sidebar Debug:', {
@@ -218,9 +146,11 @@ export function DashboardSidebar({
     sections: Object.keys(groupedItems),
     itemsPerSection: Object.entries(groupedItems).map(([section, items]) => ({
       section,
-      count: items.length
-    }))
-  })
+      count: items.length,
+      items: items.map(i => ({ label: i.label, href: i.href })),
+    })),
+    permissions,
+  });
 
   return (
     <div
@@ -237,22 +167,28 @@ export function DashboardSidebar({
         className="absolute -right-3 top-20 z-50 h-6 w-6 rounded-full border bg-background shadow-md"
         onClick={() => handleCollapsedChange(!isCollapsed)}
       >
-        {isCollapsed ? (
-          <ChevronRight className="h-4 w-4" />
-        ) : (
-          <ChevronLeft className="h-4 w-4" />
-        )}
+        {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
       </Button>
 
       {/* Sidebar Content */}
       <ScrollArea className="flex-1 py-4">
         <nav className="px-2">
-          {(role === 'admin' || role === 'super_admin') ? (
+          {role === 'admin' || role === 'super_admin' ? (
             // Render with sections for admin users - ordered sections
             // Define section order for consistent display
             <div className="space-y-4">
-              {['🧩 Dashboard', '👥 Client Management', '💬 Communication', '💰 Financials', '📊 Analytics',
-               '📢 Marketing', '🎓 Learning & Resources', '🔗 Quick Share Tools', '⚙️ System Controls'].map((sectionName, sectionIndex) => {
+              {[
+                '📊 Overview',
+                '👥 Clients',
+                '📋 CRM',
+                '💰 Financials',
+                '📊 Analytics',
+                '📢 Marketing',
+                '🎓 Learning',
+                '💼 Business',
+                '🔗 Quick Share Tools',
+                '⚙️ System Controls',
+              ].map((sectionName, sectionIndex) => {
                 const items = groupedItems[sectionName];
                 if (!items || items.length === 0) return null;
 
@@ -263,13 +199,17 @@ export function DashboardSidebar({
                     {/* Section header with collapsible button */}
                     {!isCollapsed && (
                       <button
-                        onClick={() => setCollapsedSections(prev => ({
-                          ...prev,
-                          [sectionName]: !prev[sectionName]
-                        }))}
+                        onClick={() =>
+                          setCollapsedSections((prev) => ({
+                            ...prev,
+                            [sectionName]: !prev[sectionName],
+                          }))
+                        }
                         className={cn(
-                          "w-full flex items-center justify-between mb-2 px-3 py-2 rounded-md border transition-colors hover:bg-accent/50",
-                          sectionIndex === 0 ? "bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20" : "bg-muted/30 border-border/50"
+                          'w-full flex items-center justify-between mb-2 px-3 py-2 rounded-md border transition-colors hover:bg-accent/50',
+                          sectionIndex === 0
+                            ? 'bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20'
+                            : 'bg-muted/30 border-border/50'
                         )}
                       >
                         <h3 className="text-xs font-bold tracking-wide text-foreground/90">
@@ -277,8 +217,8 @@ export function DashboardSidebar({
                         </h3>
                         <ChevronDown
                           className={cn(
-                            "h-4 w-4 transition-transform duration-200",
-                            isSectionCollapsed && "-rotate-90"
+                            'h-4 w-4 transition-transform duration-200',
+                            isSectionCollapsed && '-rotate-90'
                           )}
                         />
                       </button>
@@ -288,15 +228,16 @@ export function DashboardSidebar({
                     {(!isSectionCollapsed || isCollapsed) && (
                       <div className="space-y-0.5">
                         {items.map((item) => {
-                          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
-                          const Icon = item.icon
+                          const isActive =
+                            pathname === item.href || pathname.startsWith(`${item.href}/`);
+                          const Icon = item.icon;
 
                           return (
                             <Link key={item.href} href={item.href}>
                               <div
                                 className={cn(
                                   'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                                  !isCollapsed && !isSectionCollapsed && "ml-2",
+                                  !isCollapsed && !isSectionCollapsed && 'ml-2',
                                   'hover:bg-accent hover:text-accent-foreground',
                                   isActive && 'bg-accent text-accent-foreground',
                                   !isActive && 'text-muted-foreground'
@@ -315,7 +256,7 @@ export function DashboardSidebar({
                                 )}
                               </div>
                             </Link>
-                          )
+                          );
                         })}
                       </div>
                     )}
@@ -325,39 +266,103 @@ export function DashboardSidebar({
                       <div className="mt-2 border-b border-border/30" />
                     )}
                   </div>
-                )
-              })}</div>
+                );
+              })}
+            </div>
           ) : (
-            // Render flat list for non-admin users
-            navItems.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
-              const Icon = item.icon
+            // Render with sections for non-admin users (tax_preparer, affiliate, client, lead, etc.)
+            <div className="space-y-4">
+              {[
+                '📱 My Dashboard', // Client/Lead only section
+                '🎯 Affiliate Dashboard', // Affiliate only section
+                '📊 Overview',
+                '👥 Clients',
+                '📋 CRM',
+                '📊 Analytics', // Fixed: was '📈 Analytics'
+                '🎓 Learning',
+                '💼 Business',
+                '⚙️ System Controls',
+              ].map((sectionName, sectionIndex) => {
+                const items = groupedItems[sectionName];
+                if (!items || items.length === 0) return null;
 
-              return (
-                <Link key={item.href} href={item.href}>
-                  <div
-                    className={cn(
-                      'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                      'hover:bg-accent hover:text-accent-foreground',
-                      isActive && 'bg-accent text-accent-foreground',
-                      !isActive && 'text-muted-foreground'
-                    )}
-                  >
-                    <Icon className="h-5 w-5 flex-shrink-0" />
+                const isSectionCollapsed = collapsedSections[sectionName] ?? false;
+
+                return (
+                  <div key={sectionName} className="space-y-1">
+                    {/* Section header with collapsible button */}
                     {!isCollapsed && (
-                      <>
-                        <span className="flex-1">{item.label}</span>
-                        {item.badge && (
-                          <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-                            {item.badge}
-                          </span>
+                      <button
+                        onClick={() =>
+                          setCollapsedSections((prev) => ({
+                            ...prev,
+                            [sectionName]: !prev[sectionName],
+                          }))
+                        }
+                        className={cn(
+                          'w-full flex items-center justify-between mb-2 px-3 py-2 rounded-md border transition-colors hover:bg-accent/50',
+                          sectionIndex === 0
+                            ? 'bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20'
+                            : 'bg-muted/30 border-border/50'
                         )}
-                      </>
+                      >
+                        <h3 className="text-xs font-bold tracking-wide text-foreground/90">
+                          {sectionName}
+                        </h3>
+                        <ChevronDown
+                          className={cn(
+                            'h-4 w-4 transition-transform duration-200',
+                            isSectionCollapsed && '-rotate-90'
+                          )}
+                        />
+                      </button>
+                    )}
+
+                    {/* Section Items - only show if not collapsed */}
+                    {(!isSectionCollapsed || isCollapsed) && (
+                      <div className="space-y-0.5">
+                        {items.map((item) => {
+                          const isActive =
+                            pathname === item.href || pathname.startsWith(`${item.href}/`);
+                          const Icon = item.icon;
+
+                          return (
+                            <Link key={item.href} href={item.href}>
+                              <div
+                                className={cn(
+                                  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                                  !isCollapsed && !isSectionCollapsed && 'ml-2',
+                                  'hover:bg-accent hover:text-accent-foreground',
+                                  isActive && 'bg-accent text-accent-foreground',
+                                  !isActive && 'text-muted-foreground'
+                                )}
+                              >
+                                <Icon className="h-5 w-5 flex-shrink-0" />
+                                {!isCollapsed && (
+                                  <>
+                                    <span className="flex-1">{item.label}</span>
+                                    {item.badge && (
+                                      <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                                        {item.badge}
+                                      </span>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Add separator between sections (except last) */}
+                    {sectionIndex < 6 && !isCollapsed && (
+                      <div className="mt-2 border-b border-border/30" />
                     )}
                   </div>
-                </Link>
-              )
-            })
+                );
+              })}
+            </div>
           )}
         </nav>
       </ScrollArea>
@@ -367,12 +372,10 @@ export function DashboardSidebar({
         <div className="border-t p-4">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <ShieldCheck className="h-4 w-4" />
-            <span className="capitalize">
-              {role.replace('_', ' ')} Account
-            </span>
+            <span className="capitalize">{role.replace('_', ' ')} Account</span>
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }

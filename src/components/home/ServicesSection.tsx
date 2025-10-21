@@ -1,40 +1,42 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import Link from 'next/link';
 
 const services = [
   {
-    title: "Personal Tax Filing",
-    description: "Professional preparation for individuals and families. We handle W-2s, deductions, and credits.",
-    image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=80",
-    badgeText: "Most Popular",
-    badgeClass: "bg-primary text-primary-foreground",
-    link: "/services/personal",
-    delay: 0
+    title: 'Personal Tax Filing',
+    description:
+      'Professional preparation for individuals and families. We handle W-2s, deductions, and credits.',
+    image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=80',
+    badgeText: 'Most Popular',
+    badgeClass: 'bg-primary text-primary-foreground',
+    link: '/services/personal',
+    delay: 0,
   },
   {
-    title: "Business Tax Services",
-    description: "Comprehensive tax preparation and planning for small businesses, LLCs, and S-Corps.",
-    image: "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600&q=80",
-    badgeText: "For Businesses",
-    badgeClass: "bg-blue-600 text-white",
-    link: "/services/business",
-    delay: 0.2
+    title: 'Business Tax Services',
+    description:
+      'Comprehensive tax preparation and planning for small businesses, LLCs, and S-Corps.',
+    image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600&q=80',
+    badgeText: 'For Businesses',
+    badgeClass: 'bg-blue-600 text-white',
+    link: '/services/business',
+    delay: 0.2,
   },
   {
-    title: "Tax Planning & Advisory",
-    description: "Year-round strategic tax planning to minimize liability and maximize savings.",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80",
-    badgeText: "Expert Advice",
-    badgeClass: "bg-purple-600 text-white",
-    link: "/services/planning",
-    delay: 0.4
-  }
+    title: 'Tax Planning & Advisory',
+    description: 'Year-round strategic tax planning to minimize liability and maximize savings.',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80',
+    badgeText: 'Expert Advice',
+    badgeClass: 'bg-purple-600 text-white',
+    link: '/services/planning',
+    delay: 0.4,
+  },
 ];
 
 export function ServicesSection() {
@@ -85,9 +87,7 @@ export function ServicesSection() {
                 </CardHeader>
                 <CardContent>
                   <Button variant="outline" className="w-full" asChild>
-                    <Link href={service.link}>
-                      Learn More
-                    </Link>
+                    <Link href={service.link}>Learn More</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -101,9 +101,19 @@ export function ServicesSection() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.6 }}
-          className="text-center mt-12"
+          className="text-center mt-12 space-y-6"
         >
-          <p className="text-muted-foreground">All services include free audit protection and year-round support</p>
+          <p className="text-muted-foreground">
+            All services include free audit protection and year-round support
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button variant="professional" asChild>
+              <Link href="/start-filing/form">Start Filing Online</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/services">View All Services</Link>
+            </Button>
+          </div>
         </motion.div>
       </div>
     </section>

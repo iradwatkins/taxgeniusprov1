@@ -12,7 +12,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { ContactType, PipelineStage, UserRole } from '@prisma/client';
+import { ContactType, PipelineStage, UserRole, type Prisma } from '@prisma/client';
 import type {
   CRMContactInput,
   CRMContactUpdate,
@@ -33,7 +33,10 @@ export class CRMService {
    */
   static async createContact(data: CRMContactInput): Promise<CRMContactWithRelations> {
     try {
-      logger.info('[CRMService] Creating new contact', { email: data.email, contactType: data.contactType });
+      logger.info('[CRMService] Creating new contact', {
+        email: data.email,
+        contactType: data.contactType,
+      });
 
       const contact = await prisma.cRMContact.create({
         data: {
@@ -58,7 +61,7 @@ export class CRMService {
 
       logger.info('[CRMService] Contact created successfully', { contactId: contact.id });
       return contact;
-    } catch (error: any) {
+    } catch (error) {
       logger.error('[CRMService] Error creating contact', { error: error.message, data });
       throw new Error(`Failed to create contact: ${error.message}`);
     }
@@ -120,9 +123,12 @@ export class CRMService {
         }
       }
 
-      logger.info('[CRMService] Contact retrieved', { contactId: id, userRole: accessContext.userRole });
+      logger.info('[CRMService] Contact retrieved', {
+        contactId: id,
+        userRole: accessContext.userRole,
+      });
       return contact as CRMContactWithRelations;
-    } catch (error: any) {
+    } catch (error) {
       logger.error('[CRMService] Error getting contact', { error: error.message, contactId: id });
       throw error;
     }
@@ -162,7 +168,7 @@ export class CRMService {
 
       logger.info('[CRMService] Contact updated successfully', { contactId: id });
       return updatedContact as CRMContactWithRelations;
-    } catch (error: any) {
+    } catch (error) {
       logger.error('[CRMService] Error updating contact', { error: error.message, contactId: id });
       throw error;
     }
@@ -171,10 +177,16 @@ export class CRMService {
   /**
    * Soft delete contact (admin only)
    */
-  static async deleteContact(id: string, accessContext: CRMAccessContext): Promise<{ deleted: boolean }> {
+  static async deleteContact(
+    id: string,
+    accessContext: CRMAccessContext
+  ): Promise<{ deleted: boolean }> {
     try {
       // Only admins can delete
-      if (accessContext.userRole !== UserRole.ADMIN && accessContext.userRole !== UserRole.SUPER_ADMIN) {
+      if (
+        accessContext.userRole !== UserRole.ADMIN &&
+        accessContext.userRole !== UserRole.SUPER_ADMIN
+      ) {
         throw new Error('Access denied: Only admins can delete contacts');
       }
 
@@ -192,7 +204,7 @@ export class CRMService {
 
       logger.info('[CRMService] Contact deleted successfully', { contactId: id });
       return { deleted: true };
-    } catch (error: any) {
+    } catch (error) {
       logger.error('[CRMService] Error deleting contact', { error: error.message, contactId: id });
       throw error;
     }
@@ -210,10 +222,15 @@ export class CRMService {
       const { page = 1, limit = 50 } = pagination;
       const skip = (page - 1) * limit;
 
-      logger.info('[CRMService] Listing contacts', { filters, page, limit, userRole: accessContext.userRole });
+      logger.info('[CRMService] Listing contacts', {
+        filters,
+        page,
+        limit,
+        userRole: accessContext.userRole,
+      });
 
       // Build where clause
-      const where: any = {};
+      const where: Prisma.CRMContactWhereInput = {};
 
       if (filters.stage) {
         where.stage = filters.stage;
@@ -275,7 +292,7 @@ export class CRMService {
         page,
         limit,
       };
-    } catch (error: any) {
+    } catch (error) {
       logger.error('[CRMService] Error listing contacts', { error: error.message, filters });
       throw new Error(`Failed to list contacts: ${error.message}`);
     }
@@ -291,7 +308,10 @@ export class CRMService {
   ): Promise<CRMContactWithRelations> {
     try {
       // Only admins can assign contacts
-      if (accessContext.userRole !== UserRole.ADMIN && accessContext.userRole !== UserRole.SUPER_ADMIN) {
+      if (
+        accessContext.userRole !== UserRole.ADMIN &&
+        accessContext.userRole !== UserRole.SUPER_ADMIN
+      ) {
         throw new Error('Access denied: Only admins can assign contacts');
       }
 
@@ -320,8 +340,12 @@ export class CRMService {
 
       logger.info('[CRMService] Contact assigned successfully', { contactId, preparerId });
       return contact as CRMContactWithRelations;
-    } catch (error: any) {
-      logger.error('[CRMService] Error assigning contact', { error: error.message, contactId, preparerId });
+    } catch (error) {
+      logger.error('[CRMService] Error assigning contact', {
+        error: error.message,
+        contactId,
+        preparerId,
+      });
       throw new Error(`Failed to assign contact: ${error.message}`);
     }
   }
@@ -377,8 +401,11 @@ export class CRMService {
 
       logger.info('[CRMService] Contact stage updated', { contactId, newStage: toStage });
       return updatedContact as CRMContactWithRelations;
-    } catch (error: any) {
-      logger.error('[CRMService] Error updating contact stage', { error: error.message, stageUpdate });
+    } catch (error) {
+      logger.error('[CRMService] Error updating contact stage', {
+        error: error.message,
+        stageUpdate,
+      });
       throw new Error(`Failed to update contact stage: ${error.message}`);
     }
   }
@@ -388,7 +415,10 @@ export class CRMService {
    */
   static async logInteraction(data: CRMInteractionInput): Promise<any> {
     try {
-      logger.info('[CRMService] Logging interaction', { contactId: data.contactId, type: data.type });
+      logger.info('[CRMService] Logging interaction', {
+        contactId: data.contactId,
+        type: data.type,
+      });
 
       const interaction = await prisma.cRMInteraction.create({
         data: {
@@ -420,9 +450,11 @@ export class CRMService {
         data: { lastContactedAt: new Date() },
       });
 
-      logger.info('[CRMService] Interaction logged successfully', { interactionId: interaction.id });
+      logger.info('[CRMService] Interaction logged successfully', {
+        interactionId: interaction.id,
+      });
       return interaction;
-    } catch (error: any) {
+    } catch (error) {
       logger.error('[CRMService] Error logging interaction', { error: error.message, data });
       throw new Error(`Failed to log interaction: ${error.message}`);
     }
@@ -458,7 +490,7 @@ export class CRMService {
 
       logger.info('[CRMService] Interactions retrieved', { contactId, count: interactions.length });
       return interactions;
-    } catch (error: any) {
+    } catch (error) {
       logger.error('[CRMService] Error getting interactions', { error: error.message, contactId });
       throw error;
     }
@@ -484,7 +516,7 @@ export class CRMService {
 
       logger.info('[CRMService] Stage history retrieved', { contactId, count: history.length });
       return history;
-    } catch (error: any) {
+    } catch (error) {
       logger.error('[CRMService] Error getting stage history', { error: error.message, contactId });
       throw error;
     }

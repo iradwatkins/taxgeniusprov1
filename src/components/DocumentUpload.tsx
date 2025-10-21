@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Camera, Upload, X, FileText, CheckCircle, Image as ImageIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 interface UploadedFile {
   id: string;
@@ -68,14 +68,14 @@ export default function DocumentUpload() {
           const reader = new FileReader();
           reader.onload = (e) => {
             const preview = e.target?.result as string;
-            setUploadedFiles(prev =>
-              prev.map(f => f.id === fileObj.id ? { ...f, preview } : f)
+            setUploadedFiles((prev) =>
+              prev.map((f) => (f.id === fileObj.id ? { ...f, preview } : f))
             );
           };
           reader.readAsDataURL(file);
         }
 
-        setUploadedFiles(prev => [...prev, fileObj]);
+        setUploadedFiles((prev) => [...prev, fileObj]);
       }
     } catch (error) {
       logger.error('Error uploading files:', error);
@@ -90,7 +90,7 @@ export default function DocumentUpload() {
   };
 
   const handleRemoveFile = (fileId: string) => {
-    setUploadedFiles(prev => prev.filter(f => f.id !== fileId));
+    setUploadedFiles((prev) => prev.filter((f) => f.id !== fileId));
   };
 
   const formatFileSize = (bytes: number) => {
@@ -98,11 +98,11 @@ export default function DocumentUpload() {
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   };
 
   const getCategoryFiles = (categoryId: string) => {
-    return uploadedFiles.filter(f => f.category === categoryId);
+    return uploadedFiles.filter((f) => f.category === categoryId);
   };
 
   return (
@@ -125,7 +125,9 @@ export default function DocumentUpload() {
                 <div
                   key={category.id}
                   className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                    isActive ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
+                    isActive
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-primary/50'
                   }`}
                   onClick={() => setCurrentCategory(category.id)}
                 >
@@ -134,16 +136,17 @@ export default function DocumentUpload() {
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold">{category.label}</h3>
                         {filesInCategory.length > 0 && (
-                          <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                          <Badge
+                            variant="secondary"
+                            className="bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                          >
                             {filesInCategory.length} uploaded
                           </Badge>
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground">{category.description}</p>
                     </div>
-                    {isActive && (
-                      <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
-                    )}
+                    {isActive && <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />}
                   </div>
 
                   {/* Upload Buttons for Active Category */}
@@ -202,7 +205,9 @@ export default function DocumentUpload() {
                           )}
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium truncate">{file.name}</p>
-                            <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatFileSize(file.size)}
+                            </p>
                           </div>
                           <Button
                             type="button"

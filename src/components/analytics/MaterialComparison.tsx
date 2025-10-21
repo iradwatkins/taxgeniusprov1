@@ -7,15 +7,15 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 6.5
  */
 
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   Table,
   TableBody,
@@ -23,68 +23,77 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { Trophy, TrendingUp, Loader2 } from 'lucide-react'
-import { useMyTopMaterials } from '@/hooks/useMyMaterials'
+} from '@/components/ui/table';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
+import { Trophy, TrendingUp, Loader2 } from 'lucide-react';
+import { useMyTopMaterials } from '@/hooks/useMyMaterials';
 
 interface MaterialComparisonProps {
-  className?: string
+  className?: string;
 }
 
 export function MaterialComparison({ className }: MaterialComparisonProps) {
-  const [selectedMaterials, setSelectedMaterials] = useState<string[]>([])
-  const [showComparison, setShowComparison] = useState(false)
+  const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
+  const [showComparison, setShowComparison] = useState(false);
 
   const { data, isLoading } = useMyTopMaterials({
     limit: 30, // Get more materials for selection
     sortBy: 'returnsFiled',
-    sortOrder: 'desc'
-  })
+    sortOrder: 'desc',
+  });
 
-  const materials = data?.materials || []
-  const selectedMaterialsData = materials.filter(m => selectedMaterials.includes(m.id))
+  const materials = data?.materials || [];
+  const selectedMaterialsData = materials.filter((m) => selectedMaterials.includes(m.id));
 
   const handleToggleMaterial = (materialId: string) => {
     if (selectedMaterials.includes(materialId)) {
-      setSelectedMaterials(selectedMaterials.filter(id => id !== materialId))
+      setSelectedMaterials(selectedMaterials.filter((id) => id !== materialId));
     } else {
       if (selectedMaterials.length < 10) {
-        setSelectedMaterials([...selectedMaterials, materialId])
+        setSelectedMaterials([...selectedMaterials, materialId]);
       }
     }
-  }
+  };
 
   const handleCompare = () => {
     if (selectedMaterials.length >= 2) {
-      setShowComparison(true)
+      setShowComparison(true);
     }
-  }
+  };
 
   const handleReset = () => {
-    setSelectedMaterials([])
-    setShowComparison(false)
-  }
+    setSelectedMaterials([]);
+    setShowComparison(false);
+  };
 
   // Find winner for each metric
-  const findWinner = (metric: keyof typeof selectedMaterialsData[0]['metrics']) => {
-    if (selectedMaterialsData.length === 0) return null
+  const findWinner = (metric: keyof (typeof selectedMaterialsData)[0]['metrics']) => {
+    if (selectedMaterialsData.length === 0) return null;
     return selectedMaterialsData.reduce((prev, current) => {
-      return (current.metrics[metric] > prev.metrics[metric]) ? current : prev
-    })
-  }
+      return current.metrics[metric] > prev.metrics[metric] ? current : prev;
+    });
+  };
 
-  const clicksWinner = findWinner('clicks')
-  const conversionsWinner = findWinner('returnsFiled')
-  const rateWinner = findWinner('conversionRate')
+  const clicksWinner = findWinner('clicks');
+  const conversionsWinner = findWinner('returnsFiled');
+  const rateWinner = findWinner('conversionRate');
 
   // Prepare chart data
-  const chartData = selectedMaterialsData.map(m => ({
+  const chartData = selectedMaterialsData.map((m) => ({
     name: m.title.length > 20 ? m.title.substring(0, 20) + '...' : m.title,
     clicks: m.metrics.clicks,
     conversions: m.metrics.returnsFiled,
-    rate: m.metrics.conversionRate
-  }))
+    rate: m.metrics.conversionRate,
+  }));
 
   if (isLoading) {
     return (
@@ -97,7 +106,7 @@ export function MaterialComparison({ className }: MaterialComparisonProps) {
           <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -133,7 +142,9 @@ export function MaterialComparison({ className }: MaterialComparisonProps) {
                       <Checkbox
                         checked={selectedMaterials.includes(material.id)}
                         onCheckedChange={() => handleToggleMaterial(material.id)}
-                        disabled={!selectedMaterials.includes(material.id) && selectedMaterials.length >= 10}
+                        disabled={
+                          !selectedMaterials.includes(material.id) && selectedMaterials.length >= 10
+                        }
                       />
                       <div className="flex-1 space-y-1">
                         <div className="flex items-center gap-2">
@@ -165,9 +176,7 @@ export function MaterialComparison({ className }: MaterialComparisonProps) {
 
             {selectedMaterials.length === 1 && (
               <Alert>
-                <AlertDescription>
-                  Please select at least 2 materials to compare
-                </AlertDescription>
+                <AlertDescription>Please select at least 2 materials to compare</AlertDescription>
               </Alert>
             )}
           </>
@@ -291,8 +300,8 @@ export function MaterialComparison({ className }: MaterialComparisonProps) {
                                 material.metrics.conversionRate > 10
                                   ? 'default'
                                   : material.metrics.conversionRate > 5
-                                  ? 'secondary'
-                                  : 'outline'
+                                    ? 'secondary'
+                                    : 'outline'
                               }
                             >
                               {material.metrics.conversionRate.toFixed(1)}%
@@ -319,19 +328,19 @@ export function MaterialComparison({ className }: MaterialComparisonProps) {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function WinnerCard({
   title,
   material,
-  value
+  value,
 }: {
-  title: string
-  material: any
-  value: string
+  title: string;
+  material: { id: string; title: string; type: string; metrics: Record<string, number> };
+  value: string;
 }) {
-  if (!material) return null
+  if (!material) return null;
 
   return (
     <Card>
@@ -348,12 +357,12 @@ function WinnerCard({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function formatType(type: string): string {
   return type
     .replace(/_/g, ' ')
     .toLowerCase()
-    .replace(/\b\w/g, (l) => l.toUpperCase())
+    .replace(/\b\w/g, (l) => l.toUpperCase());
 }

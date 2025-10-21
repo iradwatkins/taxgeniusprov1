@@ -132,6 +132,7 @@ model Profile {
   campaigns           MarketingCampaign[]
   affiliateBondings   AffiliateBonding[]   @relation("AffiliateBondings")
   preparerBondings    AffiliateBonding[]   @relation("PreparerBondings")
+  taxIntakeLeads      TaxIntakeLead[]      // Leads converted to this profile
 
   @@index([role])
   @@index([vanitySlug])
@@ -355,19 +356,21 @@ enum ApplicationStatus {
 }
 
 model PreparerApplication {
-  id            String            @id @default(cuid())
-  firstName     String
-  middleName    String?
-  lastName      String
-  email         String            @unique
-  phone         String
-  languages     String
-  smsConsent    Boolean           @default(false)
-  status        ApplicationStatus @default(PENDING)
-  interviewDate DateTime?
-  notes         String?           @db.Text
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  id              String            @id @default(cuid())
+  firstName       String
+  middleName      String?
+  lastName        String
+  email           String            @unique
+  phone           String
+  languages       String
+  smsConsent      Boolean           @default(false)
+  experienceLevel String? // "NEW" | "INTERMEDIATE" | "SEASONED"
+  taxSoftware     String[]          @default([]) // Array of tax software used
+  status          ApplicationStatus @default(PENDING)
+  interviewDate   DateTime?
+  notes           String?           @db.Text
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 
   @@index([email])
   @@index([status])
@@ -456,8 +459,9 @@ model TaxReturn {
   updatedAt    DateTime        @updatedAt
 
   // Relations
-  documents Document[]
-  payments  Payment[]
+  documents      Document[]
+  payments       Payment[]
+  sourceLead     TaxIntakeLead[] // If created from intake lead
 
   @@unique([profileId, taxYear])
   @@index([profileId])
@@ -560,24 +564,45 @@ enum DocumentType {
   OTHER
 }
 
+enum DocumentStatus {
+  PENDING        // Uploaded, waiting for review
+  REVIEWED       // Reviewed by preparer
+  APPROVED       // Approved for filing
+  REJECTED       // Rejected, needs reupload
+  PROCESSING     // Being processed
+}
+
 model Document {
-  id          String       @id @default(cuid())
+  id          String          @id @default(cuid())
   profileId   String
-  profile     Profile      @relation(references: [id], fields: [profileId], onDelete: Cascade)
+  profile     Profile         @relation(references: [id], fields: [profileId], onDelete: Cascade)
   taxReturnId String?
-  taxReturn   TaxReturn?   @relation(references: [id], fields: [taxReturnId], onDelete: Cascade)
+  taxReturn   TaxReturn?      @relation(references: [id], fields: [taxReturnId], onDelete: Cascade)
   type        DocumentType
   fileName    String
-  fileUrl     String // R2 storage URL
+  fileUrl     String          // R2 storage URL
   fileSize    Int
   mimeType    String
-  isEncrypted Boolean      @default(true)
+  isEncrypted Boolean         @default(true)
   metadata    Json?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+
+  // Tax year and status tracking
+  taxYear     Int             // Tax year this document belongs to (2024, 2023, etc.)
+  status      DocumentStatus  @default(PENDING)
+
+  // Review information (for tax preparers)
+  reviewedBy  String?         // Profile ID of preparer who reviewed
+  reviewedAt  DateTime?       // When document was reviewed
+  reviewNotes String?         @db.Text // Review notes from preparer
+
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   @@index([profileId])
   @@index([taxReturnId])
+  @@index([taxYear])
+  @@index([status])
+  @@index([reviewedBy])
   @@map("documents")
 }
 
@@ -860,6 +885,14 @@ model TaxIntakeLead {
   lastContactedAt    DateTime? // When preparer last reached out
   contactNotes       String?  @db.Text // Notes from contact attempts
 
+  // Lead-to-Client Conversion (NEW - Auto-conversion)
+  profileId         String?   // Link to Profile when user signs up
+  profile           Profile?  @relation(fields: [profileId], references: [id], onDelete: SetNull)
+  convertedToClient Boolean   @default(false) // Has this lead been converted to a client?
+  taxReturnId       String?   // Track created TaxReturn
+  taxReturn         TaxReturn? @relation(fields: [taxReturnId], references: [id], onDelete: SetNull)
+  convertedAt       DateTime? // When conversion happened
+
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
 
@@ -870,6 +903,9 @@ model TaxIntakeLead {
   @@index([contactRequested])
   @@index([referrerUsername])
   @@index([attributionMethod])
+  @@index([profileId])
+  @@index([convertedToClient])
+  @@index([taxReturnId])
   @@map("tax_intake_leads")
 }
 

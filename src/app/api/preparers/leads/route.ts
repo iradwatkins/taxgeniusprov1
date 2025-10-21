@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { currentUser, clerkClient } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { currentUser, clerkClient } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/preparers/leads
@@ -9,54 +9,47 @@ import { logger } from '@/lib/logger'
  */
 export async function GET(req: NextRequest) {
   try {
-    const user = await currentUser()
+    const user = await currentUser();
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const role = user.publicMetadata?.role as string
+    const role = user.publicMetadata?.role as string;
     if (role !== 'tax_preparer' && role !== 'admin' && role !== 'super_admin') {
       return NextResponse.json(
         { error: 'Forbidden: Only tax preparers and admins can access this endpoint' },
         { status: 403 }
-      )
+      );
     }
 
     // Fetch all Clerk users with role = LEAD
-    const clerk = await clerkClient()
+    const clerk = await clerkClient();
     const { data: allUsers } = await clerk.users.getUserList({
       limit: 500, // Adjust as needed
-    })
+    });
 
     // Filter for LEAD users
-    const leadUsers = allUsers.filter(u => u.publicMetadata?.role === 'lead')
+    const leadUsers = allUsers.filter((u) => u.publicMetadata?.role === 'lead');
 
     // Format response
-    const leads = leadUsers.map(leadUser => ({
+    const leads = leadUsers.map((leadUser) => ({
       id: leadUser.id,
       email: leadUser.emailAddresses[0]?.emailAddress || '',
       firstName: leadUser.firstName || '',
       lastName: leadUser.lastName || '',
       role: 'lead',
       createdAt: new Date(leadUser.createdAt).toISOString(),
-    }))
+    }));
 
     return NextResponse.json({
       success: true,
       leads,
       totalLeads: leads.length,
-    })
-
+    });
   } catch (error) {
-    logger.error('Error fetching preparer leads:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch leads' },
-      { status: 500 }
-    )
+    logger.error('Error fetching preparer leads:', error);
+    return NextResponse.json({ error: 'Failed to fetch leads' }, { status: 500 });
   }
 }
 
@@ -68,31 +61,25 @@ export async function GET(req: NextRequest) {
  */
 export async function PATCH(req: NextRequest) {
   try {
-    const user = await currentUser()
+    const user = await currentUser();
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const role = user.publicMetadata?.role as string
+    const role = user.publicMetadata?.role as string;
     if (role !== 'tax_preparer' && role !== 'admin' && role !== 'super_admin') {
       return NextResponse.json(
         { error: 'Forbidden: Only tax preparers and admins can change lead roles' },
         { status: 403 }
-      )
+      );
     }
 
-    const body = await req.json()
-    const { userId, newRole } = body
+    const body = await req.json();
+    const { userId, newRole } = body;
 
     if (!userId || !newRole) {
-      return NextResponse.json(
-        { error: 'Missing userId or newRole' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Missing userId or newRole' }, { status: 400 });
     }
 
     // Tax preparers can ONLY change LEAD → CLIENT
@@ -100,26 +87,20 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json(
         { error: 'Tax preparers can only change leads to clients' },
         { status: 403 }
-      )
+      );
     }
 
     // Verify the target user is currently a LEAD
-    const clerk = await clerkClient()
-    const targetUser = await clerk.users.getUser(userId)
+    const clerk = await clerkClient();
+    const targetUser = await clerk.users.getUser(userId);
 
     if (!targetUser) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const currentRole = targetUser.publicMetadata?.role as string
+    const currentRole = targetUser.publicMetadata?.role as string;
     if (currentRole !== 'lead') {
-      return NextResponse.json(
-        { error: 'User is not a lead' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'User is not a lead' }, { status: 400 });
     }
 
     // Update the user's role
@@ -128,9 +109,11 @@ export async function PATCH(req: NextRequest) {
         ...targetUser.publicMetadata,
         role: newRole,
       },
-    })
+    });
 
-    logger.info(`🔄 Role changed: ${userId} from LEAD to ${newRole.toUpperCase()} by ${user.id} (${role})`)
+    logger.info(
+      `🔄 Role changed: ${userId} from LEAD to ${newRole.toUpperCase()} by ${user.id} (${role})`
+    );
 
     return NextResponse.json({
       success: true,
@@ -142,13 +125,9 @@ export async function PATCH(req: NextRequest) {
         lastName: targetUser.lastName,
         role: newRole,
       },
-    })
-
+    });
   } catch (error) {
-    logger.error('Error changing lead role:', error)
-    return NextResponse.json(
-      { error: 'Failed to change lead role' },
-      { status: 500 }
-    )
+    logger.error('Error changing lead role:', error);
+    return NextResponse.json({ error: 'Failed to change lead role' }, { status: 500 });
   }
 }

@@ -4,12 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import {
-  Calculator,
-  FileCheck,
-  MessageSquare,
-  Archive
-} from 'lucide-react';
+import { Calculator, FileCheck, MessageSquare, Archive } from 'lucide-react';
 
 interface Client {
   id: string;
@@ -36,34 +31,34 @@ const quickActions = [
   { icon: Calculator, label: 'Tax Calculator' },
   { icon: FileCheck, label: 'Review Documents' },
   { icon: MessageSquare, label: 'Client Messages' },
-  { icon: Archive, label: 'Archive Returns' }
+  { icon: Archive, label: 'Archive Returns' },
 ];
 
 const recentActivities = [
   {
     text: 'John Smith uploaded W2 form',
     time: '2 hours ago',
-    color: 'bg-green-500'
+    color: 'bg-green-500',
   },
   {
     text: 'Filed return for Sarah Johnson',
     time: '5 hours ago',
-    color: 'bg-blue-500'
+    color: 'bg-blue-500',
   },
   {
     text: 'New message from Michael Brown',
     time: '1 day ago',
-    color: 'bg-yellow-500'
+    color: 'bg-yellow-500',
   },
   {
     text: 'Return accepted for Lisa Davis',
     time: '2 days ago',
-    color: 'bg-green-500'
-  }
+    color: 'bg-green-500',
+  },
 ];
 
 export function OverviewTab({ clients, getPriorityColor }: OverviewTabProps) {
-  const priorityClients = clients.filter(c => c.priority === 'HIGH').slice(0, 5);
+  const priorityClients = clients.filter((c) => c.priority === 'HIGH').slice(0, 5);
 
   return (
     <div className="space-y-4">
@@ -80,7 +75,12 @@ export function OverviewTab({ clients, getPriorityColor }: OverviewTabProps) {
                 <div key={client.id} className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback>{client.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      <AvatarFallback>
+                        {client.name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')}
+                      </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="text-sm font-medium">{client.name}</p>

@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { trackJourneyStage } from '@/lib/services/journey-tracking.service';
 import { getUTMCookie } from '@/lib/utils/cookie-manager';
 import { getAttribution, saveTaxIntakeAttribution } from '@/lib/services/attribution.service';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,14 +25,77 @@ export async function POST(req: NextRequest) {
 
     // Validate required fields
     if (!first_name || !last_name || !email || !phone) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     // EPIC 6: Get attribution (cookie → email → phone → direct)
-    const attributionResult = await getAttribution(email, phone)
+    const attributionResult = await getAttribution(email, phone);
+
+    // CRITICAL: Determine lead assignment based on referrer role
+    let assignedPreparerId: string | null = null;
+
+    if (attributionResult.attribution.referrerUsername) {
+      // Find the referrer profile
+      const referrerProfile = await prisma.profile.findFirst({
+        where: {
+          OR: [
+            { trackingCode: attributionResult.attribution.referrerUsername },
+            { customTrackingCode: attributionResult.attribution.referrerUsername },
+            { shortLinkUsername: attributionResult.attribution.referrerUsername },
+          ],
+        },
+        select: {
+          id: true,
+          role: true,
+          assignedPreparerId: true, // CLIENT's assigned preparer
+        },
+      });
+
+      if (referrerProfile) {
+        // Business Rule: Assign lead based on referrer role
+        switch (referrerProfile.role) {
+          case 'CLIENT':
+            // CLIENT refers → Assign to THAT CLIENT'S tax preparer
+            assignedPreparerId = referrerProfile.assignedPreparerId;
+            logger.info(`Lead from CLIENT referral assigned to client's preparer`, {
+              referrerId: referrerProfile.id,
+              preparerId: assignedPreparerId,
+            });
+            break;
+
+          case 'AFFILIATE':
+            // AFFILIATE refers → Assign to Tax Genius (null = corporate)
+            assignedPreparerId = null;
+            logger.info(`Lead from AFFILIATE referral assigned to Tax Genius corporate`, {
+              referrerId: referrerProfile.id,
+            });
+            break;
+
+          case 'TAX_PREPARER':
+            // TAX_PREPARER refers → Assign to THAT tax preparer
+            assignedPreparerId = referrerProfile.id;
+            logger.info(`Lead from TAX_PREPARER referral assigned to that preparer`, {
+              preparerId: assignedPreparerId,
+            });
+            break;
+
+          case 'REFERRER':
+            // REFERRER refers → Assign to Tax Genius (null = corporate)
+            assignedPreparerId = null;
+            logger.info(`Lead from REFERRER assigned to Tax Genius corporate`, {
+              referrerId: referrerProfile.id,
+            });
+            break;
+
+          default:
+            // Default: assign to Tax Genius
+            assignedPreparerId = null;
+            logger.info(`Lead with unknown referrer role assigned to Tax Genius`, {
+              role: referrerProfile.role,
+            });
+        }
+      }
+    }
 
     // Check if lead already exists by email
     let lead = await prisma.taxIntakeLead.findUnique({
@@ -59,6 +122,8 @@ export async function POST(req: NextRequest) {
           referrerUsername: attributionResult.attribution.referrerUsername,
           referrerType: attributionResult.attribution.referrerType,
           attributionMethod: attributionResult.attribution.attributionMethod,
+          // CRITICAL: Smart lead assignment
+          assignedPreparerId: assignedPreparerId,
         },
       });
     } else {
@@ -80,6 +145,8 @@ export async function POST(req: NextRequest) {
           referrerUsername: attributionResult.attribution.referrerUsername,
           referrerType: attributionResult.attribution.referrerType,
           attributionMethod: attributionResult.attribution.attributionMethod,
+          // CRITICAL: Smart lead assignment
+          assignedPreparerId: assignedPreparerId,
         },
       });
     }
@@ -101,15 +168,12 @@ export async function POST(req: NextRequest) {
       {
         success: true,
         leadId: lead.id,
-        message: 'Lead information saved successfully'
+        message: 'Lead information saved successfully',
       },
       { status: 200 }
     );
   } catch (error) {
     logger.error('Error saving lead:', error);
-    return NextResponse.json(
-      { error: 'Failed to save lead information' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to save lead information' }, { status: 500 });
   }
 }

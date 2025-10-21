@@ -1,8 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Shield, Award, Users, Phone, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -22,7 +22,10 @@ export function HeroSection() {
           >
             {/* Trust Badges Row */}
             <div className="flex flex-wrap items-center gap-3">
-              <Badge variant="secondary" className="px-4 py-2 text-sm font-semibold bg-primary/10 text-primary border-primary/20">
+              <Badge
+                variant="secondary"
+                className="px-4 py-2 text-sm font-semibold bg-primary/10 text-primary border-primary/20"
+              >
                 <Shield className="w-4 h-4 mr-2" />
                 IRS Authorized
               </Badge>
@@ -39,32 +42,32 @@ export function HeroSection() {
             {/* Headline */}
             <div className="space-y-6">
               <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-foreground">
-                Professional Tax Preparation<br />
+                Professional Tax Preparation
+                <br />
                 <span className="text-primary">You Can Trust</span>
               </h1>
               <p className="text-lg lg:text-xl text-muted-foreground leading-relaxed">
-                Expert CPAs. Maximum Refunds. Peace of Mind. Get professional tax services from licensed professionals who know how to save you money.
+                Expert CPAs. Maximum Refunds. Peace of Mind. Get professional tax services from
+                licensed professionals who know how to save you money.
               </p>
             </div>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button variant="professional" size="lg" asChild>
-                <Link href="/start-filing">
-                  Schedule Free Consultation
-                </Link>
+                <Link href="/start-filing/form">File Your Taxes Online</Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="tel:+14046271015">
-                  <Phone className="mr-2 w-5 h-5" />
-                  (404) 627-1015
-                </Link>
+                <Link href="/book-appointment">Schedule Consultation</Link>
               </Button>
             </div>
 
             {/* Small Trust Text */}
             <p className="text-sm text-muted-foreground">
-              No obligation. Speak with a licensed CPA today.
+              Start your return online or speak with a licensed CPA. Call{' '}
+              <Link href="tel:+14046271015" className="hover:text-primary transition-colors">
+                (404) 627-1015
+              </Link>
             </p>
           </motion.div>
 
@@ -95,7 +98,9 @@ export function HeroSection() {
                     <CheckCircle className="w-6 h-6 text-success" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold"><AnimatedCounter value={50000} suffix="+" /></p>
+                    <p className="text-2xl font-bold">
+                      <AnimatedCounter value={50000} suffix="+" />
+                    </p>
                     <p className="text-sm text-muted-foreground">Happy Clients</p>
                   </div>
                 </div>

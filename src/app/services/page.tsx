@@ -1,8 +1,8 @@
 'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   FileText,
   Building,
@@ -17,7 +17,7 @@ import {
   Star,
   TrendingUp,
   Zap,
-  Award
+  Award,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -80,7 +80,9 @@ export default function ServicesPage() {
                 </div>
                 <div className="pt-4">
                   <p className="text-2xl font-bold text-primary mb-2">Starting at $149</p>
-                  <Button className="w-full">Get Started</Button>
+                  <Button className="w-full" asChild>
+                    <Link href="/start-filing/form">Start Filing</Link>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -115,7 +117,9 @@ export default function ServicesPage() {
                 </div>
                 <div className="pt-4">
                   <p className="text-2xl font-bold text-primary mb-2">Starting at $299</p>
-                  <Button className="w-full">Get Started</Button>
+                  <Button className="w-full" asChild>
+                    <Link href="/start-filing/form">Start Filing</Link>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -150,7 +154,9 @@ export default function ServicesPage() {
                 </div>
                 <div className="pt-4">
                   <p className="text-2xl font-bold text-primary mb-2">Starting at $399</p>
-                  <Button className="w-full">Get Started</Button>
+                  <Button className="w-full" asChild>
+                    <Link href="/start-filing/form">Start Filing</Link>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -218,9 +224,7 @@ export default function ServicesPage() {
       <section className="py-20">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-6">
-              How It Works
-            </h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-6">How It Works</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Our streamlined process makes tax preparation simple and stress-free
             </p>

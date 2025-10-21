@@ -1,31 +1,30 @@
-import { Client, Environment, ApiError } from 'square'
-import { prisma } from '@/lib/db'
-import { cache, cacheKeys } from '@/lib/redis'
-import crypto from 'crypto'
-import { logger } from '@/lib/logger'
+import { Client, Environment, ApiError, type Payment, type Refund } from 'square';
+import { prisma } from '@/lib/db';
+import { cache, cacheKeys } from '@/lib/redis';
+import crypto from 'crypto';
+import { logger } from '@/lib/logger';
 
 // Initialize Square client
 const squareClient = new Client({
   accessToken: process.env.SQUARE_ACCESS_TOKEN!,
-  environment: process.env.SQUARE_ENVIRONMENT === 'production'
-    ? Environment.Production
-    : Environment.Sandbox,
-})
+  environment:
+    process.env.SQUARE_ENVIRONMENT === 'production' ? Environment.Production : Environment.Sandbox,
+});
 
 export interface PaymentRequest {
-  amount: number // in cents
-  currency?: string
-  sourceId: string // payment source (card nonce, etc.)
-  profileId: string
-  taxReturnId?: string
-  description?: string
+  amount: number; // in cents
+  currency?: string;
+  sourceId: string; // payment source (card nonce, etc.)
+  profileId: string;
+  taxReturnId?: string;
+  description?: string;
 }
 
 export interface CommissionData {
-  referrerId: string
-  referralId: string
-  amount: number
-  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED'
+  referrerId: string;
+  referralId: string;
+  amount: number;
+  status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
 }
 
 export class PaymentService {
@@ -33,12 +32,12 @@ export class PaymentService {
    * Create a payment
    */
   static async createPayment(request: PaymentRequest): Promise<{
-    success: boolean
-    paymentId?: string
-    error?: string
+    success: boolean;
+    paymentId?: string;
+    error?: string;
   }> {
     try {
-      const idempotencyKey = crypto.randomUUID()
+      const idempotencyKey = crypto.randomUUID();
 
       // Create Square payment
       const response = await squareClient.paymentsApi.createPayment({
@@ -54,13 +53,13 @@ export class PaymentService {
           amount: BigInt(Math.floor(request.amount * 0.029 + 30)), // 2.9% + 30¢
           currency: request.currency || 'USD',
         },
-      })
+      });
 
       if (!response.result.payment) {
-        throw new Error('Payment creation failed')
+        throw new Error('Payment creation failed');
       }
 
-      const payment = response.result.payment
+      const payment = response.result.payment;
 
       // Save payment record to database
       const dbPayment = await prisma.payment.create({
@@ -79,29 +78,29 @@ export class PaymentService {
           },
           processedAt: payment.status === 'COMPLETED' ? new Date() : null,
         },
-      })
+      });
 
       // Calculate and create commission if applicable
-      await this.calculateCommission(request.profileId, request.amount / 100)
+      await this.calculateCommission(request.profileId, request.amount / 100);
 
       return {
         success: true,
         paymentId: dbPayment.id,
-      }
+      };
     } catch (error) {
-      logger.error('Payment error:', error)
+      logger.error('Payment error:', error);
 
       if (error instanceof ApiError) {
         return {
           success: false,
           error: error.errors?.[0]?.detail || 'Payment failed',
-        }
+        };
       }
 
       return {
         success: false,
         error: 'Payment processing failed',
-      }
+      };
     }
   }
 
@@ -115,7 +114,7 @@ export class PaymentService {
     redirectUrl?: string
   ): Promise<{ success: boolean; checkoutUrl?: string; error?: string }> {
     try {
-      const locationId = process.env.SQUARE_LOCATION_ID!
+      const locationId = process.env.SQUARE_LOCATION_ID!;
 
       // Create checkout
       const response = await squareClient.checkoutApi.createPaymentLink({
@@ -136,35 +135,35 @@ export class PaymentService {
         prePopulatedData: {
           buyerEmail: await this.getProfileEmail(profileId),
         },
-      })
+      });
 
       if (!response.result.paymentLink) {
-        throw new Error('Failed to create checkout link')
+        throw new Error('Failed to create checkout link');
       }
 
       return {
         success: true,
         checkoutUrl: response.result.paymentLink.url,
-      }
+      };
     } catch (error) {
-      logger.error('Checkout link error:', error)
+      logger.error('Checkout link error:', error);
       return {
         success: false,
         error: 'Failed to create checkout link',
-      }
+      };
     }
   }
 
   /**
    * Get payment details
    */
-  static async getPayment(paymentId: string): Promise<any> {
+  static async getPayment(paymentId: string): Promise<Payment | null> {
     try {
-      const response = await squareClient.paymentsApi.getPayment(paymentId)
-      return response.result.payment
+      const response = await squareClient.paymentsApi.getPayment(paymentId);
+      return response.result.payment || null;
     } catch (error) {
-      logger.error('Get payment error:', error)
-      return null
+      logger.error('Get payment error:', error);
+      return null;
     }
   }
 
@@ -180,16 +179,16 @@ export class PaymentService {
       // Get payment from database
       const dbPayment = await prisma.payment.findFirst({
         where: { squarePaymentId: paymentId },
-      })
+      });
 
       if (!dbPayment) {
         return {
           success: false,
           error: 'Payment not found',
-        }
+        };
       }
 
-      const refundAmount = amount || Number(dbPayment.amount) * 100 // Convert to cents
+      const refundAmount = amount || Number(dbPayment.amount) * 100; // Convert to cents
 
       const response = await squareClient.refundsApi.refundPayment({
         idempotencyKey: crypto.randomUUID(),
@@ -199,10 +198,10 @@ export class PaymentService {
           currency: 'USD',
         },
         reason: reason || 'Customer requested refund',
-      })
+      });
 
       if (!response.result.refund) {
-        throw new Error('Refund failed')
+        throw new Error('Refund failed');
       }
 
       // Update payment status
@@ -211,34 +210,33 @@ export class PaymentService {
         data: {
           status: 'REFUNDED',
           metadata: {
-            ...(dbPayment.metadata as any),
+            ...(typeof dbPayment.metadata === 'object' && dbPayment.metadata !== null
+              ? (dbPayment.metadata as Record<string, unknown>)
+              : {}),
             refundId: response.result.refund.id,
             refundedAt: new Date().toISOString(),
             refundReason: reason,
           },
         },
-      })
+      });
 
       return {
         success: true,
         refundId: response.result.refund.id,
-      }
+      };
     } catch (error) {
-      logger.error('Refund error:', error)
+      logger.error('Refund error:', error);
       return {
         success: false,
         error: 'Refund failed',
-      }
+      };
     }
   }
 
   /**
    * Calculate commission for referrers
    */
-  static async calculateCommission(
-    clientProfileId: string,
-    paymentAmount: number
-  ): Promise<void> {
+  static async calculateCommission(clientProfileId: string, paymentAmount: number): Promise<void> {
     try {
       // Find referral for this client
       const referral = await prisma.referral.findFirst({
@@ -246,15 +244,15 @@ export class PaymentService {
           clientId: clientProfileId,
           status: 'ACTIVE',
         },
-      })
+      });
 
       if (!referral) {
-        return // No referral, no commission
+        return; // No referral, no commission
       }
 
       // Commission rates
-      const commissionRate = 0.20 // 20% commission
-      const commissionAmount = paymentAmount * commissionRate
+      const commissionRate = 0.2; // 20% commission
+      const commissionAmount = paymentAmount * commissionRate;
 
       // Create commission record
       await prisma.commission.create({
@@ -264,7 +262,7 @@ export class PaymentService {
           amount: commissionAmount,
           status: 'PENDING',
         },
-      })
+      });
 
       // Update referral with commission earned
       await prisma.referral.update({
@@ -276,14 +274,14 @@ export class PaymentService {
           status: 'COMPLETED',
           returnFiledDate: new Date(),
         },
-      })
+      });
 
       // Invalidate referrer stats cache
-      await cache.del(cacheKeys.referrerStats(referral.referrerId))
+      await cache.del(cacheKeys.referrerStats(referral.referrerId));
 
       // TODO: Send commission notification email
     } catch (error) {
-      logger.error('Commission calculation error:', error)
+      logger.error('Commission calculation error:', error);
     }
   }
 
@@ -300,44 +298,44 @@ export class PaymentService {
           referrerId,
           status: 'PENDING',
         },
-      })
+      });
 
       if (pendingCommissions.length === 0) {
         return {
           success: false,
           message: 'No pending commissions',
-        }
+        };
       }
 
       const totalAmount = pendingCommissions.reduce(
         (sum, commission) => sum + Number(commission.amount),
         0
-      )
+      );
 
       // Minimum payout threshold
       if (totalAmount < 50) {
         return {
           success: false,
           message: `Minimum payout is $50. Current balance: $${totalAmount.toFixed(2)}`,
-        }
+        };
       }
 
       // Get referrer bank details
       const profile = await prisma.profile.findUnique({
         where: { id: referrerId },
-      })
+      });
 
       if (!profile?.bankDetails) {
         return {
           success: false,
           message: 'Bank details not configured',
-        }
+        };
       }
 
       // TODO: Integrate with Square Payouts API or ACH transfer
       // For now, mark as processing
 
-      const commissionIds = pendingCommissions.map((c) => c.id)
+      const commissionIds = pendingCommissions.map((c) => c.id);
 
       await prisma.commission.updateMany({
         where: {
@@ -346,18 +344,18 @@ export class PaymentService {
         data: {
           status: 'PROCESSING',
         },
-      })
+      });
 
       return {
         success: true,
         message: `Payout of $${totalAmount.toFixed(2)} initiated`,
-      }
+      };
     } catch (error) {
-      logger.error('Payout error:', error)
+      logger.error('Payout error:', error);
       return {
         success: false,
         message: 'Payout processing failed',
-      }
+      };
     }
   }
 
@@ -368,69 +366,63 @@ export class PaymentService {
     const profile = await prisma.profile.findUnique({
       where: { id: profileId },
       include: { user: true },
-    })
-    return profile?.user.email
+    });
+    return profile?.user.email;
   }
 
   /**
    * Webhook handler for Square events
    */
-  static async handleWebhook(
-    signature: string,
-    body: string
-  ): Promise<{ success: boolean }> {
+  static async handleWebhook(signature: string, body: string): Promise<{ success: boolean }> {
     try {
       // Verify webhook signature
-      const webhookSignatureKey = process.env.SQUARE_WEBHOOK_SIGNATURE_KEY
+      const webhookSignatureKey = process.env.SQUARE_WEBHOOK_SIGNATURE_KEY;
 
       if (webhookSignatureKey) {
-        const hash = crypto
-          .createHmac('sha256', webhookSignatureKey)
-          .update(body)
-          .digest('base64')
+        const hash = crypto.createHmac('sha256', webhookSignatureKey).update(body).digest('base64');
 
         if (hash !== signature) {
-          logger.error('Invalid webhook signature')
-          return { success: false }
+          logger.error('Invalid webhook signature');
+          return { success: false };
         }
       }
 
-      const event = JSON.parse(body)
+      const event = JSON.parse(body);
 
       switch (event.type) {
         case 'payment.created':
         case 'payment.updated':
-          await this.handlePaymentEvent(event.data.object.payment)
-          break
+          await this.handlePaymentEvent(event.data.object.payment);
+          break;
 
         case 'refund.created':
         case 'refund.updated':
-          await this.handleRefundEvent(event.data.object.refund)
-          break
+          await this.handleRefundEvent(event.data.object.refund);
+          break;
 
         default:
-          logger.info('Unhandled webhook event type:', event.type)
+          logger.info('Unhandled webhook event type:', event.type);
       }
 
-      return { success: true }
+      return { success: true };
     } catch (error) {
-      logger.error('Webhook error:', error)
-      return { success: false }
+      logger.error('Webhook error:', error);
+      return { success: false };
     }
   }
 
   /**
    * Handle payment webhook events
    */
-  private static async handlePaymentEvent(payment: any): Promise<void> {
+  private static async handlePaymentEvent(payment: Payment): Promise<void> {
     try {
       const dbPayment = await prisma.payment.findFirst({
         where: { squarePaymentId: payment.id },
-      })
+      });
 
       if (!dbPayment) {
-        logger.info('Payment not found in database:', payment.id)
-        return
+        logger.info('Payment not found in database:', payment.id);
+        return;
       }
 
       // Update payment status
@@ -440,24 +432,24 @@ export class PaymentService {
           status: payment.status === 'COMPLETED' ? 'COMPLETED' : 'PROCESSING',
           processedAt: payment.status === 'COMPLETED' ? new Date() : null,
         },
-      })
+      });
     } catch (error) {
-      logger.error('Handle payment event error:', error)
+      logger.error('Handle payment event error:', error);
     }
   }
 
   /**
    * Handle refund webhook events
    */
-  private static async handleRefundEvent(refund: any): Promise<void> {
+  private static async handleRefundEvent(refund: Refund): Promise<void> {
     try {
       const dbPayment = await prisma.payment.findFirst({
         where: { squarePaymentId: refund.payment_id },
-      })
+      });
 
       if (!dbPayment) {
-        logger.info('Payment not found for refund:', refund.payment_id)
-        return
+        logger.info('Payment not found for refund:', refund.payment_id);
+        return;
       }
 
       // Update payment status
@@ -466,15 +458,17 @@ export class PaymentService {
         data: {
           status: 'REFUNDED',
           metadata: {
-            ...(dbPayment.metadata as any),
+            ...(typeof dbPayment.metadata === 'object' && dbPayment.metadata !== null
+              ? (dbPayment.metadata as Record<string, unknown>)
+              : {}),
             refundId: refund.id,
             refundStatus: refund.status,
             refundedAt: refund.created_at,
           },
         },
-      })
+      });
     } catch (error) {
-      logger.error('Handle refund event error:', error)
+      logger.error('Handle refund event error:', error);
     }
   }
 }

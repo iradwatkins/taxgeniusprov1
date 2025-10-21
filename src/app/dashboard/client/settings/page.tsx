@@ -1,20 +1,20 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+} from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Settings,
   User,
@@ -25,28 +25,28 @@ import {
   Trash2,
   Save,
   Upload,
-} from 'lucide-react'
+} from 'lucide-react';
 
 export const metadata = {
   title: 'Settings | Tax Genius Pro',
   description: 'Manage your account settings',
-}
+};
 
 async function isClient() {
-  const user = await currentUser()
-  if (!user) return false
-  const role = user.publicMetadata?.role
-  return role === 'client' || role === 'admin'
+  const user = await currentUser();
+  if (!user) return false;
+  const role = user.publicMetadata?.role;
+  return role === 'client' || role === 'admin';
 }
 
 export default async function ClientSettingsPage() {
-  const userIsClient = await isClient()
+  const userIsClient = await isClient();
 
   if (!userIsClient) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
-  const user = await currentUser()
+  const user = await currentUser();
 
   return (
     <div className="p-6 space-y-6">
@@ -54,9 +54,7 @@ export default async function ClientSettingsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Account Settings</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your profile and preferences
-          </p>
+          <p className="text-muted-foreground mt-1">Manage your profile and preferences</p>
         </div>
         <Button>
           <Save className="w-4 h-4 mr-2" />
@@ -71,9 +69,7 @@ export default async function ClientSettingsPage() {
             <User className="w-5 h-5" />
             <CardTitle>Profile Information</CardTitle>
           </div>
-          <CardDescription>
-            Update your personal information and profile photo
-          </CardDescription>
+          <CardDescription>Update your personal information and profile photo</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Profile Photo */}
@@ -89,9 +85,7 @@ export default async function ClientSettingsPage() {
                 <Upload className="w-4 h-4 mr-2" />
                 Change Photo
               </Button>
-              <p className="text-xs text-muted-foreground">
-                JPG, PNG or GIF. Max size 2MB.
-              </p>
+              <p className="text-xs text-muted-foreground">JPG, PNG or GIF. Max size 2MB.</p>
             </div>
           </div>
 
@@ -125,18 +119,11 @@ export default async function ClientSettingsPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="+1 (555) 000-0000"
-              />
+              <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="dob">Date of Birth</Label>
-              <Input
-                id="dob"
-                type="date"
-              />
+              <Input id="dob" type="date" />
             </div>
           </div>
 
@@ -179,20 +166,13 @@ export default async function ClientSettingsPage() {
             <FileText className="w-5 h-5" />
             <CardTitle>Tax Information</CardTitle>
           </div>
-          <CardDescription>
-            Manage your tax-related information
-          </CardDescription>
+          <CardDescription>Manage your tax-related information</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="ssn">Social Security Number</Label>
-              <Input
-                id="ssn"
-                type="password"
-                defaultValue="***-**-1234"
-                disabled
-              />
+              <Input id="ssn" type="password" defaultValue="***-**-1234" disabled />
             </div>
             <div className="space-y-2">
               <Label htmlFor="filingStatus">Filing Status</Label>
@@ -244,9 +224,7 @@ export default async function ClientSettingsPage() {
             <Bell className="w-5 h-5" />
             <CardTitle>Notification Preferences</CardTitle>
           </div>
-          <CardDescription>
-            Choose how you want to receive updates
-          </CardDescription>
+          <CardDescription>Choose how you want to receive updates</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {[
@@ -261,9 +239,7 @@ export default async function ClientSettingsPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>{setting.label}</Label>
-                  <p className="text-sm text-muted-foreground">
-                    {setting.description}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{setting.description}</p>
                 </div>
                 <Switch defaultChecked={!setting.label.includes('Marketing')} />
               </div>
@@ -280,9 +256,7 @@ export default async function ClientSettingsPage() {
             <Shield className="w-5 h-5" />
             <CardTitle>Security & Privacy</CardTitle>
           </div>
-          <CardDescription>
-            Manage your account security settings
-          </CardDescription>
+          <CardDescription>Manage your account security settings</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
@@ -302,9 +276,7 @@ export default async function ClientSettingsPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Change Password</Label>
-              <p className="text-sm text-muted-foreground">
-                Update your account password
-              </p>
+              <p className="text-sm text-muted-foreground">Update your account password</p>
             </div>
             <Button variant="outline" size="sm">
               Change
@@ -316,9 +288,7 @@ export default async function ClientSettingsPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Active Sessions</Label>
-              <p className="text-sm text-muted-foreground">
-                Manage devices where you're logged in
-              </p>
+              <p className="text-sm text-muted-foreground">Manage devices where you're logged in</p>
             </div>
             <Button variant="outline" size="sm">
               View
@@ -334,9 +304,7 @@ export default async function ClientSettingsPage() {
             <CreditCard className="w-5 h-5" />
             <CardTitle>Payment Methods</CardTitle>
           </div>
-          <CardDescription>
-            Manage your payment options
-          </CardDescription>
+          <CardDescription>Manage your payment options</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between p-4 border rounded-lg">
@@ -350,7 +318,9 @@ export default async function ClientSettingsPage() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">Edit</Button>
+              <Button variant="outline" size="sm">
+                Edit
+              </Button>
               <Button variant="outline" size="sm">
                 <Trash2 className="w-4 h-4" />
               </Button>
@@ -371,9 +341,7 @@ export default async function ClientSettingsPage() {
             <Trash2 className="w-5 h-5 text-red-600" />
             <CardTitle className="text-red-600 dark:text-red-400">Danger Zone</CardTitle>
           </div>
-          <CardDescription>
-            Irreversible actions for your account
-          </CardDescription>
+          <CardDescription>Irreversible actions for your account</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
@@ -399,5 +367,5 @@ export default async function ClientSettingsPage() {
         </Button>
       </div>
     </div>
-  )
+  );
 }

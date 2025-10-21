@@ -7,46 +7,46 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 8
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
 import {
   performFraudCheck,
   logFraudAttempt,
   sanitizeEmail,
   sanitizePhoneNumber,
-  FraudCheckResult
-} from '@/lib/services/fraud-prevention.service'
-import { logger } from '@/lib/logger'
+  FraudCheckResult,
+} from '@/lib/services/fraud-prevention.service';
+import { logger } from '@/lib/logger';
 
 /**
  * Extract IP address from request
  */
 function getClientIP(request: NextRequest): string {
   // Try various headers that might contain the real IP
-  const forwardedFor = request.headers.get('x-forwarded-for')
-  const realIP = request.headers.get('x-real-ip')
-  const cfConnectingIP = request.headers.get('cf-connecting-ip')
+  const forwardedFor = request.headers.get('x-forwarded-for');
+  const realIP = request.headers.get('x-real-ip');
+  const cfConnectingIP = request.headers.get('cf-connecting-ip');
 
   if (forwardedFor) {
-    return forwardedFor.split(',')[0].trim()
+    return forwardedFor.split(',')[0].trim();
   }
 
   if (realIP) {
-    return realIP
+    return realIP;
   }
 
   if (cfConnectingIP) {
-    return cfConnectingIP
+    return cfConnectingIP;
   }
 
   // Fallback
-  return 'unknown'
+  return 'unknown';
 }
 
 /**
  * Extract user agent from request
  */
 function getUserAgent(request: NextRequest): string {
-  return request.headers.get('user-agent') || 'unknown'
+  return request.headers.get('user-agent') || 'unknown';
 }
 
 /**
@@ -68,27 +68,27 @@ function getUserAgent(request: NextRequest): string {
 export async function checkLeadFraud(
   request: NextRequest,
   data: {
-    email: string
-    phone: string
-    referrerUsername?: string
+    email: string;
+    phone: string;
+    referrerUsername?: string;
   }
 ): Promise<{
-  passed: boolean
-  response?: NextResponse
-  result: FraudCheckResult
+  passed: boolean;
+  response?: NextResponse;
+  result: FraudCheckResult;
   sanitizedData: {
-    email: string
-    phone: string
-  }
+    email: string;
+    phone: string;
+  };
 }> {
   try {
     // Sanitize input data
-    const sanitizedEmail = sanitizeEmail(data.email)
-    const sanitizedPhone = sanitizePhoneNumber(data.phone)
+    const sanitizedEmail = sanitizeEmail(data.email);
+    const sanitizedPhone = sanitizePhoneNumber(data.phone);
 
     // Extract request metadata
-    const ipAddress = getClientIP(request)
-    const userAgent = getUserAgent(request)
+    const ipAddress = getClientIP(request);
+    const userAgent = getUserAgent(request);
 
     // Perform fraud check
     const fraudResult = await performFraudCheck({
@@ -96,8 +96,8 @@ export async function checkLeadFraud(
       phone: sanitizedPhone,
       ipAddress,
       userAgent,
-      referrerUsername: data.referrerUsername
-    })
+      referrerUsername: data.referrerUsername,
+    });
 
     // If blocked, log and return error response
     if (!fraudResult.isValid) {
@@ -109,8 +109,8 @@ export async function checkLeadFraud(
         referrerUsername: data.referrerUsername,
         flags: fraudResult.flags,
         riskScore: fraudResult.riskScore,
-        blockedReason: fraudResult.blockedReason
-      })
+        blockedReason: fraudResult.blockedReason,
+      });
 
       return {
         passed: false,
@@ -118,16 +118,16 @@ export async function checkLeadFraud(
           {
             error: fraudResult.blockedReason || 'Submission blocked',
             flags: fraudResult.flags,
-            riskScore: fraudResult.riskScore
+            riskScore: fraudResult.riskScore,
           },
           { status: 429 } // Too Many Requests
         ),
         result: fraudResult,
         sanitizedData: {
           email: sanitizedEmail,
-          phone: sanitizedPhone
-        }
-      }
+          phone: sanitizedPhone,
+        },
+      };
     }
 
     // Passed checks - log if high risk
@@ -136,8 +136,8 @@ export async function checkLeadFraud(
         email: sanitizedEmail,
         ipAddress,
         riskScore: fraudResult.riskScore,
-        flags: fraudResult.flags
-      })
+        flags: fraudResult.flags,
+      });
     }
 
     return {
@@ -145,11 +145,11 @@ export async function checkLeadFraud(
       result: fraudResult,
       sanitizedData: {
         email: sanitizedEmail,
-        phone: sanitizedPhone
-      }
-    }
+        phone: sanitizedPhone,
+      },
+    };
   } catch (error) {
-    logger.error('Error in fraud check middleware', { error })
+    logger.error('Error in fraud check middleware', { error });
 
     // On error, fail open but log
     return {
@@ -157,23 +157,20 @@ export async function checkLeadFraud(
       result: {
         isValid: true,
         riskScore: 0,
-        flags: ['FRAUD_CHECK_ERROR']
+        flags: ['FRAUD_CHECK_ERROR'],
       },
       sanitizedData: {
         email: sanitizeEmail(data.email),
-        phone: sanitizePhoneNumber(data.phone)
-      }
-    }
+        phone: sanitizePhoneNumber(data.phone),
+      },
+    };
   }
 }
 
 /**
  * Add fraud metadata to lead creation data
  */
-export function addFraudMetadata(
-  leadData: any,
-  fraudResult: FraudCheckResult
-): any {
+export function addFraudMetadata(leadData: any, fraudResult: FraudCheckResult): any {
   return {
     ...leadData,
     metadata: JSON.stringify({
@@ -181,8 +178,8 @@ export function addFraudMetadata(
       fraudCheck: {
         riskScore: fraudResult.riskScore,
         flags: fraudResult.flags,
-        checkedAt: new Date().toISOString()
-      }
-    })
-  }
+        checkedAt: new Date().toISOString(),
+      },
+    }),
+  };
 }

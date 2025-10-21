@@ -32,22 +32,14 @@ export function CartItem({ item }: CartItemProps) {
     <div className="flex gap-4 py-4 border-b">
       {/* Product Image */}
       <div className="relative w-24 h-24 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
-        <Image
-          src={item.imageUrl}
-          alt={item.name}
-          fill
-          className="object-cover"
-          sizes="96px"
-        />
+        <Image src={item.imageUrl} alt={item.name} fill className="object-cover" sizes="96px" />
       </div>
 
       {/* Product Details */}
       <div className="flex-1 flex flex-col justify-between">
         <div>
           <h3 className="font-semibold text-lg">{item.name}</h3>
-          <p className="text-muted-foreground text-sm">
-            ${item.price.toFixed(2)} each
-          </p>
+          <p className="text-muted-foreground text-sm">${item.price.toFixed(2)} each</p>
         </div>
 
         {/* Quantity Controls */}
@@ -62,16 +54,9 @@ export function CartItem({ item }: CartItemProps) {
             <Minus className="h-3 w-3" />
           </Button>
 
-          <span className="w-12 text-center font-medium">
-            {item.quantity}
-          </span>
+          <span className="w-12 text-center font-medium">{item.quantity}</span>
 
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={handleIncrement}
-          >
+          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleIncrement}>
             <Plus className="h-3 w-3" />
           </Button>
         </div>
@@ -79,9 +64,7 @@ export function CartItem({ item }: CartItemProps) {
 
       {/* Subtotal and Remove */}
       <div className="flex flex-col items-end justify-between">
-        <div className="font-bold text-lg">
-          ${subtotal.toFixed(2)}
-        </div>
+        <div className="font-bold text-lg">${subtotal.toFixed(2)}</div>
 
         <Button
           variant="ghost"

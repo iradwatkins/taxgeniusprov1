@@ -7,84 +7,86 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 6.3
  */
 
-import { prisma } from '../prisma'
+import { prisma } from '../prisma';
 
 export interface DateRange {
-  start: Date
-  end: Date
+  start: Date;
+  end: Date;
 }
 
 export interface TopPerformer {
-  rank: number
-  id: string
-  name: string
-  avatarUrl?: string
+  rank: number;
+  id: string;
+  name: string;
+  avatarUrl?: string;
   metrics: {
-    clicks: number
-    intakeStarts: number
-    intakeCompletes: number
-    returnsFiled: number
-    conversionRate: number
-    earnings?: number
-  }
-  badge?: string
+    clicks: number;
+    intakeStarts: number;
+    intakeCompletes: number;
+    returnsFiled: number;
+    conversionRate: number;
+    earnings?: number;
+  };
+  badge?: string;
 }
 
 export interface TopMaterial {
-  rank: number
-  id: string
-  title: string
-  type: string
-  location?: string
-  creatorId: string
-  creatorName: string
+  rank: number;
+  id: string;
+  title: string;
+  type: string;
+  location?: string;
+  creatorId: string;
+  creatorName: string;
   metrics: {
-    clicks: number
-    intakeStarts: number
-    intakeCompletes: number
-    returnsFiled: number
-    conversionRate: number
-  }
-  badge?: string
+    clicks: number;
+    intakeStarts: number;
+    intakeCompletes: number;
+    returnsFiled: number;
+    conversionRate: number;
+  };
+  badge?: string;
 }
 
 export interface TopLocation {
-  rank: number
-  city: string
-  state: string
-  totalClicks: number
-  conversions: number
-  signups: number
-  conversionRate: number
-  badge?: string
+  rank: number;
+  city: string;
+  state: string;
+  totalClicks: number;
+  conversions: number;
+  signups: number;
+  conversionRate: number;
+  badge?: string;
 }
 
 export interface PlatformOverview {
-  totalClicks: number
-  totalClicksChange: number
-  intakeFormsStarted: number
-  intakeFormsCompleted: number
-  taxReturnsCompleted: number
-  overallConversionRate: number
-  totalCommissionsOwed: number
-  totalCommissionsPaid: number
+  totalClicks: number;
+  totalClicksChange: number;
+  intakeFormsStarted: number;
+  intakeFormsCompleted: number;
+  taxReturnsCompleted: number;
+  overallConversionRate: number;
+  totalCommissionsOwed: number;
+  totalCommissionsPaid: number;
   activeUsers: {
-    preparers: number
-    affiliates: number
-    referrers: number
-  }
+    preparers: number;
+    affiliates: number;
+    referrers: number;
+  };
 }
 
 /**
  * Get platform-wide overview metrics
  */
 export async function getPlatformOverview(dateRange?: DateRange): Promise<PlatformOverview> {
-  const whereClause = dateRange ? {
-    createdAt: {
-      gte: dateRange.start,
-      lte: dateRange.end,
-    },
-  } : {}
+  const whereClause = dateRange
+    ? {
+        createdAt: {
+          gte: dateRange.start,
+          lte: dateRange.end,
+        },
+      }
+    : {};
 
   // Aggregate all marketing link stats
   const linkStats = await prisma.marketingLink.aggregate({
@@ -98,14 +100,14 @@ export async function getPlatformOverview(dateRange?: DateRange): Promise<Platfo
       intakeCompletes: true,
       returnsFiled: true,
     },
-  })
+  });
 
   // Count active users by role
   const activeUsers = await prisma.$transaction([
     prisma.profile.count({ where: { role: 'TAX_PREPARER' } }),
     prisma.profile.count({ where: { role: 'AFFILIATE' } }),
     prisma.profile.count({ where: { role: 'REFERRER' } }),
-  ])
+  ]);
 
   // Calculate commission totals
   const commissionStats = await prisma.commission.aggregate({
@@ -120,7 +122,7 @@ export async function getPlatformOverview(dateRange?: DateRange): Promise<Platfo
         },
       }),
     },
-  })
+  });
 
   const commissionsPaid = await prisma.commission.aggregate({
     _sum: {
@@ -135,19 +137,19 @@ export async function getPlatformOverview(dateRange?: DateRange): Promise<Platfo
         },
       }),
     },
-  })
+  });
 
-  const totalClicks = linkStats._sum.clicks || 0
-  const intakeStarts = linkStats._sum.intakeStarts || 0
-  const intakeCompletes = linkStats._sum.intakeCompletes || 0
-  const returnsFiled = linkStats._sum.returnsFiled || 0
+  const totalClicks = linkStats._sum.clicks || 0;
+  const intakeStarts = linkStats._sum.intakeStarts || 0;
+  const intakeCompletes = linkStats._sum.intakeCompletes || 0;
+  const returnsFiled = linkStats._sum.returnsFiled || 0;
 
   // Calculate previous period for comparison
-  let totalClicksChange = 0
+  let totalClicksChange = 0;
   if (dateRange) {
-    const periodLength = dateRange.end.getTime() - dateRange.start.getTime()
-    const previousPeriodEnd = new Date(dateRange.start.getTime())
-    const previousPeriodStart = new Date(dateRange.start.getTime() - periodLength)
+    const periodLength = dateRange.end.getTime() - dateRange.start.getTime();
+    const previousPeriodEnd = new Date(dateRange.start.getTime());
+    const previousPeriodStart = new Date(dateRange.start.getTime() - periodLength);
 
     const previousStats = await prisma.marketingLink.aggregate({
       where: {
@@ -160,11 +162,11 @@ export async function getPlatformOverview(dateRange?: DateRange): Promise<Platfo
       _sum: {
         clicks: true,
       },
-    })
+    });
 
-    const previousClicks = previousStats._sum.clicks || 0
+    const previousClicks = previousStats._sum.clicks || 0;
     if (previousClicks > 0) {
-      totalClicksChange = ((totalClicks - previousClicks) / previousClicks) * 100
+      totalClicksChange = ((totalClicks - previousClicks) / previousClicks) * 100;
     }
   }
 
@@ -182,7 +184,7 @@ export async function getPlatformOverview(dateRange?: DateRange): Promise<Platfo
       affiliates: activeUsers[1],
       referrers: activeUsers[2],
     },
-  }
+  };
 }
 
 /**
@@ -214,10 +216,10 @@ export async function getTop15Preparers(dateRange?: DateRange): Promise<TopPerfo
       },
     },
     take: 15,
-  })
+  });
 
   // Get preparer details
-  const preparerIds = preparerMaterials.map((pm) => pm.creatorId)
+  const preparerIds = preparerMaterials.map((pm) => pm.creatorId);
   const preparers = await prisma.profile.findMany({
     where: { clerkUserId: { in: preparerIds } },
     select: {
@@ -227,13 +229,13 @@ export async function getTop15Preparers(dateRange?: DateRange): Promise<TopPerfo
       lastName: true,
       avatarUrl: true,
     },
-  })
+  });
 
   // Combine and return
   return preparerMaterials.map((pm, idx) => {
-    const preparer = preparers.find((p) => p.clerkUserId === pm.creatorId)
-    const clicks = pm._sum.clicks || 0
-    const returnsFiled = pm._sum.returnsFiled || 0
+    const preparer = preparers.find((p) => p.clerkUserId === pm.creatorId);
+    const clicks = pm._sum.clicks || 0;
+    const returnsFiled = pm._sum.returnsFiled || 0;
 
     return {
       rank: idx + 1,
@@ -248,8 +250,8 @@ export async function getTop15Preparers(dateRange?: DateRange): Promise<TopPerfo
         conversionRate: clicks > 0 ? (returnsFiled / clicks) * 100 : 0,
       },
       badge: idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : undefined,
-    }
-  })
+    };
+  });
 }
 
 /**
@@ -280,9 +282,9 @@ export async function getTop15Affiliates(dateRange?: DateRange): Promise<TopPerf
       },
     },
     take: 15,
-  })
+  });
 
-  const affiliateIds = affiliateMaterials.map((am) => am.creatorId)
+  const affiliateIds = affiliateMaterials.map((am) => am.creatorId);
   const affiliates = await prisma.profile.findMany({
     where: { clerkUserId: { in: affiliateIds } },
     select: {
@@ -292,12 +294,12 @@ export async function getTop15Affiliates(dateRange?: DateRange): Promise<TopPerf
       lastName: true,
       avatarUrl: true,
     },
-  })
+  });
 
   return affiliateMaterials.map((am, idx) => {
-    const affiliate = affiliates.find((a) => a.clerkUserId === am.creatorId)
-    const clicks = am._sum.clicks || 0
-    const returnsFiled = am._sum.returnsFiled || 0
+    const affiliate = affiliates.find((a) => a.clerkUserId === am.creatorId);
+    const clicks = am._sum.clicks || 0;
+    const returnsFiled = am._sum.returnsFiled || 0;
 
     return {
       rank: idx + 1,
@@ -312,8 +314,8 @@ export async function getTop15Affiliates(dateRange?: DateRange): Promise<TopPerf
         conversionRate: clicks > 0 ? (returnsFiled / clicks) * 100 : 0,
       },
       badge: idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : undefined,
-    }
-  })
+    };
+  });
 }
 
 /**
@@ -344,9 +346,9 @@ export async function getTop15Referrers(dateRange?: DateRange): Promise<TopPerfo
       },
     },
     take: 15,
-  })
+  });
 
-  const referrerIds = referrerMaterials.map((rm) => rm.creatorId)
+  const referrerIds = referrerMaterials.map((rm) => rm.creatorId);
   const referrers = await prisma.profile.findMany({
     where: { clerkUserId: { in: referrerIds } },
     select: {
@@ -356,12 +358,12 @@ export async function getTop15Referrers(dateRange?: DateRange): Promise<TopPerfo
       lastName: true,
       avatarUrl: true,
     },
-  })
+  });
 
   return referrerMaterials.map((rm, idx) => {
-    const referrer = referrers.find((r) => r.clerkUserId === rm.creatorId)
-    const clicks = rm._sum.clicks || 0
-    const returnsFiled = rm._sum.returnsFiled || 0
+    const referrer = referrers.find((r) => r.clerkUserId === rm.creatorId);
+    const clicks = rm._sum.clicks || 0;
+    const returnsFiled = rm._sum.returnsFiled || 0;
 
     return {
       rank: idx + 1,
@@ -376,8 +378,8 @@ export async function getTop15Referrers(dateRange?: DateRange): Promise<TopPerfo
         conversionRate: clicks > 0 ? (returnsFiled / clicks) * 100 : 0,
       },
       badge: idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : undefined,
-    }
-  })
+    };
+  });
 }
 
 /**
@@ -411,10 +413,10 @@ export async function getTop15Materials(dateRange?: DateRange): Promise<TopMater
       returnsFiled: true,
       filedConversionRate: true,
     },
-  })
+  });
 
   // Get creator names
-  const creatorIds = materials.map((m) => m.creatorId)
+  const creatorIds = materials.map((m) => m.creatorId);
   const creators = await prisma.profile.findMany({
     where: { clerkUserId: { in: creatorIds } },
     select: {
@@ -422,10 +424,10 @@ export async function getTop15Materials(dateRange?: DateRange): Promise<TopMater
       firstName: true,
       lastName: true,
     },
-  })
+  });
 
   return materials.map((material, idx) => {
-    const creator = creators.find((c) => c.clerkUserId === material.creatorId)
+    const creator = creators.find((c) => c.clerkUserId === material.creatorId);
 
     return {
       rank: idx + 1,
@@ -443,8 +445,8 @@ export async function getTop15Materials(dateRange?: DateRange): Promise<TopMater
         conversionRate: material.filedConversionRate || 0,
       },
       badge: idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : undefined,
-    }
-  })
+    };
+  });
 }
 
 /**
@@ -476,11 +478,11 @@ export async function getTop15Locations(dateRange?: DateRange): Promise<TopLocat
       },
     },
     take: 15,
-  })
+  });
 
   return locationStats.map((loc, idx) => {
-    const totalClicks = loc._count.id
-    const conversions = loc._sum.converted || 0
+    const totalClicks = loc._count.id;
+    const conversions = loc._sum.converted || 0;
 
     return {
       rank: idx + 1,
@@ -491,8 +493,8 @@ export async function getTop15Locations(dateRange?: DateRange): Promise<TopLocat
       signups: loc._sum.signedUp || 0,
       conversionRate: totalClicks > 0 ? (conversions / totalClicks) * 100 : 0,
       badge: idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : undefined,
-    }
-  })
+    };
+  });
 }
 
 /**
@@ -525,11 +527,11 @@ export async function getTop15MaterialTypes(dateRange?: DateRange): Promise<any[
       },
     },
     take: 15,
-  })
+  });
 
   return typeStats.map((type, idx) => {
-    const clicks = type._sum.clicks || 0
-    const returnsFiled = type._sum.returnsFiled || 0
+    const clicks = type._sum.clicks || 0;
+    const returnsFiled = type._sum.returnsFiled || 0;
 
     return {
       rank: idx + 1,
@@ -543,62 +545,62 @@ export async function getTop15MaterialTypes(dateRange?: DateRange): Promise<any[
         conversionRate: clicks > 0 ? (returnsFiled / clicks) * 100 : 0,
       },
       badge: idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : undefined,
-    }
-  })
+    };
+  });
 }
 
 /**
  * Helper: Parse date range from string
  */
 export function parseDateRange(range: string): DateRange {
-  const now = new Date()
-  const start = new Date()
+  const now = new Date();
+  const start = new Date();
 
   switch (range) {
     case 'today':
-      start.setHours(0, 0, 0, 0)
-      break
+      start.setHours(0, 0, 0, 0);
+      break;
     case 'week':
-      start.setDate(now.getDate() - 7)
-      break
+      start.setDate(now.getDate() - 7);
+      break;
     case 'month':
-      start.setMonth(now.getMonth() - 1)
-      break
+      start.setMonth(now.getMonth() - 1);
+      break;
     case 'quarter':
-      start.setMonth(now.getMonth() - 3)
-      break
+      start.setMonth(now.getMonth() - 3);
+      break;
     case 'year':
-      start.setFullYear(now.getFullYear() - 1)
-      break
+      start.setFullYear(now.getFullYear() - 1);
+      break;
     default:
-      start.setMonth(now.getMonth() - 1) // Default to last month
+      start.setMonth(now.getMonth() - 1); // Default to last month
   }
 
-  return { start, end: now }
+  return { start, end: now };
 }
 
 /**
  * Get platform-wide earnings statistics for Admin Earnings page
  */
 export interface AdminEarningsStats {
-  totalRevenue: number
-  monthlyRevenue: number
-  totalCommissions: number
-  monthlyCommissions: number
-  averageCommission: number
-  totalPayouts: number
-  pendingPayouts: number
+  totalRevenue: number;
+  monthlyRevenue: number;
+  totalCommissions: number;
+  monthlyCommissions: number;
+  averageCommission: number;
+  totalPayouts: number;
+  pendingPayouts: number;
 }
 
 export async function getAdminEarningsStats(): Promise<AdminEarningsStats> {
-  const now = new Date()
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
   // Total revenue from completed payments
   const totalRevenueResult = await prisma.payment.aggregate({
     where: { status: 'COMPLETED' },
     _sum: { amount: true },
-  })
+  });
 
   // Revenue this month
   const monthlyRevenueResult = await prisma.payment.aggregate({
@@ -607,29 +609,29 @@ export async function getAdminEarningsStats(): Promise<AdminEarningsStats> {
       createdAt: { gte: startOfMonth },
     },
     _sum: { amount: true },
-  })
+  });
 
   // Commission stats
   const commissionStats = await prisma.commission.aggregate({
     _sum: { amount: true },
     _avg: { amount: true },
-  })
+  });
 
   const monthlyCommissions = await prisma.commission.aggregate({
     where: { createdAt: { gte: startOfMonth } },
     _sum: { amount: true },
-  })
+  });
 
   // Payout stats
   const totalPayoutsResult = await prisma.payoutRequest.aggregate({
     where: { status: 'COMPLETED' },
     _sum: { amount: true },
-  })
+  });
 
   const pendingPayoutsResult = await prisma.payoutRequest.aggregate({
     where: { status: 'PENDING' },
     _sum: { amount: true },
-  })
+  });
 
   return {
     totalRevenue: Number(totalRevenueResult._sum.amount || 0),
@@ -639,21 +641,21 @@ export async function getAdminEarningsStats(): Promise<AdminEarningsStats> {
     averageCommission: Number(commissionStats._avg.amount || 0),
     totalPayouts: Number(totalPayoutsResult._sum.amount || 0),
     pendingPayouts: Number(pendingPayoutsResult._sum.amount || 0),
-  }
+  };
 }
 
 /**
  * Get top earning users across all roles
  */
 export interface TopEarner {
-  id: string
-  name: string
-  role: string
-  earnings: number
-  returns?: number
-  referrals?: number
-  leads?: number
-  trend: number
+  id: string;
+  name: string;
+  role: string;
+  earnings: number;
+  returns?: number;
+  referrals?: number;
+  leads?: number;
+  trend: number;
 }
 
 export async function getTopEarners(limit: number = 5): Promise<TopEarner[]> {
@@ -664,10 +666,10 @@ export async function getTopEarners(limit: number = 5): Promise<TopEarner[]> {
     _count: { id: true },
     orderBy: { _sum: { amount: 'desc' } },
     take: limit,
-  })
+  });
 
   // Get user details
-  const userIds = earners.map((e) => e.referrerId)
+  const userIds = earners.map((e) => e.referrerId);
   const users = await prisma.profile.findMany({
     where: { clerkUserId: { in: userIds } },
     select: {
@@ -676,14 +678,14 @@ export async function getTopEarners(limit: number = 5): Promise<TopEarner[]> {
       lastName: true,
       role: true,
     },
-  })
+  });
 
   // Calculate returns/referrals for each earner
-  const result: TopEarner[] = []
+  const result: TopEarner[] = [];
 
   for (const earner of earners) {
-    const user = users.find((u) => u.clerkUserId === earner.referrerId)
-    if (!user) continue
+    const user = users.find((u) => u.clerkUserId === earner.referrerId);
+    if (!user) continue;
 
     // Count conversions for this user
     const conversions = await prisma.referral.count({
@@ -691,7 +693,7 @@ export async function getTopEarners(limit: number = 5): Promise<TopEarner[]> {
         referrerId: earner.referrerId,
         status: 'COMPLETED',
       },
-    })
+    });
 
     result.push({
       id: earner.referrerId,
@@ -701,22 +703,22 @@ export async function getTopEarners(limit: number = 5): Promise<TopEarner[]> {
       returns: conversions,
       referrals: earner._count.id,
       trend: 0, // TODO: Calculate trend from previous period
-    })
+    });
   }
 
-  return result
+  return result;
 }
 
 /**
  * Get recent payout history
  */
 export interface RecentPayout {
-  id: string
-  name: string
-  role: string
-  amount: number
-  date: string
-  status: string
+  id: string;
+  name: string;
+  role: string;
+  amount: number;
+  date: string;
+  status: string;
 }
 
 export async function getRecentPayouts(limit: number = 5): Promise<RecentPayout[]> {
@@ -732,7 +734,7 @@ export async function getRecentPayouts(limit: number = 5): Promise<RecentPayout[
         },
       },
     },
-  })
+  });
 
   return payouts.map((payout) => ({
     id: payout.id,
@@ -741,5 +743,5 @@ export async function getRecentPayouts(limit: number = 5): Promise<RecentPayout[
     amount: Number(payout.amount),
     date: payout.createdAt.toISOString(),
     status: payout.status.toLowerCase(),
-  }))
+  }));
 }

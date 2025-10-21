@@ -10,12 +10,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: [
-          '/api/',
-          '/admin/',
-          '/dashboard/',
-          '/app/',
-        ],
+        disallow: ['/api/', '/admin/', '/dashboard/', '/app/'],
       },
     ],
     sitemap: 'https://taxgeniuspro.tax/sitemap.xml',

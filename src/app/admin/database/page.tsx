@@ -1,25 +1,25 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Database, AlertCircle } from 'lucide-react'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Database, AlertCircle } from 'lucide-react';
 
 export const metadata = {
   title: 'Database Management - Admin | Tax Genius Pro',
   description: 'Monitor and manage database operations',
-}
+};
 
 async function isSuperAdmin() {
-  const user = await currentUser()
-  if (!user) return false
-  const role = user.publicMetadata?.role as string
-  return role === 'super_admin'
+  const user = await currentUser();
+  if (!user) return false;
+  const role = user.publicMetadata?.role as string;
+  return role === 'super_admin';
 }
 
 export default async function AdminDatabasePage() {
-  const userIsSuperAdmin = await isSuperAdmin()
+  const userIsSuperAdmin = await isSuperAdmin();
 
   if (!userIsSuperAdmin) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
   return (
@@ -60,11 +60,12 @@ export default async function AdminDatabasePage() {
           </div>
           <div className="border-t pt-4">
             <p className="text-xs text-muted-foreground">
-              For immediate database access, please use direct PostgreSQL tools or contact system administrators.
+              For immediate database access, please use direct PostgreSQL tools or contact system
+              administrators.
             </p>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

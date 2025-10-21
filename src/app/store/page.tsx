@@ -9,7 +9,8 @@ import { Sparkles, Package, QrCode, FileText, MessageSquare, TrendingUp } from '
 
 export const metadata = {
   title: 'Marketing Store - Tax Genius Pro',
-  description: 'Purchase marketing materials, landing pages, and subscriptions to grow your business',
+  description:
+    'Purchase marketing materials, landing pages, and subscriptions to grow your business',
 };
 
 async function getProducts() {
@@ -42,10 +43,10 @@ export default async function StorePage() {
   const products = await getProducts();
 
   // Group products by category
-  const landingPages = products.filter(p => p.type === 'LANDING_PAGE');
-  const marketingMaterials = products.filter(p => p.type === 'MARKETING_MATERIAL');
-  const digitalAssets = products.filter(p => p.type === 'DIGITAL_ASSET');
-  const emailAddresses = products.filter(p => p.type === 'EMAIL_ADDRESS');
+  const landingPages = products.filter((p) => p.type === 'LANDING_PAGE');
+  const marketingMaterials = products.filter((p) => p.type === 'MARKETING_MATERIAL');
+  const digitalAssets = products.filter((p) => p.type === 'DIGITAL_ASSET');
+  const emailAddresses = products.filter((p) => p.type === 'EMAIL_ADDRESS');
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -71,9 +72,7 @@ export default async function StorePage() {
                 <CardTitle>Free</CardTitle>
                 <Badge variant="secondary">Basic</Badge>
               </div>
-              <CardDescription>
-                Get started with lead generation
-              </CardDescription>
+              <CardDescription>Get started with lead generation</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="mb-4">
@@ -82,8 +81,7 @@ export default async function StorePage() {
               </div>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-green-500" />
-                  1 Landing Page
+                  <TrendingUp className="h-4 w-4 text-green-500" />1 Landing Page
                 </li>
                 <li className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-green-500" />
@@ -107,9 +105,7 @@ export default async function StorePage() {
                 <CardTitle>Monthly</CardTitle>
                 <Badge>Professional</Badge>
               </div>
-              <CardDescription>
-                Perfect for active marketers
-              </CardDescription>
+              <CardDescription>Perfect for active marketers</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="mb-4">
@@ -118,8 +114,7 @@ export default async function StorePage() {
               </div>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-green-500" />
-                  5 Landing Pages
+                  <TrendingUp className="h-4 w-4 text-green-500" />5 Landing Pages
                 </li>
                 <li className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-green-500" />
@@ -144,9 +139,7 @@ export default async function StorePage() {
                 <CardTitle>Annual</CardTitle>
                 <Badge variant="secondary">Best Value</Badge>
               </div>
-              <CardDescription>
-                Save 41% with annual billing
-              </CardDescription>
+              <CardDescription>Save 41% with annual billing</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="mb-4">
@@ -251,9 +244,7 @@ export default async function StorePage() {
           ) : (
             <div className="text-center py-12">
               <MessageSquare className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <p className="text-muted-foreground">
-                Professional email addresses coming soon
-              </p>
+              <p className="text-muted-foreground">Professional email addresses coming soon</p>
             </div>
           )}
         </TabsContent>

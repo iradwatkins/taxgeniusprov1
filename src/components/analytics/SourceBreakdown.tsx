@@ -7,29 +7,26 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 6.4
  */
 
-'use client'
+'use client';
 
-import { useSourceBreakdown } from '@/hooks/useMyMaterials'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { BarChart, PieChart, TrendingUp } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useSourceBreakdown } from '@/hooks/useMyMaterials';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { BarChart, PieChart, TrendingUp } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface SourceBreakdownProps {
-  dateRange?: string
-  className?: string
+  dateRange?: string;
+  className?: string;
 }
 
-export function SourceBreakdown({
-  dateRange = 'all',
-  className,
-}: SourceBreakdownProps) {
-  const { data, isLoading, error } = useSourceBreakdown({ dateRange })
+export function SourceBreakdown({ dateRange = 'all', className }: SourceBreakdownProps) {
+  const { data, isLoading, error } = useSourceBreakdown({ dateRange });
 
   if (isLoading) {
-    return <BreakdownSkeleton className={className} />
+    return <BreakdownSkeleton className={className} />;
   }
 
   if (error) {
@@ -39,27 +36,23 @@ export function SourceBreakdown({
           <CardTitle>Source Breakdown</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-center text-muted-foreground py-4">
-            Failed to load source data
-          </p>
+          <p className="text-center text-muted-foreground py-4">Failed to load source data</p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (!data) {
-    return null
+    return null;
   }
 
-  const { byType, byCampaign, byLocation, summary } = data
+  const { byType, byCampaign, byLocation, summary } = data;
 
   return (
     <Card className={className}>
       <CardHeader>
         <CardTitle>Lead Source Attribution</CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Where your customers are coming from
-        </p>
+        <p className="text-sm text-muted-foreground">Where your customers are coming from</p>
       </CardHeader>
       <CardContent>
         {/* Summary Stats */}
@@ -79,10 +72,7 @@ export function SourceBreakdown({
             value={summary.totalConversions.toLocaleString()}
             icon={<PieChart className="w-4 h-4" />}
           />
-          <StatItem
-            label="Avg. Rate"
-            value={`${summary.averageConversionRate.toFixed(1)}%`}
-          />
+          <StatItem label="Avg. Rate" value={`${summary.averageConversionRate.toFixed(1)}%`} />
         </div>
 
         {/* Breakdown Tabs */}
@@ -108,9 +98,7 @@ export function SourceBreakdown({
               ))}
             </div>
             {byType.length === 0 && (
-              <p className="text-center text-muted-foreground py-4">
-                No data available
-              </p>
+              <p className="text-center text-muted-foreground py-4">No data available</p>
             )}
           </TabsContent>
 
@@ -129,9 +117,7 @@ export function SourceBreakdown({
               ))}
             </div>
             {byCampaign.length === 0 && (
-              <p className="text-center text-muted-foreground py-4">
-                No campaigns found
-              </p>
+              <p className="text-center text-muted-foreground py-4">No campaigns found</p>
             )}
           </TabsContent>
 
@@ -150,9 +136,7 @@ export function SourceBreakdown({
               ))}
             </div>
             {byLocation.length === 0 && (
-              <p className="text-center text-muted-foreground py-4">
-                No location data available
-              </p>
+              <p className="text-center text-muted-foreground py-4">No location data available</p>
             )}
           </TabsContent>
         </Tabs>
@@ -173,7 +157,7 @@ export function SourceBreakdown({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function StatItem({
@@ -181,9 +165,9 @@ function StatItem({
   value,
   icon,
 }: {
-  label: string
-  value: string
-  icon?: React.ReactNode
+  label: string;
+  value: string;
+  icon?: React.ReactNode;
 }) {
   return (
     <div className="space-y-1">
@@ -193,16 +177,16 @@ function StatItem({
       </div>
       <div className="text-2xl font-bold">{value}</div>
     </div>
-  )
+  );
 }
 
 interface SourceItemProps {
-  label: string
-  count: number
-  clicks: number
-  conversions: number
-  conversionRate: number
-  maxClicks: number
+  label: string;
+  count: number;
+  clicks: number;
+  conversions: number;
+  conversionRate: number;
+  maxClicks: number;
 }
 
 function SourceItem({
@@ -213,7 +197,7 @@ function SourceItem({
   conversionRate,
   maxClicks,
 }: SourceItemProps) {
-  const widthPercentage = maxClicks > 0 ? (clicks / maxClicks) * 100 : 0
+  const widthPercentage = maxClicks > 0 ? (clicks / maxClicks) * 100 : 0;
 
   return (
     <div className="space-y-2">
@@ -229,13 +213,7 @@ function SourceItem({
           <span>•</span>
           <span>{conversions} conversions</span>
           <Badge
-            variant={
-              conversionRate > 10
-                ? 'default'
-                : conversionRate > 5
-                ? 'secondary'
-                : 'outline'
-            }
+            variant={conversionRate > 10 ? 'default' : conversionRate > 5 ? 'secondary' : 'outline'}
           >
             {conversionRate.toFixed(1)}%
           </Badge>
@@ -248,21 +226,21 @@ function SourceItem({
             conversionRate > 10
               ? 'bg-green-500'
               : conversionRate > 5
-              ? 'bg-blue-500'
-              : 'bg-gray-400'
+                ? 'bg-blue-500'
+                : 'bg-gray-400'
           )}
           style={{ width: `${widthPercentage}%` }}
         />
       </div>
     </div>
-  )
+  );
 }
 
 function formatType(type: string): string {
   return type
     .replace(/_/g, ' ')
     .toLowerCase()
-    .replace(/\b\w/g, (l) => l.toUpperCase())
+    .replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
 function BreakdownSkeleton({ className }: { className?: string }) {
@@ -290,5 +268,5 @@ function BreakdownSkeleton({ className }: { className?: string }) {
         ))}
       </CardContent>
     </Card>
-  )
+  );
 }

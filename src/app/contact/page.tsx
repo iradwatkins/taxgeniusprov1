@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, Suspense } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import {
   Phone,
   Mail,
@@ -15,11 +15,11 @@ import {
   MessageCircle,
   Calendar,
   CheckCircle,
-  ArrowRight
+  ArrowRight,
 } from 'lucide-react';
 import { Header } from '@/components/header';
 import { ShortLinkTracker } from '@/components/tracking/ShortLinkTracker';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -27,19 +27,48 @@ export default function ContactPage() {
     email: '',
     phone: '',
     service: '',
-    message: ''
+    message: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    logger.info('Form submitted:', formData);
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const response = await fetch('/api/contact/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit form');
+      }
+
+      setSubmitSuccess(true);
+      logger.info('Contact form submitted successfully', { contactId: data.contactId });
+    } catch (error) {
+      logger.error('Error submitting contact form:', error);
+      setSubmitError(error instanceof Error ? error.message : 'Failed to submit form');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData(prev => ({
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
@@ -63,8 +92,8 @@ export default function ContactPage() {
               Let's Talk About Your <span className="text-primary">Tax Needs</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              Ready to maximize your refund? Our tax experts are here to help.
-              Contact us for a free consultation and see how we can save you money.
+              Ready to maximize your refund? Our tax experts are here to help. Contact us for a free
+              consultation and see how we can save you money.
             </p>
           </div>
         </div>
@@ -156,9 +185,45 @@ export default function ContactPage() {
                       />
                     </div>
 
-                    <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
-                      Send Message <ArrowRight className="ml-2 w-4 h-4" />
-                    </Button>
+                    {submitError && (
+                      <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-md">
+                        <p className="text-sm font-medium">{submitError}</p>
+                      </div>
+                    )}
+
+                    {submitSuccess ? (
+                      <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-6 py-8 rounded-lg text-center space-y-4">
+                        <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto">
+                          <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-semibold text-green-900 dark:text-green-100 mb-2">
+                            Message Sent Successfully!
+                          </h3>
+                          <p className="text-green-700 dark:text-green-300 mb-4">
+                            Thank you for contacting us. We've received your message and will get back to you within 24 hours.
+                          </p>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setSubmitSuccess(false);
+                              setFormData({ name: '', email: '', phone: '', service: '', message: '' });
+                            }}
+                          >
+                            Send Another Message
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <Button
+                        type="submit"
+                        className="w-full bg-primary hover:bg-primary/90"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? 'Sending...' : 'Send Message'}{' '}
+                        {!isSubmitting && <ArrowRight className="ml-2 w-4 h-4" />}
+                      </Button>
+                    )}
                   </form>
                 </CardContent>
               </Card>
@@ -167,9 +232,7 @@ export default function ContactPage() {
             {/* Contact Information */}
             <div className="space-y-8">
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-6">
-                  Contact Information
-                </h2>
+                <h2 className="text-2xl font-bold text-foreground mb-6">Contact Information</h2>
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
                     <Phone className="w-6 h-6 text-primary mt-1" />
@@ -194,8 +257,10 @@ export default function ContactPage() {
                     <div>
                       <h3 className="font-semibold mb-1">Headquarters</h3>
                       <p className="text-muted-foreground">
-                        123 Tax Plaza, Suite 456<br />
-                        Financial District<br />
+                        123 Tax Plaza, Suite 456
+                        <br />
+                        Financial District
+                        <br />
                         New York, NY 10004
                       </p>
                     </div>
@@ -209,7 +274,9 @@ export default function ContactPage() {
                         <p>Monday - Friday: 8:00 AM - 8:00 PM EST</p>
                         <p>Saturday: 9:00 AM - 5:00 PM EST</p>
                         <p>Sunday: 12:00 PM - 4:00 PM EST</p>
-                        <p className="text-primary font-medium">Extended hours during tax season!</p>
+                        <p className="text-primary font-medium">
+                          Extended hours during tax season!
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -220,9 +287,7 @@ export default function ContactPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-xl">Quick Actions</CardTitle>
-                  <CardDescription>
-                    Need immediate assistance? Try these options
-                  </CardDescription>
+                  <CardDescription>Need immediate assistance? Try these options</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Button variant="outline" className="w-full justify-start">
@@ -247,8 +312,8 @@ export default function ContactPage() {
                     <CheckCircle className="w-12 h-12 text-primary mx-auto mb-4" />
                     <h3 className="font-semibold text-lg mb-2">Service Guarantee</h3>
                     <p className="text-muted-foreground text-sm">
-                      We guarantee maximum refunds, accurate filing, and full audit protection.
-                      Your satisfaction is our commitment.
+                      We guarantee maximum refunds, accurate filing, and full audit protection. Your
+                      satisfaction is our commitment.
                     </p>
                   </div>
                 </CardContent>
@@ -289,8 +354,8 @@ export default function ContactPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Yes! Full audit defense is included with every tax return we prepare.
-                  We'll represent you before the IRS at no additional cost.
+                  Yes! Full audit defense is included with every tax return we prepare. We'll
+                  represent you before the IRS at no additional cost.
                 </p>
               </CardContent>
             </Card>
@@ -301,20 +366,22 @@ export default function ContactPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Absolutely! We serve clients in all 50 states and offer both virtual
-                  consultations and in-person meetings where available.
+                  Absolutely! We serve clients in all 50 states and offer both virtual consultations
+                  and in-person meetings where available.
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">What if I'm not satisfied with your service?</CardTitle>
+                <CardTitle className="text-lg">
+                  What if I'm not satisfied with your service?
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  We offer a 100% satisfaction guarantee. If you're not completely satisfied,
-                  we'll make it right or provide a full refund.
+                  We offer a 100% satisfaction guarantee. If you're not completely satisfied, we'll
+                  make it right or provide a full refund.
                 </p>
               </CardContent>
             </Card>

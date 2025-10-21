@@ -1,16 +1,20 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { generateLandingPageContent, generateSlug, type GenerateContentInput } from '@/lib/services/ai-content.service';
+import {
+  generateLandingPageContent,
+  generateSlug,
+  type GenerateContentInput,
+} from '@/lib/services/ai-content.service';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { isAdmin } from '@/lib/auth';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 // Zod validation schema for input
 const GenerateContentSchema = z.object({
   city: z.string().min(1, 'City is required').max(100, 'City name too long'),
   state: z.string().max(50, 'State name too long').optional(),
-  keywords: z.string().min(1, 'Keywords are required').max(500, 'Keywords too long')
+  keywords: z.string().min(1, 'Keywords are required').max(500, 'Keywords too long'),
 });
 
 /**
@@ -28,10 +32,7 @@ export async function POST(request: Request) {
     // Check authentication
     const { userId } = await auth();
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized - Please sign in' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized - Please sign in' }, { status: 401 });
     }
 
     // ADMIN role check (AC2, AC6)
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: 'Forbidden - Admin access required',
-          message: 'This endpoint is only accessible to administrators.'
+          message: 'This endpoint is only accessible to administrators.',
         },
         { status: 403 }
       );
@@ -55,7 +56,7 @@ export async function POST(request: Request) {
           message: `Too many requests. Please try again in ${rateLimit.retryAfter} seconds.`,
           retryAfter: rateLimit.retryAfter,
           limit: rateLimit.limit,
-          remaining: 0
+          remaining: 0,
         },
         { status: 429 }
       );
@@ -69,7 +70,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error: 'Validation failed',
-          details: validationResult.error.flatten().fieldErrors
+          details: validationResult.error.flatten().fieldErrors,
         },
         { status: 400 }
       );
@@ -101,10 +102,9 @@ export async function POST(request: Request) {
         city: input.city,
         state: input.state,
         generatedBy: userId,
-        generatedAt: new Date().toISOString()
-      }
+        generatedAt: new Date().toISOString(),
+      },
     });
-
   } catch (error) {
     logger.error('[AI Content Generation Error]:', error);
 
@@ -115,7 +115,7 @@ export async function POST(request: Request) {
           {
             error: 'AI generation timed out',
             message: 'The AI service took too long to respond. Please try again.',
-            retryable: true
+            retryable: true,
           },
           { status: 504 }
         );
@@ -126,7 +126,7 @@ export async function POST(request: Request) {
           {
             error: 'AI service configuration error',
             message: 'Please contact support.',
-            retryable: false
+            retryable: false,
           },
           { status: 500 }
         );
@@ -136,7 +136,7 @@ export async function POST(request: Request) {
         {
           error: 'Content generation failed',
           message: error.message,
-          retryable: true
+          retryable: true,
         },
         { status: 500 }
       );
@@ -146,7 +146,7 @@ export async function POST(request: Request) {
       {
         error: 'Unknown error',
         message: 'An unexpected error occurred. Please try again.',
-        retryable: true
+        retryable: true,
       },
       { status: 500 }
     );

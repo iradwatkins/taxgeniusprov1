@@ -1,854 +1,271 @@
-'use client'
+'use client';
 
-import React from 'react'
-
-import { useState, useRef } from 'react'
-import { motion } from 'framer-motion'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { TooltipProvider } from '@/components/ui/tooltip'
-import { cn } from '@/lib/utils'
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
 import {
   FileText,
-  MessageSquare,
-  Clock,
+  DollarSign,
+  CalendarIcon,
   CheckCircle2,
-  XCircle,
-  Download,
-  Eye,
-  Send,
-  CreditCard,
-  Home,
-  MoreVertical,
-  Bell,
-  Settings,
-  Activity,
-  FileCheck,
-  FileX,
-  Archive,
-  RefreshCw,
-  Share2,
-  IndentDecrease
-} from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
-import { useQuery } from '@tanstack/react-query'
-import { StatsGrid } from '@/components/dashboard/client/StatsGrid'
-import { ProgressCard } from '@/components/dashboard/client/ProgressCard'
-import { OverviewTab } from '@/components/dashboard/client/OverviewTab'
-import { DocumentsTab } from '@/components/dashboard/client/DocumentsTab'
-import { MessagesTab } from '@/components/dashboard/client/MessagesTab'
-import { PaymentsTab } from '@/components/dashboard/client/PaymentsTab'
-import { MyReferralsTab } from '@/components/dashboard/client/MyReferralsTab'
-import { DollarSign, CalendarIcon, Users as UsersIcon } from 'lucide-react'
-
-// Types
-interface TaxReturn {
-  id: string
-  taxYear: number
-  status: 'DRAFT' | 'IN_REVIEW' | 'FILED' | 'ACCEPTED' | 'REJECTED' | 'AMENDED'
-  filedDate?: string
-  acceptedDate?: string
-  refundAmount?: number
-  oweAmount?: number
-  documents: Document[]
-  progress: number
-}
-
-interface Document {
-  id: string
-  type: 'W2' | 'FORM_1099' | 'RECEIPT' | 'TAX_RETURN' | 'OTHER'
-  fileName: string
-  fileUrl: string
-  fileSize: number
-  uploadedAt: string
-  status: 'pending' | 'verified' | 'rejected'
-}
-
-interface Message {
-  id: string
-  content: string
-  senderId: string
-  senderName: string
-  senderAvatar?: string
-  createdAt: string
-  isFromPreparer: boolean
-  attachments?: string[]
-  read: boolean
-}
-
-interface Activity {
-  id: string
-  type: 'document' | 'status' | 'message' | 'payment'
-  title: string
-  description: string
-  timestamp: string
-  icon: any
-  color: string
-}
+  Clock,
+  AlertCircle,
+  TrendingUp,
+  Users,
+} from 'lucide-react';
+import { ReferralLinksManager } from '@/components/dashboard/ReferralLinksManager';
 
 export default function ClientDashboard() {
-  const { toast} = useToast()
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const [selectedTab, setSelectedTab] = useState('overview')
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear() - 1)
-  const [notifications, setNotifications] = useState(0)
-
-  // Referral data (for conditional "My Referrals" tab)
-  const shortLinkUsername = dashboardData?.user?.shortLinkUsername
-  const totalLeads = dashboardData?.referralStats?.totalLeads || 0
-  const showReferralsTab = shortLinkUsername || totalLeads > 0
-
-  // Fetch real dashboard data
-  const { data: dashboardData, isLoading } = useQuery({
-    queryKey: ['client-dashboard', selectedYear],
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['client-dashboard'],
     queryFn: async () => {
-      const response = await fetch(`/api/client/dashboard?year=${selectedYear}`)
-      if (!response.ok) throw new Error('Failed to fetch dashboard data')
-      return response.json()
+      const res = await fetch('/api/client/dashboard');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({ error: 'Failed to load' }));
+        throw new Error(errData.error || 'Failed to load dashboard');
+      }
+      return res.json();
     },
-  })
+    retry: false,
+  });
 
-  // Use real data or fallback to empty defaults
-  const currentReturn: TaxReturn | null = dashboardData?.currentReturn || null
-  const recentActivity: Activity[] = dashboardData?.recentActivity?.map((act: any) => ({
-    ...act,
-    icon: act.type === 'document' ? FileCheck : act.type === 'status' ? Activity : MessageSquare,
-    color: act.type === 'document' ? 'text-green-500' : act.type === 'status' ? 'text-blue-500' : 'text-purple-500',
-  })) || []
-
-  // Mock messages (TODO: Implement real messages API)
-  const messages: Message[] = []
-
-  // Show loading skeleton
+  // Loading State
   if (isLoading) {
     return (
-      <div className="container mx-auto p-8 space-y-6">
-        <Skeleton className="h-12 w-64" />
-        <Skeleton className="h-32 w-full" />
-        <div className="grid grid-cols-4 gap-4">
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-full sm:w-96" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-32" />
+            ))}
+          </div>
+          <Skeleton className="h-64" />
         </div>
       </div>
-    )
+    );
   }
 
-  // If no tax return, show empty state
-  if (!currentReturn) {
+  // Error State
+  if (error) {
     return (
-      <TooltipProvider>
-        <div className="container mx-auto p-8 space-y-6 text-center">
-          <div className="py-12">
-            <FileX className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-            <h2 className="text-2xl font-bold mb-2">No Tax Return Found</h2>
-            <p className="text-muted-foreground mb-6">
-              You haven't started your {selectedYear} tax return yet.
-            </p>
-            <Button size="lg" onClick={() => window.location.href = '/start-filing'}>
-              Start Filing Now
-            </Button>
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Welcome to Tax Genius Pro</h1>
+            <p className="text-sm sm:text-base text-muted-foreground mt-2">Setting up your account...</p>
           </div>
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Account Setup in Progress</AlertTitle>
+            <AlertDescription>
+              We're preparing your dashboard. Please refresh this page in a moment. If this issue
+              persists, please contact our support team.
+            </AlertDescription>
+          </Alert>
         </div>
-      </TooltipProvider>
-    )
+      </div>
+    );
   }
 
-  const stats = [
-    {
-      title: 'Estimated Refund',
-      value: currentReturn.refundAmount ? `$${currentReturn.refundAmount.toLocaleString()}` : 'Pending',
-      change: currentReturn.refundAmount ? 'Estimated' : 'Calculating',
-      changeType: 'neutral' as const,
-      icon: DollarSign,
-      color: 'from-green-500 to-emerald-500'
-    },
-    {
-      title: 'Documents',
-      value: `${currentReturn.documents.length}`,
-      change: `${currentReturn.progress}% complete`,
-      changeType: 'neutral' as const,
-      icon: FileText,
-      color: 'from-blue-500 to-cyan-500'
-    },
-    {
-      title: 'Days Until Deadline',
-      value: dashboardData?.stats?.daysUntilDeadline || '0',
-      change: currentReturn.status === 'FILED' ? 'Filed' : 'On track',
-      changeType: 'neutral' as const,
-      icon: CalendarIcon,
-      color: 'from-purple-500 to-pink-500'
-    },
-    {
-      title: 'Status',
-      value: currentReturn.status.replace('_', ' '),
-      change: 'Updated',
-      changeType: 'neutral' as const,
-      icon: Activity,
-      color: 'from-orange-500 to-red-500'
-    }
-  ]
-
-  const getStatusIcon = (status: TaxReturn['status']) => {
-    const icons = {
-      DRAFT: Clock,
-      IN_REVIEW: Eye,
-      FILED: Send,
-      ACCEPTED: CheckCircle2,
-      REJECTED: XCircle,
-      AMENDED: RefreshCw
-    }
-    return icons[status] || Clock
-  }
-
-  const getStatusColor = (status: TaxReturn['status']) => {
-    const colors = {
-      DRAFT: 'bg-gray-100 text-gray-700 border-gray-200',
-      IN_REVIEW: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-      FILED: 'bg-blue-100 text-blue-700 border-blue-200',
-      ACCEPTED: 'bg-green-100 text-green-700 border-green-200',
-      REJECTED: 'bg-red-100 text-red-700 border-red-200',
-      AMENDED: 'bg-purple-100 text-purple-700 border-purple-200'
-    }
-    return colors[status] || 'bg-gray-100 text-gray-700'
-  }
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (!files || files.length === 0) return
-
-    setUploadingFile(true)
-
-    // Simulate upload
-    setTimeout(() => {
-      toast({
-        title: 'Document uploaded successfully',
-        description: `${files[0].name} has been added to your tax return.`,
-      })
-      setUploadingFile(false)
-    }, 2000)
-  }
-
-  const handleSendMessage = () => {
-    if (!messageContent.trim()) return
-
-    toast({
-      title: 'Message sent',
-      description: 'Your tax preparer will respond shortly.',
-    })
-    setMessageContent('')
-  }
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + ' B'
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
-  }
+  const taxReturn = data?.currentReturn;
+  const stats = data?.stats;
+  const referralStats = data?.referralStats;
 
   return (
-    <TooltipProvider>
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-        {/* Mobile Header */}
-        <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-sm lg:hidden">
-          <div className="container flex h-14 items-center gap-4 px-4">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <IndentDecrease className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-72">
-                <SheetHeader>
-                  <SheetTitle>Menu</SheetTitle>
-                </SheetHeader>
-                <nav className="mt-6 space-y-2">
-                  <Button variant="ghost" className="w-full justify-start">
-                    <Home className="mr-2 h-4 w-4" />
-                    Dashboard
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <FileText className="mr-2 h-4 w-4" />
-                    Documents
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    Messages
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </Button>
-                </nav>
-              </SheetContent>
-            </Sheet>
-
-            <div className="flex-1">
-              <h1 className="text-lg font-semibold">Tax Dashboard</h1>
-            </div>
-
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              {notifications > 0 && (
-                <span className="absolute -right-1 -top-1 h-5 w-5 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center">
-                  {notifications}
-                </span>
-              )}
-            </Button>
-          </div>
-        </header>
-
-        <div className="container mx-auto p-4 md:p-6 lg:p-8 space-y-6">
-          {/* Page Header */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
-          >
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-orange-600 bg-clip-text text-transparent">
-                Welcome back, John!
-              </h1>
-              <p className="text-sm md:text-base text-muted-foreground mt-1">
-                Your {selectedYear} tax return is {currentReturn.progress}% complete
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Badge className={cn("px-3 py-1 flex items-center gap-1.5", getStatusColor(currentReturn.status))}>
-                {React.createElement(getStatusIcon(currentReturn.status), { className: "h-3 w-3" })}
-                <span className="font-medium">{currentReturn.status.replace('_', ' ')}</span>
-              </Badge>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <Download className="mr-2 h-4 w-4" />
-                    Download Return
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Share2 className="mr-2 h-4 w-4" />
-                    Share with Spouse
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Archive className="mr-2 h-4 w-4" />
-                    Archive
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </motion.div>
-
-          {/* Progress Card */}
-          <ProgressCard taxReturn={currentReturn} />
-
-          {/* Stats Grid */}
-          <StatsGrid stats={stats} />
-
-          {/* Main Content Tabs */}
-          <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
-            <TabsList className={cn(
-              "grid w-full h-auto p-1",
-              showReferralsTab ? "grid-cols-2 md:grid-cols-5" : "grid-cols-2 md:grid-cols-4"
-            )}>
-              <TabsTrigger value="overview" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Home className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Overview</span>
-              </TabsTrigger>
-              <TabsTrigger value="documents" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <FileText className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Documents</span>
-              </TabsTrigger>
-              <TabsTrigger value="messages" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground relative">
-                <MessageSquare className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Messages</span>
-                {messages.filter(m => !m.read).length > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {messages.filter(m => !m.read).length}
-                  </span>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="payments" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <CreditCard className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Payments</span>
-              </TabsTrigger>
-              {showReferralsTab && (
-                <TabsTrigger value="referrals" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                  <UsersIcon className="h-4 w-4 mr-2" />
-                  <span className="hidden sm:inline">My Referrals</span>
-                  {totalLeads > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-primary/20">
-                      {totalLeads}
-                    </span>
-                  )}
-                </TabsTrigger>
-              )}
-            </TabsList>
-
-            <TabsContent value="overview" className="space-y-4">
-              <div className="grid gap-4 lg:grid-cols-3">
-                {/* Recent Activity */}
-                <Card className="lg:col-span-2">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Activity className="h-5 w-5" />
-                      Recent Activity
-                    </CardTitle>
-                    <CardDescription>Your latest tax return updates</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ScrollArea className="h-[300px] pr-4">
-                      <div className="space-y-4">
-                        {recentActivity.map((activity, index) => (
-                          <motion.div
-                            key={activity.id}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            className="flex gap-3"
-                          >
-                            <div className={cn("p-2 rounded-full", `${activity.color} bg-opacity-10`)}>
-                              <activity.icon className={cn("h-4 w-4", activity.color)} />
-                            </div>
-                            <div className="flex-1 space-y-1">
-                              <p className="text-sm font-medium">{activity.title}</p>
-                              <p className="text-xs text-muted-foreground">{activity.description}</p>
-                              <p className="text-xs text-muted-foreground">{activity.timestamp}</p>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  </CardContent>
-                </Card>
-
-                {/* Quick Actions */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Zap className="h-5 w-5" />
-                      Quick Actions
-                    </CardTitle>
-                    <CardDescription>Common tasks</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      <Upload className="mr-2 h-4 w-4" />
-                      Upload Document
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => setSelectedTab('messages')}
-                    >
-                      <MessageSquare className="mr-2 h-4 w-4" />
-                      Message Preparer
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <Calculator className="mr-2 h-4 w-4" />
-                      Refund Calculator
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <Download className="mr-2 h-4 w-4" />
-                      Download Forms
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      Schedule Call
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Tax Tips */}
-              <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-blue-200 dark:border-blue-800">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Lightbulb className="h-5 w-5 text-blue-600" />
-                    Tax Tip of the Day
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm">
-                    Did you know? You can deduct up to $300 in charitable donations even if you don\'t itemize your deductions.
-                    Make sure to keep receipts for all donations!
-                  </p>
-                  <Button variant="link" className="mt-2 p-0 h-auto text-blue-600">
-                    Learn more <ExternalLink className="ml-1 h-3 w-3" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="documents" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div>
-                      <CardTitle>Tax Documents</CardTitle>
-                      <CardDescription>Upload and manage your tax documents</CardDescription>
-                    </div>
-                    <div className="flex gap-2">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            <Filter className="mr-2 h-4 w-4" />
-                            Filter
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-56">
-                          <div className="space-y-2">
-                            <h4 className="font-medium text-sm">Filter by status</h4>
-                            <RadioGroup value={filterStatus} onValueChange={setFilterStatus}>
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="all" id="all" />
-                                <Label htmlFor="all">All documents</Label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="verified" id="verified" />
-                                <Label htmlFor="verified">Verified</Label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="pending" id="pending" />
-                                <Label htmlFor="pending">Pending</Label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="rejected" id="rejected" />
-                                <Label htmlFor="rejected">Rejected</Label>
-                              </div>
-                            </RadioGroup>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input
-                          placeholder="Search documents..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-9 w-full md:w-[200px]"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Upload Area */}
-                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center hover:border-muted-foreground/50 transition-colors">
-                    <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="font-medium mb-1">Drop files here or click to upload</h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      PDF, JPG, PNG up to 10MB
-                    </p>
-                    <Button
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploadingFile}
-                    >
-                      {uploadingFile ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Uploading...
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="mr-2 h-4 w-4" />
-                          Select Files
-                        </>
-                      )}
-                    </Button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      className="hidden"
-                      accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                      onChange={handleFileUpload}
-                      multiple
-                    />
-                  </div>
-
-                  {/* Documents Grid */}
-                  <div className="grid gap-3">
-                    {currentReturn.documents.map((doc) => (
-                      <motion.div
-                        key={doc.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="group"
-                      >
-                        <Card className="hover:shadow-md transition-shadow">
-                          <CardContent className="flex items-center justify-between p-4">
-                            <div className="flex items-center gap-3">
-                              <div className={cn(
-                                "p-2 rounded-lg",
-                                doc.type === 'W2' && "bg-blue-100 dark:bg-blue-900/30",
-                                doc.type === 'FORM_1099' && "bg-green-100 dark:bg-green-900/30",
-                                doc.type === 'RECEIPT' && "bg-purple-100 dark:bg-purple-900/30"
-                              )}>
-                                <FileText className={cn(
-                                  "h-5 w-5",
-                                  doc.type === 'W2' && "text-blue-600",
-                                  doc.type === 'FORM_1099' && "text-green-600",
-                                  doc.type === 'RECEIPT' && "text-purple-600"
-                                )} />
-                              </div>
-                              <div className="space-y-1">
-                                <div className="flex items-center gap-2">
-                                  <p className="font-medium text-sm">{doc.fileName}</p>
-                                  <Badge
-                                    variant={
-                                      doc.status === 'verified' ? 'default' :
-                                      doc.status === 'pending' ? 'secondary' : 'destructive'
-                                    }
-                                    className="text-xs"
-                                  >
-                                    {doc.status}
-                                  </Badge>
-                                </div>
-                                <p className="text-xs text-muted-foreground">
-                                  {doc.type} • {formatFileSize(doc.fileSize)} • {format(new Date(doc.uploadedAt), 'MMM d, yyyy')}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                                    <Eye className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>View</TooltipContent>
-                              </Tooltip>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                                    <Download className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Download</TooltipContent>
-                              </Tooltip>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600">
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Delete</TooltipContent>
-                              </Tooltip>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </motion.div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="messages" className="space-y-4">
-              <Card className="h-[600px] flex flex-col">
-                <CardHeader className="flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Messages</CardTitle>
-                    <CardDescription>Chat with your tax preparer</CardDescription>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon">
-                      <Phone className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon">
-                      <Video className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <Separator />
-                <CardContent className="flex-1 flex flex-col p-0">
-                  {/* Messages Area */}
-                  <ScrollArea className="flex-1 p-4">
-                    <div className="space-y-4">
-                      {messages.map((message, index) => (
-                        <motion.div
-                          key={message.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                          className={cn(
-                            "flex gap-3",
-                            !message.isFromPreparer && "flex-row-reverse"
-                          )}
-                        >
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={message.senderAvatar} />
-                            <AvatarFallback>
-                              {message.senderName.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className={cn(
-                            "flex-1 space-y-1",
-                            !message.isFromPreparer && "items-end"
-                          )}>
-                            <div className={cn(
-                              "inline-block rounded-lg px-4 py-2 max-w-[70%]",
-                              message.isFromPreparer
-                                ? "bg-muted"
-                                : "bg-primary text-primary-foreground"
-                            )}>
-                              <p className="text-sm">{message.content}</p>
-                              {message.attachments && message.attachments.length > 0 && (
-                                <div className="mt-2 space-y-1">
-                                  {message.attachments.map((attachment, i) => (
-                                    <div key={i} className="flex items-center gap-2 text-xs">
-                                      <Paperclip className="h-3 w-3" />
-                                      <span className="underline">{attachment}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                            <p className="text-xs text-muted-foreground px-4">
-                              {format(new Date(message.createdAt), 'h:mm a')}
-                            </p>
-                          </div>
-                        </motion.div>
-                      ))}
-                      {isTyping && (
-                        <div className="flex gap-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback>SJ</AvatarFallback>
-                          </Avatar>
-                          <div className="bg-muted rounded-lg px-4 py-2">
-                            <div className="flex gap-1">
-                              <span className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-pulse" style={{ animationDelay: '0ms' }}></span>
-                              <span className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-pulse" style={{ animationDelay: '150ms' }}></span>
-                              <span className="w-2 h-2 bg-muted-foreground/40 rounded-full animate-pulse" style={{ animationDelay: '300ms' }}></span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </ScrollArea>
-
-                  {/* Message Input */}
-                  <div className="border-t p-4">
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="icon">
-                        <Paperclip className="h-4 w-4" />
-                      </Button>
-                      <Textarea
-                        placeholder="Type your message..."
-                        value={messageContent}
-                        onChange={(e) => setMessageContent(e.target.value)}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault()
-                            handleSendMessage()
-                          }
-                        }}
-                        className="flex-1 min-h-[40px] max-h-[120px] resize-none"
-                        rows={1}
-                      />
-                      <Button onClick={handleSendMessage} size="icon">
-                        <Send className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="payments" className="space-y-4">
-              <div className="grid gap-4 lg:grid-cols-3">
-                <Card className="lg:col-span-2">
-                  <CardHeader>
-                    <CardTitle>Payment History</CardTitle>
-                    <CardDescription>Your tax preparation payments</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <Card>
-                      <CardContent className="flex items-center justify-between p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
-                            <CheckCircle2 className="h-5 w-5 text-green-600" />
-                          </div>
-                          <div>
-                            <p className="font-medium">Tax Preparation Fee</p>
-                            <p className="text-sm text-muted-foreground">
-                              Paid on {format(new Date(), 'MMM d, yyyy')}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-lg">$149.00</p>
-                          <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-100">
-                            Paid
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Alert>
-                      <Info className="h-4 w-4" />
-                      <AlertTitle>Payment Information</AlertTitle>
-                      <AlertDescription>
-                        Your tax preparation fee has been paid in full. No additional payments are required at this time.
-                      </AlertDescription>
-                    </Alert>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Payment Methods</CardTitle>
-                    <CardDescription>Saved payment methods</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <CreditCard className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm font-medium">•••• 4242</p>
-                          <p className="text-xs text-muted-foreground">Expires 12/24</p>
-                        </div>
-                      </div>
-                      <Badge variant="secondary">Default</Badge>
-                    </div>
-                    <Button variant="outline" className="w-full">
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add Payment Method
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* My Referrals Tab (Conditional - only shows if user has referral activity) */}
-            {showReferralsTab && (
-              <TabsContent value="referrals" className="space-y-4">
-                <MyReferralsTab
-                  shortLinkUsername={shortLinkUsername}
-                  totalLeads={totalLeads}
-                />
-              </TabsContent>
-            )}
-          </Tabs>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
+        {/* Header Section */}
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            {taxReturn ? 'Welcome Back!' : 'Welcome to Tax Genius Pro'}
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-2">
+            {taxReturn
+              ? `Your ${taxReturn.taxYear} tax return is in progress`
+              : 'Start your tax filing journey today'}
+          </p>
         </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Refund/Amount Card */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium">
+              {taxReturn?.refundAmount ? 'Estimated Refund' : 'Tax Status'}
+            </CardTitle>
+            <DollarSign className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {taxReturn?.refundAmount
+                ? `$${Number(taxReturn.refundAmount).toLocaleString()}`
+                : taxReturn?.oweAmount
+                  ? `$${Number(taxReturn.oweAmount).toLocaleString()}`
+                  : 'Not Filed'}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {taxReturn?.refundAmount
+                ? 'Expected refund'
+                : taxReturn?.oweAmount
+                  ? 'Amount owed'
+                  : 'Start your filing'}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Documents Card */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium">Documents</CardTitle>
+            <FileText className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.documentsCount || 0}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats?.documentsCount ? 'Uploaded documents' : 'No documents yet'}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Deadline Card */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium">Filing Deadline</CardTitle>
+            <CalendarIcon className="h-4 w-4 text-purple-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {stats?.daysUntilDeadline > 0
+                ? `${stats.daysUntilDeadline} days`
+                : 'Past Due'}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {stats?.daysUntilDeadline > 0 ? 'Until April 15th' : 'File extension needed'}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Referrals Card */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium">My Referrals</CardTitle>
+            <Users className="h-4 w-4 text-orange-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{referralStats?.totalLeads || 0}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {referralStats?.totalLeads ? 'People referred' : 'Start earning'}
+            </p>
+          </CardContent>
+        </Card>
       </div>
-    </TooltipProvider>
-  )
+
+      {/* Tax Return Progress */}
+      {taxReturn ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Tax Return Progress</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-medium">
+                  {taxReturn.status.replace('_', ' ')} - {taxReturn.progress}% Complete
+                </span>
+                <span className="text-muted-foreground">Tax Year {taxReturn.taxYear}</span>
+              </div>
+              <Progress value={taxReturn.progress || 0} className="h-2" />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="flex items-center gap-2">
+                {taxReturn.status === 'DRAFT' ? (
+                  <Clock className="h-4 w-4 text-blue-500" />
+                ) : (
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                )}
+                <span className="text-sm">Documents</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {['IN_REVIEW', 'FILED', 'ACCEPTED'].includes(taxReturn.status) ? (
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                ) : (
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                )}
+                <span className="text-sm">Review</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {taxReturn.status === 'ACCEPTED' ? (
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                ) : (
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                )}
+                <span className="text-sm">Filed</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Alert>
+          <TrendingUp className="h-4 w-4" />
+          <AlertTitle>Get Started with Your Tax Return</AlertTitle>
+          <AlertDescription>
+            You haven't started your tax filing yet. Use the sidebar to navigate and begin your tax
+            filing process, or start earning by referring friends and family.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Recent Activity */}
+      {data?.recentActivity && data.recentActivity.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {data.recentActivity.slice(0, 5).map((activity: any, idx: number) => (
+                <div
+                  key={idx}
+                  className="flex items-start gap-3 pb-4 border-b last:border-0 last:pb-0"
+                >
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    {activity.type === 'document' ? (
+                      <FileText className="h-4 w-4 text-primary" />
+                    ) : (
+                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <p className="text-sm font-medium leading-none">{activity.title}</p>
+                    <p className="text-sm text-muted-foreground">{activity.description}</p>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(activity.timestamp).toLocaleDateString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Referral Links Section */}
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-xl font-bold">Share & Earn</h2>
+          <p className="text-sm text-muted-foreground">Refer friends and family to earn rewards</p>
+        </div>
+        <ReferralLinksManager />
+      </div>
+      </div>
+    </div>
+  );
 }

@@ -1,47 +1,52 @@
-import { Resend } from 'resend'
-import { cache } from '@/lib/redis'
-import { MagicLinkEmail } from '../../../emails/MagicLinkEmail'
-import { WelcomeEmail } from '../../../emails/WelcomeEmail'
-import { CommissionEmail } from '../../../emails/CommissionEmail'
-import { StatusUpdateEmail } from '../../../emails/StatusUpdateEmail'
-import { DocumentsReceivedEmail } from '../../../emails/documents-received'
-import { ReturnFiledEmail } from '../../../emails/return-filed'
-import { ReferralInvitationEmail } from '../../../emails/referral-invitation'
-import { CertificationCompleteEmail } from '../../../emails/certification-complete'
-import { logger } from '@/lib/logger'
+import { Resend } from 'resend';
+import { cache } from '@/lib/redis';
+import { MagicLinkEmail } from '../../../emails/MagicLinkEmail';
+import { WelcomeEmail } from '../../../emails/WelcomeEmail';
+import { CommissionEmail } from '../../../emails/CommissionEmail';
+import { StatusUpdateEmail } from '../../../emails/StatusUpdateEmail';
+import { DocumentsReceivedEmail } from '../../../emails/documents-received';
+import { ReturnFiledEmail } from '../../../emails/return-filed';
+import { ReferralInvitationEmail } from '../../../emails/referral-invitation';
+import { CertificationCompleteEmail } from '../../../emails/certification-complete';
+import { logger } from '@/lib/logger';
 
 // Initialize Resend
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export interface EmailTemplate {
-  subject: string
-  html?: string
-  text?: string
-  react?: React.ReactElement
+  subject: string;
+  html?: string;
+  text?: string;
+  react?: React.ReactElement;
+}
+
+interface EmailOptions {
+  from: string;
+  to: string;
+  subject: string;
+  html?: string;
+  text?: string;
+  react?: React.ReactElement;
 }
 
 export class EmailService {
-  private static fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@taxgeniuspro.tax'
-  private static appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3005'
+  private static fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@taxgeniuspro.tax';
+  private static appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3005';
 
   /**
    * Send magic link email using Resend + React Email
    */
-  static async sendMagicLinkEmail(
-    to: string,
-    token: string,
-    name?: string
-  ): Promise<boolean> {
+  static async sendMagicLinkEmail(to: string, token: string, name?: string): Promise<boolean> {
     try {
-      const magicLinkUrl = `${this.appUrl}/auth/verify?token=${token}`
+      const magicLinkUrl = `${this.appUrl}/auth/verify?token=${token}`;
 
       if (process.env.NODE_ENV === 'development') {
         logger.info('Magic Link Email (Dev Mode):', {
           to,
           magicLinkUrl,
           token,
-        })
-        return true
+        });
+        return true;
       }
 
       const { data, error } = await resend.emails.send({
@@ -52,18 +57,18 @@ export class EmailService {
           name,
           magicLinkUrl,
         }),
-      })
+      });
 
       if (error) {
-        logger.error('Error sending magic link email:', error)
-        return false
+        logger.error('Error sending magic link email:', error);
+        return false;
       }
 
-      logger.info('Magic link email sent:', data?.id)
-      return true
+      logger.info('Magic link email sent:', data?.id);
+      return true;
     } catch (error) {
-      logger.error('Error sending magic link email:', error)
-      return false
+      logger.error('Error sending magic link email:', error);
+      return false;
     }
   }
 
@@ -76,11 +81,11 @@ export class EmailService {
     role: 'CLIENT' | 'AFFILIATE' | 'PREPARER'
   ): Promise<boolean> {
     try {
-      const dashboardUrl = `${this.appUrl}/dashboard/${role.toLowerCase()}`
+      const dashboardUrl = `${this.appUrl}/dashboard/${role.toLowerCase()}`;
 
       if (process.env.NODE_ENV === 'development') {
-        logger.info('Welcome Email (Dev Mode):', { to, name, role })
-        return true
+        logger.info('Welcome Email (Dev Mode):', { to, name, role });
+        return true;
       }
 
       const { data, error } = await resend.emails.send({
@@ -92,18 +97,18 @@ export class EmailService {
           role,
           dashboardUrl,
         }),
-      })
+      });
 
       if (error) {
-        logger.error('Error sending welcome email:', error)
-        return false
+        logger.error('Error sending welcome email:', error);
+        return false;
       }
 
-      logger.info('Welcome email sent:', data?.id)
-      return true
+      logger.info('Welcome email sent:', data?.id);
+      return true;
     } catch (error) {
-      logger.error('Error sending welcome email:', error)
-      return false
+      logger.error('Error sending welcome email:', error);
+      return false;
     }
   }
 
@@ -117,11 +122,11 @@ export class EmailService {
     clientName: string
   ): Promise<boolean> {
     try {
-      const dashboardUrl = `${this.appUrl}/dashboard/client`
+      const dashboardUrl = `${this.appUrl}/dashboard/client`;
 
       if (process.env.NODE_ENV === 'development') {
-        logger.info('Commission Email (Dev Mode):', { to, name, amount, clientName })
-        return true
+        logger.info('Commission Email (Dev Mode):', { to, name, amount, clientName });
+        return true;
       }
 
       const { data, error } = await resend.emails.send({
@@ -134,18 +139,18 @@ export class EmailService {
           clientName,
           dashboardUrl,
         }),
-      })
+      });
 
       if (error) {
-        logger.error('Error sending commission email:', error)
-        return false
+        logger.error('Error sending commission email:', error);
+        return false;
       }
 
-      logger.info('Commission email sent:', data?.id)
-      return true
+      logger.info('Commission email sent:', data?.id);
+      return true;
     } catch (error) {
-      logger.error('Error sending commission email:', error)
-      return false
+      logger.error('Error sending commission email:', error);
+      return false;
     }
   }
 
@@ -159,11 +164,11 @@ export class EmailService {
     message: string
   ): Promise<boolean> {
     try {
-      const dashboardUrl = `${this.appUrl}/dashboard/client`
+      const dashboardUrl = `${this.appUrl}/dashboard/client`;
 
       if (process.env.NODE_ENV === 'development') {
-        logger.info('Status Update Email (Dev Mode):', { to, name, status })
-        return true
+        logger.info('Status Update Email (Dev Mode):', { to, name, status });
+        return true;
       }
 
       const { data, error } = await resend.emails.send({
@@ -176,18 +181,18 @@ export class EmailService {
           message,
           dashboardUrl,
         }),
-      })
+      });
 
       if (error) {
-        logger.error('Error sending status update email:', error)
-        return false
+        logger.error('Error sending status update email:', error);
+        return false;
       }
 
-      logger.info('Status update email sent:', data?.id)
-      return true
+      logger.info('Status update email sent:', data?.id);
+      return true;
     } catch (error) {
-      logger.error('Error sending status update email:', error)
-      return false
+      logger.error('Error sending status update email:', error);
+      return false;
     }
   }
 
@@ -201,38 +206,38 @@ export class EmailService {
   ): Promise<boolean> {
     try {
       if (process.env.NODE_ENV === 'development') {
-        logger.info('Generic Email (Dev Mode):', { to, subject })
-        return true
+        logger.info('Generic Email (Dev Mode):', { to, subject });
+        return true;
       }
 
-      const emailOptions: any = {
+      const emailOptions: EmailOptions = {
         from: this.fromEmail,
         to,
         subject,
-      }
+      };
 
       if (content.react) {
-        emailOptions.react = content.react
+        emailOptions.react = content.react;
       } else if (content.html) {
-        emailOptions.html = content.html
+        emailOptions.html = content.html;
       }
 
       if (content.text) {
-        emailOptions.text = content.text
+        emailOptions.text = content.text;
       }
 
-      const { data, error } = await resend.emails.send(emailOptions)
+      const { data, error } = await resend.emails.send(emailOptions);
 
       if (error) {
-        logger.error('Error sending email:', error)
-        return false
+        logger.error('Error sending email:', error);
+        return false;
       }
 
-      logger.info('Email sent:', data?.id)
-      return true
+      logger.info('Email sent:', data?.id);
+      return true;
     } catch (error) {
-      logger.error('Error sending email:', error)
-      return false
+      logger.error('Error sending email:', error);
+      return false;
     }
   }
 
@@ -249,7 +254,7 @@ export class EmailService {
     documentCount: number
   ): Promise<boolean> {
     try {
-      const dashboardUrl = `${this.appUrl}/dashboard/client`
+      const dashboardUrl = `${this.appUrl}/dashboard/client`;
 
       if (process.env.NODE_ENV === 'development') {
         logger.info('Documents Received Email (Dev Mode):', {
@@ -258,8 +263,8 @@ export class EmailService {
           preparerName,
           taxYear,
           documentCount,
-        })
-        return true
+        });
+        return true;
       }
 
       const { data, error } = await resend.emails.send({
@@ -275,18 +280,18 @@ export class EmailService {
           dashboardUrl,
         }),
         replyTo: preparerEmail,
-      })
+      });
 
       if (error) {
-        logger.error('Error sending documents received email:', error)
-        return false
+        logger.error('Error sending documents received email:', error);
+        return false;
       }
 
-      logger.info('Documents received email sent:', data?.id)
-      return true
+      logger.info('Documents received email sent:', data?.id);
+      return true;
     } catch (error) {
-      logger.error('Error sending documents received email:', error)
-      return false
+      logger.error('Error sending documents received email:', error);
+      return false;
     }
   }
 
@@ -304,7 +309,7 @@ export class EmailService {
     filedDate?: string
   ): Promise<boolean> {
     try {
-      const dashboardUrl = `${this.appUrl}/dashboard/client`
+      const dashboardUrl = `${this.appUrl}/dashboard/client`;
 
       if (process.env.NODE_ENV === 'development') {
         logger.info('Return Filed Email (Dev Mode):', {
@@ -314,14 +319,14 @@ export class EmailService {
           taxYear,
           refundAmount,
           oweAmount,
-        })
-        return true
+        });
+        return true;
       }
 
       const subject =
         refundAmount && refundAmount > 0
           ? `Great News! Your ${taxYear} Tax Return Has Been Filed`
-          : `Your ${taxYear} Tax Return Has Been Filed`
+          : `Your ${taxYear} Tax Return Has Been Filed`;
 
       const { data, error } = await resend.emails.send({
         from: this.fromEmail,
@@ -336,18 +341,18 @@ export class EmailService {
           filedDate: filedDate || new Date().toLocaleDateString(),
           dashboardUrl,
         }),
-      })
+      });
 
       if (error) {
-        logger.error('Error sending return filed email:', error)
-        return false
+        logger.error('Error sending return filed email:', error);
+        return false;
       }
 
-      logger.info('Return filed email sent:', data?.id)
-      return true
+      logger.info('Return filed email sent:', data?.id);
+      return true;
     } catch (error) {
-      logger.error('Error sending return filed email:', error)
-      return false
+      logger.error('Error sending return filed email:', error);
+      return false;
     }
   }
 
@@ -363,7 +368,7 @@ export class EmailService {
     refundAmount?: number
   ): Promise<boolean> {
     try {
-      const signupUrl = `${this.appUrl}/auth/signup?role=client`
+      const signupUrl = `${this.appUrl}/auth/signup?role=client`;
 
       if (process.env.NODE_ENV === 'development') {
         logger.info('Referral Invitation Email (Dev Mode):', {
@@ -372,8 +377,8 @@ export class EmailService {
           preparerName,
           taxYear,
           refundAmount,
-        })
-        return true
+        });
+        return true;
       }
 
       const { data, error } = await resend.emails.send({
@@ -387,18 +392,18 @@ export class EmailService {
           refundAmount,
           signupUrl,
         }),
-      })
+      });
 
       if (error) {
-        logger.error('Error sending referral invitation email:', error)
-        return false
+        logger.error('Error sending referral invitation email:', error);
+        return false;
       }
 
-      logger.info('Referral invitation email sent:', data?.id)
-      return true
+      logger.info('Referral invitation email sent:', data?.id);
+      return true;
     } catch (error) {
-      logger.error('Error sending referral invitation email:', error)
-      return false
+      logger.error('Error sending referral invitation email:', error);
+      return false;
     }
   }
 
@@ -407,20 +412,17 @@ export class EmailService {
    * Triggered when preparer completes all required training materials
    * Story 4.4 - AC: 24
    */
-  static async sendCertificationCompleteEmail(
-    to: string,
-    preparerName: string
-  ): Promise<boolean> {
+  static async sendCertificationCompleteEmail(to: string, preparerName: string): Promise<boolean> {
     try {
-      const dashboardUrl = `${this.appUrl}/app/academy`
+      const dashboardUrl = `${this.appUrl}/app/academy`;
 
       if (process.env.NODE_ENV === 'development') {
         logger.info('Certification Complete Email (Dev Mode):', {
           to,
           preparerName,
           dashboardUrl,
-        })
-        return true
+        });
+        return true;
       }
 
       const { data, error } = await resend.emails.send({
@@ -431,18 +433,18 @@ export class EmailService {
           preparerName,
           dashboardUrl,
         }),
-      })
+      });
 
       if (error) {
-        logger.error('Error sending certification complete email:', error)
-        return false
+        logger.error('Error sending certification complete email:', error);
+        return false;
       }
 
-      logger.info('Certification complete email sent:', data?.id)
-      return true
+      logger.info('Certification complete email sent:', data?.id);
+      return true;
     } catch (error) {
-      logger.error('Error sending certification complete email:', error)
-      return false
+      logger.error('Error sending certification complete email:', error);
+      return false;
     }
   }
 
@@ -463,9 +465,9 @@ export class EmailService {
           referrerName,
           clientName,
           commissionAmount,
-          pendingBalance
-        })
-        return true
+          pendingBalance,
+        });
+        return true;
       }
 
       const { data, error } = await resend.emails.send({
@@ -513,19 +515,19 @@ export class EmailService {
               Tax Genius Pro | <a href="${this.appUrl}" style="color: #1e40af;">TaxGeniusPro.tax</a>
             </p>
           </div>
-        `
-      })
+        `,
+      });
 
       if (error) {
-        logger.error('Error sending commission earned email:', error)
-        return false
+        logger.error('Error sending commission earned email:', error);
+        return false;
       }
 
-      logger.info('Commission earned email sent:', data?.id)
-      return true
+      logger.info('Commission earned email sent:', data?.id);
+      return true;
     } catch (error) {
-      logger.error('Error sending commission earned email:', error)
-      return false
+      logger.error('Error sending commission earned email:', error);
+      return false;
     }
   }
 
@@ -546,17 +548,17 @@ export class EmailService {
           referrerName,
           payoutAmount,
           paymentMethod,
-          estimatedArrival
-        })
-        return true
+          estimatedArrival,
+        });
+        return true;
       }
 
       const arrivalDate = estimatedArrival.toLocaleDateString('en-US', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
-      })
+        day: 'numeric',
+      });
 
       const { data, error } = await resend.emails.send({
         from: this.fromEmail,
@@ -629,19 +631,19 @@ export class EmailService {
               Tax Genius Pro | <a href="${this.appUrl}" style="color: #1e40af;">TaxGeniusPro.tax</a>
             </p>
           </div>
-        `
-      })
+        `,
+      });
 
       if (error) {
-        logger.error('Error sending payout confirmation email:', error)
-        return false
+        logger.error('Error sending payout confirmation email:', error);
+        return false;
       }
 
-      logger.info('Payout confirmation email sent:', data?.id)
-      return true
+      logger.info('Payout confirmation email sent:', data?.id);
+      return true;
     } catch (error) {
-      logger.error('Error sending payout confirmation email:', error)
-      return false
+      logger.error('Error sending payout confirmation email:', error);
+      return false;
     }
   }
 
@@ -664,9 +666,9 @@ export class EmailService {
           referrerEmail,
           amount,
           commissionsCount,
-          payoutRequestId
-        })
-        return true
+          payoutRequestId,
+        });
+        return true;
       }
 
       const { data, error } = await resend.emails.send({
@@ -712,19 +714,19 @@ export class EmailService {
               Please process this payout within 1-2 business days.
             </p>
           </div>
-        `
-      })
+        `,
+      });
 
       if (error) {
-        logger.error('Error sending payout request email:', error)
-        return false
+        logger.error('Error sending payout request email:', error);
+        return false;
       }
 
-      logger.info('Payout request email sent to admin:', data?.id)
-      return true
+      logger.info('Payout request email sent to admin:', data?.id);
+      return true;
     } catch (error) {
-      logger.error('Error sending payout request email:', error)
-      return false
+      logger.error('Error sending payout request email:', error);
+      return false;
     }
   }
 
@@ -745,9 +747,9 @@ export class EmailService {
           referrerName,
           amount,
           paymentRef,
-          paymentMethod
-        })
-        return true
+          paymentMethod,
+        });
+        return true;
       }
 
       const { data, error } = await resend.emails.send({
@@ -814,19 +816,19 @@ export class EmailService {
               Tax Genius Pro | <a href="${this.appUrl}" style="color: #1e40af;">TaxGeniusPro.tax</a>
             </p>
           </div>
-        `
-      })
+        `,
+      });
 
       if (error) {
-        logger.error('Error sending payout completed email:', error)
-        return false
+        logger.error('Error sending payout completed email:', error);
+        return false;
       }
 
-      logger.info('Payout completed email sent:', data?.id)
-      return true
+      logger.info('Payout completed email sent:', data?.id);
+      return true;
     } catch (error) {
-      logger.error('Error sending payout completed email:', error)
-      return false
+      logger.error('Error sending payout completed email:', error);
+      return false;
     }
   }
 
@@ -845,12 +847,12 @@ export class EmailService {
           to,
           referrerName,
           amount,
-          reason
-        })
-        return true
+          reason,
+        });
+        return true;
       }
 
-      const { data, error} = await resend.emails.send({
+      const { data, error } = await resend.emails.send({
         from: this.fromEmail,
         to,
         subject: `Payout Request Update - Action Required`,
@@ -900,36 +902,36 @@ export class EmailService {
               Tax Genius Pro | <a href="${this.appUrl}" style="color: #1e40af;">TaxGeniusPro.tax</a>
             </p>
           </div>
-        `
-      })
+        `,
+      });
 
       if (error) {
-        logger.error('Error sending payout rejected email:', error)
-        return false
+        logger.error('Error sending payout rejected email:', error);
+        return false;
       }
 
-      logger.info('Payout rejected email sent:', data?.id)
-      return true
+      logger.info('Payout rejected email sent:', data?.id);
+      return true;
     } catch (error) {
-      logger.error('Error sending payout rejected email:', error)
-      return false
+      logger.error('Error sending payout rejected email:', error);
+      return false;
     }
   }
 
   /**
    * Queue email for sending (using Redis)
    */
-  static async queueEmail(
-    type: string,
-    to: string,
-    data: Record<string, unknown>
-  ): Promise<void> {
-    const emailKey = `email:queue:${Date.now()}`
-    await cache.set(emailKey, {
-      type,
-      to,
-      data,
-      createdAt: new Date().toISOString()
-    }, 86400) // Keep for 24 hours
+  static async queueEmail(type: string, to: string, data: Record<string, unknown>): Promise<void> {
+    const emailKey = `email:queue:${Date.now()}`;
+    await cache.set(
+      emailKey,
+      {
+        type,
+        to,
+        data,
+        createdAt: new Date().toISOString(),
+      },
+      86400
+    ); // Keep for 24 hours
   }
 }

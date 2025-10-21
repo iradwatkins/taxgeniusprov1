@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 /**
  * Dynamic sitemap generation (AC20)
@@ -18,12 +18,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       where: { isPublished: true },
       select: {
         slug: true,
-        updatedAt: true
+        updatedAt: true,
       },
     });
 
     // Generate sitemap entries for landing pages
-    landingPageEntries = landingPages.map(page => ({
+    landingPageEntries = landingPages.map((page) => ({
       url: `${baseUrl}/locations/${page.slug}`,
       lastModified: page.updatedAt,
       changeFrequency: 'monthly',

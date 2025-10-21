@@ -1,21 +1,21 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
-} from '@/components/ui/table'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { logger } from '@/lib/logger'
+  TableRow,
+} from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { logger } from '@/lib/logger';
 import {
   DollarSign,
   Clock,
@@ -24,85 +24,88 @@ import {
   Eye,
   AlertCircle,
   TrendingUp,
-  Users
-} from 'lucide-react'
+  Users,
+} from 'lucide-react';
 
 interface PayoutRequest {
-  id: string
+  id: string;
   referrer: {
-    firstName: string
-    lastName: string
-    email: string
-  }
-  amount: number
-  commissionIds: string[]
-  status: string
-  paymentMethod: string
-  notes: string | null
-  requestedAt: string
-  processedAt: string | null
-  paymentRef: string | null
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  amount: number;
+  commissionIds: string[];
+  status: string;
+  paymentMethod: string;
+  notes: string | null;
+  requestedAt: string;
+  processedAt: string | null;
+  paymentRef: string | null;
 }
 
 interface PayoutStats {
-  pendingCount: number
-  pendingAmount: number
-  approvedThisMonth: number
-  approvedAmountThisMonth: number
+  pendingCount: number;
+  pendingAmount: number;
+  approvedThisMonth: number;
+  approvedAmountThisMonth: number;
 }
 
 export default function AdminPayoutsPage() {
-  const router = useRouter()
-  const [payouts, setPayouts] = useState<PayoutRequest[]>([])
-  const [stats, setStats] = useState<PayoutStats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('pending')
+  const router = useRouter();
+  const [payouts, setPayouts] = useState<PayoutRequest[]>([]);
+  const [stats, setStats] = useState<PayoutStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('pending');
 
   useEffect(() => {
-    fetchPayouts()
-  }, [activeTab])
+    fetchPayouts();
+  }, [activeTab]);
 
   const fetchPayouts = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const response = await fetch(`/api/admin/payouts?status=${activeTab}`)
+      const response = await fetch(`/api/admin/payouts?status=${activeTab}`);
       if (response.ok) {
-        const data = await response.json()
-        setPayouts(data.payouts)
-        setStats(data.stats)
+        const data = await response.json();
+        setPayouts(data.payouts);
+        setStats(data.stats);
       }
     } catch (error) {
-      logger.error('Error fetching payouts:', error)
+      logger.error('Error fetching payouts:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline', icon: any }> = {
+    const variants: Record<
+      string,
+      { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: any }
+    > = {
       PENDING: { variant: 'outline', icon: Clock },
       APPROVED: { variant: 'secondary', icon: CheckCircle },
       PAID: { variant: 'default', icon: CheckCircle },
-      REJECTED: { variant: 'destructive', icon: XCircle }
-    }
+      REJECTED: { variant: 'destructive', icon: XCircle },
+    };
 
-    const config = variants[status] || variants.PENDING
-    const Icon = config.icon
+    const config = variants[status] || variants.PENDING;
+    const Icon = config.icon;
 
     return (
       <Badge variant={config.variant} className="flex items-center gap-1 w-fit">
         <Icon className="h-3 w-3" />
         {status}
       </Badge>
-    )
-  }
+    );
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
-    }).format(amount)
-  }
+      currency: 'USD',
+    }).format(amount);
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -110,9 +113,9 @@ export default function AdminPayoutsPage() {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+      minute: '2-digit',
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -184,9 +187,7 @@ export default function AdminPayoutsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Payout Requests</CardTitle>
-            <CardDescription>
-              Manage commission payout requests from referrers
-            </CardDescription>
+            <CardDescription>Manage commission payout requests from referrers</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -286,5 +287,5 @@ export default function AdminPayoutsPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

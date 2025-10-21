@@ -1,9 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   BookOpen,
   Download,
@@ -19,7 +19,7 @@ import {
   Calculator,
   Award,
   AlertCircle,
-  ChevronRight
+  ChevronRight,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Header } from '@/components/header';
@@ -29,7 +29,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from '@/components/ui/accordion';
 
 export default function TaxGuidePage() {
   return (
@@ -56,14 +56,13 @@ export default function TaxGuidePage() {
               </h1>
 
               <p className="text-xl text-muted-foreground leading-relaxed">
-                Everything you need to know about filing your 2024 taxes. Brackets, deductions, credits, and key dates explained in plain English.
+                Everything you need to know about filing your 2024 taxes. Brackets, deductions,
+                credits, and key dates explained in plain English.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button variant="professional" size="lg" asChild>
-                  <Link href="/start-filing">
-                    Start Your 2024 Return
-                  </Link>
+                  <Link href="/start-filing">Start Your 2024 Return</Link>
                 </Button>
                 <Button size="lg" variant="outline">
                   <Download className="mr-2 w-5 h-5" />
@@ -75,7 +74,7 @@ export default function TaxGuidePage() {
                 {[
                   { icon: Calendar, text: 'Updated for 2024' },
                   { icon: CheckCircle, text: 'CPA Verified' },
-                  { icon: FileText, text: 'Easy to Understand' }
+                  { icon: FileText, text: 'Easy to Understand' },
                 ].map((item, i) => (
                   <motion.div
                     key={i}
@@ -108,7 +107,7 @@ export default function TaxGuidePage() {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 1, type: "spring" }}
+                  transition={{ delay: 1, type: 'spring' }}
                   className="absolute bottom-4 right-4 bg-card/95 backdrop-blur-sm border-2 border-background rounded-lg shadow-xl p-4"
                 >
                   <div className="flex items-center gap-3">
@@ -142,9 +141,14 @@ export default function TaxGuidePage() {
           <div className="grid md:grid-cols-4 gap-6 max-w-5xl mx-auto">
             {[
               { date: 'Jan 31', event: 'W-2 & 1099 Deadline', icon: FileText },
-              { date: 'Apr 15', event: 'Individual Tax Deadline', icon: AlertCircle, highlight: true },
+              {
+                date: 'Apr 15',
+                event: 'Individual Tax Deadline',
+                icon: AlertCircle,
+                highlight: true,
+              },
               { date: 'Oct 15', event: 'Extension Deadline', icon: Clock },
-              { date: 'Dec 31', event: 'Year-End Tax Moves', icon: Calendar }
+              { date: 'Dec 31', event: 'Year-End Tax Moves', icon: Calendar },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -154,7 +158,9 @@ export default function TaxGuidePage() {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 whileHover={{ scale: 1.05 }}
               >
-                <Card className={`text-center ${item.highlight ? 'border-2 border-primary shadow-lg' : ''}`}>
+                <Card
+                  className={`text-center ${item.highlight ? 'border-2 border-primary shadow-lg' : ''}`}
+                >
                   <CardContent className="pt-6">
                     <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
                       <item.icon className="w-7 h-7 text-primary" />
@@ -205,7 +211,7 @@ export default function TaxGuidePage() {
                       { rate: '24%', income: '$100,526 - $191,950' },
                       { rate: '32%', income: '$191,951 - $243,725' },
                       { rate: '35%', income: '$243,726 - $609,350' },
-                      { rate: '37%', income: '$609,351+' }
+                      { rate: '37%', income: '$609,351+' },
                     ].map((bracket, i) => (
                       <motion.div
                         key={i}
@@ -244,7 +250,7 @@ export default function TaxGuidePage() {
                       { rate: '24%', income: '$201,051 - $383,900' },
                       { rate: '32%', income: '$383,901 - $487,450' },
                       { rate: '35%', income: '$487,451 - $731,200' },
-                      { rate: '37%', income: '$731,201+' }
+                      { rate: '37%', income: '$731,201+' },
                     ].map((bracket, i) => (
                       <motion.div
                         key={i}
@@ -286,7 +292,11 @@ export default function TaxGuidePage() {
                     { status: 'Single', amount: '$14,600', increase: '+$750' },
                     { status: 'Married Filing Jointly', amount: '$29,200', increase: '+$1,500' },
                     { status: 'Head of Household', amount: '$21,900', increase: '+$1,100' },
-                    { status: 'Additional (65+ or blind)', amount: '+$1,550/$1,950', increase: 'Per person' }
+                    {
+                      status: 'Additional (65+ or blind)',
+                      amount: '+$1,550/$1,950',
+                      increase: 'Per person',
+                    },
                   ].map((item, i) => (
                     <motion.div
                       key={i}
@@ -320,10 +330,26 @@ export default function TaxGuidePage() {
               <Card>
                 <CardContent className="pt-6 space-y-4">
                   {[
-                    { credit: 'Child Tax Credit', amount: 'Up to $2,000', desc: 'Per qualifying child under 17' },
-                    { credit: 'Earned Income Credit', amount: 'Up to $7,430', desc: 'Based on income and family size' },
-                    { credit: 'Child Care Credit', amount: 'Up to $2,100', desc: 'For qualifying child care expenses' },
-                    { credit: 'American Opportunity Credit', amount: 'Up to $2,500', desc: 'For college education expenses' }
+                    {
+                      credit: 'Child Tax Credit',
+                      amount: 'Up to $2,000',
+                      desc: 'Per qualifying child under 17',
+                    },
+                    {
+                      credit: 'Earned Income Credit',
+                      amount: 'Up to $7,430',
+                      desc: 'Based on income and family size',
+                    },
+                    {
+                      credit: 'Child Care Credit',
+                      amount: 'Up to $2,100',
+                      desc: 'For qualifying child care expenses',
+                    },
+                    {
+                      credit: 'American Opportunity Credit',
+                      amount: 'Up to $2,500',
+                      desc: 'For college education expenses',
+                    },
                   ].map((item, i) => (
                     <motion.div
                       key={i}
@@ -335,7 +361,9 @@ export default function TaxGuidePage() {
                     >
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="font-semibold">{item.credit}</h3>
-                        <Badge variant="secondary" className="bg-success/10 text-success">{item.amount}</Badge>
+                        <Badge variant="secondary" className="bg-success/10 text-success">
+                          {item.amount}
+                        </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">{item.desc}</p>
                     </motion.div>
@@ -366,33 +394,39 @@ export default function TaxGuidePage() {
                 {
                   icon: DollarSign,
                   title: 'Common Deductions',
-                  content: 'Mortgage interest, state & local taxes (SALT), charitable contributions, medical expenses over 7.5% of AGI, student loan interest up to $2,500, IRA contributions, and HSA contributions.'
+                  content:
+                    'Mortgage interest, state & local taxes (SALT), charitable contributions, medical expenses over 7.5% of AGI, student loan interest up to $2,500, IRA contributions, and HSA contributions.',
                 },
                 {
                   icon: Home,
                   title: 'Homeowner Tax Benefits',
-                  content: 'Mortgage interest deduction on loans up to $750,000, property tax deduction (SALT cap $10,000), home office deduction for self-employed, capital gains exclusion on home sale ($250K single/$500K married), and energy-efficient home improvement credits.'
+                  content:
+                    'Mortgage interest deduction on loans up to $750,000, property tax deduction (SALT cap $10,000), home office deduction for self-employed, capital gains exclusion on home sale ($250K single/$500K married), and energy-efficient home improvement credits.',
                 },
                 {
                   icon: Briefcase,
                   title: 'Self-Employment Taxes',
-                  content: 'Self-employment tax is 15.3% (12.4% Social Security + 2.9% Medicare). You can deduct 50% of SE tax, health insurance premiums, retirement contributions, home office, vehicle expenses, and business supplies.'
+                  content:
+                    'Self-employment tax is 15.3% (12.4% Social Security + 2.9% Medicare). You can deduct 50% of SE tax, health insurance premiums, retirement contributions, home office, vehicle expenses, and business supplies.',
                 },
                 {
                   icon: TrendingUp,
                   title: 'Investment Income',
-                  content: 'Long-term capital gains (held >1 year) taxed at 0%, 15%, or 20% depending on income. Short-term gains taxed as ordinary income. Qualified dividends get preferential rates. Report on Schedule D and Form 8949.'
+                  content:
+                    'Long-term capital gains (held >1 year) taxed at 0%, 15%, or 20% depending on income. Short-term gains taxed as ordinary income. Qualified dividends get preferential rates. Report on Schedule D and Form 8949.',
                 },
                 {
                   icon: Users,
                   title: 'Filing Status & Dependents',
-                  content: 'Choose Single, Married Filing Jointly, Married Filing Separately, Head of Household, or Qualifying Widow(er). Dependents must meet age, relationship, residency, and support tests. Each dependent may qualify you for credits.'
+                  content:
+                    'Choose Single, Married Filing Jointly, Married Filing Separately, Head of Household, or Qualifying Widow(er). Dependents must meet age, relationship, residency, and support tests. Each dependent may qualify you for credits.',
                 },
                 {
                   icon: FileText,
                   title: 'Required Documents',
-                  content: 'W-2 from employer, 1099 forms (INT, DIV, NEC, MISC, etc.), mortgage interest statement (1098), property tax records, charitable donation receipts, business expense records, prior year tax return, and Form 1095-A for health insurance.'
-                }
+                  content:
+                    'W-2 from employer, 1099 forms (INT, DIV, NEC, MISC, etc.), mortgage interest statement (1098), property tax records, charitable donation receipts, business expense records, prior year tax return, and Form 1095-A for health insurance.',
+                },
               ].map((item, i) => (
                 <motion.div
                   key={i}
@@ -401,7 +435,10 @@ export default function TaxGuidePage() {
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
                 >
-                  <AccordionItem value={`item-${i}`} className="bg-card rounded-lg px-6 border hover:border-primary transition-colors">
+                  <AccordionItem
+                    value={`item-${i}`}
+                    className="bg-card rounded-lg px-6 border hover:border-primary transition-colors"
+                  >
                     <AccordionTrigger className="hover:no-underline">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -440,20 +477,20 @@ export default function TaxGuidePage() {
                 title: '2024 Tax Checklist',
                 desc: 'Complete list of documents needed for filing',
                 icon: CheckCircle,
-                color: 'text-green-500'
+                color: 'text-green-500',
               },
               {
                 title: 'Deduction Finder',
                 desc: 'Interactive tool to find all eligible deductions',
                 icon: Calculator,
-                color: 'text-blue-500'
+                color: 'text-blue-500',
               },
               {
                 title: 'Tax Calendar',
                 desc: 'All important deadlines and dates for 2024',
                 icon: Calendar,
-                color: 'text-purple-500'
-              }
+                color: 'text-purple-500',
+              },
             ].map((resource, i) => (
               <motion.div
                 key={i}
@@ -465,7 +502,9 @@ export default function TaxGuidePage() {
               >
                 <Card className="hover:shadow-xl transition-all cursor-pointer group h-full">
                   <CardHeader>
-                    <div className={`w-14 h-14 ${resource.color} bg-primary/5 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}>
+                    <div
+                      className={`w-14 h-14 ${resource.color} bg-primary/5 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}
+                    >
                       <resource.icon className="w-7 h-7" />
                     </div>
                     <CardTitle className="text-center">{resource.title}</CardTitle>

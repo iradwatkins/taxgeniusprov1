@@ -1,17 +1,17 @@
 import { redirect } from 'next/navigation';
 import { currentUser } from '@clerk/nextjs/server';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -19,7 +19,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import {
   Users,
   Search,
@@ -38,7 +38,7 @@ import {
   ArrowUpRight,
 } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 // Status badge colors
 const statusColors: Record<string, string> = {
@@ -67,8 +67,8 @@ export default async function ReferralsStatusPage() {
   }
 
   // Initialize with empty arrays in case of errors
-  let referrals: any[] = []
-  let topReferrers: any[] = []
+  let referrals: any[] = [];
+  let topReferrers: any[] = [];
 
   try {
     // Fetch all referrals with related data
@@ -112,14 +112,14 @@ export default async function ReferralsStatusPage() {
       take: 5,
     });
   } catch (error) {
-    logger.error('Error fetching referrals data:', error)
+    logger.error('Error fetching referrals data:', error);
     // Continue with empty arrays - will show "No referrals found" message
   }
 
   // Get statistics
   const totalReferrals = referrals.length;
-  const activeReferrals = referrals.filter(r => r.status === 'ACTIVE').length;
-  const completedReferrals = referrals.filter(r => r.status === 'COMPLETED').length;
+  const activeReferrals = referrals.filter((r) => r.status === 'ACTIVE').length;
+  const completedReferrals = referrals.filter((r) => r.status === 'COMPLETED').length;
   const totalCommissions = referrals.reduce((sum, r) => {
     const commissionAmount = r.commissions.reduce(
       (cSum, c) => cSum + parseFloat(c.amount.toString()),
@@ -216,7 +216,9 @@ export default async function ReferralsStatusPage() {
                         </Badge>
                       )}
                     </div>
-                    <p className="font-medium">{referrer.firstName} {referrer.lastName}</p>
+                    <p className="font-medium">
+                      {referrer.firstName} {referrer.lastName}
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       {referrer.referrerReferrals.length} referrals
                     </p>

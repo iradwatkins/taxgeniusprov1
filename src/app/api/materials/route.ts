@@ -7,15 +7,15 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 6.2
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import {
   createMaterial,
   getCreatorMaterials,
   checkMaterialLimit,
-} from '@/lib/services/material-management.service'
-import type { LinkType } from '@prisma/client'
-import { logger } from '@/lib/logger'
+} from '@/lib/services/material-management.service';
+import type { LinkType } from '@prisma/client';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/materials
@@ -23,35 +23,32 @@ import { logger } from '@/lib/logger'
  */
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth()
+    const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const url = new URL(request.url)
-    const limit = parseInt(url.searchParams.get('limit') || '50')
-    const offset = parseInt(url.searchParams.get('offset') || '0')
-    const includeInactive = url.searchParams.get('includeInactive') === 'true'
+    const url = new URL(request.url);
+    const limit = parseInt(url.searchParams.get('limit') || '50');
+    const offset = parseInt(url.searchParams.get('offset') || '0');
+    const includeInactive = url.searchParams.get('includeInactive') === 'true';
 
     const { materials, total } = await getCreatorMaterials(userId, {
       limit,
       offset,
       includeInactive,
-    })
+    });
 
     return NextResponse.json({
       materials,
       total,
       limit,
       offset,
-    })
+    });
   } catch (error) {
-    logger.error('Get materials error:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch materials' },
-      { status: 500 }
-    )
+    logger.error('Get materials error:', error);
+    return NextResponse.json({ error: 'Failed to fetch materials' }, { status: 500 });
   }
 }
 
@@ -61,40 +58,33 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth()
+    const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await request.json()
+    const body = await request.json();
 
-    const {
-      materialType,
-      campaignName,
-      location,
-      notes,
-      targetPage,
-      brandColor,
-    } = body
+    const { materialType, campaignName, location, notes, targetPage, brandColor } = body;
 
     // Validate required fields
     if (!materialType || !campaignName) {
       return NextResponse.json(
         { error: 'Material type and campaign name are required' },
         { status: 400 }
-      )
+      );
     }
 
     // Check material limit
-    const limitCheck = await checkMaterialLimit(userId)
+    const limitCheck = await checkMaterialLimit(userId);
     if (!limitCheck.canCreate) {
       return NextResponse.json(
         {
           error: `Material limit reached. You have ${limitCheck.current} active materials (limit: ${limitCheck.limit})`,
         },
         { status: 403 }
-      )
+      );
     }
 
     // Create material with QR code
@@ -107,17 +97,14 @@ export async function POST(request: NextRequest) {
       notes,
       targetPage,
       brandColor,
-    })
+    });
 
     return NextResponse.json({
       success: true,
       material,
-    })
+    });
   } catch (error) {
-    logger.error('Create material error:', error)
-    return NextResponse.json(
-      { error: 'Failed to create material' },
-      { status: 500 }
-    )
+    logger.error('Create material error:', error);
+    return NextResponse.json({ error: 'Failed to create material' }, { status: 500 });
   }
 }

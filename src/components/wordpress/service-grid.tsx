@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Calculator,
   FileSearch,
@@ -11,59 +11,59 @@ import {
   Shield,
   Clock,
   DollarSign,
-  Building
-} from "lucide-react";
-import Link from "next/link";
+  Building,
+} from 'lucide-react';
+import Link from 'next/link';
 
 const services = [
   {
     icon: Calculator,
-    title: "Individual Tax Returns",
-    description: "Personal tax preparation with maximum deduction optimization",
-    price: "Starting at $150",
-    features: ["W-2 & 1099 Forms", "Standard Deductions", "E-filing Included"],
-    link: "/services/individual"
+    title: 'Individual Tax Returns',
+    description: 'Personal tax preparation with maximum deduction optimization',
+    price: 'Starting at $150',
+    features: ['W-2 & 1099 Forms', 'Standard Deductions', 'E-filing Included'],
+    link: '/services/individual',
   },
   {
     icon: Building,
-    title: "Business Tax Services",
-    description: "Comprehensive business tax preparation and planning",
-    price: "Starting at $350",
-    features: ["LLC & Corporation", "Quarterly Estimates", "Tax Planning"],
-    link: "/services/business"
+    title: 'Business Tax Services',
+    description: 'Comprehensive business tax preparation and planning',
+    price: 'Starting at $350',
+    features: ['LLC & Corporation', 'Quarterly Estimates', 'Tax Planning'],
+    link: '/services/business',
   },
   {
     icon: FileSearch,
-    title: "Tax Audit Support",
-    description: "Professional representation during IRS audits",
-    price: "Consultation Required",
-    features: ["IRS Representation", "Document Preparation", "Resolution Support"],
-    link: "/services/audit"
+    title: 'Tax Audit Support',
+    description: 'Professional representation during IRS audits',
+    price: 'Consultation Required',
+    features: ['IRS Representation', 'Document Preparation', 'Resolution Support'],
+    link: '/services/audit',
   },
   {
     icon: TrendingUp,
-    title: "Tax Planning",
-    description: "Strategic planning to minimize your tax liability",
-    price: "Starting at $250",
-    features: ["Year-round Planning", "Investment Strategy", "Retirement Planning"],
-    link: "/services/planning"
+    title: 'Tax Planning',
+    description: 'Strategic planning to minimize your tax liability',
+    price: 'Starting at $250',
+    features: ['Year-round Planning', 'Investment Strategy', 'Retirement Planning'],
+    link: '/services/planning',
   },
   {
     icon: Users,
-    title: "Family Tax Services",
-    description: "Complete tax services for families with dependents",
-    price: "Starting at $200",
-    features: ["Child Tax Credits", "Education Credits", "Family Deductions"],
-    link: "/services/family"
+    title: 'Family Tax Services',
+    description: 'Complete tax services for families with dependents',
+    price: 'Starting at $200',
+    features: ['Child Tax Credits', 'Education Credits', 'Family Deductions'],
+    link: '/services/family',
   },
   {
     icon: Clock,
-    title: "Express Filing",
-    description: "Fast-track tax filing for simple returns",
-    price: "Starting at $99",
-    features: ["24-hour Turnaround", "Simple Returns", "Direct Deposit"],
-    link: "/services/express"
-  }
+    title: 'Express Filing',
+    description: 'Fast-track tax filing for simple returns',
+    price: 'Starting at $99',
+    features: ['24-hour Turnaround', 'Simple Returns', 'Direct Deposit'],
+    link: '/services/express',
+  },
 ];
 
 export function ServiceGrid() {
@@ -81,7 +81,10 @@ export function ServiceGrid() {
           {services.map((service, index) => {
             const Icon = service.icon;
             return (
-              <Card key={index} className="relative overflow-hidden hover:shadow-lg transition-shadow">
+              <Card
+                key={index}
+                className="relative overflow-hidden hover:shadow-lg transition-shadow"
+              >
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <Icon className="h-8 w-8 text-primary" />

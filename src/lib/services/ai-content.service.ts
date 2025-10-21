@@ -74,7 +74,7 @@ Make it professional, trustworthy, and locally relevant to ${input.city}.`;
       model.generateContent(prompt),
       new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('AI generation timeout after 10 seconds')), 10000)
-      )
+      ),
     ]);
 
     const response = await result.response;
@@ -124,17 +124,17 @@ export function sanitizeAIContent(
     headline: DOMPurify.sanitize(content.headline),
     bodyContent: DOMPurify.sanitize(content.bodyContent, {
       ALLOWED_TAGS: ['p', 'strong', 'em', 'br', 'ul', 'ol', 'li', 'h2', 'h3'],
-      ALLOWED_ATTR: []
+      ALLOWED_ATTR: [],
     }),
     metaTitle: DOMPurify.sanitize(content.metaTitle),
     metaDescription: DOMPurify.sanitize(content.metaDescription),
-    qaAccordion: content.qaAccordion.map(qa => ({
+    qaAccordion: content.qaAccordion.map((qa) => ({
       question: DOMPurify.sanitize(qa.question),
       answer: DOMPurify.sanitize(qa.answer, {
         ALLOWED_TAGS: ['p', 'strong', 'em', 'br', 'ul', 'ol', 'li'],
-        ALLOWED_ATTR: []
-      })
-    }))
+        ALLOWED_ATTR: [],
+      }),
+    })),
   };
 }
 

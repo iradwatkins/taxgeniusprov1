@@ -1,17 +1,9 @@
 import { redirect } from 'next/navigation';
 import { currentUser } from '@clerk/nextjs/server';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -19,7 +11,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import {
   Users,
   Search,
@@ -38,7 +30,7 @@ import {
 } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { ClientsManagement } from '@/components/admin/ClientsManagement';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 // Status badge colors
 const statusColors: Record<string, string> = {
@@ -53,7 +45,7 @@ const statusColors: Record<string, string> = {
 export default async function ClientsStatusPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: { [key: string]: string | string[] | undefined };
 }) {
   // Get authenticated user
   const user = await currentUser();
@@ -73,13 +65,13 @@ export default async function ClientsStatusPage({
   }
 
   // Get filter parameters
-  const search = typeof searchParams.search === 'string' ? searchParams.search : ''
-  const statusFilter = typeof searchParams.status === 'string' ? searchParams.status : ''
-  const preparerFilter = typeof searchParams.preparer === 'string' ? searchParams.preparer : ''
+  const search = typeof searchParams.search === 'string' ? searchParams.search : '';
+  const statusFilter = typeof searchParams.status === 'string' ? searchParams.status : '';
+  const preparerFilter = typeof searchParams.preparer === 'string' ? searchParams.preparer : '';
 
   // Initialize with empty arrays in case of errors
-  let preparers: any[] = []
-  let clients: any[] = []
+  let preparers: any[] = [];
+  let clients: any[] = [];
 
   try {
     // Fetch all tax preparers for the filter dropdown
@@ -96,12 +88,12 @@ export default async function ClientsStatusPage({
       orderBy: {
         firstName: 'asc',
       },
-    })
+    });
 
     // Build where clause for clients
     const clientsWhere: any = {
       role: 'CLIENT',
-    }
+    };
 
     // Apply search filter
     if (search) {
@@ -110,7 +102,7 @@ export default async function ClientsStatusPage({
         { lastName: { contains: search, mode: 'insensitive' } },
         { email: { contains: search, mode: 'insensitive' } },
         { phone: { contains: search, mode: 'insensitive' } },
-      ]
+      ];
     }
 
     // Fetch all clients with their tax return status
@@ -127,7 +119,9 @@ export default async function ClientsStatusPage({
         clientPreparers: {
           where: {
             isActive: true,
-            ...(preparerFilter && preparerFilter !== 'all' && preparerFilter !== 'unassigned' ? { preparerId: preparerFilter } : {}),
+            ...(preparerFilter && preparerFilter !== 'all' && preparerFilter !== 'unassigned'
+              ? { preparerId: preparerFilter }
+              : {}),
           },
           include: {
             preparer: true,
@@ -137,36 +131,36 @@ export default async function ClientsStatusPage({
       orderBy: {
         createdAt: 'desc',
       },
-    })
+    });
   } catch (error) {
-    logger.error('Error fetching clients data:', error)
+    logger.error('Error fetching clients data:', error);
     // Continue with empty arrays - will show "No clients found" message
   }
 
   // Filter clients based on preparer assignment
-  let filteredClients = clients
+  let filteredClients = clients;
 
   if (preparerFilter === 'unassigned') {
-    filteredClients = clients.filter(c => c.clientPreparers.length === 0)
+    filteredClients = clients.filter((c) => c.clientPreparers.length === 0);
   } else if (preparerFilter && preparerFilter !== 'all') {
-    filteredClients = clients.filter(c =>
-      c.clientPreparers.some(cp => cp.preparerId === preparerFilter)
-    )
+    filteredClients = clients.filter((c) =>
+      c.clientPreparers.some((cp) => cp.preparerId === preparerFilter)
+    );
   }
 
   // Filter by status if needed (for clients without returns)
   if (statusFilter) {
-    filteredClients = filteredClients.filter(c => c.taxReturns.length > 0)
+    filteredClients = filteredClients.filter((c) => c.taxReturns.length > 0);
   }
 
   // Get statistics from filtered clients
   const totalClients = filteredClients.length;
-  const activeClients = filteredClients.filter(c => c.taxReturns.length > 0).length;
-  const pendingReviews = filteredClients.filter(c =>
-    c.taxReturns[0]?.status === 'IN_REVIEW'
+  const activeClients = filteredClients.filter((c) => c.taxReturns.length > 0).length;
+  const pendingReviews = filteredClients.filter(
+    (c) => c.taxReturns[0]?.status === 'IN_REVIEW'
   ).length;
-  const completedReturns = filteredClients.filter(c =>
-    c.taxReturns[0]?.status === 'FILED' || c.taxReturns[0]?.status === 'ACCEPTED'
+  const completedReturns = filteredClients.filter(
+    (c) => c.taxReturns[0]?.status === 'FILED' || c.taxReturns[0]?.status === 'ACCEPTED'
   ).length;
 
   return (
@@ -244,9 +238,7 @@ export default async function ClientsStatusPage({
         <Card>
           <CardHeader>
             <CardTitle>All Clients</CardTitle>
-            <CardDescription>
-              Click on any client to view detailed information
-            </CardDescription>
+            <CardDescription>Click on any client to view detailed information</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -281,7 +273,9 @@ export default async function ClientsStatusPage({
                         <TableRow key={client.id}>
                           <TableCell className="font-medium">
                             <div>
-                              <p>{client.firstName} {client.lastName}</p>
+                              <p>
+                                {client.firstName} {client.lastName}
+                              </p>
                               <p className="text-sm text-muted-foreground">
                                 ID: {client.clerkUserId || client.id}
                               </p>

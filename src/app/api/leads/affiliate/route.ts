@@ -1,6 +1,6 @@
-import { NextRequest } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { z } from 'zod'
+import { NextRequest } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
 import {
   extractRequestMetadata,
   extractUtmParams,
@@ -10,9 +10,9 @@ import {
   queueAdminNotification,
   queueConfirmationEmail,
   commonLeadFields,
-} from '@/lib/api-helpers/lead-helpers'
-import { getAttribution } from '@/lib/services/attribution.service'
-import { logger } from '@/lib/logger'
+} from '@/lib/api-helpers/lead-helpers';
+import { getAttribution } from '@/lib/services/attribution.service';
+import { logger } from '@/lib/logger';
 
 // Validation schema
 const affiliateLeadSchema = z.object({
@@ -20,24 +20,21 @@ const affiliateLeadSchema = z.object({
   experience: z.string().optional(),
   audience: z.string().optional(),
   message: z.string().optional(),
-})
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await request.json();
 
     // Validate input
-    const validatedData = affiliateLeadSchema.parse(body)
+    const validatedData = affiliateLeadSchema.parse(body);
 
     // Extract metadata and UTM parameters
-    const { ipAddress, userAgent, referer } = extractRequestMetadata(request)
-    const { utmSource, utmMedium, utmCampaign } = extractUtmParams(body)
+    const { ipAddress, userAgent, referer } = extractRequestMetadata(request);
+    const { utmSource, utmMedium, utmCampaign } = extractUtmParams(body);
 
     // EPIC 6: Get attribution (cookie → email → phone → direct)
-    const attributionResult = await getAttribution(
-      validatedData.email,
-      validatedData.phone
-    )
+    const attributionResult = await getAttribution(validatedData.email, validatedData.phone);
 
     // Create lead in database
     const lead = await prisma.lead.create({
@@ -65,7 +62,7 @@ export async function POST(request: NextRequest) {
         attributionMethod: attributionResult.attribution.attributionMethod,
         attributionConfidence: attributionResult.attribution.attributionConfidence,
       },
-    })
+    });
 
     // EPIC 7: Auto-create CRM contact for real-time visibility
     try {
@@ -88,24 +85,23 @@ export async function POST(request: NextRequest) {
           attributionMethod: lead.attributionMethod,
           attributionConfidence: lead.attributionConfidence,
         },
-      })
+      });
     } catch (error: any) {
       // Log error but don't fail lead creation
       logger.error('[Lead API] Failed to create CRM contact', {
         leadId: lead.id,
-        error: error.message
-      })
+        error: error.message,
+      });
     }
 
     // Queue notifications (async, non-blocking)
     await Promise.allSettled([
       queueAdminNotification('AFFILIATE', lead),
       queueConfirmationEmail('AFFILIATE', lead.email, lead.firstName),
-    ])
+    ]);
 
-    return createLeadSuccessResponse(lead.id, getLeadSuccessMessage('AFFILIATE'))
-
+    return createLeadSuccessResponse(lead.id, getLeadSuccessMessage('AFFILIATE'));
   } catch (error) {
-    return handleApiError(error, 'creating affiliate lead')
+    return handleApiError(error, 'creating affiliate lead');
   }
 }

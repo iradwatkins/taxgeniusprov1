@@ -7,18 +7,18 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 6.4
  */
 
-'use client'
+'use client';
 
-import { useConversionFunnel } from '@/hooks/useMyMaterials'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { TrendingDown, TrendingUp } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useConversionFunnel } from '@/hooks/useMyMaterials';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { TrendingDown, TrendingUp } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ConversionFunnelProps {
-  materialId?: string
-  dateRange?: string
-  className?: string
+  materialId?: string;
+  dateRange?: string;
+  className?: string;
 }
 
 export function ConversionFunnel({
@@ -29,10 +29,10 @@ export function ConversionFunnel({
   const { data, isLoading, error } = useConversionFunnel({
     materialId,
     dateRange,
-  })
+  });
 
   if (isLoading) {
-    return <FunnelSkeleton className={className} />
+    return <FunnelSkeleton className={className} />;
   }
 
   if (error) {
@@ -42,18 +42,16 @@ export function ConversionFunnel({
           <CardTitle>Conversion Funnel</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-center text-muted-foreground py-4">
-            Failed to load funnel data
-          </p>
+          <p className="text-center text-muted-foreground py-4">Failed to load funnel data</p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
-  const funnel = data?.funnel
+  const funnel = data?.funnel;
 
   if (!funnel) {
-    return null
+    return null;
   }
 
   return (
@@ -67,12 +65,7 @@ export function ConversionFunnel({
       <CardContent>
         <div className="space-y-3">
           {/* Stage 1: Clicks */}
-          <FunnelStage
-            label="Link Clicked"
-            count={funnel.stage1_clicks}
-            percentage={100}
-            isFirst
-          />
+          <FunnelStage label="Link Clicked" count={funnel.stage1_clicks} percentage={100} isFirst />
 
           <FunnelDropoff
             rate={funnel.dropoff.clickToStart}
@@ -124,8 +117,8 @@ export function ConversionFunnel({
                     funnel.conversionRates.overallConversion > 10
                       ? 'text-green-600'
                       : funnel.conversionRates.overallConversion > 5
-                      ? 'text-yellow-600'
-                      : 'text-red-600'
+                        ? 'text-yellow-600'
+                        : 'text-red-600'
                   )}
                 >
                   {funnel.conversionRates.overallConversion.toFixed(1)}%
@@ -136,26 +129,26 @@ export function ConversionFunnel({
               </div>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {funnel.stage4_returnsFiled} of {funnel.stage1_clicks} clicks resulted in
-              filed tax returns
+              {funnel.stage4_returnsFiled} of {funnel.stage1_clicks} clicks resulted in filed tax
+              returns
             </p>
           </div>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 interface FunnelStageProps {
-  label: string
-  count: number
-  percentage: number
-  isFirst?: boolean
-  isLast?: boolean
+  label: string;
+  count: number;
+  percentage: number;
+  isFirst?: boolean;
+  isLast?: boolean;
 }
 
 function FunnelStage({ label, count, percentage, isFirst, isLast }: FunnelStageProps) {
-  const widthPercentage = isFirst ? 100 : percentage
+  const widthPercentage = isFirst ? 100 : percentage;
 
   return (
     <div className="space-y-2">
@@ -169,11 +162,7 @@ function FunnelStage({ label, count, percentage, isFirst, isLast }: FunnelStageP
         <div
           className={cn(
             'absolute left-0 top-0 h-full transition-all duration-500',
-            isLast
-              ? 'bg-green-500'
-              : isFirst
-              ? 'bg-blue-500'
-              : 'bg-blue-400'
+            isLast ? 'bg-green-500' : isFirst ? 'bg-blue-500' : 'bg-blue-400'
           )}
           style={{ width: `${widthPercentage}%` }}
         />
@@ -182,12 +171,12 @@ function FunnelStage({ label, count, percentage, isFirst, isLast }: FunnelStageP
         </span>
       </div>
     </div>
-  )
+  );
 }
 
 interface FunnelDropoffProps {
-  rate: number
-  conversionRate: number
+  rate: number;
+  conversionRate: number;
 }
 
 function FunnelDropoff({ rate, conversionRate }: FunnelDropoffProps) {
@@ -203,7 +192,7 @@ function FunnelDropoff({ rate, conversionRate }: FunnelDropoffProps) {
         <span className="font-medium">{conversionRate.toFixed(1)}% converted</span>
       </div>
     </div>
-  )
+  );
 }
 
 function FunnelSkeleton({ className }: { className?: string }) {
@@ -226,5 +215,5 @@ function FunnelSkeleton({ className }: { className?: string }) {
         ))}
       </CardContent>
     </Card>
-  )
+  );
 }

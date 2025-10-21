@@ -1,9 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   AlertCircle,
   Shield,
@@ -20,7 +20,7 @@ import {
   Ban,
   Users,
   Zap,
-  Award
+  Award,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Header } from '@/components/header';
@@ -55,12 +55,13 @@ export default function IRSResolutionPage() {
               </h1>
 
               <p className="text-xl text-muted-foreground leading-relaxed">
-                Liens, levies, back taxes, unfiled returns. Our tax resolution specialists negotiate with the IRS to resolve your tax debt and stop collections.
+                Liens, levies, back taxes, unfiled returns. Our tax resolution specialists negotiate
+                with the IRS to resolve your tax debt and stop collections.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button variant="professional" size="lg" asChild className="relative">
-                  <Link href="/start-filing">
+                  <Link href="/start-filing/form">
                     <Zap className="mr-2 w-5 h-5" />
                     Get Immediate Help
                   </Link>
@@ -78,13 +79,13 @@ export default function IRSResolutionPage() {
                   { icon: Clock, text: '24-Hour Response', color: 'text-orange-500' },
                   { icon: Award, text: 'Licensed Tax Pros', color: 'text-green-500' },
                   { icon: Shield, text: 'Stop Collections', color: 'text-blue-500' },
-                  { icon: CheckCircle, text: '95% Success Rate', color: 'text-purple-500' }
+                  { icon: CheckCircle, text: '95% Success Rate', color: 'text-purple-500' },
                 ].map((item, i) => (
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.8 + i * 0.1, type: "spring" }}
+                    transition={{ delay: 0.8 + i * 0.1, type: 'spring' }}
                     className="flex items-center gap-2"
                   >
                     <item.icon className={`w-5 h-5 ${item.color}`} />
@@ -153,43 +154,43 @@ export default function IRSResolutionPage() {
                 title: 'Tax Liens',
                 desc: 'Remove IRS liens from your property and credit report',
                 severity: 'high',
-                color: 'text-red-500'
+                color: 'text-red-500',
               },
               {
                 icon: AlertTriangle,
                 title: 'Bank Levies',
                 desc: 'Stop wage garnishment and bank account seizures',
                 severity: 'high',
-                color: 'text-orange-500'
+                color: 'text-orange-500',
               },
               {
                 icon: FileText,
                 title: 'Unfiled Returns',
                 desc: 'Catch up on years of unfiled tax returns',
                 severity: 'medium',
-                color: 'text-yellow-500'
+                color: 'text-yellow-500',
               },
               {
                 icon: DollarSign,
                 title: 'Back Taxes',
                 desc: 'Negotiate payment plans and settlements for tax debt',
                 severity: 'medium',
-                color: 'text-blue-500'
+                color: 'text-blue-500',
               },
               {
                 icon: CreditCard,
                 title: 'Offer in Compromise',
                 desc: 'Settle tax debt for less than you owe',
                 severity: 'medium',
-                color: 'text-green-500'
+                color: 'text-green-500',
               },
               {
                 icon: TrendingDown,
                 title: 'Penalty Abatement',
                 desc: 'Reduce or eliminate IRS penalties and interest',
                 severity: 'low',
-                color: 'text-purple-500'
-              }
+                color: 'text-purple-500',
+              },
             ].map((problem, i) => (
               <motion.div
                 key={i}
@@ -199,14 +200,20 @@ export default function IRSResolutionPage() {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 whileHover={{ y: -10, scale: 1.02 }}
               >
-                <Card className={`h-full hover:shadow-xl transition-all cursor-pointer group ${problem.severity === 'high' ? 'border-red-500/20' : ''}`}>
+                <Card
+                  className={`h-full hover:shadow-xl transition-all cursor-pointer group ${problem.severity === 'high' ? 'border-red-500/20' : ''}`}
+                >
                   <CardHeader>
                     <div className="flex items-start justify-between mb-4">
-                      <div className={`w-16 h-16 ${problem.color} bg-primary/5 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                      <div
+                        className={`w-16 h-16 ${problem.color} bg-primary/5 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform`}
+                      >
                         <problem.icon className="w-8 h-8" />
                       </div>
                       {problem.severity === 'high' && (
-                        <Badge variant="destructive" className="text-xs">Urgent</Badge>
+                        <Badge variant="destructive" className="text-xs">
+                          Urgent
+                        </Badge>
                       )}
                     </div>
                     <CardTitle className="text-xl">{problem.title}</CardTitle>
@@ -245,36 +252,36 @@ export default function IRSResolutionPage() {
                 title: 'Emergency Assessment',
                 desc: 'Free consultation to assess urgency and options',
                 icon: AlertCircle,
-                color: 'bg-red-500'
+                color: 'bg-red-500',
               },
               {
                 step: '2',
                 title: 'Immediate Protection',
                 desc: 'File power of attorney, stop IRS collections',
                 icon: Shield,
-                color: 'bg-orange-500'
+                color: 'bg-orange-500',
               },
               {
                 step: '3',
                 title: 'Investigation',
                 desc: 'Review tax transcripts, identify issues',
                 icon: FileText,
-                color: 'bg-blue-500'
+                color: 'bg-blue-500',
               },
               {
                 step: '4',
                 title: 'Strategy & Negotiation',
                 desc: 'Develop resolution plan, negotiate with IRS',
                 icon: Scale,
-                color: 'bg-purple-500'
+                color: 'bg-purple-500',
               },
               {
                 step: '5',
                 title: 'Resolution',
                 desc: 'Achieve settlement, establish compliance',
                 icon: CheckCircle,
-                color: 'bg-green-500'
-              }
+                color: 'bg-green-500',
+              },
             ].map((phase, i) => (
               <motion.div
                 key={i}
@@ -293,7 +300,9 @@ export default function IRSResolutionPage() {
                     >
                       <phase.icon className="w-8 h-8" />
                     </motion.div>
-                    <Badge variant="secondary" className="mb-3">Step {phase.step}</Badge>
+                    <Badge variant="secondary" className="mb-3">
+                      Step {phase.step}
+                    </Badge>
                     <h3 className="font-bold text-lg mb-2">{phase.title}</h3>
                     <p className="text-sm text-muted-foreground">{phase.desc}</p>
                   </CardContent>
@@ -314,7 +323,9 @@ export default function IRSResolutionPage() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl lg:text-4xl font-bold mb-4">Real Results for Real People</h2>
-            <p className="text-lg text-muted-foreground">Client success stories (names changed for privacy)</p>
+            <p className="text-lg text-muted-foreground">
+              Client success stories (names changed for privacy)
+            </p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -325,7 +336,7 @@ export default function IRSResolutionPage() {
                 situation: '$180,000 Back Taxes',
                 result: 'Settled for $25,000 via Offer in Compromise',
                 savings: '86%',
-                timeline: '8 months'
+                timeline: '8 months',
               },
               {
                 image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&q=80',
@@ -333,7 +344,7 @@ export default function IRSResolutionPage() {
                 situation: 'Wage Garnishment',
                 result: 'Released levy, payment plan at $400/mo',
                 savings: 'Restored income',
-                timeline: '3 weeks'
+                timeline: '3 weeks',
               },
               {
                 image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&q=80',
@@ -341,8 +352,8 @@ export default function IRSResolutionPage() {
                 situation: '5 Years Unfiled Returns',
                 result: 'All returns filed, $45K penalties abated',
                 savings: '$45K saved',
-                timeline: '4 months'
-              }
+                timeline: '4 months',
+              },
             ].map((story, i) => (
               <motion.div
                 key={i}
@@ -364,7 +375,9 @@ export default function IRSResolutionPage() {
                       />
                     </div>
                     <h3 className="font-bold text-xl mb-2">{story.name}</h3>
-                    <Badge variant="destructive" className="mb-4">{story.situation}</Badge>
+                    <Badge variant="destructive" className="mb-4">
+                      {story.situation}
+                    </Badge>
                     <div className="bg-success/10 rounded-lg p-4 mb-4">
                       <p className="text-success font-semibold text-lg mb-1">✓ Resolved</p>
                       <p className="text-sm text-muted-foreground">{story.result}</p>
@@ -411,12 +424,13 @@ export default function IRSResolutionPage() {
 
             <h2 className="text-3xl lg:text-5xl font-bold">Don't Face the IRS Alone</h2>
             <p className="text-xl text-muted-foreground">
-              Every day you wait, interest and penalties add up. Let our tax resolution experts handle it.
+              Every day you wait, interest and penalties add up. Let our tax resolution experts
+              handle it.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               <Button variant="professional" size="lg" asChild>
-                <Link href="/start-filing">
+                <Link href="/start-filing/form">
                   <Zap className="mr-2 w-5 h-5" />
                   Get Emergency Help Now
                 </Link>
@@ -434,7 +448,7 @@ export default function IRSResolutionPage() {
                 { icon: Clock, text: '24-Hour Response' },
                 { icon: Shield, text: 'Stop Collections Fast' },
                 { icon: Users, text: 'Licensed Tax Pros' },
-                { icon: CheckCircle, text: 'Free Consultation' }
+                { icon: CheckCircle, text: 'Free Consultation' },
               ].map((item, i) => (
                 <motion.div
                   key={i}
@@ -472,12 +486,30 @@ export default function IRSResolutionPage() {
             </motion.div>
 
             <div className="space-y-6">
-              <h2 className="text-3xl lg:text-4xl font-bold mb-6">Why Choose Us for IRS Resolution</h2>
+              <h2 className="text-3xl lg:text-4xl font-bold mb-6">
+                Why Choose Us for IRS Resolution
+              </h2>
               {[
-                { icon: Award, title: 'Licensed Enrolled Agents & CPAs', desc: 'Authorized to represent you before the IRS' },
-                { icon: Scale, title: '95% Success Rate', desc: 'Proven track record of favorable outcomes' },
-                { icon: Clock, title: 'Fast Action', desc: '24-hour response time for urgent cases' },
-                { icon: DollarSign, title: 'Affordable Payment Plans', desc: 'Flexible financing for resolution services' }
+                {
+                  icon: Award,
+                  title: 'Licensed Enrolled Agents & CPAs',
+                  desc: 'Authorized to represent you before the IRS',
+                },
+                {
+                  icon: Scale,
+                  title: '95% Success Rate',
+                  desc: 'Proven track record of favorable outcomes',
+                },
+                {
+                  icon: Clock,
+                  title: 'Fast Action',
+                  desc: '24-hour response time for urgent cases',
+                },
+                {
+                  icon: DollarSign,
+                  title: 'Affordable Payment Plans',
+                  desc: 'Flexible financing for resolution services',
+                },
               ].map((item, i) => (
                 <motion.div
                   key={i}

@@ -1,9 +1,9 @@
 'use client';
 
 import { motion, useInView } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Shield,
   CheckCircle,
@@ -18,7 +18,7 @@ import {
   BookOpen,
   TrendingUp,
   Lock,
-  Scale
+  Scale,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Header } from '@/components/header';
@@ -54,7 +54,8 @@ function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: strin
 
   return (
     <span ref={ref}>
-      {count.toLocaleString()}{suffix}
+      {count.toLocaleString()}
+      {suffix}
     </span>
   );
 }
@@ -69,7 +70,10 @@ export default function AuditProtectionPage() {
         {/* Animated background elements */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-20 left-10 w-64 h-64 bg-primary rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+          <div
+            className="absolute bottom-20 right-10 w-96 h-96 bg-secondary rounded-full blur-3xl animate-pulse"
+            style={{ animationDelay: '1s' }}
+          />
         </div>
 
         <div className="container mx-auto px-4 lg:px-8 relative">
@@ -90,14 +94,13 @@ export default function AuditProtectionPage() {
               </h1>
 
               <p className="text-xl text-muted-foreground leading-relaxed">
-                Comprehensive audit representation included with every tax return. If the IRS calls, we handle everything.
+                Comprehensive audit representation included with every tax return. If the IRS calls,
+                we handle everything.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button variant="professional" size="lg" asChild>
-                  <Link href="/start-filing">
-                    Get Protected Today
-                  </Link>
+                  <Link href="/start-filing/form">Get Protected Today</Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <Link href="tel:+14046271015">
@@ -111,7 +114,7 @@ export default function AuditProtectionPage() {
                 {[
                   { icon: Shield, label: '100% Coverage' },
                   { icon: Users, label: 'CPA Representation' },
-                  { icon: Award, label: '98% Success Rate' }
+                  { icon: Award, label: '98% Success Rate' },
                 ].map((item, i) => (
                   <motion.div
                     key={i}
@@ -147,7 +150,7 @@ export default function AuditProtectionPage() {
                 <motion.div
                   initial={{ opacity: 0, rotate: -10 }}
                   animate={{ opacity: 1, rotate: 0 }}
-                  transition={{ delay: 1, duration: 0.5, type: "spring" }}
+                  transition={{ delay: 1, duration: 0.5, type: 'spring' }}
                   className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
                 >
                   <div className="w-32 h-32 bg-primary rounded-full flex items-center justify-center shadow-2xl border-8 border-background">
@@ -168,7 +171,7 @@ export default function AuditProtectionPage() {
               { value: 98, suffix: '%', label: 'Audits Resolved Favorably' },
               { value: 5000, suffix: '+', label: 'Clients Protected' },
               { value: 3, suffix: ' Days', label: 'Avg. Response Time' },
-              { value: 0, suffix: '$', label: 'Out-of-Pocket Costs' }
+              { value: 0, suffix: '$', label: 'Out-of-Pocket Costs' },
             ].map((stat, i) => (
               <motion.div
                 key={i}
@@ -209,38 +212,38 @@ export default function AuditProtectionPage() {
                 icon: Mail,
                 title: 'Correspondence Audits',
                 desc: 'IRS letters requesting documentation or clarification',
-                color: 'text-blue-500'
+                color: 'text-blue-500',
               },
               {
                 icon: FileText,
                 title: 'Office Audits',
                 desc: 'In-person meetings at IRS office with full representation',
-                color: 'text-green-500'
+                color: 'text-green-500',
               },
               {
                 icon: BookOpen,
                 title: 'Field Audits',
                 desc: 'IRS visits to your business with CPA present',
-                color: 'text-purple-500'
+                color: 'text-purple-500',
               },
               {
                 icon: AlertTriangle,
                 title: 'CP2000 Notices',
                 desc: 'Income discrepancy notices and automated adjustments',
-                color: 'text-orange-500'
+                color: 'text-orange-500',
               },
               {
                 icon: Clock,
                 title: 'Amended Returns',
                 desc: 'Defense of amended returns and prior year adjustments',
-                color: 'text-pink-500'
+                color: 'text-pink-500',
               },
               {
                 icon: Scale,
                 title: 'Appeals Process',
                 desc: 'Representation through IRS appeals if needed',
-                color: 'text-indigo-500'
-              }
+                color: 'text-indigo-500',
+              },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -253,7 +256,9 @@ export default function AuditProtectionPage() {
                 <Card className="h-full hover:shadow-xl transition-all cursor-pointer group">
                   <CardHeader>
                     <div className="flex items-center gap-4">
-                      <div className={`w-14 h-14 ${item.color} bg-primary/5 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                      <div
+                        className={`w-14 h-14 ${item.color} bg-primary/5 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform`}
+                      >
                         <item.icon className="w-7 h-7" />
                       </div>
                       <CardTitle className="text-lg">{item.title}</CardTitle>
@@ -297,32 +302,32 @@ export default function AuditProtectionPage() {
                     step: '1',
                     title: 'Immediate Notification',
                     desc: 'You forward the IRS notice to us. We acknowledge receipt within 24 hours.',
-                    icon: Mail
+                    icon: Mail,
                   },
                   {
                     step: '2',
                     title: 'Case Assessment',
                     desc: 'CPA reviews your return and IRS inquiry to develop defense strategy.',
-                    icon: BookOpen
+                    icon: BookOpen,
                   },
                   {
                     step: '3',
                     title: 'Document Gathering',
                     desc: 'We request and organize all supporting documentation needed.',
-                    icon: FileText
+                    icon: FileText,
                   },
                   {
                     step: '4',
                     title: 'IRS Response',
                     desc: 'CPA handles all communication with IRS on your behalf.',
-                    icon: Users
+                    icon: Users,
                   },
                   {
                     step: '5',
                     title: 'Resolution',
                     desc: 'We negotiate the best outcome and close the audit.',
-                    icon: CheckCircle
-                  }
+                    icon: CheckCircle,
+                  },
                 ].map((phase, i) => (
                   <motion.div
                     key={i}
@@ -391,23 +396,23 @@ export default function AuditProtectionPage() {
                   {
                     icon: Lock,
                     title: 'No Out-of-Pocket Costs',
-                    desc: 'Audit defense included with your tax return - no extra fees if audited'
+                    desc: 'Audit defense included with your tax return - no extra fees if audited',
                   },
                   {
                     icon: Users,
                     title: 'Expert CPA Representation',
-                    desc: 'Licensed professionals with years of IRS audit experience handle your case'
+                    desc: 'Licensed professionals with years of IRS audit experience handle your case',
                   },
                   {
                     icon: Clock,
                     title: 'We Handle Everything',
-                    desc: 'You don\'t talk to the IRS. We manage all correspondence and meetings.'
+                    desc: "You don't talk to the IRS. We manage all correspondence and meetings.",
                   },
                   {
                     icon: TrendingUp,
                     title: '98% Success Rate',
-                    desc: 'Proven track record of favorable outcomes for our clients'
-                  }
+                    desc: 'Proven track record of favorable outcomes for our clients',
+                  },
                 ].map((benefit, i) => (
                   <motion.div
                     key={i}
@@ -432,7 +437,7 @@ export default function AuditProtectionPage() {
 
               <div className="pt-4">
                 <Button variant="professional" size="lg" asChild>
-                  <Link href="/start-filing">
+                  <Link href="/start-filing/form">
                     Get Protected Now <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>
                 </Button>
@@ -459,20 +464,20 @@ export default function AuditProtectionPage() {
               {[
                 {
                   q: 'Is audit protection really free?',
-                  a: 'Yes! Full audit representation is included with every tax return we prepare at no additional cost.'
+                  a: 'Yes! Full audit representation is included with every tax return we prepare at no additional cost.',
                 },
                 {
                   q: 'What if I prepared my own return?',
-                  a: 'We offer standalone audit defense services for returns prepared elsewhere. Contact us for pricing.'
+                  a: 'We offer standalone audit defense services for returns prepared elsewhere. Contact us for pricing.',
                 },
                 {
                   q: 'How likely is an audit?',
-                  a: 'Less than 1% of returns are audited. But if selected, you\'ll be fully protected with our service.'
+                  a: "Less than 1% of returns are audited. But if selected, you'll be fully protected with our service.",
                 },
                 {
                   q: 'Will I have to talk to the IRS?',
-                  a: 'No. Once you engage us, we handle 100% of communication with the IRS on your behalf.'
-                }
+                  a: 'No. Once you engage us, we handle 100% of communication with the IRS on your behalf.',
+                },
               ].map((faq, i) => (
                 <motion.div
                   key={i}
@@ -517,7 +522,7 @@ export default function AuditProtectionPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="professional" size="lg" asChild>
-                <Link href="/start-filing">
+                <Link href="/start-filing/form">
                   Get Started Today <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>

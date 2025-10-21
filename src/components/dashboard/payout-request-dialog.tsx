@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 /**
  * Payout Request Dialog
@@ -9,7 +9,7 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 6
  */
 
-import { useState } from 'react'
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -17,30 +17,30 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, CheckCircle, AlertCircle } from 'lucide-react'
-import { logger } from '@/lib/logger'
-import { useToast } from '@/hooks/use-toast'
+} from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { logger } from '@/lib/logger';
+import { useToast } from '@/hooks/use-toast';
 
 interface PayoutRequestDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  availableBalance: number
-  onSuccess?: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  availableBalance: number;
+  onSuccess?: () => void;
 }
 
-type PaymentMethod = 'PAYPAL' | 'BANK_TRANSFER' | 'CHECK' | 'VENMO' | 'CASHAPP'
+type PaymentMethod = 'PAYPAL' | 'BANK_TRANSFER' | 'CHECK' | 'VENMO' | 'CASHAPP';
 
 const PAYMENT_METHODS = [
   { value: 'PAYPAL', label: 'PayPal', placeholder: 'your-email@example.com' },
@@ -48,102 +48,102 @@ const PAYMENT_METHODS = [
   { value: 'CHECK', label: 'Check (Mail)', placeholder: 'Mailing address' },
   { value: 'VENMO', label: 'Venmo', placeholder: '@username' },
   { value: 'CASHAPP', label: 'Cash App', placeholder: '$cashtag' },
-]
+];
 
 export function PayoutRequestDialog({
   open,
   onOpenChange,
   availableBalance,
-  onSuccess
+  onSuccess,
 }: PayoutRequestDialogProps) {
-  const { toast } = useToast()
-  const [amount, setAmount] = useState('')
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | ''>('')
-  const [paymentDetails, setPaymentDetails] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
+  const { toast } = useToast();
+  const [amount, setAmount] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | ''>('');
+  const [paymentDetails, setPaymentDetails] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  const selectedMethod = PAYMENT_METHODS.find(m => m.value === paymentMethod)
+  const selectedMethod = PAYMENT_METHODS.find((m) => m.value === paymentMethod);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
+    e.preventDefault();
+    setError(null);
 
     // Validation
-    const amountNum = parseFloat(amount)
+    const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
-      setError('Please enter a valid amount')
-      return
+      setError('Please enter a valid amount');
+      return;
     }
 
     if (amountNum > availableBalance) {
-      setError(`Amount exceeds available balance ($${availableBalance.toFixed(2)})`)
-      return
+      setError(`Amount exceeds available balance ($${availableBalance.toFixed(2)})`);
+      return;
     }
 
     if (!paymentMethod) {
-      setError('Please select a payment method')
-      return
+      setError('Please select a payment method');
+      return;
     }
 
     if (!paymentDetails.trim()) {
-      setError('Please enter payment details')
-      return
+      setError('Please enter payment details');
+      return;
     }
 
     try {
-      setLoading(true)
+      setLoading(true);
 
       const response = await fetch('/api/payouts/request', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           amount: amountNum,
           paymentMethod,
-          paymentDetails: paymentDetails.trim()
-        })
-      })
+          paymentDetails: paymentDetails.trim(),
+        }),
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to request payout')
+        throw new Error(data.error || 'Failed to request payout');
       }
 
-      setSuccess(true)
+      setSuccess(true);
       toast({
         title: 'Payout requested',
-        description: `Your payout of $${amountNum.toFixed(2)} has been submitted for processing.`
-      })
+        description: `Your payout of $${amountNum.toFixed(2)} has been submitted for processing.`,
+      });
 
       // Call onSuccess callback after a delay
       setTimeout(() => {
-        onSuccess?.()
-        handleClose()
-      }, 2000)
-    } catch (err: any) {
-      logger.error('Failed to request payout', { error: err })
-      setError(err.message || 'Failed to submit payout request')
+        onSuccess?.();
+        handleClose();
+      }, 2000);
+    } catch (err) {
+      logger.error('Failed to request payout', { error: err });
+      setError(err.message || 'Failed to submit payout request');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleClose = () => {
-    setAmount('')
-    setPaymentMethod('')
-    setPaymentDetails('')
-    setError(null)
-    setSuccess(false)
-    onOpenChange(false)
-  }
+    setAmount('');
+    setPaymentMethod('');
+    setPaymentDetails('');
+    setError(null);
+    setSuccess(false);
+    onOpenChange(false);
+  };
 
   const handleMaxAmount = () => {
-    setAmount(availableBalance.toFixed(2))
-  }
+    setAmount(availableBalance.toFixed(2));
+  };
 
   if (success) {
     return (
@@ -156,14 +156,14 @@ export function PayoutRequestDialog({
             <div className="text-center">
               <h3 className="text-lg font-semibold mb-2">Payout Requested</h3>
               <p className="text-sm text-muted-foreground">
-                Your payout request has been submitted successfully.
-                You'll receive an email confirmation shortly.
+                Your payout request has been submitted successfully. You'll receive an email
+                confirmation shortly.
               </p>
             </div>
           </div>
         </DialogContent>
       </Dialog>
-    )
+    );
   }
 
   return (
@@ -172,7 +172,8 @@ export function PayoutRequestDialog({
         <DialogHeader>
           <DialogTitle>Request Payout</DialogTitle>
           <DialogDescription>
-            Request a payout from your approved earnings. Payouts are typically processed within 3-5 business days.
+            Request a payout from your approved earnings. Payouts are typically processed within 3-5
+            business days.
           </DialogDescription>
         </DialogHeader>
 
@@ -203,12 +204,7 @@ export function PayoutRequestDialog({
                 disabled={loading}
                 required
               />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleMaxAmount}
-                disabled={loading}
-              >
+              <Button type="button" variant="outline" onClick={handleMaxAmount} disabled={loading}>
                 Max
               </Button>
             </div>
@@ -238,9 +234,7 @@ export function PayoutRequestDialog({
           {/* Payment Details */}
           {paymentMethod && (
             <div className="space-y-2">
-              <Label htmlFor="payment-details">
-                {selectedMethod?.label} Details *
-              </Label>
+              <Label htmlFor="payment-details">{selectedMethod?.label} Details *</Label>
               <Input
                 id="payment-details"
                 type="text"
@@ -265,12 +259,7 @@ export function PayoutRequestDialog({
           )}
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              disabled={loading}
-            >
+            <Button type="button" variant="outline" onClick={handleClose} disabled={loading}>
               Cancel
             </Button>
             <Button type="submit" disabled={loading || !paymentMethod || !amount}>
@@ -287,5 +276,5 @@ export function PayoutRequestDialog({
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

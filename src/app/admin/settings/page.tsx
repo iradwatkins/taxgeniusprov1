@@ -1,19 +1,19 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
+} from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import {
   Settings,
   Bell,
@@ -25,25 +25,25 @@ import {
   Key,
   AlertTriangle,
   Save,
-} from 'lucide-react'
+} from 'lucide-react';
 
 export const metadata = {
   title: 'Settings - Admin | Tax Genius Pro',
   description: 'Manage platform settings and configuration',
-}
+};
 
 async function isSuperAdmin() {
-  const user = await currentUser()
-  if (!user) return false
-  const role = user.publicMetadata?.role as string
-  return role === 'super_admin'
+  const user = await currentUser();
+  if (!user) return false;
+  const role = user.publicMetadata?.role as string;
+  return role === 'super_admin';
 }
 
 export default async function AdminSettingsPage() {
-  const userIsSuperAdmin = await isSuperAdmin()
+  const userIsSuperAdmin = await isSuperAdmin();
 
   if (!userIsSuperAdmin) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
   return (
@@ -69,9 +69,7 @@ export default async function AdminSettingsPage() {
             <Globe className="w-5 h-5" />
             <CardTitle>General Settings</CardTitle>
           </div>
-          <CardDescription>
-            Basic platform configuration and information
-          </CardDescription>
+          <CardDescription>Basic platform configuration and information</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
@@ -114,9 +112,7 @@ export default async function AdminSettingsPage() {
             <Mail className="w-5 h-5" />
             <CardTitle>Email Settings</CardTitle>
           </div>
-          <CardDescription>
-            Configure email notifications and SMTP settings
-          </CardDescription>
+          <CardDescription>Configure email notifications and SMTP settings</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
@@ -156,17 +152,13 @@ export default async function AdminSettingsPage() {
             <Shield className="w-5 h-5" />
             <CardTitle>Security Settings</CardTitle>
           </div>
-          <CardDescription>
-            Manage authentication and security features
-          </CardDescription>
+          <CardDescription>Manage authentication and security features</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Two-Factor Authentication</Label>
-              <p className="text-sm text-muted-foreground">
-                Require 2FA for all admin accounts
-              </p>
+              <p className="text-sm text-muted-foreground">Require 2FA for all admin accounts</p>
             </div>
             <Switch defaultChecked />
           </div>
@@ -176,9 +168,7 @@ export default async function AdminSettingsPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Password Strength Requirements</Label>
-              <p className="text-sm text-muted-foreground">
-                Enforce strong password policies
-              </p>
+              <p className="text-sm text-muted-foreground">Enforce strong password policies</p>
             </div>
             <Switch defaultChecked />
           </div>
@@ -188,9 +178,7 @@ export default async function AdminSettingsPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Session Timeout</Label>
-              <p className="text-sm text-muted-foreground">
-                Auto-logout users after inactivity
-              </p>
+              <p className="text-sm text-muted-foreground">Auto-logout users after inactivity</p>
             </div>
             <Select defaultValue="30">
               <SelectTrigger className="w-32">
@@ -210,9 +198,7 @@ export default async function AdminSettingsPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>IP Whitelist</Label>
-              <p className="text-sm text-muted-foreground">
-                Restrict admin access to specific IPs
-              </p>
+              <p className="text-sm text-muted-foreground">Restrict admin access to specific IPs</p>
             </div>
             <Switch />
           </div>
@@ -226,9 +212,7 @@ export default async function AdminSettingsPage() {
             <Bell className="w-5 h-5" />
             <CardTitle>Notification Settings</CardTitle>
           </div>
-          <CardDescription>
-            Configure admin notification preferences
-          </CardDescription>
+          <CardDescription>Configure admin notification preferences</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {[
@@ -242,11 +226,13 @@ export default async function AdminSettingsPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>{setting.label}</Label>
-                  <p className="text-sm text-muted-foreground">
-                    {setting.description}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{setting.description}</p>
                 </div>
-                <Switch defaultChecked={setting.label.includes('System') || setting.label.includes('Failed')} />
+                <Switch
+                  defaultChecked={
+                    setting.label.includes('System') || setting.label.includes('Failed')
+                  }
+                />
               </div>
               <Separator className="mt-4" />
             </div>
@@ -261,9 +247,7 @@ export default async function AdminSettingsPage() {
             <Key className="w-5 h-5" />
             <CardTitle>API Settings</CardTitle>
           </div>
-          <CardDescription>
-            Manage API keys and integrations
-          </CardDescription>
+          <CardDescription>Manage API keys and integrations</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -299,9 +283,7 @@ export default async function AdminSettingsPage() {
             <Palette className="w-5 h-5" />
             <CardTitle>Appearance Settings</CardTitle>
           </div>
-          <CardDescription>
-            Customize the look and feel of the platform
-          </CardDescription>
+          <CardDescription>Customize the look and feel of the platform</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -345,9 +327,7 @@ export default async function AdminSettingsPage() {
             <AlertTriangle className="w-5 h-5 text-red-600" />
             <CardTitle className="text-red-600 dark:text-red-400">Danger Zone</CardTitle>
           </div>
-          <CardDescription>
-            Irreversible and destructive actions
-          </CardDescription>
+          <CardDescription>Irreversible and destructive actions</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
@@ -367,9 +347,7 @@ export default async function AdminSettingsPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Reset Database</Label>
-              <p className="text-sm text-muted-foreground">
-                This will delete all data permanently
-              </p>
+              <p className="text-sm text-muted-foreground">This will delete all data permanently</p>
             </div>
             <Button variant="destructive" size="sm" disabled>
               Reset Database
@@ -387,5 +365,5 @@ export default async function AdminSettingsPage() {
         </Button>
       </div>
     </div>
-  )
+  );
 }

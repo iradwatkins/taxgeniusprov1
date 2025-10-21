@@ -1,10 +1,10 @@
 import { redirect } from 'next/navigation';
 import { currentUser } from '@clerk/nextjs/server';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Megaphone,
   Image,
@@ -155,11 +155,17 @@ export default async function MarketingHubPage() {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium">Campaign Name</label>
-                      <input className="w-full mt-1 px-3 py-2 border rounded-md" placeholder="Spring Tax Campaign" />
+                      <input
+                        className="w-full mt-1 px-3 py-2 border rounded-md"
+                        placeholder="Spring Tax Campaign"
+                      />
                     </div>
                     <div>
                       <label className="text-sm font-medium">Destination URL</label>
-                      <input className="w-full mt-1 px-3 py-2 border rounded-md" placeholder="https://taxgenius.com/spring" />
+                      <input
+                        className="w-full mt-1 px-3 py-2 border rounded-md"
+                        placeholder="https://taxgenius.com/spring"
+                      />
                     </div>
                   </div>
                   <Button className="mt-4">
@@ -175,7 +181,10 @@ export default async function MarketingHubPage() {
                     { name: 'Referral Program', scans: 234, created: '1 week ago' },
                     { name: 'Walk-in Special', scans: 189, created: '2 weeks ago' },
                   ].map((qr) => (
-                    <div key={qr.name} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={qr.name}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-black rounded flex items-center justify-center">
                           <QrCode className="w-8 h-8 text-white" />
@@ -228,7 +237,9 @@ export default async function MarketingHubPage() {
                           </div>
                         </div>
                         <div className="space-x-2">
-                          <Button size="sm" variant="outline">Edit</Button>
+                          <Button size="sm" variant="outline">
+                            Edit
+                          </Button>
                           <Button size="sm" variant="outline">
                             <Copy className="w-3 h-3" />
                           </Button>
@@ -280,7 +291,10 @@ export default async function MarketingHubPage() {
                         'Small Business Tax Tips',
                         'First-Time Filer Guide',
                       ].map((resource) => (
-                        <div key={resource} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div
+                          key={resource}
+                          className="flex items-center justify-between p-3 border rounded-lg"
+                        >
                           <span>{resource}</span>
                           <Button size="sm" variant="outline">
                             <Download className="w-3 h-3 mr-1" />

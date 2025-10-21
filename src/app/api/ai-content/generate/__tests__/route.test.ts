@@ -5,13 +5,13 @@ import { generateLandingPageContent } from '@/lib/services/ai-content.service';
 
 // Mock Clerk auth
 vi.mock('@clerk/nextjs/server', () => ({
-  auth: vi.fn()
+  auth: vi.fn(),
 }));
 
 // Mock AI service
 vi.mock('@/lib/services/ai-content.service', () => ({
   generateLandingPageContent: vi.fn(),
-  generateSlug: (city: string) => city.toLowerCase().replace(/\s+/g, '-')
+  generateSlug: (city: string) => city.toLowerCase().replace(/\s+/g, '-'),
 }));
 
 describe('POST /api/ai-content/generate - Integration Tests', () => {
@@ -32,8 +32,8 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           city: 'Atlanta',
-          keywords: 'tax prep, tax filing'
-        })
+          keywords: 'tax prep, tax filing',
+        }),
       });
 
       const response = await POST(request);
@@ -50,7 +50,7 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         bodyContent: '<p>Test content</p>',
         metaTitle: 'Test Meta Title',
         metaDescription: 'Test meta description',
-        qaAccordion: []
+        qaAccordion: [],
       });
 
       const request = new Request('http://localhost:3005/api/ai-content/generate', {
@@ -58,8 +58,8 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           city: 'Atlanta',
-          keywords: 'tax prep'
-        })
+          keywords: 'tax prep',
+        }),
       });
 
       const response = await POST(request);
@@ -78,9 +78,9 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          keywords: 'tax prep'
+          keywords: 'tax prep',
           // city missing
-        })
+        }),
       });
 
       const response = await POST(request);
@@ -96,9 +96,9 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          city: 'Atlanta'
+          city: 'Atlanta',
           // keywords missing
-        })
+        }),
       });
 
       const response = await POST(request);
@@ -117,8 +117,8 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           city: longCity,
-          keywords: 'tax prep'
-        })
+          keywords: 'tax prep',
+        }),
       });
 
       const response = await POST(request);
@@ -137,8 +137,8 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           city: 'Atlanta',
-          keywords: longKeywords
-        })
+          keywords: longKeywords,
+        }),
       });
 
       const response = await POST(request);
@@ -155,7 +155,7 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         bodyContent: '<p>Test content</p>',
         metaTitle: 'Test Meta Title',
         metaDescription: 'Test meta description',
-        qaAccordion: []
+        qaAccordion: [],
       });
 
       const request = new Request('http://localhost:3005/api/ai-content/generate', {
@@ -164,8 +164,8 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         body: JSON.stringify({
           city: 'Atlanta',
           state: 'GA',
-          keywords: 'tax prep, tax filing, IRS audit'
-        })
+          keywords: 'tax prep, tax filing, IRS audit',
+        }),
       });
 
       const response = await POST(request);
@@ -179,7 +179,7 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         bodyContent: '<p>Test content</p>',
         metaTitle: 'Test Meta Title',
         metaDescription: 'Test meta description',
-        qaAccordion: []
+        qaAccordion: [],
       });
 
       const request = new Request('http://localhost:3005/api/ai-content/generate', {
@@ -187,8 +187,8 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           city: 'Atlanta',
-          keywords: 'tax prep'
-        })
+          keywords: 'tax prep',
+        }),
       });
 
       const response = await POST(request);
@@ -208,9 +208,7 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         bodyContent: '<p>Professional tax services in Atlanta</p>',
         metaTitle: 'Atlanta Tax Prep | Tax Genius',
         metaDescription: 'Expert tax preparation services in Atlanta, GA',
-        qaAccordion: [
-          { question: 'What are your hours?', answer: '<p>Monday-Friday 9am-6pm</p>' }
-        ]
+        qaAccordion: [{ question: 'What are your hours?', answer: '<p>Monday-Friday 9am-6pm</p>' }],
       };
 
       (generateLandingPageContent as Mock).mockResolvedValue(mockContent);
@@ -221,8 +219,8 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         body: JSON.stringify({
           city: 'Atlanta',
           state: 'GA',
-          keywords: 'tax prep, tax filing'
-        })
+          keywords: 'tax prep, tax filing',
+        }),
       });
 
       const response = await POST(request);
@@ -239,7 +237,7 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         slug: 'atlanta',
         city: 'Atlanta',
         state: 'GA',
-        generatedBy: mockUserId
+        generatedBy: mockUserId,
       });
       expect(result.data).toHaveProperty('generatedAt');
     });
@@ -250,7 +248,7 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         bodyContent: '<p>Test</p>',
         metaTitle: 'Test',
         metaDescription: 'Test',
-        qaAccordion: []
+        qaAccordion: [],
       });
 
       const request = new Request('http://localhost:3005/api/ai-content/generate', {
@@ -258,8 +256,8 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           city: 'New York City',
-          keywords: 'tax prep'
-        })
+          keywords: 'tax prep',
+        }),
       });
 
       const response = await POST(request);
@@ -274,7 +272,7 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         bodyContent: '<p>Test</p>',
         metaTitle: 'Test',
         metaDescription: 'Test',
-        qaAccordion: []
+        qaAccordion: [],
       });
 
       const request = new Request('http://localhost:3005/api/ai-content/generate', {
@@ -282,8 +280,8 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           city: 'Atlanta',
-          keywords: 'tax prep'
-        })
+          keywords: 'tax prep',
+        }),
       });
 
       const response = await POST(request);
@@ -308,8 +306,8 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           city: 'Atlanta',
-          keywords: 'tax prep'
-        })
+          keywords: 'tax prep',
+        }),
       });
 
       const response = await POST(request);
@@ -322,17 +320,15 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
     });
 
     it('should return 500 on rate limit error', async () => {
-      (generateLandingPageContent as Mock).mockRejectedValue(
-        new Error('RATE_LIMIT_EXCEEDED')
-      );
+      (generateLandingPageContent as Mock).mockRejectedValue(new Error('RATE_LIMIT_EXCEEDED'));
 
       const request = new Request('http://localhost:3005/api/ai-content/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           city: 'Atlanta',
-          keywords: 'tax prep'
-        })
+          keywords: 'tax prep',
+        }),
       });
 
       const response = await POST(request);
@@ -353,8 +349,8 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           city: 'Atlanta',
-          keywords: 'tax prep'
-        })
+          keywords: 'tax prep',
+        }),
       });
 
       const response = await POST(request);
@@ -368,17 +364,15 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
     });
 
     it('should return 500 on generic AI generation error', async () => {
-      (generateLandingPageContent as Mock).mockRejectedValue(
-        new Error('Unknown AI error')
-      );
+      (generateLandingPageContent as Mock).mockRejectedValue(new Error('Unknown AI error'));
 
       const request = new Request('http://localhost:3005/api/ai-content/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           city: 'Atlanta',
-          keywords: 'tax prep'
-        })
+          keywords: 'tax prep',
+        }),
       });
 
       const response = await POST(request);
@@ -394,7 +388,7 @@ describe('POST /api/ai-content/generate - Integration Tests', () => {
       const request = new Request('http://localhost:3005/api/ai-content/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: 'invalid json{'
+        body: 'invalid json{',
       });
 
       const response = await POST(request);

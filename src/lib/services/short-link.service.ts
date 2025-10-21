@@ -11,39 +11,39 @@
  * 4. Google Analytics tracks clicks, leads, conversions
  */
 
-import { prisma } from '@/lib/prisma'
-import { getUserTrackingCode } from './tracking-code.service'
-import { generateTrackingQRCode } from './tracking-code.service'
-import { buildTrackingUrl } from '@/lib/utils/tracking-integration'
+import { prisma } from '@/lib/prisma';
+import { getUserTrackingCode } from './tracking-code.service';
+import { generateTrackingQRCode } from './tracking-code.service';
+import { buildTrackingUrl } from '@/lib/utils/tracking-integration';
 
 export interface ShortLinkDestination {
-  type: 'INTAKE_FORM' | 'CONTACT_FORM' | 'CUSTOM'
-  customUrl?: string
+  type: 'INTAKE_FORM' | 'CONTACT_FORM' | 'BOOK_APPOINTMENT' | 'CUSTOM';
+  customUrl?: string;
 }
 
 export interface CreateShortLinkParams {
-  profileId: string
-  shortCode: string
-  destination: ShortLinkDestination
-  title?: string
-  description?: string
-  campaign?: string
+  profileId: string;
+  shortCode: string;
+  destination: ShortLinkDestination;
+  title?: string;
+  description?: string;
+  campaign?: string;
 }
 
 export interface ShortLinkData {
-  id: string
-  shortCode: string
-  shortUrl: string
-  fullUrl: string
-  destination: string
-  title: string | null
-  description: string | null
-  qrCodeUrl: string | null
-  clicks: number
-  leads: number
-  conversions: number
-  isActive: boolean
-  createdAt: Date
+  id: string;
+  shortCode: string;
+  shortUrl: string;
+  fullUrl: string;
+  destination: string;
+  title: string | null;
+  description: string | null;
+  qrCodeUrl: string | null;
+  clicks: number;
+  leads: number;
+  conversions: number;
+  isActive: boolean;
+  createdAt: Date;
 }
 
 /**
@@ -52,7 +52,8 @@ export interface ShortLinkData {
 const DESTINATION_URLS: Record<string, string> = {
   INTAKE_FORM: '/start-filing/form',
   CONTACT_FORM: '/contact',
-}
+  BOOK_APPOINTMENT: '/book-appointment',
+};
 
 /**
  * Validate short code format
@@ -66,41 +67,57 @@ const DESTINATION_URLS: Record<string, string> = {
 export function validateShortCode(code: string): { valid: boolean; error?: string } {
   // Must be 3-30 characters
   if (code.length < 3) {
-    return { valid: false, error: 'Short code must be at least 3 characters' }
+    return { valid: false, error: 'Short code must be at least 3 characters' };
   }
 
   if (code.length > 30) {
-    return { valid: false, error: 'Short code must be 30 characters or less' }
+    return { valid: false, error: 'Short code must be 30 characters or less' };
   }
 
   // Must start with a letter
   if (!/^[a-zA-Z]/.test(code)) {
-    return { valid: false, error: 'Short code must start with a letter' }
+    return { valid: false, error: 'Short code must start with a letter' };
   }
 
   // Only letters, numbers, and hyphens
   if (!/^[a-zA-Z][a-zA-Z0-9-]*$/.test(code)) {
-    return { valid: false, error: 'Short code can only contain letters, numbers, and hyphens' }
+    return { valid: false, error: 'Short code can only contain letters, numbers, and hyphens' };
   }
 
   // Cannot end with hyphen
   if (code.endsWith('-')) {
-    return { valid: false, error: 'Short code cannot end with a hyphen' }
+    return { valid: false, error: 'Short code cannot end with a hyphen' };
   }
 
   // Reserved words
   const reserved = [
-    'admin', 'api', 'app', 'auth', 'dashboard', 'go',
-    'login', 'signup', 'settings', 'help', 'support',
-    'about', 'contact', 'terms', 'privacy', 'blog',
-    'store', 'services', 'start-filing', 'account'
-  ]
+    'admin',
+    'api',
+    'app',
+    'auth',
+    'dashboard',
+    'go',
+    'login',
+    'signup',
+    'settings',
+    'help',
+    'support',
+    'about',
+    'contact',
+    'terms',
+    'privacy',
+    'blog',
+    'store',
+    'services',
+    'start-filing',
+    'account',
+  ];
 
   if (reserved.includes(code.toLowerCase())) {
-    return { valid: false, error: 'This short code is reserved' }
+    return { valid: false, error: 'This short code is reserved' };
   }
 
-  return { valid: true }
+  return { valid: true };
 }
 
 /**
@@ -108,10 +125,10 @@ export function validateShortCode(code: string): { valid: boolean; error?: strin
  */
 export async function isShortCodeAvailable(code: string): Promise<boolean> {
   const existing = await prisma.marketingLink.findUnique({
-    where: { code: code.toLowerCase() }
-  })
+    where: { code: code.toLowerCase() },
+  });
 
-  return !existing
+  return !existing;
 }
 
 /**
@@ -121,73 +138,68 @@ export async function isShortCodeAvailable(code: string): Promise<boolean> {
  * that redirects to the destination with tracking parameters.
  */
 export async function createShortLink(params: CreateShortLinkParams): Promise<ShortLinkData> {
-  const {
-    profileId,
-    shortCode,
-    destination,
-    title,
-    description,
-    campaign
-  } = params
+  const { profileId, shortCode, destination, title, description, campaign } = params;
 
   // Normalize short code
-  const normalizedCode = shortCode.toLowerCase().trim()
+  const normalizedCode = shortCode.toLowerCase().trim();
 
   // Validate format
-  const validation = validateShortCode(normalizedCode)
+  const validation = validateShortCode(normalizedCode);
   if (!validation.valid) {
-    throw new Error(validation.error)
+    throw new Error(validation.error);
   }
 
   // Check availability
-  const available = await isShortCodeAvailable(normalizedCode)
+  const available = await isShortCodeAvailable(normalizedCode);
   if (!available) {
-    throw new Error('This short code is already taken')
+    throw new Error('This short code is already taken');
   }
 
   // Get user's tracking code
-  const trackingData = await getUserTrackingCode(profileId)
+  const trackingData = await getUserTrackingCode(profileId);
   if (!trackingData) {
-    throw new Error('User tracking code not found')
+    throw new Error('User tracking code not found');
   }
 
   // Get creator profile info
   const profile = await prisma.profile.findUnique({
     where: { id: profileId },
-    select: { role: true }
-  })
+    select: { role: true },
+  });
 
   if (!profile) {
-    throw new Error('Profile not found')
+    throw new Error('Profile not found');
   }
 
   // Determine destination URL
-  const targetPage = destination.type === 'CUSTOM'
-    ? destination.customUrl || '/'
-    : DESTINATION_URLS[destination.type]
+  const targetPage =
+    destination.type === 'CUSTOM'
+      ? destination.customUrl || '/'
+      : DESTINATION_URLS[destination.type];
 
   // Build full URL with tracking
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax';
   const fullUrl = buildTrackingUrl(`${baseUrl}${targetPage}`, {
     trackingCode: trackingData.activeCode,
     source: 'short-link',
     medium: 'referral',
     campaign: campaign || 'short-link-campaign',
-    content: normalizedCode
-  })
+    content: normalizedCode,
+  });
 
   // Add link code parameter
-  const urlWithLink = `${fullUrl}&link=${normalizedCode}`
+  const urlWithLink = `${fullUrl}&link=${normalizedCode}`;
 
   // Generate QR code
-  const qrCodeDataUrl = await generateTrackingQRCode(urlWithLink)
+  const qrCodeDataUrl = await generateTrackingQRCode(urlWithLink);
 
   // Determine link type based on destination
   const linkTypeMap: Record<string, any> = {
     INTAKE_FORM: 'LANDING_PAGE',
     CONTACT_FORM: 'REFERRAL',
-    CUSTOM: 'CUSTOM'
-  }
+    BOOK_APPOINTMENT: 'LANDING_PAGE',
+    CUSTOM: 'CUSTOM',
+  };
 
   // Create MarketingLink
   const link = await prisma.marketingLink.create({
@@ -204,8 +216,8 @@ export async function createShortLink(params: CreateShortLinkParams): Promise<Sh
       targetPage,
       qrCodeImageUrl: qrCodeDataUrl,
       isActive: true,
-    }
-  })
+    },
+  });
 
   return {
     id: link.id,
@@ -221,7 +233,7 @@ export async function createShortLink(params: CreateShortLinkParams): Promise<Sh
     conversions: link.returnsFiled,
     isActive: link.isActive,
     createdAt: link.createdAt,
-  }
+  };
 }
 
 /**
@@ -233,13 +245,13 @@ export async function getUserShortLinks(profileId: string): Promise<ShortLinkDat
       creatorId: profileId,
     },
     orderBy: {
-      createdAt: 'desc'
-    }
-  })
+      createdAt: 'desc',
+    },
+  });
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax';
 
-  return links.map(link => ({
+  return links.map((link) => ({
     id: link.id,
     shortCode: link.code,
     shortUrl: link.shortUrl || `${baseUrl}/go/${link.code}`,
@@ -253,7 +265,7 @@ export async function getUserShortLinks(profileId: string): Promise<ShortLinkDat
     conversions: link.returnsFiled,
     isActive: link.isActive,
     createdAt: link.createdAt,
-  }))
+  }));
 }
 
 /**
@@ -261,14 +273,14 @@ export async function getUserShortLinks(profileId: string): Promise<ShortLinkDat
  */
 export async function getShortLinkByCode(code: string): Promise<ShortLinkData | null> {
   const link = await prisma.marketingLink.findUnique({
-    where: { code: code.toLowerCase() }
-  })
+    where: { code: code.toLowerCase() },
+  });
 
   if (!link) {
-    return null
+    return null;
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax';
 
   return {
     id: link.id,
@@ -284,7 +296,7 @@ export async function getShortLinkByCode(code: string): Promise<ShortLinkData | 
     conversions: link.returnsFiled,
     isActive: link.isActive,
     createdAt: link.createdAt,
-  }
+  };
 }
 
 /**
@@ -294,22 +306,22 @@ export async function updateShortLink(
   code: string,
   profileId: string,
   updates: {
-    title?: string
-    description?: string
-    isActive?: boolean
+    title?: string;
+    description?: string;
+    isActive?: boolean;
   }
 ): Promise<ShortLinkData> {
   // Verify ownership
   const link = await prisma.marketingLink.findUnique({
-    where: { code: code.toLowerCase() }
-  })
+    where: { code: code.toLowerCase() },
+  });
 
   if (!link) {
-    throw new Error('Short link not found')
+    throw new Error('Short link not found');
   }
 
   if (link.creatorId !== profileId) {
-    throw new Error('You do not have permission to update this link')
+    throw new Error('You do not have permission to update this link');
   }
 
   // Update link
@@ -319,10 +331,10 @@ export async function updateShortLink(
       title: updates.title,
       description: updates.description,
       isActive: updates.isActive,
-    }
-  })
+    },
+  });
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax'
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax';
 
   return {
     id: updated.id,
@@ -338,7 +350,7 @@ export async function updateShortLink(
     conversions: updated.returnsFiled,
     isActive: updated.isActive,
     createdAt: updated.createdAt,
-  }
+  };
 }
 
 /**
@@ -347,21 +359,21 @@ export async function updateShortLink(
 export async function deleteShortLink(code: string, profileId: string): Promise<void> {
   // Verify ownership
   const link = await prisma.marketingLink.findUnique({
-    where: { code: code.toLowerCase() }
-  })
+    where: { code: code.toLowerCase() },
+  });
 
   if (!link) {
-    throw new Error('Short link not found')
+    throw new Error('Short link not found');
   }
 
   if (link.creatorId !== profileId) {
-    throw new Error('You do not have permission to delete this link')
+    throw new Error('You do not have permission to delete this link');
   }
 
   // Delete link
   await prisma.marketingLink.delete({
-    where: { code: code.toLowerCase() }
-  })
+    where: { code: code.toLowerCase() },
+  });
 }
 
 /**
@@ -373,9 +385,9 @@ export async function incrementShortLinkClick(code: string): Promise<void> {
     where: { code: code.toLowerCase() },
     data: {
       clicks: { increment: 1 },
-      uniqueClicks: { increment: 1 } // Simplified - in production, track unique IPs
-    }
-  })
+      uniqueClicks: { increment: 1 }, // Simplified - in production, track unique IPs
+    },
+  });
 }
 
 /**
@@ -388,27 +400,23 @@ export async function getShortLinkAnalytics(code: string, profileId: string) {
     include: {
       linkClicks: {
         orderBy: { clickedAt: 'desc' },
-        take: 100
-      }
-    }
-  })
+        take: 100,
+      },
+    },
+  });
 
   if (!link) {
-    throw new Error('Short link not found')
+    throw new Error('Short link not found');
   }
 
   if (link.creatorId !== profileId) {
-    throw new Error('You do not have permission to view this link')
+    throw new Error('You do not have permission to view this link');
   }
 
   // Calculate conversion rates
-  const conversionRate = link.clicks > 0
-    ? (link.conversions / link.clicks) * 100
-    : 0
+  const conversionRate = link.clicks > 0 ? (link.conversions / link.clicks) * 100 : 0;
 
-  const leadConversionRate = link.clicks > 0
-    ? ((link.intakeStarts || 0) / link.clicks) * 100
-    : 0
+  const leadConversionRate = link.clicks > 0 ? ((link.intakeStarts || 0) / link.clicks) * 100 : 0;
 
   return {
     code: link.code,
@@ -423,13 +431,13 @@ export async function getShortLinkAnalytics(code: string, profileId: string) {
     leadConversionRate,
     isActive: link.isActive,
     createdAt: link.createdAt,
-    recentClicks: link.linkClicks.map(click => ({
+    recentClicks: link.linkClicks.map((click) => ({
       id: click.id,
       clickedAt: click.clickedAt,
       ipAddress: click.ipAddress,
       city: click.city,
       state: click.state,
       converted: click.converted,
-    }))
-  }
+    })),
+  };
 }

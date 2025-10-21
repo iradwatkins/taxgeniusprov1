@@ -7,17 +7,17 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 6.5
  */
 
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Download, FileSpreadsheet, FileText, Loader2 } from 'lucide-react'
+} from '@/components/ui/dropdown-menu';
+import { Download, FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
 import {
   exportMaterials,
   exportFunnel,
@@ -26,28 +26,28 @@ import {
   type MaterialPerformance,
   type FunnelData,
   type SourceData,
-  type ExportColumn
-} from '@/lib/utils/csv-export'
+  type ExportColumn,
+} from '@/lib/utils/csv-export';
 import {
   exportDashboardReport,
   exportMaterialsReport,
   exportFunnelReport,
-  type DashboardData
-} from '@/lib/utils/pdf-export'
-import { useToast } from '@/hooks/use-toast'
-import { logger } from '@/lib/logger'
+  type DashboardData,
+} from '@/lib/utils/pdf-export';
+import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/lib/logger';
 
 export interface ExportButtonProps {
-  data: any
-  type: 'materials' | 'dashboard' | 'funnel' | 'source' | 'custom'
-  dateRange?: string
-  userName?: string
-  variant?: 'default' | 'outline' | 'ghost'
-  size?: 'default' | 'sm' | 'lg' | 'icon'
+  data: MaterialPerformance[] | DashboardData | FunnelData | SourceData[] | unknown;
+  type: 'materials' | 'dashboard' | 'funnel' | 'source' | 'custom';
+  dateRange?: string;
+  userName?: string;
+  variant?: 'default' | 'outline' | 'ghost';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
 
   // For custom exports
-  customColumns?: ExportColumn[]
-  filePrefix?: string
+  customColumns?: ExportColumn[];
+  filePrefix?: string;
 }
 
 export function ExportButton({
@@ -58,108 +58,108 @@ export function ExportButton({
   variant = 'outline',
   size = 'sm',
   customColumns,
-  filePrefix
+  filePrefix,
 }: ExportButtonProps) {
-  const [isExporting, setIsExporting] = useState(false)
-  const { toast } = useToast()
+  const [isExporting, setIsExporting] = useState(false);
+  const { toast } = useToast();
 
   const handleExportCSV = async () => {
-    setIsExporting(true)
+    setIsExporting(true);
     try {
       switch (type) {
         case 'materials':
-          exportMaterials(data as MaterialPerformance[])
-          break
+          exportMaterials(data as MaterialPerformance[]);
+          break;
 
         case 'funnel':
-          exportFunnel(data as FunnelData[], dateRange)
-          break
+          exportFunnel(data as FunnelData[], dateRange);
+          break;
 
         case 'source':
-          exportSourceBreakdown(data as SourceData[], dateRange)
-          break
+          exportSourceBreakdown(data as SourceData[], dateRange);
+          break;
 
         case 'custom':
           if (!customColumns) {
-            throw new Error('Custom export requires columns definition')
+            throw new Error('Custom export requires columns definition');
           }
-          exportGeneric(data, customColumns, filePrefix)
-          break
+          exportGeneric(data, customColumns, filePrefix);
+          break;
 
         case 'dashboard':
           // Convert dashboard data to materials for CSV export
           if (data.materials) {
-            exportMaterials(data.materials)
+            exportMaterials(data.materials);
           }
-          break
+          break;
 
         default:
-          throw new Error(`Unknown export type: ${type}`)
+          throw new Error(`Unknown export type: ${type}`);
       }
 
       toast({
         title: 'Export Successful',
         description: 'CSV file has been downloaded',
-      })
+      });
     } catch (error) {
-      logger.error('CSV export error:', error)
+      logger.error('CSV export error:', error);
       toast({
         title: 'Export Failed',
         description: error instanceof Error ? error.message : 'Failed to export CSV',
         variant: 'destructive',
-      })
+      });
     } finally {
-      setIsExporting(false)
+      setIsExporting(false);
     }
-  }
+  };
 
   const handleExportPDF = async () => {
-    setIsExporting(true)
+    setIsExporting(true);
     try {
       switch (type) {
         case 'dashboard':
-          await exportDashboardReport(data as DashboardData)
-          break
+          await exportDashboardReport(data as DashboardData);
+          break;
 
         case 'materials':
           await exportMaterialsReport({
             materials: data as MaterialPerformance[],
             userName,
-            dateRange
-          })
-          break
+            dateRange,
+          });
+          break;
 
         case 'funnel':
           await exportFunnelReport({
             funnelData: data,
             userName,
             dateRange,
-            materialName: data.materialName
-          })
-          break
+            materialName: data.materialName,
+          });
+          break;
 
         default:
-          throw new Error(`PDF export not supported for type: ${type}`)
+          throw new Error(`PDF export not supported for type: ${type}`);
       }
 
       toast({
         title: 'Report Generated',
         description: 'PDF report has been downloaded',
-      })
+      });
     } catch (error) {
-      logger.error('PDF export error:', error)
+      logger.error('PDF export error:', error);
       toast({
         title: 'Export Failed',
         description: error instanceof Error ? error.message : 'Failed to generate PDF',
         variant: 'destructive',
-      })
+      });
     } finally {
-      setIsExporting(false)
+      setIsExporting(false);
     }
-  }
+  };
 
   // Determine if PDF export is available for this type
-  const pdfAvailable = ['dashboard', 'materials', 'funnel'].includes(type)
+  const pdfAvailable = ['dashboard', 'materials', 'funnel'].includes(type);
 
   return (
     <DropdownMenu>
@@ -191,7 +191,7 @@ export function ExportButton({
         )}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
 /**
@@ -204,77 +204,77 @@ export function SimpleExportButton({
   label = 'Export',
   ...props
 }: Omit<ExportButtonProps, 'variant' | 'size'> & {
-  format: 'csv' | 'pdf'
-  label?: string
-  variant?: 'default' | 'outline' | 'ghost'
-  size?: 'default' | 'sm' | 'lg' | 'icon'
+  format: 'csv' | 'pdf';
+  label?: string;
+  variant?: 'default' | 'outline' | 'ghost';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
 }) {
-  const [isExporting, setIsExporting] = useState(false)
-  const { toast } = useToast()
+  const [isExporting, setIsExporting] = useState(false);
+  const { toast } = useToast();
 
   const handleExport = async () => {
-    setIsExporting(true)
+    setIsExporting(true);
     try {
       if (format === 'csv') {
         switch (type) {
           case 'materials':
-            exportMaterials(data as MaterialPerformance[])
-            break
+            exportMaterials(data as MaterialPerformance[]);
+            break;
           case 'funnel':
-            exportFunnel(data as FunnelData[], props.dateRange || 'all')
-            break
+            exportFunnel(data as FunnelData[], props.dateRange || 'all');
+            break;
           case 'source':
-            exportSourceBreakdown(data as SourceData[], props.dateRange || 'all')
-            break
+            exportSourceBreakdown(data as SourceData[], props.dateRange || 'all');
+            break;
           case 'custom':
             if (!props.customColumns) {
-              throw new Error('Custom export requires columns definition')
+              throw new Error('Custom export requires columns definition');
             }
-            exportGeneric(data, props.customColumns, props.filePrefix)
-            break
+            exportGeneric(data, props.customColumns, props.filePrefix);
+            break;
         }
         toast({
           title: 'Export Successful',
           description: 'CSV file has been downloaded',
-        })
+        });
       } else {
         // PDF export
         switch (type) {
           case 'dashboard':
-            await exportDashboardReport(data as DashboardData)
-            break
+            await exportDashboardReport(data as DashboardData);
+            break;
           case 'materials':
             await exportMaterialsReport({
               materials: data as MaterialPerformance[],
               userName: props.userName || 'User',
-              dateRange: props.dateRange || 'all'
-            })
-            break
+              dateRange: props.dateRange || 'all',
+            });
+            break;
           case 'funnel':
             await exportFunnelReport({
               funnelData: data,
               userName: props.userName || 'User',
               dateRange: props.dateRange || 'all',
-              materialName: data.materialName
-            })
-            break
+              materialName: data.materialName,
+            });
+            break;
         }
         toast({
           title: 'Report Generated',
           description: 'PDF report has been downloaded',
-        })
+        });
       }
     } catch (error) {
-      logger.error('Export error:', error)
+      logger.error('Export error:', error);
       toast({
         title: 'Export Failed',
         description: error instanceof Error ? error.message : 'Failed to export',
         variant: 'destructive',
-      })
+      });
     } finally {
-      setIsExporting(false)
+      setIsExporting(false);
     }
-  }
+  };
 
   return (
     <Button
@@ -299,5 +299,5 @@ export function SimpleExportButton({
         </>
       )}
     </Button>
-  )
+  );
 }

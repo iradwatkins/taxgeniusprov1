@@ -7,22 +7,19 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 6
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/db'
-import { getPayoutHistory } from '@/lib/services/commission.service'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/db';
+import { getPayoutHistory } from '@/lib/services/commission.service';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
     // Authenticate user
-    const { userId } = await auth()
+    const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user profile with username
@@ -31,33 +28,30 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         shortLinkUsername: true,
-        role: true
-      }
-    })
+        role: true,
+      },
+    });
 
     if (!profile || !profile.shortLinkUsername) {
       return NextResponse.json({
         payouts: [],
-        total: 0
-      })
+        total: 0,
+      });
     }
 
     // Get limit parameter
-    const searchParams = request.nextUrl.searchParams
-    const limit = parseInt(searchParams.get('limit') || '20')
+    const searchParams = request.nextUrl.searchParams;
+    const limit = parseInt(searchParams.get('limit') || '20');
 
     // Get payout history
-    const payouts = await getPayoutHistory(profile.shortLinkUsername, limit)
+    const payouts = await getPayoutHistory(profile.shortLinkUsername, limit);
 
     return NextResponse.json({
       payouts,
-      total: payouts.length
-    })
+      total: payouts.length,
+    });
   } catch (error) {
-    logger.error('Error fetching payout history', { error })
-    return NextResponse.json(
-      { error: 'Failed to fetch payout history' },
-      { status: 500 }
-    )
+    logger.error('Error fetching payout history', { error });
+    return NextResponse.json({ error: 'Failed to fetch payout history' }, { status: 500 });
   }
 }

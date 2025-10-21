@@ -5,12 +5,12 @@
  * be performed with actual admin privileges, not while viewing as another role
  */
 
-import { currentUser } from '@clerk/nextjs/server'
-import { UserRole } from '@/lib/permissions'
-import { getEffectiveRole } from './role-switcher'
-import { logProtectedOperationAttempt } from '../services/audit-log.service'
-import type { ProtectedOperation } from '@/types/role-switcher'
-import { logger } from '@/lib/logger'
+import { currentUser } from '@clerk/nextjs/server';
+import { UserRole } from '@/lib/permissions';
+import { getEffectiveRole } from './role-switcher';
+import { logProtectedOperationAttempt } from '../services/audit-log.service';
+import type { ProtectedOperation } from '@/types/role-switcher';
+import { logger } from '@/lib/logger';
 
 /**
  * Error thrown when protected operation is attempted while viewing as another role
@@ -21,8 +21,8 @@ export class ProtectedOperationError extends Error {
     public operation: string,
     public viewingRole: UserRole
   ) {
-    super(message)
-    this.name = 'ProtectedOperationError'
+    super(message);
+    this.name = 'ProtectedOperationError';
   }
 }
 
@@ -30,53 +30,45 @@ export class ProtectedOperationError extends Error {
  * Check if current user has actual admin privileges (not viewing role)
  * Throws error if user is viewing as another role
  */
-export async function requireActualAdminRole(
-  operation: ProtectedOperation
-): Promise<{
-  userId: string
-  email: string
-  actualRole: UserRole
+export async function requireActualAdminRole(operation: ProtectedOperation): Promise<{
+  userId: string;
+  email: string;
+  actualRole: UserRole;
 }> {
-  const user = await currentUser()
+  const user = await currentUser();
 
   if (!user) {
-    throw new Error('Unauthorized - User not authenticated')
+    throw new Error('Unauthorized - User not authenticated');
   }
 
-  const actualRole = user.publicMetadata?.role as UserRole
+  const actualRole = user.publicMetadata?.role as UserRole;
   const email =
-    user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)
-      ?.emailAddress || 'unknown'
+    user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress || 'unknown';
 
   // Check if user is actually an admin
   if (actualRole !== 'super_admin' && actualRole !== 'admin') {
-    throw new Error('Forbidden - Admin privileges required')
+    throw new Error('Forbidden - Admin privileges required');
   }
 
   // Check if admin is viewing as another role
-  const roleInfo = await getEffectiveRole(actualRole, user.id)
+  const roleInfo = await getEffectiveRole(actualRole, user.id);
 
   if (roleInfo.isViewingAsOtherRole) {
     // Log the blocked attempt
-    await logProtectedOperationAttempt(
-      user.id,
-      email,
-      operation,
-      roleInfo.effectiveRole
-    )
+    await logProtectedOperationAttempt(user.id, email, operation, roleInfo.effectiveRole);
 
     throw new ProtectedOperationError(
       `This action requires actual admin privileges. You are currently viewing as ${roleInfo.viewingRoleName}. Please exit preview mode and try again.`,
       operation,
       roleInfo.effectiveRole
-    )
+    );
   }
 
   return {
     userId: user.id,
     email,
     actualRole,
-  }
+  };
 }
 
 /**
@@ -85,14 +77,10 @@ export async function requireActualAdminRole(
  */
 export async function protectedAction<T>(
   operation: ProtectedOperation,
-  action: (adminInfo: {
-    userId: string
-    email: string
-    actualRole: UserRole
-  }) => Promise<T>
+  action: (adminInfo: { userId: string; email: string; actualRole: UserRole }) => Promise<T>
 ): Promise<T> {
-  const adminInfo = await requireActualAdminRole(operation)
-  return await action(adminInfo)
+  const adminInfo = await requireActualAdminRole(operation);
+  return await action(adminInfo);
 }
 
 /**
@@ -103,14 +91,14 @@ export async function canPerformProtectedOperation(
   operation: ProtectedOperation
 ): Promise<boolean> {
   try {
-    await requireActualAdminRole(operation)
-    return true
+    await requireActualAdminRole(operation);
+    return true;
   } catch (error) {
     if (error instanceof ProtectedOperationError) {
-      return false
+      return false;
     }
     // Re-throw non-protected-operation errors
-    throw error
+    throw error;
   }
 }
 
@@ -119,31 +107,31 @@ export async function canPerformProtectedOperation(
  * Returns null if not viewing as another role
  */
 export async function getViewingStatus(): Promise<{
-  isViewing: boolean
-  actualRole?: UserRole
-  viewingRole?: UserRole
-  viewingRoleName?: string
+  isViewing: boolean;
+  actualRole?: UserRole;
+  viewingRole?: UserRole;
+  viewingRoleName?: string;
 } | null> {
   try {
-    const user = await currentUser()
-    if (!user) return null
+    const user = await currentUser();
+    if (!user) return null;
 
-    const actualRole = user.publicMetadata?.role as UserRole
+    const actualRole = user.publicMetadata?.role as UserRole;
     if (actualRole !== 'super_admin' && actualRole !== 'admin') {
-      return null
+      return null;
     }
 
-    const roleInfo = await getEffectiveRole(actualRole, user.id)
+    const roleInfo = await getEffectiveRole(actualRole, user.id);
 
     return {
       isViewing: roleInfo.isViewingAsOtherRole,
       actualRole: roleInfo.actualRole,
       viewingRole: roleInfo.effectiveRole,
       viewingRoleName: roleInfo.viewingRoleName,
-    }
+    };
   } catch (error) {
-    logger.error('Error getting viewing status:', error)
-    return null
+    logger.error('Error getting viewing status:', error);
+    return null;
   }
 }
 

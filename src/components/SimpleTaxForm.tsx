@@ -5,16 +5,19 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowRight, ArrowLeft, Upload, FileUp, Share2, Sparkles } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Upload, FileUp, Share2, Sparkles, CheckCircle, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
+import { PreparerCard } from '@/components/PreparerCard';
+import Image from 'next/image';
+import { useUser } from '@clerk/nextjs';
 
 // Tax intake form data structure
 interface TaxFormData {
@@ -74,10 +77,22 @@ interface TaxFormData {
   license_file: File | null;
 }
 
+interface PreparerInfo {
+  firstName: string;
+  lastName: string;
+  avatarUrl?: string | null;
+  companyName?: string | null;
+  licenseNo?: string | null;
+  bio?: string | null;
+}
+
 export default function SimpleTaxForm() {
+  const { user, isLoaded } = useUser();
   const [page, setPage] = useState(1);
   const [isDesktop, setIsDesktop] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [showThankYou, setShowThankYou] = useState(false);
+  const [preparer, setPreparer] = useState<PreparerInfo | null>(null);
   const [formData, setFormData] = useState<TaxFormData>({
     first_name: '',
     middle_name: '',
@@ -111,6 +126,38 @@ export default function SimpleTaxForm() {
     license_expiration: '',
     license_file: null,
   });
+
+  // Fetch preparer info on mount
+  useEffect(() => {
+    const fetchPreparerInfo = async () => {
+      try {
+        const response = await fetch('/api/preparer/info');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.preparer) {
+            setPreparer(data.preparer);
+            logger.info('Preparer info loaded', { preparer: data.preparer.firstName });
+          }
+        }
+      } catch (error) {
+        logger.error('Error fetching preparer info:', error);
+      }
+    };
+
+    fetchPreparerInfo();
+  }, []);
+
+  // Auto-fill email from authenticated user
+  useEffect(() => {
+    if (isLoaded && user && user.emailAddresses && user.emailAddresses.length > 0) {
+      const userEmail = user.emailAddresses[0].emailAddress;
+      setFormData(prev => ({
+        ...prev,
+        email: userEmail
+      }));
+      logger.info('Email auto-filled from authenticated user', { email: userEmail });
+    }
+  }, [isLoaded, user]);
 
   // Detect screen size
   useEffect(() => {
@@ -200,45 +247,107 @@ export default function SimpleTaxForm() {
   };
 
   const handleSubmit = async () => {
-    // Save to localStorage and redirect to auth
+    // Save to localStorage
     localStorage.setItem('taxFormData', JSON.stringify(formData));
-    window.location.href = `/auth/signup?email=${encodeURIComponent(formData.email)}&role=client&redirect_url=/upload-documents`;
+
+    // Check if user is authenticated
+    if (user && isLoaded) {
+      // Authenticated user: show thank you page, then auto-redirect to dashboard
+      logger.info('Authenticated user submitted tax form', { userId: user.id });
+      setShowThankYou(true);
+    } else {
+      // Unauthenticated user: redirect to signup, then to referral tab
+      logger.info('Unauthenticated user submitted tax form, redirecting to signup');
+      window.location.href = `/auth/signup?email=${encodeURIComponent(formData.email)}&hint=tax_client&redirect_url=/dashboard/client?tab=referrals`;
+    }
   };
 
   const isPageValid = (): boolean => {
     if (isDesktop) {
       // Desktop: 10 grouped pages
       switch (page) {
-        case 1: return true; // Welcome
-        case 2: return !!(formData.first_name && formData.last_name && formData.email && formData.phone && formData.address_line_1 && formData.city && formData.state && formData.zip_code); // Personal + Address
-        case 3: return !!(formData.date_of_birth && formData.ssn); // Identity
-        case 4: return !!(formData.claimed_as_dependent && formData.filing_status && formData.employment_type && formData.occupation); // Dependent Status + Filing
-        case 5: return !!(formData.in_college && formData.has_dependents && (formData.has_dependents === 'none' || formData.number_of_dependents)); // Education + Dependents
-        case 6: return !!formData.has_mortgage; // Mortgage
-        case 7: return !!(formData.denied_eitc && formData.has_irs_pin); // Tax Credits + IRS PIN
-        case 8: return !!formData.wants_refund_advance; // Refund Advance
-        case 9: return !!(formData.drivers_license && formData.license_expiration); // ID Documents
-        case 10: return true; // Congratulations
-        default: return false;
+        case 1:
+          return true; // Welcome
+        case 2:
+          return !!(
+            formData.first_name &&
+            formData.last_name &&
+            formData.email &&
+            formData.phone &&
+            formData.address_line_1 &&
+            formData.city &&
+            formData.state &&
+            formData.zip_code
+          ); // Personal + Address
+        case 3:
+          return !!(formData.date_of_birth && formData.ssn); // Identity
+        case 4:
+          return !!(
+            formData.claimed_as_dependent &&
+            formData.filing_status &&
+            formData.employment_type &&
+            formData.occupation
+          ); // Dependent Status + Filing
+        case 5:
+          return !!(
+            formData.in_college &&
+            formData.has_dependents &&
+            (formData.has_dependents === 'none' || formData.number_of_dependents)
+          ); // Education + Dependents
+        case 6:
+          return !!formData.has_mortgage; // Mortgage
+        case 7:
+          return !!(formData.denied_eitc && formData.has_irs_pin); // Tax Credits + IRS PIN
+        case 8:
+          return !!formData.wants_refund_advance; // Refund Advance
+        case 9:
+          return !!(formData.drivers_license && formData.license_expiration); // ID Documents
+        case 10:
+          return true; // Congratulations
+        default:
+          return false;
       }
     } else {
       // Mobile: 14 individual pages
       switch (page) {
-        case 1: return true; // Welcome
-        case 2: return !!(formData.first_name && formData.last_name && formData.email && formData.phone);
-        case 3: return !!(formData.address_line_1 && formData.city && formData.state && formData.zip_code);
-        case 4: return !!(formData.date_of_birth && formData.ssn);
-        case 5: return !!formData.claimed_as_dependent;
-        case 6: return !!(formData.filing_status && formData.employment_type && formData.occupation);
-        case 7: return !!formData.in_college;
-        case 8: return !!(formData.has_dependents && (formData.has_dependents === 'none' || formData.number_of_dependents));
-        case 9: return !!formData.has_mortgage;
-        case 10: return !!formData.denied_eitc;
-        case 11: return !!formData.has_irs_pin;
-        case 12: return !!formData.wants_refund_advance;
-        case 13: return !!(formData.drivers_license && formData.license_expiration);
-        case 14: return true; // Congratulations
-        default: return false;
+        case 1:
+          return true; // Welcome
+        case 2:
+          return !!(formData.first_name && formData.last_name && formData.email && formData.phone);
+        case 3:
+          return !!(
+            formData.address_line_1 &&
+            formData.city &&
+            formData.state &&
+            formData.zip_code
+          );
+        case 4:
+          return !!(formData.date_of_birth && formData.ssn);
+        case 5:
+          return !!formData.claimed_as_dependent;
+        case 6:
+          return !!(formData.filing_status && formData.employment_type && formData.occupation);
+        case 7:
+          return !!formData.in_college;
+        case 8:
+          return !!(
+            formData.has_dependents &&
+            (formData.has_dependents === 'none' || formData.number_of_dependents)
+          );
+        case 9:
+          return !!formData.has_mortgage;
+        case 10:
+          return !!formData.denied_eitc;
+        case 11:
+          return !!formData.has_irs_pin;
+        case 12:
+          return !!formData.wants_refund_advance;
+        case 13:
+          return !!(formData.drivers_license && formData.license_expiration);
+        case 14:
+          return true; // Congratulations
+        default:
+          return false;
       }
     }
   };
@@ -248,100 +357,240 @@ export default function SimpleTaxForm() {
     if (isDesktop) {
       // Desktop pages (grouped)
       switch (page) {
-        case 1: return <WelcomePage onNext={handleNext} />;
-        case 2: return <PersonalAndAddressPage formData={formData} handleInputChange={handleInputChange} setFormData={setFormData} />;
-        case 3: return <IdentityPage formData={formData} handleInputChange={handleInputChange} />;
-        case 4: return <DependentAndFilingPage formData={formData} handleInputChange={handleInputChange} setFormData={setFormData} />;
-        case 5: return <EducationAndDependentsPage formData={formData} handleInputChange={handleInputChange} setFormData={setFormData} />;
-        case 6: return <MortgagePage formData={formData} setFormData={setFormData} />;
-        case 7: return <TaxCreditsAndPinPage formData={formData} handleInputChange={handleInputChange} setFormData={setFormData} />;
-        case 8: return <RefundAdvancePage formData={formData} setFormData={setFormData} />;
-        case 9: return <IdDocumentsPage formData={formData} handleInputChange={handleInputChange} handleFileChange={handleFileChange} />;
-        case 10: return <CongratulationsPage handleSubmit={handleSubmit} />;
-        default: return null;
+        case 1:
+          return <WelcomePage onNext={handleNext} />;
+        case 2:
+          return (
+            <PersonalAndAddressPage
+              formData={formData}
+              handleInputChange={handleInputChange}
+              setFormData={setFormData}
+            />
+          );
+        case 3:
+          return <IdentityPage formData={formData} handleInputChange={handleInputChange} />;
+        case 4:
+          return (
+            <DependentAndFilingPage
+              formData={formData}
+              handleInputChange={handleInputChange}
+              setFormData={setFormData}
+            />
+          );
+        case 5:
+          return (
+            <EducationAndDependentsPage
+              formData={formData}
+              handleInputChange={handleInputChange}
+              setFormData={setFormData}
+            />
+          );
+        case 6:
+          return <MortgagePage formData={formData} setFormData={setFormData} />;
+        case 7:
+          return (
+            <TaxCreditsAndPinPage
+              formData={formData}
+              handleInputChange={handleInputChange}
+              setFormData={setFormData}
+            />
+          );
+        case 8:
+          return <RefundAdvancePage formData={formData} setFormData={setFormData} />;
+        case 9:
+          return (
+            <IdDocumentsPage
+              formData={formData}
+              handleInputChange={handleInputChange}
+              handleFileChange={handleFileChange}
+            />
+          );
+        case 10:
+          return <CongratulationsPage handleSubmit={handleSubmit} />;
+        default:
+          return null;
       }
     } else {
       // Mobile pages (individual)
       switch (page) {
-        case 1: return <WelcomePage onNext={handleNext} />;
-        case 2: return <PersonalInfoPage formData={formData} handleInputChange={handleInputChange} setFormData={setFormData} />;
-        case 3: return <AddressPage formData={formData} handleInputChange={handleInputChange} />;
-        case 4: return <IdentityPage formData={formData} handleInputChange={handleInputChange} />;
-        case 5: return <DependentStatusPage formData={formData} setFormData={setFormData} />;
-        case 6: return <FilingStatusPage formData={formData} handleInputChange={handleInputChange} setFormData={setFormData} />;
-        case 7: return <EducationPage formData={formData} setFormData={setFormData} />;
-        case 8: return <DependentsPage formData={formData} setFormData={setFormData} />;
-        case 9: return <MortgagePage formData={formData} setFormData={setFormData} />;
-        case 10: return <TaxCreditsPage formData={formData} setFormData={setFormData} />;
-        case 11: return <IrsPinPage formData={formData} handleInputChange={handleInputChange} setFormData={setFormData} />;
-        case 12: return <RefundAdvancePage formData={formData} setFormData={setFormData} />;
-        case 13: return <IdDocumentsPage formData={formData} handleInputChange={handleInputChange} handleFileChange={handleFileChange} />;
-        case 14: return <CongratulationsPage handleSubmit={handleSubmit} />;
-        default: return null;
+        case 1:
+          return <WelcomePage onNext={handleNext} />;
+        case 2:
+          return (
+            <PersonalInfoPage
+              formData={formData}
+              handleInputChange={handleInputChange}
+              setFormData={setFormData}
+            />
+          );
+        case 3:
+          return <AddressPage formData={formData} handleInputChange={handleInputChange} />;
+        case 4:
+          return <IdentityPage formData={formData} handleInputChange={handleInputChange} />;
+        case 5:
+          return <DependentStatusPage formData={formData} setFormData={setFormData} />;
+        case 6:
+          return (
+            <FilingStatusPage
+              formData={formData}
+              handleInputChange={handleInputChange}
+              setFormData={setFormData}
+            />
+          );
+        case 7:
+          return <EducationPage formData={formData} setFormData={setFormData} />;
+        case 8:
+          return <DependentsPage formData={formData} setFormData={setFormData} />;
+        case 9:
+          return <MortgagePage formData={formData} setFormData={setFormData} />;
+        case 10:
+          return <TaxCreditsPage formData={formData} setFormData={setFormData} />;
+        case 11:
+          return (
+            <IrsPinPage
+              formData={formData}
+              handleInputChange={handleInputChange}
+              setFormData={setFormData}
+            />
+          );
+        case 12:
+          return <RefundAdvancePage formData={formData} setFormData={setFormData} />;
+        case 13:
+          return (
+            <IdDocumentsPage
+              formData={formData}
+              handleInputChange={handleInputChange}
+              handleFileChange={handleFileChange}
+            />
+          );
+        case 14:
+          return <CongratulationsPage handleSubmit={handleSubmit} />;
+        default:
+          return null;
       }
     }
   };
 
+  // Show thank you page for authenticated users after submission
+  if (showThankYou) {
+    return (
+      <Card className="w-full max-w-3xl mx-auto shadow-xl">
+        <CardContent className="p-8">
+          <ThankYouPage />
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="w-full max-w-3xl mx-auto shadow-xl">
-      {/* Progress Header */}
-      {page > 1 && page < totalPages && (
-        <CardHeader>
-          <div className="flex items-center justify-between mb-2">
-            <Badge variant="secondary" className="text-sm">
-              Page {page} of {totalPages}
-            </Badge>
-            <span className="text-sm text-muted-foreground">{Math.round(((page - 1) / (totalPages - 1)) * 100)}% Complete</span>
-          </div>
-          <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary transition-all duration-300"
-              style={{ width: `${((page - 1) / (totalPages - 1)) * 100}%` }}
-            />
-          </div>
-        </CardHeader>
+    <div className="space-y-6">
+      {/* Preparer Card - Show on all pages if preparer is assigned */}
+      {preparer && page > 1 && (
+        <PreparerCard preparer={preparer} />
       )}
 
-      <CardContent className="space-y-6 p-8">
-        {getPageContent()}
-
-        {/* Navigation Buttons */}
+      <Card className="w-full max-w-3xl mx-auto shadow-xl">
+        {/* Progress Header */}
         {page > 1 && page < totalPages && (
-          <div className="flex gap-4 pt-6">
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              className="flex-1"
-              onClick={handleBack}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-            <Button
-              type="button"
-              size="lg"
-              className="flex-1"
-              onClick={handleNext}
-              disabled={!isPageValid() || isSaving}
-            >
-              {isSaving ? 'Saving...' : 'Next'}
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </div>
+          <CardHeader>
+            <div className="flex items-center justify-between mb-2">
+              <Badge variant="secondary" className="text-sm">
+                Page {page} of {totalPages}
+              </Badge>
+              <span className="text-sm text-muted-foreground">
+                {Math.round(((page - 1) / (totalPages - 1)) * 100)}% Complete
+              </span>
+            </div>
+            <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary transition-all duration-300"
+                style={{ width: `${((page - 1) / (totalPages - 1)) * 100}%` }}
+              />
+            </div>
+          </CardHeader>
         )}
-      </CardContent>
-    </Card>
+
+        <CardContent className="space-y-6 p-8">
+          {getPageContent()}
+
+          {/* Navigation Buttons */}
+          {page > 1 && page < totalPages && (
+            <div className="flex gap-4 pt-6">
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="flex-1"
+                onClick={handleBack}
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+              <Button
+                type="button"
+                size="lg"
+                className="flex-1"
+                onClick={handleNext}
+                disabled={!isPageValid() || isSaving}
+              >
+                {isSaving ? 'Saving...' : 'Next'}
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
 // Individual Page Components
 
+function ThankYouPage() {
+  useEffect(() => {
+    // Auto-redirect to client dashboard after 3 seconds
+    const timer = setTimeout(() => {
+      window.location.href = '/dashboard/client?tab=referrals';
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div className="space-y-8 text-center py-12">
+      <div className="w-20 h-20 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto">
+        <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" />
+      </div>
+      <div className="space-y-4">
+        <h2 className="text-3xl font-bold">Thank You!</h2>
+        <p className="text-xl text-muted-foreground">
+          Your tax information has been submitted successfully.
+        </p>
+        <p className="text-lg">
+          Get your referral link and start earning money by referring friends!
+        </p>
+      </div>
+      <div className="flex items-center justify-center gap-2 text-muted-foreground">
+        <Loader2 className="w-5 h-5 animate-spin" />
+        <span className="text-sm">Please wait</span>
+      </div>
+    </div>
+  );
+}
+
 function WelcomePage({ onNext }: { onNext: () => void }) {
   return (
     <div className="space-y-8 text-center py-8">
-      <div className="w-32 h-32 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full mx-auto flex items-center justify-center">
-        <Sparkles className="w-16 h-16 text-primary" />
+      {/* Tax Genius Logo */}
+      <div className="flex justify-center">
+        <Image
+          src="/images/tax-genius-logo.png"
+          alt="Tax Genius Pro - Owliver"
+          width={240}
+          height={120}
+          className="h-24 w-auto"
+          priority
+        />
       </div>
       <div className="space-y-4">
         <h2 className="text-3xl font-bold">Hi! I'm Owliver</h2>
@@ -349,9 +598,7 @@ function WelcomePage({ onNext }: { onNext: () => void }) {
           Your trusted Tax Genius, ready to help you maximize your returns.
         </p>
         <div className="max-w-md mx-auto pt-4">
-          <p className="text-lg">
-            Let's start with the basic questions and we will do the rest.
-          </p>
+          <p className="text-lg">Let's start with the basic questions and we will do the rest.</p>
         </div>
       </div>
       <Button size="lg" onClick={onNext} className="mt-8">
@@ -514,7 +761,11 @@ function AddressPage({ formData, handleInputChange }: any) {
 function PersonalAndAddressPage({ formData, handleInputChange, setFormData }: any) {
   return (
     <div className="space-y-8">
-      <PersonalInfoPage formData={formData} handleInputChange={handleInputChange} setFormData={setFormData} />
+      <PersonalInfoPage
+        formData={formData}
+        handleInputChange={handleInputChange}
+        setFormData={setFormData}
+      />
       <div className="border-t pt-8">
         <AddressPage formData={formData} handleInputChange={handleInputChange} />
       </div>
@@ -571,10 +822,14 @@ function DependentStatusPage({ formData, setFormData }: any) {
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base">Will anyone be claiming you or plans on claiming you as their Dependent this Tax season? *</Label>
+        <Label className="text-base">
+          Will anyone be claiming you or plans on claiming you as their Dependent this Tax season? *
+        </Label>
         <Select
           value={formData.claimed_as_dependent}
-          onValueChange={(value) => setFormData({ ...formData, claimed_as_dependent: value as any })}
+          onValueChange={(value) =>
+            setFormData({ ...formData, claimed_as_dependent: value as any })
+          }
         >
           <SelectTrigger className="text-lg p-6 h-auto">
             <SelectValue placeholder="Select an option" />
@@ -611,7 +866,9 @@ function FilingStatusPage({ formData, handleInputChange, setFormData }: any) {
             <SelectItem value="Married filing separately">Married filing separately</SelectItem>
             <SelectItem value="Married filing jointly">Married filing jointly</SelectItem>
             <SelectItem value="Head of House Hold">Head of House Hold</SelectItem>
-            <SelectItem value="Qualifying widow(er) with dependent child">Qualifying widow(er) with dependent child</SelectItem>
+            <SelectItem value="Qualifying widow(er) with dependent child">
+              Qualifying widow(er) with dependent child
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -655,7 +912,11 @@ function DependentAndFilingPage({ formData, handleInputChange, setFormData }: an
     <div className="space-y-8">
       <DependentStatusPage formData={formData} setFormData={setFormData} />
       <div className="border-t pt-8">
-        <FilingStatusPage formData={formData} handleInputChange={handleInputChange} setFormData={setFormData} />
+        <FilingStatusPage
+          formData={formData}
+          handleInputChange={handleInputChange}
+          setFormData={setFormData}
+        />
       </div>
     </div>
   );
@@ -730,10 +991,15 @@ function DependentsPage({ formData, setFormData }: any) {
       )}
 
       <div className="space-y-3">
-        <Label className="text-base">Are any/all of your dependents under 24 and a full-time student, or any age and disabled? *</Label>
+        <Label className="text-base">
+          Are any/all of your dependents under 24 and a full-time student, or any age and disabled?
+          *
+        </Label>
         <Select
           value={formData.dependents_under_24_student_or_disabled}
-          onValueChange={(value) => setFormData({ ...formData, dependents_under_24_student_or_disabled: value as any })}
+          onValueChange={(value) =>
+            setFormData({ ...formData, dependents_under_24_student_or_disabled: value as any })
+          }
         >
           <SelectTrigger className="text-lg p-6 h-auto">
             <SelectValue placeholder="Select an option" />
@@ -749,7 +1015,9 @@ function DependentsPage({ formData, setFormData }: any) {
         <Label className="text-base">Are Your Dependents in College? *</Label>
         <Select
           value={formData.dependents_in_college}
-          onValueChange={(value) => setFormData({ ...formData, dependents_in_college: value as any })}
+          onValueChange={(value) =>
+            setFormData({ ...formData, dependents_in_college: value as any })
+          }
         >
           <SelectTrigger className="text-lg p-6 h-auto">
             <SelectValue placeholder="Select an option" />
@@ -762,7 +1030,9 @@ function DependentsPage({ formData, setFormData }: any) {
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base">Did A Person or Organizations (Company) Provide Child Care? *</Label>
+        <Label className="text-base">
+          Did A Person or Organizations (Company) Provide Child Care? *
+        </Label>
         <Select
           value={formData.child_care_provider}
           onValueChange={(value) => setFormData({ ...formData, child_care_provider: value as any })}
@@ -828,7 +1098,9 @@ function TaxCreditsPage({ formData, setFormData }: any) {
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base">Have you ever been denied the Earned Income Tax Credit? *</Label>
+        <Label className="text-base">
+          Have you ever been denied the Earned Income Tax Credit? *
+        </Label>
         <Select
           value={formData.denied_eitc}
           onValueChange={(value) => setFormData({ ...formData, denied_eitc: value as any })}
@@ -843,7 +1115,9 @@ function TaxCreditsPage({ formData, setFormData }: any) {
         </Select>
         <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-4">
           <p className="text-sm text-blue-900 dark:text-blue-100">
-            <strong>Note:</strong> If the IRS rejected one or more of these credits: EITC, CTC, ACTC or AOTC, you may have received a letter stating that the credit was disallowed. Keep filling out the forms and we will see what can be done to fix this issue.
+            <strong>Note:</strong> If the IRS rejected one or more of these credits: EITC, CTC, ACTC
+            or AOTC, you may have received a letter stating that the credit was disallowed. Keep
+            filling out the forms and we will see what can be done to fix this issue.
           </p>
         </div>
       </div>
@@ -901,7 +1175,11 @@ function TaxCreditsAndPinPage({ formData, handleInputChange, setFormData }: any)
     <div className="space-y-8">
       <TaxCreditsPage formData={formData} setFormData={setFormData} />
       <div className="border-t pt-8">
-        <IrsPinPage formData={formData} handleInputChange={handleInputChange} setFormData={setFormData} />
+        <IrsPinPage
+          formData={formData}
+          handleInputChange={handleInputChange}
+          setFormData={setFormData}
+        />
       </div>
     </div>
   );
@@ -919,7 +1197,9 @@ function RefundAdvancePage({ formData, setFormData }: any) {
         <Label className="text-base">Would You Like Refund Cash Advance? *</Label>
         <Select
           value={formData.wants_refund_advance}
-          onValueChange={(value) => setFormData({ ...formData, wants_refund_advance: value as any })}
+          onValueChange={(value) =>
+            setFormData({ ...formData, wants_refund_advance: value as any })
+          }
         >
           <SelectTrigger className="text-lg p-6 h-auto">
             <SelectValue placeholder="Select an option" />
@@ -998,9 +1278,7 @@ function CongratulationsPage({ handleSubmit }: any) {
       </div>
       <div className="space-y-4">
         <h2 className="text-3xl font-bold">Congratulations!</h2>
-        <p className="text-xl text-muted-foreground">
-          You've completed the tax intake form!
-        </p>
+        <p className="text-xl text-muted-foreground">You've completed the tax intake form!</p>
       </div>
 
       <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-8 max-w-2xl mx-auto">
@@ -1008,10 +1286,12 @@ function CongratulationsPage({ handleSubmit }: any) {
           <div className="text-5xl">💰</div>
           <h3 className="text-2xl font-bold">Earn Money with Referrals!</h3>
           <p className="text-lg leading-relaxed">
-            Get <span className="font-bold text-primary">$50 for each person</span> who completes their taxes with us.
+            Get <span className="font-bold text-primary">$50 for each person</span> who completes
+            their taxes with us.
           </p>
           <p className="text-lg leading-relaxed">
-            After your 10th referral, I'll crank it up to <span className="font-bold text-primary">$100 per person!</span>
+            After your 10th referral, I'll crank it up to{' '}
+            <span className="font-bold text-primary">$100 per person!</span>
           </p>
           <div className="pt-4">
             <Button size="lg" variant="outline" asChild>

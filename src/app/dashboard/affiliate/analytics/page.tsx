@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
 import {
   MousePointerClick,
   UserPlus,
@@ -9,38 +9,38 @@ import {
   TrendingUp,
   Award,
   Clock,
-} from 'lucide-react'
-import { getMyAffiliateAnalytics } from '@/lib/services/lead-analytics.service'
-import { MetricsGrid } from '@/components/admin/analytics/MetricsGrid'
-import { createFunnelStages } from '@/lib/utils/analytics'
-import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart'
-import { ExportButton } from '@/components/admin/analytics/ExportButton'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+} from 'lucide-react';
+import { getMyAffiliateAnalytics } from '@/lib/services/lead-analytics.service';
+import { MetricsGrid } from '@/components/admin/analytics/MetricsGrid';
+import { createFunnelStages } from '@/lib/utils/analytics';
+import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart';
+import { ExportButton } from '@/components/admin/analytics/ExportButton';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export const metadata = {
   title: 'My Lead Analytics | Tax Genius Pro',
   description: 'Track your affiliate performance and commissions',
-}
+};
 
 async function checkAffiliateAccess() {
-  const user = await currentUser()
-  if (!user) return { hasAccess: false, userId: null }
+  const user = await currentUser();
+  if (!user) return { hasAccess: false, userId: null };
 
-  const role = user.publicMetadata?.role as string
-  const hasAccess = role === 'affiliate'
+  const role = user.publicMetadata?.role as string;
+  const hasAccess = role === 'affiliate';
 
-  return { hasAccess, userId: user.id }
+  return { hasAccess, userId: user.id };
 }
 
 export default async function AffiliateAnalyticsPage() {
-  const { hasAccess, userId } = await checkAffiliateAccess()
+  const { hasAccess, userId } = await checkAffiliateAccess();
 
   if (!hasAccess || !userId) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
   // Fetch my analytics - ONLY my data
-  const myData = await getMyAffiliateAnalytics(userId)
+  const myData = await getMyAffiliateAnalytics(userId);
 
   // Create funnel data
   const funnelStages = createFunnelStages(
@@ -48,7 +48,7 @@ export default async function AffiliateAnalyticsPage() {
     myData.leads,
     myData.conversions,
     myData.returnsFiled
-  )
+  );
 
   // Prepare export data
   const exportData = {
@@ -66,7 +66,7 @@ export default async function AffiliateAnalyticsPage() {
     lastActive: myData.lastActive?.toISOString() || 'Never',
     linkBreakdown: myData.linkBreakdown,
     recentLeads: myData.recentLeads,
-  }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -78,45 +78,41 @@ export default async function AffiliateAnalyticsPage() {
             Track your affiliate performance, leads, and commissions
           </p>
         </div>
-        <ExportButton
-          data={[exportData]}
-          filename="my-affiliate-analytics"
-          variant="default"
-        />
+        <ExportButton data={[exportData]} filename="my-affiliate-analytics" variant="default" />
       </div>
 
       {/* Key Metrics */}
       <MetricsGrid
         metrics={[
           {
-            title: "Marketing Links",
+            title: 'Marketing Links',
             value: myData.marketingLinksCount,
             icon: Link2,
-            color: "blue",
-            format: "number",
-            subtitle: "Active campaigns"
+            color: 'blue',
+            format: 'number',
+            subtitle: 'Active campaigns',
           },
           {
-            title: "Total Clicks",
+            title: 'Total Clicks',
             value: myData.clicks,
             icon: MousePointerClick,
-            color: "purple",
-            format: "number"
+            color: 'purple',
+            format: 'number',
           },
           {
-            title: "Leads Generated",
+            title: 'Leads Generated',
             value: myData.leads,
             icon: UserPlus,
-            color: "green",
-            format: "number"
+            color: 'green',
+            format: 'number',
           },
           {
-            title: "Total Revenue",
+            title: 'Total Revenue',
             value: myData.revenue,
             icon: DollarSign,
-            color: "yellow",
-            format: "currency"
-          }
+            color: 'yellow',
+            format: 'currency',
+          },
         ]}
       />
 
@@ -124,35 +120,35 @@ export default async function AffiliateAnalyticsPage() {
       <MetricsGrid
         metrics={[
           {
-            title: "Commissions Earned",
+            title: 'Commissions Earned',
             value: myData.commissionsEarned,
             icon: Award,
-            color: "green",
-            format: "currency",
-            subtitle: "Paid out"
+            color: 'green',
+            format: 'currency',
+            subtitle: 'Paid out',
           },
           {
-            title: "Pending Commissions",
+            title: 'Pending Commissions',
             value: myData.commissionsPending,
             icon: Clock,
-            color: "orange",
-            format: "currency",
-            subtitle: "Awaiting payment"
+            color: 'orange',
+            format: 'currency',
+            subtitle: 'Awaiting payment',
           },
           {
-            title: "Conversion Rate",
+            title: 'Conversion Rate',
             value: myData.conversionRate.toFixed(1),
             icon: TrendingUp,
-            color: "purple",
-            format: "percent"
+            color: 'purple',
+            format: 'percent',
           },
           {
-            title: "Earnings per Lead",
+            title: 'Earnings per Lead',
             value: myData.leads > 0 ? myData.commissionsEarned / myData.leads : 0,
             icon: DollarSign,
-            color: "blue",
-            format: "currency"
-          }
+            color: 'blue',
+            format: 'currency',
+          },
         ]}
       />
 
@@ -175,16 +171,11 @@ export default async function AffiliateAnalyticsPage() {
           <CardContent>
             <div className="space-y-3">
               {myData.linkBreakdown.map((link) => (
-                <div
-                  key={link.linkId}
-                  className="p-4 border rounded-lg space-y-3"
-                >
+                <div key={link.linkId} className="p-4 border rounded-lg space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <p className="font-medium truncate">{link.linkName}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {link.linkUrl}
-                      </p>
+                      <p className="text-xs text-muted-foreground truncate">{link.linkUrl}</p>
                     </div>
                     <div className="text-right ml-4">
                       <p className="text-sm font-semibold">{link.conversionRate.toFixed(1)}%</p>
@@ -235,9 +226,7 @@ export default async function AffiliateAnalyticsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Recent Leads</CardTitle>
-            <CardDescription>
-              Your latest generated leads from affiliate campaigns
-            </CardDescription>
+            <CardDescription>Your latest generated leads from affiliate campaigns</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -298,5 +287,5 @@ export default async function AffiliateAnalyticsPage() {
         </Card>
       )}
     </div>
-  )
+  );
 }

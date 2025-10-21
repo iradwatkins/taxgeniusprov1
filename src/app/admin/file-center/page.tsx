@@ -1,10 +1,10 @@
 import { redirect } from 'next/navigation';
 import { currentUser } from '@clerk/nextjs/server';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import {
   FolderOpen,
   FileText,
@@ -20,7 +20,7 @@ import {
   User,
 } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 export default async function FileCenterPage() {
   const user = await currentUser();
@@ -33,8 +33,8 @@ export default async function FileCenterPage() {
   if (!permissions.clientFileCenter) redirect('/forbidden');
 
   // Fetch document statistics
-  let documentStats: any[] = []
-  let totalDocuments = 0
+  let documentStats: any[] = [];
+  let totalDocuments = 0;
 
   try {
     documentStats = await prisma.document.groupBy({
@@ -44,7 +44,7 @@ export default async function FileCenterPage() {
 
     totalDocuments = await prisma.document.count();
   } catch (error) {
-    logger.error('Error fetching document statistics:', error)
+    logger.error('Error fetching document statistics:', error);
     // Continue with empty data - will show "0 documents" message
   }
 
@@ -138,14 +138,19 @@ export default async function FileCenterPage() {
                         <Badge variant="secondary">
                           {Math.floor(Math.random() * 20 + 5)} files
                         </Badge>
-                        <Button size="sm" variant="outline">Open</Button>
+                        <Button size="sm" variant="outline">
+                          Open
+                        </Button>
                       </div>
                     </div>
 
                     {/* Year subfolders */}
                     <div className="mt-4 ml-8 space-y-2">
                       {['2024', '2023', '2022'].map((year) => (
-                        <div key={year} className="flex items-center justify-between p-2 hover:bg-muted/50 rounded">
+                        <div
+                          key={year}
+                          className="flex items-center justify-between p-2 hover:bg-muted/50 rounded"
+                        >
                           <div className="flex items-center gap-2">
                             <FolderOpen className="w-4 h-4 text-yellow-600" />
                             <span className="text-sm">{year} Tax Year</span>

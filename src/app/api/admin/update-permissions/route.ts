@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUser, clerkClient } from '@clerk/nextjs/server';
 import { UserRole, UserPermissions } from '@/lib/permissions';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,10 +9,7 @@ export async function POST(request: NextRequest) {
     const user = await currentUser();
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const isSuperAdmin = user.publicMetadata?.role === 'super_admin';
@@ -33,10 +30,7 @@ export async function POST(request: NextRequest) {
     };
 
     if (!role) {
-      return NextResponse.json(
-        { error: 'Missing required field: role' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required field: role' }, { status: 400 });
     }
 
     // Handle default permissions update (for all admin users)
@@ -44,17 +38,17 @@ export async function POST(request: NextRequest) {
       // Update all admin users with the new default permissions
       const client = await clerkClient();
       const users = await client.users.getUserList({
-        limit: 100 // Adjust as needed
+        limit: 100, // Adjust as needed
       });
 
-      const adminUsers = users.data.filter(u => u.publicMetadata?.role === 'admin');
+      const adminUsers = users.data.filter((u) => u.publicMetadata?.role === 'admin');
 
-      const updatePromises = adminUsers.map(adminUser =>
+      const updatePromises = adminUsers.map((adminUser) =>
         client.users.updateUserMetadata(adminUser.id, {
           publicMetadata: {
             ...adminUser.publicMetadata,
             permissions: permissions,
-          }
+          },
         })
       );
 
@@ -68,19 +62,20 @@ export async function POST(request: NextRequest) {
     }
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Missing required field: userId' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required field: userId' }, { status: 400 });
     }
 
     // Validate role
-    const validRoles: UserRole[] = ['super_admin', 'admin', 'lead', 'tax_preparer', 'affiliate', 'client'];
+    const validRoles: UserRole[] = [
+      'super_admin',
+      'admin',
+      'lead',
+      'tax_preparer',
+      'affiliate',
+      'client',
+    ];
     if (!validRoles.includes(role)) {
-      return NextResponse.json(
-        { error: 'Invalid role specified' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid role specified' }, { status: 400 });
     }
 
     // Prevent super admin from demoting themselves
@@ -97,7 +92,7 @@ export async function POST(request: NextRequest) {
       publicMetadata: {
         role: role,
         permissions: permissions,
-      }
+      },
     });
 
     // Get updated user info for response
@@ -112,14 +107,11 @@ export async function POST(request: NextRequest) {
         lastName: targetUser.lastName,
         role: targetUser.publicMetadata?.role,
         permissions: targetUser.publicMetadata?.permissions,
-      }
+      },
     });
   } catch (error) {
     logger.error('Error updating user permissions:', error);
-    return NextResponse.json(
-      { error: 'Failed to update permissions' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to update permissions' }, { status: 500 });
   }
 }
 
@@ -129,10 +121,7 @@ export async function GET(request: NextRequest) {
     const user = await currentUser();
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const isSuperAdmin = user.publicMetadata?.role === 'super_admin';
@@ -149,10 +138,7 @@ export async function GET(request: NextRequest) {
     const userId = searchParams.get('userId');
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
 
     // Get user from Clerk
@@ -160,10 +146,7 @@ export async function GET(request: NextRequest) {
     const targetUser = await client.users.getUser(userId);
 
     if (!targetUser) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Return user's current role and permissions
@@ -175,13 +158,10 @@ export async function GET(request: NextRequest) {
         lastName: targetUser.lastName,
         role: targetUser.publicMetadata?.role || 'client',
         permissions: targetUser.publicMetadata?.permissions || {},
-      }
+      },
     });
   } catch (error) {
     logger.error('Error fetching user permissions:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch permissions' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch permissions' }, { status: 500 });
   }
 }

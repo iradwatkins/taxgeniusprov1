@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { useShoppingCart } from '@/lib/hooks/useShoppingCart';
 import { CartItem } from '../_components/CartItem';
 import { toast } from 'sonner';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 export default function CartPage() {
   const router = useRouter();
@@ -112,13 +112,18 @@ export default function CartPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <Link href="/store" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4">
+        <Link
+          href="/store"
+          className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4"
+        >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Continue Shopping
         </Link>
         <h1 className="text-4xl font-bold">Shopping Cart</h1>
         <p className="text-muted-foreground">
-          {itemCount > 0 ? `${itemCount} item${itemCount !== 1 ? 's' : ''} in your cart` : 'Your cart is empty'}
+          {itemCount > 0
+            ? `${itemCount} item${itemCount !== 1 ? 's' : ''} in your cart`
+            : 'Your cart is empty'}
         </p>
       </div>
 

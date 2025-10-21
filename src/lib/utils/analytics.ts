@@ -4,10 +4,10 @@
  */
 
 export interface FunnelStage {
-  name: string
-  value: number
-  percentage: number
-  color: string
+  name: string;
+  value: number;
+  percentage: number;
+  color: string;
 }
 
 /**
@@ -19,7 +19,7 @@ export function createFunnelStages(
   conversions: number,
   returnsFiled: number
 ): FunnelStage[] {
-  const total = clicks || 1
+  const total = clicks || 1;
 
   return [
     {
@@ -46,5 +46,5 @@ export function createFunnelStages(
       percentage: (returnsFiled / total) * 100,
       color: '#f59e0b', // yellow
     },
-  ]
+  ];
 }

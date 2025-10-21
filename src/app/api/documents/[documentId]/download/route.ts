@@ -1,9 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { currentUser } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma'
-import { documentRateLimit, getClientIdentifier, getUserIdentifier, getRateLimitHeaders, checkRateLimit } from '@/lib/rate-limit'
-import { SignJWT } from 'jose'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { currentUser } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/prisma';
+import {
+  documentRateLimit,
+  getClientIdentifier,
+  getUserIdentifier,
+  getRateLimitHeaders,
+  checkRateLimit,
+} from '@/lib/rate-limit';
+import { SignJWT } from 'jose';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/documents/[documentId]/download
@@ -15,60 +21,48 @@ import { logger } from '@/lib/logger'
  * - Rate limited: 30 requests per minute per user
  * - Signed URLs with 15-minute expiry
  */
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { documentId: string } }
-) {
+export async function GET(req: NextRequest, { params }: { params: { documentId: string } }) {
   try {
-    const user = await currentUser()
+    const user = await currentUser();
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Rate limiting
-    const ip = getClientIdentifier(req)
-    const identifier = getUserIdentifier(user.id, ip)
-    const rateLimitResult = await checkRateLimit(identifier, documentRateLimit)
+    const ip = getClientIdentifier(req);
+    const identifier = getUserIdentifier(user.id, ip);
+    const rateLimitResult = await checkRateLimit(identifier, documentRateLimit);
 
     if (!rateLimitResult.success) {
       return NextResponse.json(
         {
           error: 'Too many requests. Please try again later.',
-          retryAfter: rateLimitResult.retryAfter
+          retryAfter: rateLimitResult.retryAfter,
         },
         {
           status: 429,
-          headers: getRateLimitHeaders(rateLimitResult)
+          headers: getRateLimitHeaders(rateLimitResult),
         }
-      )
+      );
     }
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user profile
     const profile = await prisma.profile.findFirst({
       where: {
-        user: { email: user.emailAddresses[0]?.emailAddress }
-      }
-    })
+        user: { email: user.emailAddresses[0]?.emailAddress },
+      },
+    });
 
     if (!profile) {
-      return NextResponse.json(
-        { error: 'Profile not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
-    const documentId = params.documentId
+    const documentId = params.documentId;
 
     // Get document with related tax return and profile
     const document = await prisma.document.findUnique({
@@ -76,26 +70,23 @@ export async function GET(
       include: {
         taxReturn: {
           include: {
-            profile: true
-          }
+            profile: true,
+          },
         },
-        profile: true
-      }
-    })
+        profile: true,
+      },
+    });
 
     if (!document) {
-      return NextResponse.json(
-        { error: 'Document not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Document not found' }, { status: 404 });
     }
 
     // Authorization check
-    let isAuthorized = false
+    let isAuthorized = false;
 
     // Check if user is the document owner (client)
     if (document.profileId === profile.id) {
-      isAuthorized = true
+      isAuthorized = true;
     }
 
     // Check if user is an assigned preparer
@@ -104,30 +95,30 @@ export async function GET(
         where: {
           preparerId: profile.id,
           clientId: document.taxReturn.profileId,
-          isActive: true
-        }
-      })
+          isActive: true,
+        },
+      });
 
       if (assignment) {
-        isAuthorized = true
+        isAuthorized = true;
       }
     }
 
     // Check if user is admin
     if (profile.role === 'ADMIN') {
-      isAuthorized = true
+      isAuthorized = true;
     }
 
     if (!isAuthorized) {
       return NextResponse.json(
         { error: 'Not authorized to access this document' },
         { status: 403 }
-      )
+      );
     }
 
     // Generate signed URL with 15-minute expiry
-    const signedUrl = await generateSignedUrl(document.id, document.fileUrl, user.id, 15)
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000)
+    const signedUrl = await generateSignedUrl(document.id, document.fileUrl, user.id, 15);
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
     return NextResponse.json(
       {
@@ -138,20 +129,16 @@ export async function GET(
           fileType: document.fileType,
           fileSize: document.fileSize,
           downloadUrl: signedUrl,
-          expiresAt: expiresAt.toISOString()
-        }
+          expiresAt: expiresAt.toISOString(),
+        },
       },
       {
-        headers: getRateLimitHeaders(rateLimitResult)
+        headers: getRateLimitHeaders(rateLimitResult),
       }
-    )
-
+    );
   } catch (error) {
-    logger.error('Error generating document download URL:', error)
-    return NextResponse.json(
-      { error: 'Failed to generate download URL' },
-      { status: 500 }
-    )
+    logger.error('Error generating document download URL:', error);
+    return NextResponse.json({ error: 'Failed to generate download URL' }, { status: 500 });
   }
 }
 
@@ -170,11 +157,11 @@ async function generateSignedUrl(
   userId: string,
   expiryMinutes: number = 15
 ): Promise<string> {
-  const jwtSecret = process.env.JWT_SECRET || process.env.CLERK_SECRET_KEY
+  const jwtSecret = process.env.JWT_SECRET || process.env.CLERK_SECRET_KEY;
   if (!jwtSecret) {
-    throw new Error('CRITICAL: JWT_SECRET or CLERK_SECRET_KEY environment variable is missing')
+    throw new Error('CRITICAL: JWT_SECRET or CLERK_SECRET_KEY environment variable is missing');
   }
-  const secret = new TextEncoder().encode(jwtSecret)
+  const secret = new TextEncoder().encode(jwtSecret);
 
   // Create JWT token with document access claims
   const token = await new SignJWT({
@@ -185,9 +172,9 @@ async function generateSignedUrl(
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(`${expiryMinutes}m`)
-    .sign(secret)
+    .sign(secret);
 
   // Return URL with token (will be verified by view endpoint)
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3005'
-  return `${appUrl}/api/documents/view/${token}`
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3005';
+  return `${appUrl}/api/documents/view/${token}`;
 }

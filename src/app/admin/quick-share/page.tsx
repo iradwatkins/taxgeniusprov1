@@ -14,20 +14,20 @@
  * - Real-time click tracking
  */
 
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
-import { getUserPermissions, UserRole } from '@/lib/permissions'
-import { QuickShareDashboard } from '@/components/links/QuickShareDashboard'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
+import { getUserPermissions, UserRole } from '@/lib/permissions';
+import { QuickShareDashboard } from '@/components/links/QuickShareDashboard';
 
 export default async function QuickShareLinksPage() {
-  const user = await currentUser()
-  if (!user) redirect('/auth/login')
+  const user = await currentUser();
+  if (!user) redirect('/auth/login');
 
-  const role = user.publicMetadata?.role as UserRole | undefined
-  const customPermissions = user.publicMetadata?.permissions as any
-  const permissions = getUserPermissions(role || 'client', customPermissions)
+  const role = user.publicMetadata?.role as UserRole | undefined;
+  const customPermissions = user.publicMetadata?.permissions as any;
+  const permissions = getUserPermissions(role || 'client', customPermissions);
 
-  if (!permissions.quickShareLinks) redirect('/forbidden')
+  if (!permissions.quickShareLinks) redirect('/forbidden');
 
-  return <QuickShareDashboard />
+  return <QuickShareDashboard />;
 }

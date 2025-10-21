@@ -1,22 +1,26 @@
 {
-  "name": "Tax Genius Pro",
-  "short_name": "TaxGenius",
-  "description": "Professional tax preparation and management platform",
-  "theme_color": "#ff6b35",
-  "background_color": "#ffffff",
-  "display": "standalone",
-  "orientation": "portrait",
-  "scope": "/",
-  "start_url": "/",
-  "id": "tax-genius-pro",
-  "categories": ["business", "finance", "productivity"],
-  "icons": [
-    {
-      "src": "/favicon.ico",
-      "sizes": "48x48",
-      "type": "image/x-icon"
-    }
-  ],
-  "prefer_related_applications": false,
-  "related_applications": []
+    "name": "Tax Genius Pro",
+    "short_name": "TaxGenius",
+    "description": "Professional tax preparation and management platform",
+    "theme_color": "#ff6b35",
+    "background_color": "#ffffff",
+    "display": "standalone",
+    "orientation": "portrait",
+    "scope": "/",
+    "start_url": "/",
+    "id": "tax-genius-pro",
+    "categories": [
+        "business",
+        "finance",
+        "productivity"
+    ],
+    "icons": [
+        {
+            "src": "/favicon.ico",
+            "sizes": "48x48",
+            "type": "image/x-icon"
+        }
+    ],
+    "prefer_related_applications": false,
+    "related_applications": []
 }

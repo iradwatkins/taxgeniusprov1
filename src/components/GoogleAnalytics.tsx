@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import Script from 'next/script'
+import Script from 'next/script';
 
 /**
  * Google Analytics 4 Integration Component
@@ -12,16 +12,16 @@ import Script from 'next/script'
  */
 
 export interface GoogleAnalyticsProps {
-  userId?: string
-  trackingCode?: string
+  userId?: string;
+  trackingCode?: string;
 }
 
 export function GoogleAnalytics({ userId, trackingCode }: GoogleAnalyticsProps = {}) {
-  const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+  const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   // Only load GA if measurement ID is configured
   if (!measurementId) {
-    return null
+    return null;
   }
 
   return (
@@ -117,5 +117,5 @@ export function GoogleAnalytics({ userId, trackingCode }: GoogleAnalyticsProps =
         `}
       </Script>
     </>
-  )
+  );
 }

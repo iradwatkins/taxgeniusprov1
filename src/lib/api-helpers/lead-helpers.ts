@@ -7,31 +7,31 @@
  * Eliminates 240 lines of duplicated code across 3 API routes.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { logger } from '@/lib/logger';
 
 // ============ Types ============
 
 export interface RequestMetadata {
-  ipAddress: string
-  userAgent: string
-  referer: string | null
+  ipAddress: string;
+  userAgent: string;
+  referer: string | null;
 }
 
 export interface UtmParameters {
-  utmSource: string | null
-  utmMedium: string | null
-  utmCampaign: string | null
-  utmTerm: string | null
-  utmContent: string | null
+  utmSource: string | null;
+  utmMedium: string | null;
+  utmCampaign: string | null;
+  utmTerm: string | null;
+  utmContent: string | null;
 }
 
 export interface LeadCreateResult {
-  success: boolean
-  message: string
-  leadId?: string
-  errors?: any[]
+  success: boolean;
+  message: string;
+  leadId?: string;
+  errors?: any[];
 }
 
 // ============ Request Metadata Extraction ============
@@ -46,7 +46,7 @@ export function extractIpAddress(request: NextRequest): string {
     request.headers.get('x-real-ip') ||
     request.headers.get('cf-connecting-ip') || // Cloudflare
     'unknown'
-  )
+  );
 }
 
 /**
@@ -57,7 +57,7 @@ export function extractRequestMetadata(request: NextRequest): RequestMetadata {
     ipAddress: extractIpAddress(request),
     userAgent: request.headers.get('user-agent') || 'unknown',
     referer: request.headers.get('referer') || null,
-  }
+  };
 }
 
 // ============ UTM Parameter Extraction ============
@@ -73,7 +73,7 @@ export function extractUtmParams(body: any): UtmParameters {
     utmCampaign: body.utmCampaign || body.utm_campaign || null,
     utmTerm: body.utmTerm || body.utm_term || null,
     utmContent: body.utmContent || body.utm_content || null,
-  }
+  };
 }
 
 /**
@@ -87,7 +87,7 @@ export function extractUtmFromUrl(url: URL): UtmParameters {
     utmCampaign: url.searchParams.get('utm_campaign'),
     utmTerm: url.searchParams.get('utm_term'),
     utmContent: url.searchParams.get('utm_content'),
-  }
+  };
 }
 
 // ============ Error Handling ============
@@ -101,13 +101,13 @@ export function handleValidationError(error: z.ZodError): NextResponse {
     {
       success: false,
       message: 'Invalid form data. Please check your input and try again.',
-      errors: error.errors.map(err => ({
+      errors: error.errors.map((err) => ({
         field: err.path.join('.'),
         message: err.message,
       })),
     },
     { status: 400 }
-  )
+  );
 }
 
 /**
@@ -118,16 +118,16 @@ export function handleApiError(
   error: unknown,
   context: string = 'processing your request'
 ): NextResponse {
-  logger.error(`Error ${context}:`, error)
+  logger.error(`Error ${context}:`, error);
 
   // Check for Zod validation errors
   if (error instanceof z.ZodError) {
-    return handleValidationError(error)
+    return handleValidationError(error);
   }
 
   // Check for Prisma errors
   if (error && typeof error === 'object' && 'code' in error) {
-    const prismaError = error as { code: string; meta?: any }
+    const prismaError = error as { code: string; meta?: any };
 
     // Duplicate key error
     if (prismaError.code === 'P2002') {
@@ -137,7 +137,7 @@ export function handleApiError(
           message: 'A record with this information already exists.',
         },
         { status: 409 }
-      )
+      );
     }
 
     // Foreign key constraint error
@@ -148,7 +148,7 @@ export function handleApiError(
           message: 'Invalid reference. Please check your data.',
         },
         { status: 400 }
-      )
+      );
     }
   }
 
@@ -159,7 +159,7 @@ export function handleApiError(
       message: `An error occurred while ${context}. Please try again later.`,
     },
     { status: 500 }
-  )
+  );
 }
 
 // ============ Success Response Builders ============
@@ -180,7 +180,7 @@ export function createLeadSuccessResponse(
       ...additionalData,
     },
     { status: 201 }
-  )
+  );
 }
 
 // ============ Validation Helpers ============
@@ -193,13 +193,13 @@ export const commonLeadFields = {
   lastName: z.string().min(1, 'Last name is required').max(50),
   email: z.string().email('Invalid email address').toLowerCase(),
   phone: z.string().min(10, 'Phone number must be at least 10 digits').max(15),
-}
+};
 
 /**
  * Sanitize string input (remove leading/trailing whitespace, normalize)
  */
 export function sanitizeString(value: string): string {
-  return value.trim().replace(/\s+/g, ' ')
+  return value.trim().replace(/\s+/g, ' ');
 }
 
 /**
@@ -207,7 +207,7 @@ export function sanitizeString(value: string): string {
  * Strips all non-numeric characters
  */
 export function formatPhoneNumber(phone: string): string {
-  return phone.replace(/\D/g, '')
+  return phone.replace(/\D/g, '');
 }
 
 // ============ Rate Limiting Helpers ============
@@ -222,7 +222,7 @@ export async function checkRateLimit(
 ): Promise<{ allowed: boolean; retryAfter?: number }> {
   // TODO: Implement rate limiting logic
   // For now, always allow
-  return { allowed: true }
+  return { allowed: true };
 }
 
 // ============ Notification Helpers ============
@@ -231,11 +231,8 @@ export async function checkRateLimit(
  * Queue email notification (placeholder)
  * TODO: Integrate with email service (Resend, SendGrid, etc.)
  */
-export async function queueAdminNotification(
-  leadType: string,
-  leadData: any
-): Promise<void> {
-  logger.info(`[TODO] Send admin notification for ${leadType} lead:`, leadData.email)
+export async function queueAdminNotification(leadType: string, leadData: any): Promise<void> {
+  logger.info(`[TODO] Send admin notification for ${leadType} lead:`, leadData.email);
   // TODO: Implement email notification
 }
 
@@ -248,7 +245,7 @@ export async function queueConfirmationEmail(
   email: string,
   firstName: string
 ): Promise<void> {
-  logger.info(`[TODO] Send confirmation email to ${email} for ${leadType} lead`)
+  logger.info(`[TODO] Send confirmation email to ${email} for ${leadType} lead`);
   // TODO: Implement confirmation email
 }
 
@@ -258,11 +255,8 @@ export async function queueConfirmationEmail(
  * Trigger webhook for lead creation (placeholder)
  * TODO: Integrate with webhook service
  */
-export async function triggerLeadWebhook(
-  leadType: string,
-  leadData: any
-): Promise<void> {
-  logger.info(`[TODO] Trigger webhook for ${leadType} lead:`, leadData.id)
+export async function triggerLeadWebhook(leadType: string, leadData: any): Promise<void> {
+  logger.info(`[TODO] Trigger webhook for ${leadType} lead:`, leadData.id);
   // TODO: Implement webhook trigger
   // This could integrate with:
   // - CRM systems (Salesforce, HubSpot)
@@ -282,8 +276,8 @@ export function getLeadTypeName(type: string): string {
     TAX_PREPARER: 'Tax Preparer',
     AFFILIATE: 'Affiliate',
     REFERRER: 'Referrer',
-  }
-  return typeMap[type] || type
+  };
+  return typeMap[type] || type;
 }
 
 /**
@@ -294,9 +288,9 @@ export function getLeadSuccessMessage(type: string): string {
     CUSTOMER: "Thank you! We've received your information and will contact you within 24 hours.",
     TAX_PREPARER: 'Application received! Our team will review your credentials within 24-48 hours.',
     AFFILIATE: 'Welcome to the team! Check your email for affiliate dashboard login details.',
-    REFERRER: 'Thank you for your referral! We\'ll keep you updated on the status.',
-  }
-  return messages[type] || 'Thank you! Your submission has been received.'
+    REFERRER: "Thank you for your referral! We'll keep you updated on the status.",
+  };
+  return messages[type] || 'Thank you! Your submission has been received.';
 }
 
 // ============ Data Enrichment ============
@@ -306,16 +300,16 @@ export function getLeadSuccessMessage(type: string): string {
  * This can include geolocation, browser detection, etc.
  */
 export interface EnrichedLeadData {
-  metadata: RequestMetadata
-  utm: UtmParameters
+  metadata: RequestMetadata;
+  utm: UtmParameters;
   enrichment?: {
-    country?: string
-    region?: string
-    city?: string
-    browser?: string
-    os?: string
-    device?: string
-  }
+    country?: string;
+    region?: string;
+    city?: string;
+    browser?: string;
+    os?: string;
+    device?: string;
+  };
 }
 
 /**
@@ -323,38 +317,49 @@ export interface EnrichedLeadData {
  * This is a simple implementation - consider using a library like ua-parser-js
  */
 export function parseUserAgent(userAgent: string): {
-  browser: string
-  os: string
-  device: string
+  browser: string;
+  os: string;
+  device: string;
 } {
   // Simplified detection - in production, use a proper parser
-  const browser = userAgent.includes('Chrome') ? 'Chrome'
-    : userAgent.includes('Safari') ? 'Safari'
-    : userAgent.includes('Firefox') ? 'Firefox'
-    : userAgent.includes('Edge') ? 'Edge'
-    : 'Other'
+  const browser = userAgent.includes('Chrome')
+    ? 'Chrome'
+    : userAgent.includes('Safari')
+      ? 'Safari'
+      : userAgent.includes('Firefox')
+        ? 'Firefox'
+        : userAgent.includes('Edge')
+          ? 'Edge'
+          : 'Other';
 
-  const os = userAgent.includes('Windows') ? 'Windows'
-    : userAgent.includes('Mac') ? 'macOS'
-    : userAgent.includes('Linux') ? 'Linux'
-    : userAgent.includes('Android') ? 'Android'
-    : userAgent.includes('iOS') ? 'iOS'
-    : 'Other'
+  const os = userAgent.includes('Windows')
+    ? 'Windows'
+    : userAgent.includes('Mac')
+      ? 'macOS'
+      : userAgent.includes('Linux')
+        ? 'Linux'
+        : userAgent.includes('Android')
+          ? 'Android'
+          : userAgent.includes('iOS')
+            ? 'iOS'
+            : 'Other';
 
-  const device = userAgent.includes('Mobile') ? 'Mobile'
-    : userAgent.includes('Tablet') ? 'Tablet'
-    : 'Desktop'
+  const device = userAgent.includes('Mobile')
+    ? 'Mobile'
+    : userAgent.includes('Tablet')
+      ? 'Tablet'
+      : 'Desktop';
 
-  return { browser, os, device }
+  return { browser, os, device };
 }
 
 /**
  * Enrich request with all available metadata
  */
 export function enrichLeadData(request: NextRequest, body: any): EnrichedLeadData {
-  const metadata = extractRequestMetadata(request)
-  const utm = extractUtmParams(body)
-  const { browser, os, device } = parseUserAgent(metadata.userAgent)
+  const metadata = extractRequestMetadata(request);
+  const utm = extractUtmParams(body);
+  const { browser, os, device } = parseUserAgent(metadata.userAgent);
 
   return {
     metadata,
@@ -368,5 +373,5 @@ export function enrichLeadData(request: NextRequest, body: any): EnrichedLeadDat
       // region: getRegionFromIp(metadata.ipAddress),
       // city: getCityFromIp(metadata.ipAddress),
     },
-  }
+  };
 }

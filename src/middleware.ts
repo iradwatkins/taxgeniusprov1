@@ -3,39 +3,98 @@ import { NextResponse } from 'next/server';
 import { clerkClient } from '@clerk/nextjs/server';
 import { getUserPermissions, UserRole, UserPermissions, Permission } from '@/lib/permissions';
 import { utmTrackingMiddleware } from '@/middleware/utm-tracking';
-import { attributionTrackingMiddleware, isShortLinkRequest } from '@/middleware/attribution-tracking';
+import {
+  attributionTrackingMiddleware,
+  isShortLinkRequest,
+} from '@/middleware/attribution-tracking';
 import { getEffectiveRole } from '@/lib/utils/role-switcher';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 const isPublicRoute = createRouteMatcher([
+  // ===== Authentication Routes =====
   '/auth/login(.*)',
   '/auth/signup(.*)',
+  '/auth/test-login', // Test authentication page (development only)
+  '/api/auth/test-login', // Test authentication API (development only)
+
+  // ===== Marketing & Info Pages =====
   '/',
-  '/preparer(.*)',
-  '/referral(.*)',
-  '/affiliate(.*)',      // Affiliate pages (application, info)
-  '/start-filing(.*)',   // Customer lead generation page
-  '/find-a-refund(.*)',  // Public refund tracker utility
-  '/refund-advance(.*)', // Refund advance information page
-  '/tax-calculator(.*)', // Interactive tax calculator
   '/about(.*)',
   '/services(.*)',
   '/contact(.*)',
+  '/testimonials(.*)', // Customer testimonials
+  '/forbidden', // Error page (users get redirected here)
+
+  // ===== Service Pages =====
   '/personal-tax-filing(.*)', // Personal tax services page
-  '/business-tax(.*)',   // Business tax services page
-  '/tax-planning(.*)',   // Tax planning & advisory page
+  '/business-tax(.*)', // Business tax services page
+  '/tax-planning(.*)', // Tax planning & advisory page
   '/audit-protection(.*)', // Audit protection page
   '/irs-resolution(.*)', // IRS resolution services page
-  '/tax-guide(.*)',      // 2024 tax guide page
-  '/blog(.*)',           // Tax blog & tips page
-  '/help(.*)',           // Help center page
-  '/debug-role',         // Debug page to check user role
+
+  // ===== Tools & Utilities =====
+  '/tax-calculator(.*)', // Interactive tax calculator
+  '/calculator(.*)', // Calculator page
+  '/find-a-refund(.*)', // Public refund tracker utility
+  '/refund-advance(.*)', // Refund advance information page
+  '/tax-guide(.*)', // 2024 tax guide page
+  '/guide(.*)', // Guide page
+  '/blog(.*)', // Tax blog & tips page
+  '/help(.*)', // Help center page
+  '/support(.*)', // Support page
+
+  // ===== Forms & Applications =====
+  '/start-filing(.*)', // Customer lead generation page
+  '/book-appointment(.*)', // Appointment booking - NO LOGIN REQUIRED
+  '/apply(.*)', // General application page
+  '/preparer(.*)', // Tax preparer pages (application, info)
+  '/referral(.*)', // Referral pages (signup, info)
+  '/affiliate(.*)', // Affiliate pages (application, info)
+  '/refer(.*)', // Refer page
+  '/upload-documents(.*)', // Document upload page
+
+  // ===== Legal & Compliance =====
+  '/terms(.*)', // Terms of service
+  '/privacy(.*)', // Privacy policy
+  '/security(.*)', // Security information
+  '/accessibility(.*)', // Accessibility statement
+
+  // ===== Dynamic Routes =====
+  '/locations/(.*)', // Location pages
+  '/wordpress-landing(.*)', // WordPress landing page
+
+  // ===== Short Links (Epic 6) =====
+  '/lead/(.*)', // Short link for lead generation
+  '/intake/(.*)', // Short link for tax intake
+  '/go/(.*)', // Short link redirects
+
+  // ===== Public API Routes =====
+  '/api/applications/(.*)', // Application submissions (affiliate, preparer)
+  '/api/tax-intake/(.*)', // Tax intake lead submissions
+  '/api/contact/(.*)', // Contact form submissions
+  '/api/appointments/(.*)', // Appointment booking API
+  '/api/journey/(.*)', // Journey tracking (public)
+  '/api/analytics/attribution(.*)', // Attribution tracking
+  '/api/webhooks/(.*)', // Webhook handlers
   '/api/admin/set-role', // Temporary public endpoint to set admin role
-  '/lead/(.*)',          // Short link for lead generation (Epic 6)
-  '/intake/(.*)',        // Short link for tax intake (Epic 6)
+  '/api/preparer/info', // Preparer info for tax intake form
+
+  // ===== PWA & Static Files =====
+  '/sw.js', // Service worker (PWA)
+  '/manifest.json', // Web app manifest (PWA)
+
+  // ===== Debug/Development =====
+  '/debug-role', // Debug page to check user role
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
+  // Skip Clerk auth for test endpoints in development
+  if (process.env.NODE_ENV === 'development' &&
+      (req.nextUrl.pathname.startsWith('/api/auth/test-login') ||
+       req.nextUrl.pathname === '/auth/test-login')) {
+    return NextResponse.next();
+  }
+
   const { userId, sessionClaims } = await auth();
 
   // EPIC 6: Check for attribution short links FIRST (before Clerk auth)
@@ -60,7 +119,14 @@ export default clerkMiddleware(async (auth, req) => {
   // If user is signed in
   if (userId) {
     const pathname = req.nextUrl.pathname;
-    const validRoles: string[] = ['super_admin', 'admin', 'lead', 'client', 'tax_preparer', 'affiliate'];
+    const validRoles: string[] = [
+      'super_admin',
+      'admin',
+      'lead',
+      'client',
+      'tax_preparer',
+      'affiliate',
+    ];
 
     // ALWAYS check database first - session can be stale
     let role: string | undefined;
@@ -70,15 +136,30 @@ export default clerkMiddleware(async (auth, req) => {
       const user = await clerk.users.getUser(userId);
       role = user.publicMetadata?.role as string | undefined;
 
+      // Normalize role to lowercase to handle any legacy uppercase roles
+      if (role) {
+        const originalRole = role;
+        role = role.toLowerCase();
+        if (originalRole !== role) {
+          logger.info(`🔄 Normalized role from "${originalRole}" to "${role}"`);
+        }
+      }
+
       // If database role differs from session role, log it
       const sessionRole = sessionClaims?.metadata?.role as string | undefined;
       if (sessionRole && role && sessionRole !== role) {
-        logger.info(`🔄 Role mismatch - Session: "${sessionRole}", Database: "${role}" - Using database role`);
+        logger.info(
+          `🔄 Role mismatch - Session: "${sessionRole}", Database: "${role}" - Using database role`
+        );
       }
     } catch (error) {
       logger.error('Error fetching user from database:', error);
       // Fallback to session if database fails
       role = sessionClaims?.metadata?.role as string | undefined;
+      // Normalize fallback role too
+      if (role) {
+        role = role.toLowerCase();
+      }
     }
 
     const isValidRole = role && validRoles.includes(role);
@@ -134,7 +215,9 @@ export default clerkMiddleware(async (auth, req) => {
       try {
         const clerk = await clerkClient();
         const user = await clerk.users.getUser(userId);
-        const customPermissions = user.publicMetadata?.permissions as Partial<UserPermissions> | undefined;
+        const customPermissions = user.publicMetadata?.permissions as
+          | Partial<UserPermissions>
+          | undefined;
 
         // Use effectiveRole for permission checks (what user sees)
         const permissions = getUserPermissions(effectiveRole as UserRole, customPermissions);
@@ -166,7 +249,13 @@ export default clerkMiddleware(async (auth, req) => {
     // Restrict /store access to tax_preparer, affiliate, admin, and super_admin only
     // Use effectiveRole so admins can preview store as other roles
     if (pathname.startsWith('/store')) {
-      if (!effectiveRole || (effectiveRole !== 'tax_preparer' && effectiveRole !== 'affiliate' && effectiveRole !== 'admin' && effectiveRole !== 'super_admin')) {
+      if (
+        !effectiveRole ||
+        (effectiveRole !== 'tax_preparer' &&
+          effectiveRole !== 'affiliate' &&
+          effectiveRole !== 'admin' &&
+          effectiveRole !== 'super_admin')
+      ) {
         return NextResponse.redirect(new URL('/forbidden', req.url));
       }
     }
@@ -174,7 +263,12 @@ export default clerkMiddleware(async (auth, req) => {
     // Restrict /app/academy access to tax_preparer, admin, and super_admin only
     // Use effectiveRole so admins can preview academy as other roles
     if (pathname.startsWith('/app/academy')) {
-      if (!effectiveRole || (effectiveRole !== 'tax_preparer' && effectiveRole !== 'admin' && effectiveRole !== 'super_admin')) {
+      if (
+        !effectiveRole ||
+        (effectiveRole !== 'tax_preparer' &&
+          effectiveRole !== 'admin' &&
+          effectiveRole !== 'super_admin')
+      ) {
         return NextResponse.redirect(new URL('/forbidden', req.url));
       }
     }
@@ -197,12 +291,17 @@ export default clerkMiddleware(async (auth, req) => {
         return NextResponse.next();
       }
 
-      // For users without a valid role, redirect to role selection page
-      // This prevents auto-assigning and overwriting roles
-      logger.info(`⚠️  User ${userId} has no valid role, redirecting to role setup`);
+      // For users without a valid role, redirect to dashboard
+      // Dashboard page will handle role-based redirect
+      logger.info(`⚠️  User ${userId} has no valid role, redirecting to dashboard`);
 
       // If they're on a public route, let them through
       if (isPublicRoute(req)) {
+        return NextResponse.next();
+      }
+
+      // If already on dashboard or select-role page, let them through to avoid loops
+      if (pathname === '/dashboard' || pathname === '/auth/select-role') {
         return NextResponse.next();
       }
 
@@ -224,7 +323,7 @@ export default clerkMiddleware(async (auth, req) => {
       const targetUrl = dashboardUrls[effectiveRole || role || 'lead'] || '/dashboard/lead';
       const redirect = NextResponse.redirect(new URL(targetUrl, req.url));
       // Copy UTM cookies to redirect response
-      utmResponse.cookies.getAll().forEach(cookie => {
+      utmResponse.cookies.getAll().forEach((cookie) => {
         redirect.cookies.set(cookie.name, cookie.value, cookie);
       });
       return redirect;
@@ -237,8 +336,8 @@ export default clerkMiddleware(async (auth, req) => {
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Skip Next.js internals, static files, and PWA files
+    '/((?!_next|sw\\.js|manifest\\.json|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
     // Always run for API routes
     '/(api|trpc)(.*)',
   ],

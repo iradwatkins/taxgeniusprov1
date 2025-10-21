@@ -11,15 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  CreditCard,
-  DollarSign,
-  Plus,
-  Download,
-  CheckCircle,
-  Clock,
-  XCircle
-} from 'lucide-react';
+import { CreditCard, DollarSign, Plus, Download, CheckCircle, Clock, XCircle } from 'lucide-react';
 
 interface Payment {
   id: string;
@@ -74,7 +66,7 @@ export function PaymentsTab({
   payments,
   paymentMethods,
   onAddPaymentMethod,
-  onMakePayment
+  onMakePayment,
 }: PaymentsTabProps) {
   return (
     <div className="space-y-4">
@@ -103,9 +95,7 @@ export function PaymentsTab({
                         <p className="font-medium">
                           {method.type === 'card' ? method.brand : 'Bank Account'}
                         </p>
-                        <p className="text-sm text-muted-foreground">
-                          ••••  {method.last4}
-                        </p>
+                        <p className="text-sm text-muted-foreground">•••• {method.last4}</p>
                         {method.expiryDate && (
                           <p className="text-xs text-muted-foreground">
                             Expires {method.expiryDate}
@@ -141,9 +131,7 @@ export function PaymentsTab({
                 </p>
               </div>
             </div>
-            <Button onClick={onMakePayment}>
-              Make Payment
-            </Button>
+            <Button onClick={onMakePayment}>Make Payment</Button>
           </div>
         </CardContent>
       </Card>
@@ -172,9 +160,7 @@ export function PaymentsTab({
                     <TableCell>{payment.date}</TableCell>
                     <TableCell className="font-medium">{payment.description}</TableCell>
                     <TableCell>{payment.method}</TableCell>
-                    <TableCell className="font-semibold">
-                      ${payment.amount.toFixed(2)}
-                    </TableCell>
+                    <TableCell className="font-semibold">${payment.amount.toFixed(2)}</TableCell>
                     <TableCell>
                       <Badge variant={getPaymentStatusColor(payment.status) as any}>
                         <span className="flex items-center gap-1">

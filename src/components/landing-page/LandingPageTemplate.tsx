@@ -1,5 +1,10 @@
 import DOMPurify from 'isomorphic-dompurify';
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -17,7 +22,7 @@ interface LandingPageTemplateProps {
 /**
  * Landing Page Template Component (AC14-17)
  * Reusable template for all city landing pages
- * 
+ *
  * Security: Content sanitized with DOMPurify (AC23 - MANDATORY)
  * Design: Uses existing Tailwind + shadcn/ui design system (AC16)
  * Responsive: Mobile-first design (AC17)
@@ -27,7 +32,7 @@ export function LandingPageTemplate({ data }: LandingPageTemplateProps) {
   // Defense-in-depth: Content already sanitized at generation, but sanitize again before render
   const sanitizedBody = DOMPurify.sanitize(data.bodyContent, {
     ALLOWED_TAGS: ['p', 'strong', 'em', 'br', 'ul', 'ol', 'li', 'h2', 'h3'],
-    ALLOWED_ATTR: []
+    ALLOWED_ATTR: [],
   });
 
   return (
@@ -47,7 +52,7 @@ export function LandingPageTemplate({ data }: LandingPageTemplateProps) {
       {/* Body Content Section (AC15, AC23) */}
       <section className="py-12 md:py-16">
         <div className="container mx-auto px-4 max-w-3xl">
-          <div 
+          <div
             className="prose prose-lg max-w-none
               prose-headings:text-foreground 
               prose-p:text-muted-foreground
@@ -67,12 +72,8 @@ export function LandingPageTemplate({ data }: LandingPageTemplateProps) {
           <Accordion type="single" collapsible className="w-full">
             {data.qaAccordion.map((qa, idx) => (
               <AccordionItem key={idx} value={`item-${idx}`}>
-                <AccordionTrigger className="text-left">
-                  {qa.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
-                  {qa.answer}
-                </AccordionContent>
+                <AccordionTrigger className="text-left">{qa.question}</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">{qa.answer}</AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
@@ -89,7 +90,12 @@ export function LandingPageTemplate({ data }: LandingPageTemplateProps) {
             <Button asChild variant="secondary" size="lg">
               <Link href="/auth/signup">Create Free Account</Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10">
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10"
+            >
               <Link href="/refer">Become a Referrer</Link>
             </Button>
           </div>

@@ -3,8 +3,18 @@
  * Calculates federal income tax based on IRS tax brackets and credits
  */
 
-import { TAX_BRACKETS_2024, STANDARD_DEDUCTION_2024, CHILD_TAX_CREDIT_2024, EITC_2024 } from './tax-brackets-2024';
-import { TAX_BRACKETS_2025, STANDARD_DEDUCTION_2025, CHILD_TAX_CREDIT_2025, EITC_2025 } from './tax-brackets-2025';
+import {
+  TAX_BRACKETS_2024,
+  STANDARD_DEDUCTION_2024,
+  CHILD_TAX_CREDIT_2024,
+  EITC_2024,
+} from './tax-brackets-2024';
+import {
+  TAX_BRACKETS_2025,
+  STANDARD_DEDUCTION_2025,
+  CHILD_TAX_CREDIT_2025,
+  EITC_2025,
+} from './tax-brackets-2025';
 
 export type FilingStatus = 'single' | 'marriedJoint' | 'marriedSeparate' | 'headOfHousehold';
 
@@ -59,14 +69,14 @@ function getTaxData(taxYear: 2024 | 2025) {
       brackets: TAX_BRACKETS_2024,
       standardDeduction: STANDARD_DEDUCTION_2024,
       childTaxCredit: CHILD_TAX_CREDIT_2024,
-      eitc: EITC_2024
+      eitc: EITC_2024,
     };
   } else {
     return {
       brackets: TAX_BRACKETS_2025,
       standardDeduction: STANDARD_DEDUCTION_2025,
       childTaxCredit: CHILD_TAX_CREDIT_2025,
-      eitc: EITC_2025
+      eitc: EITC_2025,
     };
   }
 }
@@ -74,7 +84,10 @@ function getTaxData(taxYear: 2024 | 2025) {
 /**
  * Calculate income tax using progressive brackets
  */
-function calculateIncomeTax(taxableIncome: number, brackets: Array<{ rate: number; min: number; max: number }>) {
+function calculateIncomeTax(
+  taxableIncome: number,
+  brackets: Array<{ rate: number; min: number; max: number }>
+) {
   let totalTax = 0;
   let remainingIncome = taxableIncome;
   const breakdown: BracketBreakdown[] = [];
@@ -82,9 +95,10 @@ function calculateIncomeTax(taxableIncome: number, brackets: Array<{ rate: numbe
   for (const bracket of brackets) {
     if (remainingIncome <= 0) break;
 
-    const bracketSize = bracket.max === Infinity
-      ? remainingIncome
-      : Math.min(bracket.max - bracket.min + 1, remainingIncome);
+    const bracketSize =
+      bracket.max === Infinity
+        ? remainingIncome
+        : Math.min(bracket.max - bracket.min + 1, remainingIncome);
 
     const taxableInBracket = Math.min(bracketSize, remainingIncome);
     const taxInBracket = taxableInBracket * bracket.rate;
@@ -93,7 +107,7 @@ function calculateIncomeTax(taxableIncome: number, brackets: Array<{ rate: numbe
       breakdown.push({
         rate: bracket.rate,
         income: taxableInBracket,
-        tax: taxInBracket
+        tax: taxInBracket,
       });
       totalTax += taxInBracket;
       remainingIncome -= taxableInBracket;
@@ -178,7 +192,16 @@ function calculateEITC(
  * Main tax calculation function
  */
 export function calculateFederalTax(params: TaxCalculationParams): TaxCalculationResult {
-  const { taxYear, filingStatus, wages, otherIncome, adjustments, itemizedDeductions, dependents, withholding } = params;
+  const {
+    taxYear,
+    filingStatus,
+    wages,
+    otherIncome,
+    adjustments,
+    itemizedDeductions,
+    dependents,
+    withholding,
+  } = params;
 
   // Get tax data for the year
   const taxData = getTaxData(taxYear);
@@ -199,16 +222,23 @@ export function calculateFederalTax(params: TaxCalculationParams): TaxCalculatio
   const taxableIncome = Math.max(0, agi - totalDeductions);
 
   // Step 5: Calculate Income Tax
-  const { totalTax: incomeTax, breakdown: bracketBreakdown } = calculateIncomeTax(taxableIncome, brackets);
+  const { totalTax: incomeTax, breakdown: bracketBreakdown } = calculateIncomeTax(
+    taxableIncome,
+    brackets
+  );
 
   // Step 6: Calculate Effective and Marginal Tax Rates
   const effectiveRate = agi > 0 ? (incomeTax / agi) * 100 : 0;
-  const marginalRate = bracketBreakdown.length > 0
-    ? bracketBreakdown[bracketBreakdown.length - 1].rate * 100
-    : 0;
+  const marginalRate =
+    bracketBreakdown.length > 0 ? bracketBreakdown[bracketBreakdown.length - 1].rate * 100 : 0;
 
   // Step 7: Calculate Tax Credits
-  const childTaxCredit = calculateChildTaxCredit(dependents, agi, filingStatus, taxData.childTaxCredit);
+  const childTaxCredit = calculateChildTaxCredit(
+    dependents,
+    agi,
+    filingStatus,
+    taxData.childTaxCredit
+  );
   const eitc = calculateEITC(agi, dependents, filingStatus, taxData.eitc);
   const totalCredits = childTaxCredit + eitc;
 
@@ -233,7 +263,7 @@ export function calculateFederalTax(params: TaxCalculationParams): TaxCalculatio
     totalCredits,
     totalTaxLiability,
     withholding,
-    refundOrOwed
+    refundOrOwed,
   };
 }
 
@@ -245,7 +275,7 @@ export function formatCurrency(amount: number): string {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0
+    maximumFractionDigits: 0,
   }).format(amount);
 }
 

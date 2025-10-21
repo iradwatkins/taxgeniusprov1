@@ -5,7 +5,7 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 9
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals'
+import { describe, it, expect, beforeEach, jest } from '@jest/globals'
 import {
   getAttribution,
   getReferrerAttributionStats,
@@ -45,7 +45,7 @@ describe('Attribution Service', () => {
       // Simulate cookie being present
       global.document = {
         cookie: `referrer_username=${mockCookie.username}; expires=${mockCookie.expires.toUTCString()}`
-      } as any
+      } as unknown as Document
 
       const result = await getAttribution('test@example.com', '555-123-4567')
 
@@ -105,7 +105,7 @@ describe('Attribution Service', () => {
       // Mock: Both cookie AND email match exist
       global.document = {
         cookie: `referrer_username=cookieuser; expires=${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString()}`
-      } as any
+      } as unknown as Document
 
       ;(prisma.referrerVisit.findFirst as jest.Mock).mockResolvedValue({
         referrerUsername: 'emailuser'
@@ -122,7 +122,7 @@ describe('Attribution Service', () => {
       // Mock: Expired cookie
       global.document = {
         cookie: `referrer_username=expireduser; expires=${new Date(Date.now() - 1000).toUTCString()}`
-      } as any
+      } as unknown as Document
 
       ;(prisma.referrerVisit.findFirst as jest.Mock).mockResolvedValue(null)
 

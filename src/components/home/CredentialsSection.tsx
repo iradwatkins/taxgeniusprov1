@@ -5,28 +5,28 @@ import { Shield, Award, CheckCircle } from 'lucide-react';
 const credentials = [
   {
     icon: Shield,
-    title: "IRS E-File Provider",
-    subtitle: "Authorized",
-    color: "text-primary"
+    title: 'IRS E-File Provider',
+    subtitle: 'Authorized',
+    color: 'text-primary',
   },
   {
     icon: Award,
-    title: "BBB Accredited",
-    subtitle: "A+ Rating",
-    color: "text-primary"
+    title: 'BBB Accredited',
+    subtitle: 'A+ Rating',
+    color: 'text-primary',
   },
   {
     icon: CheckCircle,
-    title: "State Licensed",
-    subtitle: "CPA Board Certified",
-    color: "text-primary"
+    title: 'State Licensed',
+    subtitle: 'CPA Board Certified',
+    color: 'text-primary',
   },
   {
     icon: Shield,
-    title: "256-Bit SSL",
-    subtitle: "Bank-Level Security",
-    color: "text-success"
-  }
+    title: '256-Bit SSL',
+    subtitle: 'Bank-Level Security',
+    color: 'text-success',
+  },
 ];
 
 export function CredentialsSection() {

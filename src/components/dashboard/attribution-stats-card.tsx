@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 /**
  * Attribution Stats Card
@@ -9,12 +9,12 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 5
  */
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Progress } from '@/components/ui/progress'
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 import {
   TrendingUp,
   Users,
@@ -25,33 +25,33 @@ import {
   Phone,
   Globe,
   Loader2,
-  ExternalLink
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { logger } from '@/lib/logger'
+  ExternalLink,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { logger } from '@/lib/logger';
 
 interface AttributionStats {
-  totalLeads: number
+  totalLeads: number;
   byMethod: {
-    cookie: number
-    emailMatch: number
-    phoneMatch: number
-    direct: number
-  }
-  crossDeviceRate: number
-  conversionRate: number
-  totalCommissions: number
-  averageCommissionRate: number
+    cookie: number;
+    emailMatch: number;
+    phoneMatch: number;
+    direct: number;
+  };
+  crossDeviceRate: number;
+  conversionRate: number;
+  totalCommissions: number;
+  averageCommissionRate: number;
   topSources: Array<{
-    source: string
-    count: number
-    percentage: number
-  }>
+    source: string;
+    count: number;
+    percentage: number;
+  }>;
 }
 
 interface AttributionStatsCardProps {
-  className?: string
-  period?: '7d' | '30d' | '90d' | 'all'
+  className?: string;
+  period?: '7d' | '30d' | '90d' | 'all';
 }
 
 const ATTRIBUTION_METHODS = [
@@ -62,7 +62,7 @@ const ATTRIBUTION_METHODS = [
     color: 'text-blue-600 dark:text-blue-400',
     bgColor: 'bg-blue-100 dark:bg-blue-900/20',
     description: 'Same device, within 14 days',
-    confidence: 100
+    confidence: 100,
   },
   {
     key: 'emailMatch' as const,
@@ -71,7 +71,7 @@ const ATTRIBUTION_METHODS = [
     color: 'text-green-600 dark:text-green-400',
     bgColor: 'bg-green-100 dark:bg-green-900/20',
     description: 'Cross-device attribution',
-    confidence: 90
+    confidence: 90,
   },
   {
     key: 'phoneMatch' as const,
@@ -80,7 +80,7 @@ const ATTRIBUTION_METHODS = [
     color: 'text-purple-600 dark:text-purple-400',
     bgColor: 'bg-purple-100 dark:bg-purple-900/20',
     description: 'Cross-device fallback',
-    confidence: 85
+    confidence: 85,
   },
   {
     key: 'direct' as const,
@@ -89,40 +89,40 @@ const ATTRIBUTION_METHODS = [
     color: 'text-gray-600 dark:text-gray-400',
     bgColor: 'bg-gray-100 dark:bg-gray-900/20',
     description: 'No referrer tracked',
-    confidence: 100
-  }
-]
+    confidence: 100,
+  },
+];
 
 export function AttributionStatsCard({ className, period = '30d' }: AttributionStatsCardProps) {
-  const [stats, setStats] = useState<AttributionStats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [selectedPeriod, setSelectedPeriod] = useState(period)
+  const [stats, setStats] = useState<AttributionStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState(period);
 
   useEffect(() => {
-    fetchStats()
-  }, [selectedPeriod])
+    fetchStats();
+  }, [selectedPeriod]);
 
   const fetchStats = async () => {
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
-      const response = await fetch(`/api/analytics/attribution?period=${selectedPeriod}`)
+      const response = await fetch(`/api/analytics/attribution?period=${selectedPeriod}`);
 
       if (!response.ok) {
-        throw new Error('Failed to fetch attribution stats')
+        throw new Error('Failed to fetch attribution stats');
       }
 
-      const data = await response.json()
-      setStats(data)
-    } catch (err: any) {
-      logger.error('Failed to fetch attribution stats', { error: err })
-      setError(err.message || 'Failed to load statistics')
+      const data = await response.json();
+      setStats(data);
+    } catch (err) {
+      logger.error('Failed to fetch attribution stats', { error: err });
+      setError(err.message || 'Failed to load statistics');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -137,7 +137,7 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (error || !stats) {
@@ -156,10 +156,11 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
-  const totalTracked = stats.byMethod.cookie + stats.byMethod.emailMatch + stats.byMethod.phoneMatch
+  const totalTracked =
+    stats.byMethod.cookie + stats.byMethod.emailMatch + stats.byMethod.phoneMatch;
 
   return (
     <Card className={className}>
@@ -167,9 +168,7 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Attribution Analytics</CardTitle>
-            <CardDescription>
-              Track how leads find you through different channels
-            </CardDescription>
+            <CardDescription>Track how leads find you through different channels</CardDescription>
           </div>
           <Tabs value={selectedPeriod} onValueChange={(v) => setSelectedPeriod(v as typeof period)}>
             <TabsList>
@@ -218,15 +217,13 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-sm">Attribution Methods</h3>
-            <Badge variant="outline">
-              {stats.crossDeviceRate.toFixed(1)}% Cross-Device
-            </Badge>
+            <Badge variant="outline">{stats.crossDeviceRate.toFixed(1)}% Cross-Device</Badge>
           </div>
 
           {ATTRIBUTION_METHODS.map((method) => {
-            const count = stats.byMethod[method.key]
-            const percentage = stats.totalLeads > 0 ? (count / stats.totalLeads) * 100 : 0
-            const Icon = method.icon
+            const count = stats.byMethod[method.key];
+            const percentage = stats.totalLeads > 0 ? (count / stats.totalLeads) * 100 : 0;
+            const Icon = method.icon;
 
             return (
               <div key={method.key} className="space-y-2">
@@ -249,7 +246,7 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
                 </div>
                 <Progress value={percentage} className="h-2" />
               </div>
-            )
+            );
           })}
         </div>
 
@@ -265,8 +262,9 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
                   Strong Cross-Device Attribution
                 </p>
                 <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-                  {stats.crossDeviceRate.toFixed(1)}% of your leads were tracked across multiple devices using
-                  email/phone matching. This improves attribution accuracy and commission tracking.
+                  {stats.crossDeviceRate.toFixed(1)}% of your leads were tracked across multiple
+                  devices using email/phone matching. This improves attribution accuracy and
+                  commission tracking.
                 </p>
               </div>
             </div>
@@ -305,5 +303,5 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
         </Button>
       </CardContent>
     </Card>
-  )
+  );
 }

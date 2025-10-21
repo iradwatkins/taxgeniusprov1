@@ -1,18 +1,19 @@
-'use client'
+'use client';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useState, Suspense } from 'react'
-import { PWAInstallPrompt } from '@/components/PWAInstallPrompt'
-import dynamic from 'next/dynamic'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState, Suspense } from 'react';
+import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
+import dynamic from 'next/dynamic';
 
 // Dynamically import DevTools to prevent chunk loading errors
 const ReactQueryDevtools = dynamic(
-  () => import('@tanstack/react-query-devtools').then(mod => ({ default: mod.ReactQueryDevtools })),
+  () =>
+    import('@tanstack/react-query-devtools').then((mod) => ({ default: mod.ReactQueryDevtools })),
   {
     ssr: false,
-    loading: () => null
+    loading: () => null,
   }
-)
+);
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -25,7 +26,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           },
         },
       })
-  )
+  );
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -37,5 +38,5 @@ export function Providers({ children }: { children: React.ReactNode }) {
         </Suspense>
       )}
     </QueryClientProvider>
-  )
+  );
 }

@@ -6,7 +6,7 @@ const logos = [
   { name: 'IRS E-File', width: 100 },
   { name: 'BBB Accredited', width: 100 },
   { name: 'State CPA Board', width: 100 },
-  { name: 'NATP Member', width: 100 }
+  { name: 'NATP Member', width: 100 },
 ];
 
 export function TrustLogosBar() {

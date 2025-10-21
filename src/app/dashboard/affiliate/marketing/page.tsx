@@ -1,12 +1,12 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { UsernameManager } from '@/components/dashboard/username-manager'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ReferralLinksManager } from '@/components/dashboard/ReferralLinksManager';
 import {
   Share2,
   Copy,
@@ -20,25 +20,25 @@ import {
   BarChart3,
   ExternalLink,
   Eye,
-} from 'lucide-react'
+} from 'lucide-react';
 
 export const metadata = {
   title: 'Marketing Tools | Tax Genius Pro',
   description: 'Access affiliate marketing materials',
-}
+};
 
 async function isAffiliate() {
-  const user = await currentUser()
-  if (!user) return false
-  const role = user.publicMetadata?.role
-  return role === 'affiliate' || role === 'admin'
+  const user = await currentUser();
+  if (!user) return false;
+  const role = user.publicMetadata?.role;
+  return role === 'affiliate' || role === 'admin';
 }
 
 export default async function AffiliateMarketingPage() {
-  const userIsAffiliate = await isAffiliate()
+  const userIsAffiliate = await isAffiliate();
 
   if (!userIsAffiliate) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
   return (
@@ -57,8 +57,8 @@ export default async function AffiliateMarketingPage() {
         </Button>
       </div>
 
-      {/* EPIC 6: Username Manager - Replaces hardcoded affiliate link */}
-      <UsernameManager />
+      {/* EPIC 6: Referral Links Manager */}
+      <ReferralLinksManager />
 
       {/* Marketing Materials Tabs */}
       <Tabs defaultValue="content" className="space-y-4">
@@ -110,9 +110,7 @@ export default async function AffiliateMarketingPage() {
                         <h4 className="font-semibold">{item.title}</h4>
                         <div className="flex items-center gap-2 mt-1">
                           <Badge variant="outline">{item.type}</Badge>
-                          <span className="text-xs text-muted-foreground">
-                            {item.words} words
-                          </span>
+                          <span className="text-xs text-muted-foreground">{item.words} words</span>
                         </div>
                       </div>
                       <FileText className="w-5 h-5 text-muted-foreground" />
@@ -188,7 +186,9 @@ export default async function AffiliateMarketingPage() {
                     <div>
                       <h4 className="font-semibold text-sm">{item.name}</h4>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="text-xs">{item.size}</Badge>
+                        <Badge variant="outline" className="text-xs">
+                          {item.size}
+                        </Badge>
                         <span className="text-xs text-muted-foreground">{item.format}</span>
                       </div>
                     </div>
@@ -241,9 +241,7 @@ export default async function AffiliateMarketingPage() {
                         </div>
                         <div className="flex items-center gap-3 mt-2">
                           <Badge variant="outline">{item.type}</Badge>
-                          <span className="text-xs text-muted-foreground">
-                            Opens: {item.opens}
-                          </span>
+                          <span className="text-xs text-muted-foreground">Opens: {item.opens}</span>
                           <span className="text-xs text-muted-foreground">
                             Clicks: {item.clicks}
                           </span>
@@ -279,16 +277,15 @@ export default async function AffiliateMarketingPage() {
                 <Lightbulb className="w-5 h-5" />
                 <CardTitle>Marketing Tips & Strategies</CardTitle>
               </div>
-              <CardDescription>
-                Proven tactics from our top affiliates
-              </CardDescription>
+              <CardDescription>Proven tactics from our top affiliates</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
                 {[
                   {
                     title: 'SEO Optimization',
-                    description: 'Optimize your content for tax-related keywords to drive organic traffic.',
+                    description:
+                      'Optimize your content for tax-related keywords to drive organic traffic.',
                     tips: [
                       'Target long-tail keywords like "best online tax filing service"',
                       'Create comparison articles with other tax services',
@@ -325,15 +322,11 @@ export default async function AffiliateMarketingPage() {
                 ].map((section, index) => (
                   <div key={index} className="border-l-4 border-primary pl-4">
                     <h4 className="font-semibold text-lg mb-2">{section.title}</h4>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {section.description}
-                    </p>
+                    <p className="text-sm text-muted-foreground mb-3">{section.description}</p>
                     <ul className="space-y-2">
                       {section.tips.map((tip, tipIndex) => (
                         <li key={tipIndex} className="flex items-start gap-2">
-                          <Badge className="mt-0.5">
-                            {tipIndex + 1}
-                          </Badge>
+                          <Badge className="mt-0.5">{tipIndex + 1}</Badge>
                           <span className="text-sm">{tip}</span>
                         </li>
                       ))}
@@ -394,7 +387,10 @@ export default async function AffiliateMarketingPage() {
                 'SEO Best Practices (12:40)',
                 'Email Marketing Guide (10:22)',
               ].map((video, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-3 border rounded-lg"
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded bg-muted flex items-center justify-center">
                       <Video className="w-5 h-5" />
@@ -411,5 +407,5 @@ export default async function AffiliateMarketingPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

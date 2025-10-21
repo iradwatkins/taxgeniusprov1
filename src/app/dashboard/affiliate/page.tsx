@@ -1,12 +1,12 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Users,
   DollarSign,
@@ -24,31 +24,32 @@ import {
   Package,
   Sparkles,
   CheckCircle,
-  MessageSquare
-} from 'lucide-react'
-import Link from 'next/link'
-import { ContestDisplay } from '@/components/ContestDisplay'
-import { VanityLinkManager } from '@/components/VanityLinkManager'
-import { QRPosterGenerator } from '@/components/QRPosterGenerator'
-import { MarketingHub } from '@/components/MarketingHub'
-import { NotificationBell } from '@/components/NotificationBell'
-import { StatCard } from '@/components/StatCard'
-import { useReferrerStats, useRecentActivity } from '@/hooks/useReferrerData'
-import { MaterialsTable } from '@/components/analytics/MaterialsTable'
-import { ConversionFunnel } from '@/components/analytics/ConversionFunnel'
-import { SourceBreakdown } from '@/components/analytics/SourceBreakdown'
-import { AttributionStatsCard } from '@/components/dashboard/attribution-stats-card'
-import { RecentLeadsTable } from '@/components/dashboard/recent-leads-table'
+  MessageSquare,
+} from 'lucide-react';
+import Link from 'next/link';
+import { ContestDisplay } from '@/components/ContestDisplay';
+import { VanityLinkManager } from '@/components/VanityLinkManager';
+import { QRPosterGenerator } from '@/components/QRPosterGenerator';
+import { MarketingHub } from '@/components/MarketingHub';
+import { NotificationBell } from '@/components/NotificationBell';
+import { StatCard } from '@/components/StatCard';
+import { useReferrerStats, useRecentActivity } from '@/hooks/useReferrerData';
+import { MaterialsTable } from '@/components/analytics/MaterialsTable';
+import { ConversionFunnel } from '@/components/analytics/ConversionFunnel';
+import { SourceBreakdown } from '@/components/analytics/SourceBreakdown';
+import { AttributionStatsCard } from '@/components/dashboard/attribution-stats-card';
+import { RecentLeadsTable } from '@/components/dashboard/recent-leads-table';
+import { ReferralLinksManager } from '@/components/dashboard/ReferralLinksManager';
 
 export default function AffiliateDashboard() {
-  const router = useRouter()
-  const [selectedTab, setSelectedTab] = useState('overview')
-  const { data: stats, isLoading: statsLoading } = useReferrerStats()
-  const { data: activity, isLoading: activityLoading } = useRecentActivity(5)
+  const router = useRouter();
+  const [selectedTab, setSelectedTab] = useState('overview');
+  const { data: stats, isLoading: statsLoading } = useReferrerStats();
+  const { data: activity, isLoading: activityLoading } = useRecentActivity(5);
 
   // Affiliate ID comes from auth context - placeholder for development
-  const affiliateId = 'current-affiliate-id'
-  const affiliateName = 'Affiliate' // Will be replaced with real name from auth
+  const affiliateId = 'current-affiliate-id';
+  const affiliateName = 'Affiliate'; // Will be replaced with real name from auth
 
   return (
     <div className="min-h-screen bg-background">
@@ -142,7 +143,10 @@ export default function AffiliateDashboard() {
                   ) : (
                     <div className="space-y-3">
                       {activity?.map((item, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                        >
                           <div className="space-y-1">
                             <p className="text-sm font-medium">{item.client_name}</p>
                             <p className="text-xs text-muted-foreground">{item.action}</p>
@@ -212,7 +216,10 @@ export default function AffiliateDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle>Monthly Performance</CardTitle>
-                <CardDescription>Your performance metrics for {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</CardDescription>
+                <CardDescription>
+                  Your performance metrics for{' '}
+                  {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 md:grid-cols-3">
@@ -253,11 +260,7 @@ export default function AffiliateDashboard() {
                     <CardTitle>Top 5 Performing Campaigns</CardTitle>
                     <CardDescription>Your best marketing campaigns this month</CardDescription>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedTab('analytics')}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setSelectedTab('analytics')}>
                     View All
                   </Button>
                 </div>
@@ -269,13 +272,13 @@ export default function AffiliateDashboard() {
           </TabsContent>
 
           <TabsContent value="links" className="space-y-4">
+            <ReferralLinksManager />
             <VanityLinkManager referrerId={affiliateId} />
             <QRPosterGenerator
               referralUrl={`https://taxgenius.com/${affiliateName.toLowerCase().replace(/\s+/g, '')}`}
               referrerName={affiliateName}
             />
           </TabsContent>
-
           <TabsContent value="store" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               {/* Store Access Card */}
@@ -336,7 +339,9 @@ export default function AffiliateDashboard() {
                     <div className="text-center py-8 text-muted-foreground">
                       <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
                       <p className="text-sm mb-2">No active subscriptions yet</p>
-                      <p className="text-xs mb-4">Start with a landing page to generate more leads</p>
+                      <p className="text-xs mb-4">
+                        Start with a landing page to generate more leads
+                      </p>
                       <Button variant="outline" size="sm" asChild>
                         <Link href="/store?category=landing-pages">
                           <Sparkles className="mr-2 h-4 w-4" />
@@ -396,9 +401,7 @@ export default function AffiliateDashboard() {
                   <Sparkles className="h-5 w-5" />
                   Affiliate Special Offers
                 </CardTitle>
-                <CardDescription>
-                  Exclusive discounts for affiliate marketers
-                </CardDescription>
+                <CardDescription>Exclusive discounts for affiliate marketers</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -409,12 +412,11 @@ export default function AffiliateDashboard() {
                     </div>
                     <h4 className="font-semibold mb-1">Annual Landing Page Bundle</h4>
                     <p className="text-sm text-muted-foreground mb-3">
-                      Get a full year of landing page hosting for just $29/month (normally $39/month)
+                      Get a full year of landing page hosting for just $29/month (normally
+                      $39/month)
                     </p>
                     <Button size="sm" className="w-full" asChild>
-                      <Link href="/store?offer=annual-bundle">
-                        Claim Offer
-                      </Link>
+                      <Link href="/store?offer=annual-bundle">Claim Offer</Link>
                     </Button>
                   </div>
                 </div>
@@ -447,5 +449,5 @@ export default function AffiliateDashboard() {
         </Tabs>
       </div>
     </div>
-  )
+  );
 }

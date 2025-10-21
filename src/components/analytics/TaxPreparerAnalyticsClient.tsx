@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import {
   MousePointerClick,
@@ -7,49 +7,49 @@ import {
   DollarSign,
   Link2,
   TrendingUp,
-} from 'lucide-react'
-import { MetricsGrid } from '@/components/admin/analytics/MetricsGrid'
-import { createFunnelStages } from '@/lib/utils/analytics'
-import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart'
-import { ExportButton } from '@/components/admin/analytics/ExportButton'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+} from 'lucide-react';
+import { MetricsGrid } from '@/components/admin/analytics/MetricsGrid';
+import { createFunnelStages } from '@/lib/utils/analytics';
+import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart';
+import { ExportButton } from '@/components/admin/analytics/ExportButton';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 interface AnalyticsData {
-  preparerName: string
-  preparerEmail: string
-  marketingLinksCount: number
-  clicks: number
-  leads: number
-  conversions: number
-  returnsFiled: number
-  conversionRate: number
-  revenue: number
-  lastActive: Date | null
+  preparerName: string;
+  preparerEmail: string;
+  marketingLinksCount: number;
+  clicks: number;
+  leads: number;
+  conversions: number;
+  returnsFiled: number;
+  conversionRate: number;
+  revenue: number;
+  lastActive: Date | null;
   linkBreakdown: Array<{
-    linkId: string
-    linkName: string
-    linkUrl: string
-    clicks: number
-    leads: number
-    conversions: number
-    revenue: number
-    conversionRate: number
-  }>
+    linkId: string;
+    linkName: string;
+    linkUrl: string;
+    clicks: number;
+    leads: number;
+    conversions: number;
+    revenue: number;
+    conversionRate: number;
+  }>;
   recentLeads: Array<{
-    id: string
-    name: string
-    email: string
-    status: string
-    createdAt: Date
-  }>
+    id: string;
+    name: string;
+    email: string;
+    status: string;
+    createdAt: Date;
+  }>;
 }
 
 interface Props {
-  data: AnalyticsData
+  data: AnalyticsData;
 }
 
 export function TaxPreparerAnalyticsClient({ data }: Props) {
-  const myData = data
+  const myData = data;
 
   // Create funnel data
   const funnelStages = createFunnelStages(
@@ -57,7 +57,7 @@ export function TaxPreparerAnalyticsClient({ data }: Props) {
     myData.leads,
     myData.conversions,
     myData.returnsFiled
-  )
+  );
 
   // Prepare export data
   const exportData = {
@@ -73,7 +73,7 @@ export function TaxPreparerAnalyticsClient({ data }: Props) {
     lastActive: myData.lastActive?.toISOString() || 'Never',
     linkBreakdown: myData.linkBreakdown,
     recentLeads: myData.recentLeads,
-  }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -85,45 +85,41 @@ export function TaxPreparerAnalyticsClient({ data }: Props) {
             Track your lead generation performance and conversions
           </p>
         </div>
-        <ExportButton
-          data={[exportData]}
-          filename="my-lead-analytics"
-          variant="default"
-        />
+        <ExportButton data={[exportData]} filename="my-lead-analytics" variant="default" />
       </div>
 
       {/* Key Metrics */}
       <MetricsGrid
         metrics={[
           {
-            title: "Marketing Links",
+            title: 'Marketing Links',
             value: myData.marketingLinksCount,
             icon: Link2,
-            color: "blue",
-            format: "number",
-            subtitle: "Active links"
+            color: 'blue',
+            format: 'number',
+            subtitle: 'Active links',
           },
           {
-            title: "Total Clicks",
+            title: 'Total Clicks',
             value: myData.clicks,
             icon: MousePointerClick,
-            color: "purple",
-            format: "number"
+            color: 'purple',
+            format: 'number',
           },
           {
-            title: "Leads Generated",
+            title: 'Leads Generated',
             value: myData.leads,
             icon: UserPlus,
-            color: "green",
-            format: "number"
+            color: 'green',
+            format: 'number',
           },
           {
-            title: "Total Revenue",
+            title: 'Total Revenue',
             value: myData.revenue,
             icon: DollarSign,
-            color: "yellow",
-            format: "currency"
-          }
+            color: 'yellow',
+            format: 'currency',
+          },
         ]}
       />
 
@@ -131,33 +127,33 @@ export function TaxPreparerAnalyticsClient({ data }: Props) {
       <MetricsGrid
         metrics={[
           {
-            title: "Conversions",
+            title: 'Conversions',
             value: myData.conversions,
             icon: FileCheck,
-            color: "green",
-            format: "number"
+            color: 'green',
+            format: 'number',
           },
           {
-            title: "Returns Filed",
+            title: 'Returns Filed',
             value: myData.returnsFiled,
             icon: TrendingUp,
-            color: "blue",
-            format: "number"
+            color: 'blue',
+            format: 'number',
           },
           {
-            title: "Conversion Rate",
+            title: 'Conversion Rate',
             value: myData.conversionRate.toFixed(1),
             icon: TrendingUp,
-            color: "purple",
-            format: "percent"
+            color: 'purple',
+            format: 'percent',
           },
           {
-            title: "Revenue per Lead",
+            title: 'Revenue per Lead',
             value: myData.leads > 0 ? myData.revenue / myData.leads : 0,
             icon: DollarSign,
-            color: "orange",
-            format: "currency"
-          }
+            color: 'orange',
+            format: 'currency',
+          },
         ]}
       />
 
@@ -173,23 +169,16 @@ export function TaxPreparerAnalyticsClient({ data }: Props) {
         <Card>
           <CardHeader>
             <CardTitle>Marketing Link Performance</CardTitle>
-            <CardDescription>
-              Performance metrics for each of your marketing links
-            </CardDescription>
+            <CardDescription>Performance metrics for each of your marketing links</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {myData.linkBreakdown.map((link) => (
-                <div
-                  key={link.linkId}
-                  className="p-4 border rounded-lg space-y-3"
-                >
+                <div key={link.linkId} className="p-4 border rounded-lg space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <p className="font-medium truncate">{link.linkName}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {link.linkUrl}
-                      </p>
+                      <p className="text-xs text-muted-foreground truncate">{link.linkUrl}</p>
                     </div>
                     <div className="text-right ml-4">
                       <p className="text-sm font-semibold">{link.conversionRate.toFixed(1)}%</p>
@@ -234,9 +223,7 @@ export function TaxPreparerAnalyticsClient({ data }: Props) {
         <Card>
           <CardHeader>
             <CardTitle>Recent Leads</CardTitle>
-            <CardDescription>
-              Your latest generated leads
-            </CardDescription>
+            <CardDescription>Your latest generated leads</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -297,5 +284,5 @@ export function TaxPreparerAnalyticsClient({ data }: Props) {
         </Card>
       )}
     </div>
-  )
+  );
 }

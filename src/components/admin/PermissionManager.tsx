@@ -1,27 +1,20 @@
-'use client'
+'use client';
 
 import { useState, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import {
   PERMISSION_LABELS,
   SECTION_NAMES,
   SECTION_PERMISSIONS,
   type SectionPermission,
   type Permission,
-  type UserPermissions
+  type UserPermissions,
 } from '@/lib/permissions';
-import {
-  Layers,
-  Key,
-  Save,
-  ToggleLeft,
-  AlertCircle,
-  Check,
-} from 'lucide-react';
+import { Layers, Key, Save, ToggleLeft, AlertCircle, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 interface PermissionManagerProps {
   defaultPermissions: Partial<UserPermissions>;
@@ -32,7 +25,7 @@ interface PermissionManagerProps {
 export function PermissionManager({
   defaultPermissions,
   targetUserId,
-  targetRole = 'admin'
+  targetRole = 'admin',
 }: PermissionManagerProps) {
   const [permissions, setPermissions] = useState<Partial<UserPermissions>>(defaultPermissions);
   const [loading, setLoading] = useState(false);
@@ -42,36 +35,45 @@ export function PermissionManager({
   const sections = Object.keys(SECTION_NAMES) as SectionPermission[];
 
   // Check if all permissions in a section are enabled
-  const isSectionEnabled = useCallback((section: SectionPermission) => {
-    const sectionPerms = SECTION_PERMISSIONS[section];
-    return sectionPerms.every(p => permissions[p] === true);
-  }, [permissions]);
+  const isSectionEnabled = useCallback(
+    (section: SectionPermission) => {
+      const sectionPerms = SECTION_PERMISSIONS[section];
+      return sectionPerms.every((p) => permissions[p] === true);
+    },
+    [permissions]
+  );
 
   // Check if some (but not all) permissions in a section are enabled
-  const isSectionPartial = useCallback((section: SectionPermission) => {
-    const sectionPerms = SECTION_PERMISSIONS[section];
-    const enabledCount = sectionPerms.filter(p => permissions[p] === true).length;
-    return enabledCount > 0 && enabledCount < sectionPerms.length;
-  }, [permissions]);
+  const isSectionPartial = useCallback(
+    (section: SectionPermission) => {
+      const sectionPerms = SECTION_PERMISSIONS[section];
+      const enabledCount = sectionPerms.filter((p) => permissions[p] === true).length;
+      return enabledCount > 0 && enabledCount < sectionPerms.length;
+    },
+    [permissions]
+  );
 
   // Toggle entire section
-  const toggleSection = useCallback((section: SectionPermission, enabled: boolean) => {
-    const sectionPerms = SECTION_PERMISSIONS[section];
-    const newPermissions = { ...permissions };
+  const toggleSection = useCallback(
+    (section: SectionPermission, enabled: boolean) => {
+      const sectionPerms = SECTION_PERMISSIONS[section];
+      const newPermissions = { ...permissions };
 
-    sectionPerms.forEach(perm => {
-      newPermissions[perm] = enabled;
-    });
+      sectionPerms.forEach((perm) => {
+        newPermissions[perm] = enabled;
+      });
 
-    setPermissions(newPermissions);
-    setHasChanges(true);
-  }, [permissions]);
+      setPermissions(newPermissions);
+      setHasChanges(true);
+    },
+    [permissions]
+  );
 
   // Toggle individual permission
   const togglePermission = useCallback((permission: Permission, enabled: boolean) => {
-    setPermissions(prev => ({
+    setPermissions((prev) => ({
       ...prev,
-      [permission]: enabled
+      [permission]: enabled,
     }));
     setHasChanges(true);
   }, []);
@@ -81,8 +83,8 @@ export function PermissionManager({
     if (!targetUserId) {
       // If no specific user, this is for setting default admin permissions
       toast({
-        title: "Saving Default Permissions",
-        description: "Updating default permissions for all admin users...",
+        title: 'Saving Default Permissions',
+        description: 'Updating default permissions for all admin users...',
       });
     }
 
@@ -107,8 +109,8 @@ export function PermissionManager({
       }
 
       toast({
-        title: "Success",
-        description: "Permissions have been updated successfully.",
+        title: 'Success',
+        description: 'Permissions have been updated successfully.',
         duration: 3000,
       });
 
@@ -116,9 +118,9 @@ export function PermissionManager({
     } catch (error) {
       logger.error('Error saving permissions:', error);
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to save permissions",
-        variant: "destructive",
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to save permissions',
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -159,8 +161,8 @@ export function PermissionManager({
                     checked={isEnabled}
                     onCheckedChange={(checked) => toggleSection(section, checked)}
                     className={cn(
-                      "data-[state=checked]:bg-green-600",
-                      isPartial && "data-[state=unchecked]:bg-amber-200"
+                      'data-[state=checked]:bg-green-600',
+                      isPartial && 'data-[state=unchecked]:bg-amber-200'
                     )}
                   />
                 </div>
@@ -198,7 +200,8 @@ export function PermissionManager({
           <div>
             <p className="font-medium">Section Controls</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Toggle entire sections on/off to quickly manage admin access. Individual permissions can still be customized within each section.
+              Toggle entire sections on/off to quickly manage admin access. Individual permissions
+              can still be customized within each section.
             </p>
           </div>
         </div>

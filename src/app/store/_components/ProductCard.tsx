@@ -2,7 +2,14 @@
 
 import Image from 'next/image';
 import { ShoppingCart } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useShoppingCart } from '@/lib/hooks/useShoppingCart';
 import { toast } from 'sonner';
@@ -52,17 +59,13 @@ export function ProductCard({ product }: ProductCardProps) {
       <CardHeader className="flex-1">
         <CardTitle className="line-clamp-2">{product.name}</CardTitle>
         {product.description && (
-          <CardDescription className="line-clamp-3">
-            {product.description}
-          </CardDescription>
+          <CardDescription className="line-clamp-3">{product.description}</CardDescription>
         )}
       </CardHeader>
 
       <CardContent>
         <div className="flex items-center justify-between">
-          <span className="text-2xl font-bold text-primary">
-            ${product.price.toFixed(2)}
-          </span>
+          <span className="text-2xl font-bold text-primary">${product.price.toFixed(2)}</span>
           {product.category && (
             <span className="text-xs text-muted-foreground px-2 py-1 bg-secondary rounded-full">
               {product.category}
@@ -72,11 +75,7 @@ export function ProductCard({ product }: ProductCardProps) {
       </CardContent>
 
       <CardFooter>
-        <Button
-          onClick={handleAddToCart}
-          className="w-full"
-          size="lg"
-        >
+        <Button onClick={handleAddToCart} className="w-full" size="lg">
           <ShoppingCart className="mr-2 h-4 w-4" />
           Add to Cart
         </Button>

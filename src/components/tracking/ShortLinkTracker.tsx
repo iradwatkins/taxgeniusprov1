@@ -11,53 +11,53 @@
  * It detects the tracking parameters and fires the appropriate GA events.
  */
 
-'use client'
+'use client';
 
-import { useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { logger } from '@/lib/logger'
+import { useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { logger } from '@/lib/logger';
 
 export function ShortLinkTracker() {
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     // Get tracking parameters from URL
-    const trackingCode = searchParams.get('ref')
-    const linkCode = searchParams.get('link')
-    const utmSource = searchParams.get('utm_source')
-    const utmMedium = searchParams.get('utm_medium')
+    const trackingCode = searchParams.get('ref');
+    const linkCode = searchParams.get('link');
+    const utmSource = searchParams.get('utm_source');
+    const utmMedium = searchParams.get('utm_medium');
 
     // Only fire if we have both tracking code and link code
     // This indicates the user came from a short link
     if (trackingCode && linkCode) {
       // Fire Google Analytics click event
       if (typeof window !== 'undefined' && window.trackReferralClick) {
-        window.trackReferralClick(trackingCode, 'SHORT_LINK')
+        window.trackReferralClick(trackingCode, 'SHORT_LINK');
 
         logger.info('[ShortLinkTracker] GA Event: trackReferralClick', {
           trackingCode,
           materialType: 'SHORT_LINK',
           linkCode,
           utmSource,
-          utmMedium
-        })
+          utmMedium,
+        });
       }
 
       // Store tracking data in sessionStorage for later use
       // (when lead form is submitted)
       try {
-        sessionStorage.setItem('trackingCode', trackingCode)
-        sessionStorage.setItem('linkCode', linkCode)
-        sessionStorage.setItem('utmSource', utmSource || '')
-        sessionStorage.setItem('utmMedium', utmMedium || '')
+        sessionStorage.setItem('trackingCode', trackingCode);
+        sessionStorage.setItem('linkCode', linkCode);
+        sessionStorage.setItem('utmSource', utmSource || '');
+        sessionStorage.setItem('utmMedium', utmMedium || '');
       } catch (error) {
-        logger.error('[ShortLinkTracker] Error storing tracking data:', error)
+        logger.error('[ShortLinkTracker] Error storing tracking data:', error);
       }
     }
-  }, [searchParams])
+  }, [searchParams]);
 
   // This component doesn't render anything
-  return null
+  return null;
 }
 
 /**
@@ -68,7 +68,7 @@ export function ShortLinkTracker() {
  */
 export function useTrackingData() {
   if (typeof window === 'undefined') {
-    return null
+    return null;
   }
 
   try {
@@ -77,9 +77,9 @@ export function useTrackingData() {
       linkCode: sessionStorage.getItem('linkCode'),
       utmSource: sessionStorage.getItem('utmSource'),
       utmMedium: sessionStorage.getItem('utmMedium'),
-    }
+    };
   } catch (error) {
-    return null
+    return null;
   }
 }
 
@@ -89,18 +89,18 @@ export function useTrackingData() {
  * Call this when a user submits a lead form (intake or contact)
  */
 export function trackLeadSubmission(leadType: 'CUSTOMER' | 'INQUIRY') {
-  const trackingData = useTrackingData()
+  const trackingData = useTrackingData();
 
   if (trackingData?.trackingCode) {
     // Fire Google Analytics lead generation event
     if (typeof window !== 'undefined' && window.trackLeadGeneration) {
-      window.trackLeadGeneration(trackingData.trackingCode, leadType)
+      window.trackLeadGeneration(trackingData.trackingCode, leadType);
 
       logger.info('[ShortLinkTracker] GA Event: trackLeadGeneration', {
         trackingCode: trackingData.trackingCode,
         leadType,
         linkCode: trackingData.linkCode,
-      })
+      });
     }
   }
 }
@@ -111,19 +111,19 @@ export function trackLeadSubmission(leadType: 'CUSTOMER' | 'INQUIRY') {
  * Call this when a user completes a conversion (e.g., submits tax return)
  */
 export function trackConversionSubmission(conversionType: string, value?: number) {
-  const trackingData = useTrackingData()
+  const trackingData = useTrackingData();
 
   if (trackingData?.trackingCode) {
     // Fire Google Analytics conversion event
     if (typeof window !== 'undefined' && window.trackConversion) {
-      window.trackConversion(trackingData.trackingCode, conversionType, value)
+      window.trackConversion(trackingData.trackingCode, conversionType, value);
 
       logger.info('[ShortLinkTracker] GA Event: trackConversion', {
         trackingCode: trackingData.trackingCode,
         conversionType,
         value,
         linkCode: trackingData.linkCode,
-      })
+      });
     }
   }
 }

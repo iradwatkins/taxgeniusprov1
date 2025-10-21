@@ -1,0 +1,141 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
+import { Resend } from 'resend';
+import { ContactFormNotification } from '../../../../../emails/contact-form-notification';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+/**
+ * POST /api/contact/submit - Handle contact form submissions
+ *
+ * This endpoint:
+ * 1. Validates the form data
+ * 2. Saves submission to CRMContact database
+ * 3. Sends email notification to taxgenius.tax@gmail.com
+ * 4. Returns success/error response
+ */
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { name, email, phone, service, message } = body;
+
+    // Validate required fields
+    if (!name || !email || !service || !message) {
+      return NextResponse.json(
+        { error: 'Missing required fields: name, email, service, and message are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
+        { status: 400 }
+      );
+    }
+
+    // Parse name into firstName and lastName
+    const nameParts = name.trim().split(' ');
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(' ') || firstName;
+
+    // Check if CRMContact already exists
+    let crmContact = await prisma.cRMContact.findUnique({
+      where: { email: email.toLowerCase() },
+    });
+
+    if (crmContact) {
+      // Update existing contact
+      crmContact = await prisma.cRMContact.update({
+        where: { email: email.toLowerCase() },
+        data: {
+          firstName,
+          lastName,
+          phone: phone || crmContact.phone,
+          lastContactDate: new Date(),
+          notes: crmContact.notes
+            ? `${crmContact.notes}\n\n--- Contact Form ${new Date().toISOString()} ---\nService: ${service}\nMessage: ${message}`
+            : `Contact Form Submission:\nService: ${service}\nMessage: ${message}`,
+        },
+      });
+
+      logger.info('Updated existing CRM contact', { contactId: crmContact.id, email });
+    } else {
+      // Create new CRM contact
+      crmContact = await prisma.cRMContact.create({
+        data: {
+          contactType: 'LEAD',
+          firstName,
+          lastName,
+          email: email.toLowerCase(),
+          phone: phone || null,
+          source: 'contact_form',
+          status: 'NEW',
+          lastContactDate: new Date(),
+          notes: `Contact Form Submission:\nService: ${service}\nMessage: ${message}`,
+        },
+      });
+
+      logger.info('Created new CRM contact', { contactId: crmContact.id, email });
+    }
+
+    // Send email notification to business
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@taxgeniuspro.tax';
+    const toEmail = 'taxgenius.tax@gmail.com';
+
+    try {
+      if (process.env.NODE_ENV === 'development') {
+        logger.info('Contact form email (Dev Mode)', {
+          to: toEmail,
+          from: fromEmail,
+          name,
+          email,
+          phone,
+          service,
+          message,
+        });
+      } else {
+        const { data, error } = await resend.emails.send({
+          from: fromEmail,
+          to: toEmail,
+          subject: `New Contact Form: ${service} - ${name}`,
+          react: ContactFormNotification({
+            name,
+            email,
+            phone,
+            service,
+            message,
+            submittedAt: new Date(),
+          }),
+        });
+
+        if (error) {
+          logger.error('Failed to send contact form email', error);
+          // Don't fail the request if email fails - we still saved to database
+        } else {
+          logger.info('Contact form email sent', { emailId: data?.id });
+        }
+      }
+    } catch (emailError) {
+      logger.error('Error sending contact form email', emailError);
+      // Continue - database save succeeded
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Thank you for contacting us! We will get back to you shortly.',
+      contactId: crmContact.id,
+    });
+  } catch (error) {
+    logger.error('Error processing contact form submission', error);
+    return NextResponse.json(
+      {
+        error: 'Failed to submit contact form. Please try again or call us at +1 404-627-1015',
+      },
+      { status: 500 }
+    );
+  }
+}

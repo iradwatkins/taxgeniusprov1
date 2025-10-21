@@ -9,102 +9,97 @@
  * - QR code generation
  */
 
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { QRCodeSVG } from 'qrcode.react'
-import { logger } from '@/lib/logger'
-import {
-  INPUT_DEBOUNCE_DELAY,
-  SHORT_LINK_CODE,
-  LINK_METADATA,
-  QR_CODE
-} from '@/lib/constants'
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { QRCodeSVG } from 'qrcode.react';
+import { logger } from '@/lib/logger';
+import { INPUT_DEBOUNCE_DELAY, SHORT_LINK_CODE, LINK_METADATA, QR_CODE } from '@/lib/constants';
 
-type DestinationType = 'INTAKE_FORM' | 'CONTACT_FORM' | 'CUSTOM'
+type DestinationType = 'INTAKE_FORM' | 'CONTACT_FORM' | 'CUSTOM';
 
 interface Destination {
-  type: DestinationType
-  customUrl?: string
+  type: DestinationType;
+  customUrl?: string;
 }
 
 export function CreateShortLinkForm() {
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   // Form fields
-  const [shortCode, setShortCode] = useState('')
-  const [destinationType, setDestinationType] = useState<DestinationType>('INTAKE_FORM')
-  const [customUrl, setCustomUrl] = useState('')
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [campaign, setCampaign] = useState('')
+  const [shortCode, setShortCode] = useState('');
+  const [destinationType, setDestinationType] = useState<DestinationType>('INTAKE_FORM');
+  const [customUrl, setCustomUrl] = useState('');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [campaign, setCampaign] = useState('');
 
   // Availability checking
-  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false)
+  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
   const [availabilityStatus, setAvailabilityStatus] = useState<{
-    available: boolean
-    reason?: string
-  } | null>(null)
+    available: boolean;
+    reason?: string;
+  } | null>(null);
 
   // Generated link data
   const [generatedLink, setGeneratedLink] = useState<{
-    code: string
-    url: string
-    fullUrl: string
-  } | null>(null)
+    code: string;
+    url: string;
+    fullUrl: string;
+  } | null>(null);
 
   // Real-time availability checking
   useEffect(() => {
     if (!shortCode || shortCode.length < 3) {
-      setAvailabilityStatus(null)
-      return
+      setAvailabilityStatus(null);
+      return;
     }
 
     const checkAvailability = async () => {
-      setIsCheckingAvailability(true)
+      setIsCheckingAvailability(true);
       try {
         const response = await fetch('/api/links/check-availability', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ code: shortCode.trim() }),
-        })
+        });
 
-        const data = await response.json()
-        setAvailabilityStatus(data)
+        const data = await response.json();
+        setAvailabilityStatus(data);
       } catch (error) {
-        logger.error('Error checking availability:', error)
+        logger.error('Error checking availability:', error);
       } finally {
-        setIsCheckingAvailability(false)
+        setIsCheckingAvailability(false);
       }
-    }
+    };
 
     // Debounce the check
-    const timeoutId = setTimeout(checkAvailability, INPUT_DEBOUNCE_DELAY)
-    return () => clearTimeout(timeoutId)
-  }, [shortCode])
+    const timeoutId = setTimeout(checkAvailability, INPUT_DEBOUNCE_DELAY);
+    return () => clearTimeout(timeoutId);
+  }, [shortCode]);
 
   // Build preview URL
   const getPreviewUrl = () => {
-    if (!shortCode) return null
-    return `${window.location.origin}/go/${shortCode.toLowerCase()}`
-  }
+    if (!shortCode) return null;
+    return `${window.location.origin}/go/${shortCode.toLowerCase()}`;
+  };
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setIsSubmitting(true)
+    e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
 
     try {
       // Build destination object
       const destination: Destination = {
         type: destinationType,
         customUrl: destinationType === 'CUSTOM' ? customUrl : undefined,
-      }
+      };
 
       // Submit to API
       const response = await fetch('/api/links/create', {
@@ -117,12 +112,12 @@ export function CreateShortLinkForm() {
           description: description.trim() || undefined,
           campaign: campaign.trim() || undefined,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create short link')
+        throw new Error(data.error || 'Failed to create short link');
       }
 
       // Success! Show the generated link
@@ -130,65 +125,65 @@ export function CreateShortLinkForm() {
         code: data.data.code,
         url: data.data.shortUrl,
         fullUrl: data.data.url,
-      })
-      setSuccess(true)
+      });
+      setSuccess(true);
 
       // Reset form after 3 seconds
       setTimeout(() => {
-        resetForm()
-      }, 3000)
-    } catch (err: any) {
-      setError(err.message || 'Failed to create short link')
+        resetForm();
+      }, 3000);
+    } catch (err) {
+      setError(err.message || 'Failed to create short link');
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   // Reset form
   const resetForm = () => {
-    setShortCode('')
-    setDestinationType('INTAKE_FORM')
-    setCustomUrl('')
-    setTitle('')
-    setDescription('')
-    setCampaign('')
-    setAvailabilityStatus(null)
-    setSuccess(false)
-    setGeneratedLink(null)
-    setError(null)
-  }
+    setShortCode('');
+    setDestinationType('INTAKE_FORM');
+    setCustomUrl('');
+    setTitle('');
+    setDescription('');
+    setCampaign('');
+    setAvailabilityStatus(null);
+    setSuccess(false);
+    setGeneratedLink(null);
+    setError(null);
+  };
 
   // Copy to clipboard
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-  }
+    navigator.clipboard.writeText(text);
+  };
 
   // Download QR code
   const downloadQRCode = () => {
-    if (!generatedLink) return
+    if (!generatedLink) return;
 
-    const svg = document.getElementById('qr-code')
-    if (!svg) return
+    const svg = document.getElementById('qr-code');
+    if (!svg) return;
 
-    const svgData = new XMLSerializer().serializeToString(svg)
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    const img = new Image()
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
 
     img.onload = () => {
-      canvas.width = img.width
-      canvas.height = img.height
-      ctx?.drawImage(img, 0, 0)
-      const pngFile = canvas.toDataURL('image/png')
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx?.drawImage(img, 0, 0);
+      const pngFile = canvas.toDataURL('image/png');
 
-      const downloadLink = document.createElement('a')
-      downloadLink.download = `qr-${generatedLink.code}.png`
-      downloadLink.href = pngFile
-      downloadLink.click()
-    }
+      const downloadLink = document.createElement('a');
+      downloadLink.download = `qr-${generatedLink.code}.png`;
+      downloadLink.href = pngFile;
+      downloadLink.click();
+    };
 
-    img.src = 'data:image/svg+xml;base64,' + btoa(svgData)
-  }
+    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+  };
 
   // If link was successfully created, show success state
   if (success && generatedLink) {
@@ -281,7 +276,7 @@ export function CreateShortLinkForm() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   // Form state
@@ -384,9 +379,7 @@ export function CreateShortLinkForm() {
               className="mt-1"
             />
             <div className="flex-1">
-              <div className="font-medium text-gray-900 dark:text-gray-100">
-                Tax Intake Form
-              </div>
+              <div className="font-medium text-gray-900 dark:text-gray-100">Tax Intake Form</div>
               <div className="text-sm text-gray-500 dark:text-gray-400">
                 For people ready to file taxes immediately
               </div>
@@ -407,9 +400,7 @@ export function CreateShortLinkForm() {
               className="mt-1"
             />
             <div className="flex-1">
-              <div className="font-medium text-gray-900 dark:text-gray-100">
-                Contact/Lead Form
-              </div>
+              <div className="font-medium text-gray-900 dark:text-gray-100">Contact/Lead Form</div>
               <div className="text-sm text-gray-500 dark:text-gray-400">
                 For people wanting more information
               </div>
@@ -430,9 +421,7 @@ export function CreateShortLinkForm() {
               className="mt-1"
             />
             <div className="flex-1">
-              <div className="font-medium text-gray-900 dark:text-gray-100">
-                Custom URL
-              </div>
+              <div className="font-medium text-gray-900 dark:text-gray-100">Custom URL</div>
               <div className="text-sm text-gray-500 dark:text-gray-400">
                 Redirect to any page on TaxGeniusPro
               </div>
@@ -532,5 +521,5 @@ export function CreateShortLinkForm() {
         </button>
       </div>
     </form>
-  )
+  );
 }

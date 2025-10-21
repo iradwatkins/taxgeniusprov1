@@ -7,22 +7,22 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
-import { logger } from '@/lib/logger'
-import { ATTRIBUTION_COOKIE_NAME, ATTRIBUTION_COOKIE_MAX_AGE } from '@/lib/utils/cookie-manager'
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/db';
+import { logger } from '@/lib/logger';
+import { ATTRIBUTION_COOKIE_NAME, ATTRIBUTION_COOKIE_MAX_AGE } from '@/lib/utils/cookie-manager';
 
 // Route redirects
 const ROUTE_REDIRECTS = {
-  lead: '/start-filing',           // General Lead Form
-  intake: '/personal-tax-filing'   // Tax Intake Form
-}
+  lead: '/start-filing', // General Lead Form
+  intake: '/personal-tax-filing', // Tax Intake Form
+};
 
 /**
  * Check if request is a short link (should be handled by this middleware)
  */
 export function isShortLinkRequest(pathname: string): boolean {
-  return pathname.startsWith('/lead/') || pathname.startsWith('/intake/')
+  return pathname.startsWith('/lead/') || pathname.startsWith('/intake/');
 }
 
 /**
@@ -32,20 +32,20 @@ export function isShortLinkRequest(pathname: string): boolean {
 export async function attributionTrackingMiddleware(
   request: NextRequest
 ): Promise<NextResponse | null> {
-  const { pathname } = request.nextUrl
+  const { pathname } = request.nextUrl;
 
   // Only handle short link requests
   if (!isShortLinkRequest(pathname)) {
-    return null // Let main middleware continue
+    return null; // Let main middleware continue
   }
 
   // Extract type (lead or intake) and username
-  const segments = pathname.split('/').filter(Boolean)
-  const [type, username] = segments
+  const segments = pathname.split('/').filter(Boolean);
+  const [type, username] = segments;
 
   if (!username) {
-    logger.warn('Attribution link missing username', { pathname })
-    return NextResponse.redirect(new URL('/', request.url))
+    logger.warn('Attribution link missing username', { pathname });
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
   try {
@@ -55,32 +55,32 @@ export async function attributionTrackingMiddleware(
       select: {
         id: true,
         role: true,
-        shortLinkUsername: true
-      }
-    })
+        shortLinkUsername: true,
+      },
+    });
 
     if (!profile) {
-      logger.warn('Attribution link has invalid username', { username, type })
+      logger.warn('Attribution link has invalid username', { username, type });
       // Redirect to home page for invalid username
-      return NextResponse.redirect(new URL('/', request.url))
+      return NextResponse.redirect(new URL('/', request.url));
     }
 
     // Record link click for analytics (non-blocking)
-    recordLinkClick(profile.id, type as 'lead' | 'intake', request).catch(error => {
-      logger.error('Error recording link click (non-blocking)', { error })
-    })
+    recordLinkClick(profile.id, type as 'lead' | 'intake', request).catch((error) => {
+      logger.error('Error recording link click (non-blocking)', { error });
+    });
 
     // Create attribution cookie data
     const attributionData = {
       referrerUsername: username,
       referrerType: profile.role,
       timestamp: Date.now(),
-      source: type // 'lead' or 'intake'
-    }
+      source: type, // 'lead' or 'intake'
+    };
 
     // Set up redirect response
-    const redirectUrl = ROUTE_REDIRECTS[type as keyof typeof ROUTE_REDIRECTS] || '/'
-    const response = NextResponse.redirect(new URL(redirectUrl, request.url))
+    const redirectUrl = ROUTE_REDIRECTS[type as keyof typeof ROUTE_REDIRECTS] || '/';
+    const response = NextResponse.redirect(new URL(redirectUrl, request.url));
 
     // Set attribution cookie (14-day expiry)
     response.cookies.set(ATTRIBUTION_COOKIE_NAME, JSON.stringify(attributionData), {
@@ -89,20 +89,20 @@ export async function attributionTrackingMiddleware(
       sameSite: 'lax',
       maxAge: ATTRIBUTION_COOKIE_MAX_AGE,
       path: '/',
-    })
+    });
 
     logger.info('Attribution cookie set', {
       username,
       type,
       redirectUrl,
-      referrerType: profile.role
-    })
+      referrerType: profile.role,
+    });
 
-    return response
+    return response;
   } catch (error) {
-    logger.error('Error handling attribution link', { pathname, error })
+    logger.error('Error handling attribution link', { pathname, error });
     // Fallback: redirect to home page
-    return NextResponse.redirect(new URL('/', request.url))
+    return NextResponse.redirect(new URL('/', request.url));
   }
 }
 
@@ -120,8 +120,8 @@ async function recordLinkClick(
       where: {
         creatorId_slug: {
           creatorId: profileId,
-          slug: linkType
-        }
+          slug: linkType,
+        },
       },
       create: {
         creatorId: profileId,
@@ -131,13 +131,13 @@ async function recordLinkClick(
         shortUrl: `/${linkType}/${await getUsername(profileId)}`,
         isActive: true,
         clicks: 1,
-        uniqueClicks: 1
+        uniqueClicks: 1,
       },
       update: {
         clicks: { increment: 1 },
-        uniqueClicks: { increment: 1 }
-      }
-    })
+        uniqueClicks: { increment: 1 },
+      },
+    });
 
     // Record detailed click metadata
     await prisma.linkClick.create({
@@ -146,18 +146,18 @@ async function recordLinkClick(
         ipAddress: getClientIP(request),
         userAgent: request.headers.get('user-agent') || undefined,
         referrer: request.headers.get('referer') || undefined,
-        clickedAt: new Date()
-      }
-    })
+        clickedAt: new Date(),
+      },
+    });
 
     logger.info('Link click recorded', {
       profileId,
       linkType,
-      linkId: marketingLink.id
-    })
+      linkId: marketingLink.id,
+    });
   } catch (error) {
-    logger.error('Error recording link click', { profileId, linkType, error })
-    throw error
+    logger.error('Error recording link click', { profileId, linkType, error });
+    throw error;
   }
 }
 
@@ -165,18 +165,18 @@ async function recordLinkClick(
  * Get client IP address from request headers
  */
 function getClientIP(request: NextRequest): string | undefined {
-  const forwarded = request.headers.get('x-forwarded-for')
-  const realIP = request.headers.get('x-real-ip')
+  const forwarded = request.headers.get('x-forwarded-for');
+  const realIP = request.headers.get('x-real-ip');
 
   if (forwarded) {
-    return forwarded.split(',')[0].trim()
+    return forwarded.split(',')[0].trim();
   }
 
   if (realIP) {
-    return realIP
+    return realIP;
   }
 
-  return undefined
+  return undefined;
 }
 
 /**
@@ -185,9 +185,9 @@ function getClientIP(request: NextRequest): string | undefined {
 async function getCreatorType(profileId: string): Promise<string> {
   const profile = await prisma.profile.findUnique({
     where: { id: profileId },
-    select: { role: true }
-  })
-  return profile?.role || 'UNKNOWN'
+    select: { role: true },
+  });
+  return profile?.role || 'UNKNOWN';
 }
 
 /**
@@ -196,7 +196,7 @@ async function getCreatorType(profileId: string): Promise<string> {
 async function getUsername(profileId: string): Promise<string> {
   const profile = await prisma.profile.findUnique({
     where: { id: profileId },
-    select: { shortLinkUsername: true }
-  })
-  return profile?.shortLinkUsername || 'unknown'
+    select: { shortLinkUsername: true },
+  });
+  return profile?.shortLinkUsername || 'unknown';
 }

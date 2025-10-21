@@ -5,81 +5,74 @@
  * Provides clear visual indicator and quick exit option
  */
 
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Eye, X, AlertTriangle, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { UserRole } from '@/lib/permissions'
-import { ROLE_DISPLAY_CONFIG } from '@/types/role-switcher'
-import { useToast } from '@/hooks/use-toast'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { logger } from '@/lib/logger'
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Eye, X, AlertTriangle, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { UserRole } from '@/lib/permissions';
+import { ROLE_DISPLAY_CONFIG } from '@/types/role-switcher';
+import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { logger } from '@/lib/logger';
 
 interface ViewingAsBarProps {
-  actualRole: UserRole
-  effectiveRole: UserRole
-  viewingRoleName?: string
+  actualRole: UserRole;
+  effectiveRole: UserRole;
+  viewingRoleName?: string;
 }
 
-export function ViewingAsBar({
-  actualRole,
-  effectiveRole,
-  viewingRoleName,
-}: ViewingAsBarProps) {
-  const [isExiting, setIsExiting] = useState(false)
-  const [isDismissed, setIsDismissed] = useState(false)
-  const router = useRouter()
-  const { toast } = useToast()
+export function ViewingAsBar({ actualRole, effectiveRole, viewingRoleName }: ViewingAsBarProps) {
+  const [isExiting, setIsExiting] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
 
   // Don't show if not viewing as another role
   if (actualRole === effectiveRole || isDismissed) {
-    return null
+    return null;
   }
 
   const handleExitPreview = async () => {
-    setIsExiting(true)
+    setIsExiting(true);
 
     try {
       const response = await fetch('/api/admin/switch-view-role', {
         method: 'DELETE',
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to exit preview mode')
+        throw new Error(data.error || 'Failed to exit preview mode');
       }
 
       toast({
         title: 'Returned to Admin View',
         description: data.message || `Viewing as ${ROLE_DISPLAY_CONFIG[actualRole].label}`,
-      })
+      });
 
       // Refresh the page to apply admin role permissions
-      router.refresh()
+      router.refresh();
     } catch (error) {
-      logger.error('Error exiting preview mode:', error)
+      logger.error('Error exiting preview mode:', error);
 
       toast({
         title: 'Error',
-        description:
-          error instanceof Error
-            ? error.message
-            : 'Failed to exit preview mode',
+        description: error instanceof Error ? error.message : 'Failed to exit preview mode',
         variant: 'destructive',
-      })
+      });
 
-      setIsExiting(false)
+      setIsExiting(false);
     }
-  }
+  };
 
   const handleDismiss = () => {
-    setIsDismissed(true)
-  }
+    setIsDismissed(true);
+  };
 
-  const roleConfig = ROLE_DISPLAY_CONFIG[effectiveRole]
+  const roleConfig = ROLE_DISPLAY_CONFIG[effectiveRole];
 
   return (
     <Alert className="border-yellow-500 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20 mb-0 rounded-none border-x-0 border-t-0">
@@ -146,5 +139,5 @@ export function ViewingAsBar({
         </div>
       </div>
     </Alert>
-  )
+  );
 }

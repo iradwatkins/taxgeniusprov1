@@ -1,30 +1,30 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { MessageSquare, Send, Paperclip, Search, Filter } from 'lucide-react'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { MessageSquare, Send, Paperclip, Search, Filter } from 'lucide-react';
 
 export const metadata = {
   title: 'Messages | Tax Genius Pro',
   description: 'Communicate with your tax preparer',
-}
+};
 
 async function isClient() {
-  const user = await currentUser()
-  if (!user) return false
-  const role = user.publicMetadata?.role
-  return role === 'client' || role === 'admin'
+  const user = await currentUser();
+  if (!user) return false;
+  const role = user.publicMetadata?.role;
+  return role === 'client' || role === 'admin';
 }
 
 export default async function ClientMessagesPage() {
-  const userIsClient = await isClient()
+  const userIsClient = await isClient();
 
   if (!userIsClient) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
   // Mock messages data
@@ -36,7 +36,8 @@ export default async function ClientMessagesPage() {
         avatar: 'SJ',
         initials: 'SJ',
       },
-      lastMessage: 'I\'ve reviewed your documents and everything looks good. We can proceed with filing.',
+      lastMessage:
+        "I've reviewed your documents and everything looks good. We can proceed with filing.",
       timestamp: '2024-03-15T14:30:00',
       unread: 2,
       status: 'active',
@@ -53,63 +54,66 @@ export default async function ClientMessagesPage() {
       unread: 0,
       status: 'active',
     },
-  ]
+  ];
 
   const messages = [
     {
       id: '1',
       sender: 'preparer',
       senderName: 'Sarah Johnson',
-      message: 'Hello! I\'ve started reviewing your 2024 tax return. I noticed you mentioned a home office deduction. Could you provide some details about your home office setup?',
+      message:
+        "Hello! I've started reviewing your 2024 tax return. I noticed you mentioned a home office deduction. Could you provide some details about your home office setup?",
       timestamp: '2024-03-15T10:00:00',
     },
     {
       id: '2',
       sender: 'client',
       senderName: 'You',
-      message: 'Hi Sarah! Yes, I have a dedicated room that I use exclusively for work. It\'s about 150 square feet. I work from home full-time for my employer.',
+      message:
+        "Hi Sarah! Yes, I have a dedicated room that I use exclusively for work. It's about 150 square feet. I work from home full-time for my employer.",
       timestamp: '2024-03-15T11:30:00',
     },
     {
       id: '3',
       sender: 'preparer',
       senderName: 'Sarah Johnson',
-      message: 'Perfect! Since you\'re an employee working from home, we\'ll need to check if your employer requires you to work from home. Could you provide a letter or email from your employer confirming this?',
+      message:
+        "Perfect! Since you're an employee working from home, we'll need to check if your employer requires you to work from home. Could you provide a letter or email from your employer confirming this?",
       timestamp: '2024-03-15T13:00:00',
     },
     {
       id: '4',
       sender: 'client',
       senderName: 'You',
-      message: 'Sure, I\'ll upload that document right away. Give me a few minutes.',
+      message: "Sure, I'll upload that document right away. Give me a few minutes.",
       timestamp: '2024-03-15T13:15:00',
     },
     {
       id: '5',
       sender: 'preparer',
       senderName: 'Sarah Johnson',
-      message: 'I\'ve reviewed your documents and everything looks good. We can proceed with filing.',
+      message:
+        "I've reviewed your documents and everything looks good. We can proceed with filing.",
       timestamp: '2024-03-15T14:30:00',
     },
-  ]
+  ];
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Messages</h1>
-          <p className="text-muted-foreground mt-1">
-            Communicate with your tax preparer
-          </p>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Messages</h1>
+            <p className="text-sm sm:text-base text-muted-foreground mt-1">Communicate with your tax preparer</p>
+          </div>
+          <Button className="w-full sm:w-auto">
+            <MessageSquare className="w-4 h-4 mr-2" />
+            New Message
+          </Button>
         </div>
-        <Button>
-          <MessageSquare className="w-4 h-4 mr-2" />
-          New Message
-        </Button>
-      </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
         {/* Conversations List */}
         <Card className="md:col-span-1">
           <CardHeader>
@@ -120,10 +124,7 @@ export default async function ClientMessagesPage() {
             {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search conversations..."
-                className="pl-9"
-              />
+              <Input placeholder="Search conversations..." className="pl-9" />
             </div>
 
             {/* Conversation List */}
@@ -132,9 +133,7 @@ export default async function ClientMessagesPage() {
                 <div
                   key={conversation.id}
                   className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                    conversation.id === '1'
-                      ? 'bg-primary/5 border-primary'
-                      : 'hover:bg-accent/50'
+                    conversation.id === '1' ? 'bg-primary/5 border-primary' : 'hover:bg-accent/50'
                   }`}
                 >
                   <div className="flex items-start gap-3">
@@ -143,9 +142,7 @@ export default async function ClientMessagesPage() {
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <p className="font-medium text-sm truncate">
-                          {conversation.preparer.name}
-                        </p>
+                        <p className="font-medium text-sm truncate">{conversation.preparer.name}</p>
                         {conversation.unread > 0 && (
                           <Badge className="bg-primary text-primary-foreground">
                             {conversation.unread}
@@ -224,11 +221,7 @@ export default async function ClientMessagesPage() {
 
             {/* Message Input */}
             <div className="space-y-2">
-              <Textarea
-                placeholder="Type your message..."
-                rows={3}
-                className="resize-none"
-              />
+              <Textarea placeholder="Type your message..." rows={3} className="resize-none" />
               <div className="flex items-center justify-between">
                 <Button variant="outline" size="sm">
                   <Paperclip className="w-4 h-4 mr-2" />
@@ -251,7 +244,7 @@ export default async function ClientMessagesPage() {
           <CardDescription>Common message templates</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
             <Button variant="outline" className="justify-start">
               <MessageSquare className="w-4 h-4 mr-2" />
               Request Status Update
@@ -267,6 +260,7 @@ export default async function ClientMessagesPage() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
-  )
+  );
 }

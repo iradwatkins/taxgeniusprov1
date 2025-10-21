@@ -1,9 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   Building2,
   TrendingUp,
@@ -18,7 +18,7 @@ import {
   PieChart,
   DollarSign,
   Award,
-  Clock
+  Clock,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Header } from '@/components/header';
@@ -49,14 +49,13 @@ export default function BusinessTaxPage() {
               </h1>
 
               <p className="text-xl text-muted-foreground leading-relaxed">
-                Comprehensive tax preparation and planning for small businesses, startups, and growing companies. Maximize deductions, minimize liability.
+                Comprehensive tax preparation and planning for small businesses, startups, and
+                growing companies. Maximize deductions, minimize liability.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button variant="professional" size="lg" asChild>
-                  <Link href="/start-filing">
-                    Schedule Business Consultation
-                  </Link>
+                  <Link href="/start-filing/form">Schedule Business Consultation</Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <Link href="tel:+14046271015">
@@ -70,7 +69,7 @@ export default function BusinessTaxPage() {
                 {[
                   { icon: CheckCircle, text: '500+ Businesses Served' },
                   { icon: Award, text: 'IRS Authorized' },
-                  { icon: Shield, text: 'Audit Protection Included' }
+                  { icon: Shield, text: 'Audit Protection Included' },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
                     <item.icon className="w-5 h-5 text-success" />
@@ -138,29 +137,29 @@ export default function BusinessTaxPage() {
                 title: 'Sole Proprietor',
                 desc: 'Schedule C filing, self-employment tax optimization',
                 color: 'text-blue-500',
-                delay: 0
+                delay: 0,
               },
               {
                 icon: Briefcase,
                 title: 'LLC',
                 desc: 'Single & multi-member LLC returns, entity election strategy',
                 color: 'text-green-500',
-                delay: 0.1
+                delay: 0.1,
               },
               {
                 icon: Building2,
                 title: 'S-Corporation',
                 desc: 'Form 1120-S, reasonable compensation, K-1 distributions',
                 color: 'text-purple-500',
-                delay: 0.2
+                delay: 0.2,
               },
               {
                 icon: TrendingUp,
                 title: 'C-Corporation',
                 desc: 'Form 1120, corporate tax planning, profit optimization',
                 color: 'text-orange-500',
-                delay: 0.3
-              }
+                delay: 0.3,
+              },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -172,7 +171,9 @@ export default function BusinessTaxPage() {
               >
                 <Card className="h-full hover:shadow-lg transition-all cursor-pointer group">
                   <CardHeader>
-                    <div className={`w-16 h-16 ${item.color} bg-primary/5 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                    <div
+                      className={`w-16 h-16 ${item.color} bg-primary/5 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
+                    >
                       <item.icon className="w-8 h-8" />
                     </div>
                     <CardTitle className="text-xl">{item.title}</CardTitle>
@@ -216,12 +217,36 @@ export default function BusinessTaxPage() {
 
               <div className="space-y-4">
                 {[
-                  { icon: FileText, title: 'Federal & State Tax Returns', desc: 'Complete preparation and e-filing for all entities' },
-                  { icon: Calculator, title: 'Tax Planning & Strategy', desc: 'Year-round guidance to minimize tax liability' },
-                  { icon: PieChart, title: 'Quarterly Estimated Taxes', desc: 'Calculate and file quarterly payments to avoid penalties' },
-                  { icon: Shield, title: 'Audit Protection', desc: 'Full representation if IRS selects your return' },
-                  { icon: DollarSign, title: 'Deduction Maximization', desc: 'Identify all eligible business write-offs' },
-                  { icon: Clock, title: 'Year-Round Support', desc: 'Ongoing access to your CPA team' }
+                  {
+                    icon: FileText,
+                    title: 'Federal & State Tax Returns',
+                    desc: 'Complete preparation and e-filing for all entities',
+                  },
+                  {
+                    icon: Calculator,
+                    title: 'Tax Planning & Strategy',
+                    desc: 'Year-round guidance to minimize tax liability',
+                  },
+                  {
+                    icon: PieChart,
+                    title: 'Quarterly Estimated Taxes',
+                    desc: 'Calculate and file quarterly payments to avoid penalties',
+                  },
+                  {
+                    icon: Shield,
+                    title: 'Audit Protection',
+                    desc: 'Full representation if IRS selects your return',
+                  },
+                  {
+                    icon: DollarSign,
+                    title: 'Deduction Maximization',
+                    desc: 'Identify all eligible business write-offs',
+                  },
+                  {
+                    icon: Clock,
+                    title: 'Year-Round Support',
+                    desc: 'Ongoing access to your CPA team',
+                  },
                 ].map((item, i) => (
                   <motion.div
                     key={i}
@@ -265,12 +290,30 @@ export default function BusinessTaxPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {[
-              { name: 'E-Commerce & Online Retail', image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80' },
-              { name: 'Professional Services', image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&q=80' },
-              { name: 'Real Estate', image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80' },
-              { name: 'Healthcare', image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&q=80' },
-              { name: 'Construction & Contractors', image: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=600&q=80' },
-              { name: 'Restaurants & Hospitality', image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80' }
+              {
+                name: 'E-Commerce & Online Retail',
+                image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80',
+              },
+              {
+                name: 'Professional Services',
+                image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&q=80',
+              },
+              {
+                name: 'Real Estate',
+                image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80',
+              },
+              {
+                name: 'Healthcare',
+                image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&q=80',
+              },
+              {
+                name: 'Construction & Contractors',
+                image: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=600&q=80',
+              },
+              {
+                name: 'Restaurants & Hospitality',
+                image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80',
+              },
             ].map((industry, i) => (
               <motion.div
                 key={i}
@@ -314,21 +357,38 @@ export default function BusinessTaxPage() {
               {
                 name: 'Sole Proprietor',
                 price: '$299',
-                features: ['Schedule C filing', 'Self-employment tax', 'Basic deductions', 'E-file included'],
-                popular: false
+                features: [
+                  'Schedule C filing',
+                  'Self-employment tax',
+                  'Basic deductions',
+                  'E-file included',
+                ],
+                popular: false,
               },
               {
                 name: 'LLC / S-Corp',
                 price: '$799',
-                features: ['Form 1065/1120-S', 'K-1 preparation', 'Payroll tax review', 'Quarterly estimates', 'Audit protection'],
-                popular: true
+                features: [
+                  'Form 1065/1120-S',
+                  'K-1 preparation',
+                  'Payroll tax review',
+                  'Quarterly estimates',
+                  'Audit protection',
+                ],
+                popular: true,
               },
               {
                 name: 'C-Corporation',
                 price: '$1,299',
-                features: ['Form 1120', 'Corporate tax planning', 'Multi-state filing', 'Tax strategy consulting', 'Priority support'],
-                popular: false
-              }
+                features: [
+                  'Form 1120',
+                  'Corporate tax planning',
+                  'Multi-state filing',
+                  'Tax strategy consulting',
+                  'Priority support',
+                ],
+                popular: false,
+              },
             ].map((plan, i) => (
               <motion.div
                 key={i}
@@ -338,10 +398,14 @@ export default function BusinessTaxPage() {
                 transition={{ duration: 0.5, delay: i * 0.15 }}
                 whileHover={{ y: -10 }}
               >
-                <Card className={`h-full ${plan.popular ? 'border-2 border-primary shadow-xl' : ''}`}>
+                <Card
+                  className={`h-full ${plan.popular ? 'border-2 border-primary shadow-xl' : ''}`}
+                >
                   <CardHeader>
                     {plan.popular && (
-                      <Badge className="w-fit mb-2 bg-primary text-primary-foreground">Most Popular</Badge>
+                      <Badge className="w-fit mb-2 bg-primary text-primary-foreground">
+                        Most Popular
+                      </Badge>
                     )}
                     <CardTitle className="text-2xl">{plan.name}</CardTitle>
                     <div className="text-4xl font-bold text-primary mt-4">{plan.price}</div>
@@ -357,11 +421,11 @@ export default function BusinessTaxPage() {
                       ))}
                     </ul>
                     <Button
-                      variant={plan.popular ? "professional" : "outline"}
+                      variant={plan.popular ? 'professional' : 'outline'}
                       className="w-full"
                       asChild
                     >
-                      <Link href="/start-filing">Get Started</Link>
+                      <Link href="/start-filing/form">Get Started</Link>
                     </Button>
                   </CardContent>
                 </Card>
@@ -380,13 +444,15 @@ export default function BusinessTaxPage() {
             viewport={{ once: true }}
             className="text-center max-w-3xl mx-auto space-y-8"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold">Ready to Optimize Your Business Taxes?</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold">
+              Ready to Optimize Your Business Taxes?
+            </h2>
             <p className="text-lg text-muted-foreground">
               Schedule a free consultation with a business tax specialist today
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="professional" size="lg" asChild>
-                <Link href="/start-filing">
+                <Link href="/start-filing/form">
                   Schedule Consultation <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>

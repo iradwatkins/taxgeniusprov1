@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { currentUser, clerkClient } from '@clerk/nextjs/server';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 /**
  * API endpoint to set admin role for a user
@@ -14,10 +14,7 @@ export async function POST(request: NextRequest) {
     const currentUserData = await currentUser();
 
     if (!currentUserData) {
-      return NextResponse.json(
-        { error: 'Unauthorized - You must be logged in' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized - You must be logged in' }, { status: 401 });
     }
 
     // Authorization check - only super_admin can change roles
@@ -32,10 +29,7 @@ export async function POST(request: NextRequest) {
     const { email, role } = await request.json();
 
     if (!email || !role) {
-      return NextResponse.json(
-        { error: 'Email and role are required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Email and role are required' }, { status: 400 });
     }
 
     const validRoles = ['super_admin', 'admin', 'lead', 'client', 'tax_preparer', 'affiliate'];
@@ -56,10 +50,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (users.data.length === 0) {
-      return NextResponse.json(
-        { error: `No user found with email: ${email}` },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: `No user found with email: ${email}` }, { status: 404 });
     }
 
     const user = users.data[0];
@@ -92,14 +83,16 @@ export async function POST(request: NextRequest) {
         'Role has been updated in the database',
         'User must completely sign out (not just close browser)',
         'Sign back in to get a fresh session with the new role',
-        'Or use an incognito/private window to test immediately'
-      ]
+        'Or use an incognito/private window to test immediately',
+      ],
     });
-
   } catch (error) {
     logger.error('❌ Error setting role:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error instanceof Error ? error.message : String(error) },
+      {
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }

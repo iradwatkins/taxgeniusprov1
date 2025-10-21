@@ -1,14 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Users,
-  Clock,
-  CheckCircle,
-  DollarSign,
-  TrendingUp,
-  AlertTriangle
-} from 'lucide-react';
+import { Users, Clock, CheckCircle, DollarSign, TrendingUp, AlertTriangle } from 'lucide-react';
 
 interface PreparerStats {
   totalClients: number;
@@ -30,7 +23,7 @@ const statCards = [
     key: 'totalClients' as const,
     suffix: '',
     description: '+12% from last month',
-    iconColor: 'text-muted-foreground'
+    iconColor: 'text-muted-foreground',
   },
   {
     title: 'In Progress',
@@ -38,7 +31,7 @@ const statCards = [
     key: 'inProgress' as const,
     suffix: '',
     description: 'Actively working',
-    iconColor: 'text-yellow-500'
+    iconColor: 'text-yellow-500',
   },
   {
     title: 'Completed',
@@ -46,7 +39,7 @@ const statCards = [
     key: 'completed' as const,
     suffix: '',
     description: 'This tax season',
-    iconColor: 'text-green-500'
+    iconColor: 'text-green-500',
   },
   {
     title: 'Awaiting Docs',
@@ -54,7 +47,7 @@ const statCards = [
     key: 'awaitingDocuments' as const,
     suffix: '',
     description: 'Need attention',
-    iconColor: 'text-orange-500'
+    iconColor: 'text-orange-500',
   },
   {
     title: 'Revenue',
@@ -63,7 +56,7 @@ const statCards = [
     suffix: '',
     description: 'This month',
     iconColor: 'text-muted-foreground',
-    formatter: (value: number) => `$${value.toLocaleString()}`
+    formatter: (value: number) => `$${value.toLocaleString()}`,
   },
   {
     title: 'Avg. Time',
@@ -71,8 +64,8 @@ const statCards = [
     key: 'averageProcessingTime' as const,
     suffix: ' days',
     description: 'Per return',
-    iconColor: 'text-muted-foreground'
-  }
+    iconColor: 'text-muted-foreground',
+  },
 ];
 
 export function StatsGrid({ stats }: StatsGridProps) {
@@ -89,7 +82,10 @@ export function StatsGrid({ stats }: StatsGridProps) {
               <card.icon className={`h-4 w-4 ${card.iconColor}`} />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{displayValue}{card.suffix}</div>
+              <div className="text-2xl font-bold">
+                {displayValue}
+                {card.suffix}
+              </div>
               <p className="text-xs text-muted-foreground">{card.description}</p>
             </CardContent>
           </Card>

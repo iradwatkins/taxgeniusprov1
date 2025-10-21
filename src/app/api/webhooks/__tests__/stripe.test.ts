@@ -58,9 +58,7 @@ describe('Stripe Webhook - Order Creation (AC23)', () => {
     const orderData = {
       userId: 'user_123',
       stripeSessionId: 'cs_test_123',
-      items: [
-        { productId: 'prod-1', name: 'Product 1', quantity: 2, price: 24.99 },
-      ],
+      items: [{ productId: 'prod-1', name: 'Product 1', quantity: 2, price: 24.99 }],
       total: 49.98,
       status: 'COMPLETED',
       email: 'customer@example.com',
@@ -88,9 +86,7 @@ describe('Stripe Webhook - Order Creation (AC23)', () => {
     };
 
     const userId = session.metadata?.userId;
-    const cartItems = session.metadata?.cartItems
-      ? JSON.parse(session.metadata.cartItems)
-      : [];
+    const cartItems = session.metadata?.cartItems ? JSON.parse(session.metadata.cartItems) : [];
     const total = (session.amount_total ?? 0) / 100;
 
     expect(userId).toBe('user_123');
@@ -162,8 +158,7 @@ describe('Stripe Webhook - Event Handling', () => {
     const eventType = 'payment_intent.succeeded';
 
     const isHandledEvent =
-      eventType === 'checkout.session.completed' ||
-      eventType === 'checkout.session.expired';
+      eventType === 'checkout.session.completed' || eventType === 'checkout.session.expired';
 
     if (!isHandledEvent) {
       const expectedStatus = 200;

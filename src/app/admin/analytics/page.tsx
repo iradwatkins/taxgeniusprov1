@@ -1,5 +1,7 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { currentUser } from '@clerk/nextjs/server';
+import { UserRole } from '@prisma/client';
 import {
   Users,
   MousePointerClick,
@@ -9,47 +11,50 @@ import {
   TrendingUp,
   Target,
   Zap,
-} from 'lucide-react'
-import { getCompanyLeadsSummary } from '@/lib/services/lead-analytics.service'
-import { LeadMetricCard } from '@/components/admin/analytics/LeadMetricCard'
-import { createFunnelStages } from '@/lib/utils/analytics'
-import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart'
-import { SourceBreakdownChart, createSourceBreakdown } from '@/components/admin/analytics/SourceBreakdownChart'
-import { ExportButton } from '@/components/admin/analytics/ExportButton'
-import { AnalyticsPeriodSelector } from './AnalyticsPeriodSelector'
-import type { Period } from '@/components/admin/analytics/PeriodToggle'
+} from 'lucide-react';
+import { getCompanyLeadsSummary } from '@/lib/services/lead-analytics.service';
+import { LeadMetricCard } from '@/components/admin/analytics/LeadMetricCard';
+import { createFunnelStages } from '@/lib/utils/analytics';
+import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart';
+import {
+  SourceBreakdownChart,
+  createSourceBreakdown,
+} from '@/components/admin/analytics/SourceBreakdownChart';
+import { ExportButton } from '@/components/admin/analytics/ExportButton';
+import { AnalyticsPeriodSelector } from './AnalyticsPeriodSelector';
+import type { Period } from '@/components/admin/analytics/PeriodToggle';
 
 export const metadata = {
   title: 'Lead Generation Analytics - Admin | Tax Genius Pro',
   description: 'Track lead generation performance across all sources',
-}
+};
 
 async function checkAdminAccess() {
-  const user = await currentUser()
-  if (!user) return { hasAccess: false, userId: null, role: null }
+  const user = await currentUser();
+  if (!user) return { hasAccess: false, userId: null, role: null };
 
-  const role = user.publicMetadata?.role as string
-  const hasAccess = role === 'admin' || role === 'super_admin'
+  const role = user.publicMetadata?.role as string;
+  const hasAccess = role === 'admin' || role === 'super_admin';
 
-  return { hasAccess, userId: user.id, role }
+  return { hasAccess, userId: user.id, role };
 }
 
 export default async function AdminAnalyticsOverviewPage({
   searchParams,
 }: {
-  searchParams: { period?: string }
+  searchParams: { period?: string };
 }) {
-  const { hasAccess, userId, role } = await checkAdminAccess()
+  const { hasAccess, userId, role } = await checkAdminAccess();
 
   if (!hasAccess || !userId) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
   // Get period from URL or default to 30d
-  const period = (searchParams.period as Period) || '30d'
+  const period = (searchParams.period as Period) || '30d';
 
   // Fetch lead generation summary
-  const summary = await getCompanyLeadsSummary(userId, role as any, period)
+  const summary = await getCompanyLeadsSummary(userId, role as UserRole, period);
 
   // Prepare export data
   const exportData = [
@@ -93,14 +98,14 @@ export default async function AdminAnalyticsOverviewPage({
       revenue: summary.clientReferrals.revenue,
       growthRate: summary.clientReferrals.growthRate,
     },
-  ]
+  ];
 
   // Calculate totals
-  const totalClicks = exportData.reduce((sum, s) => sum + s.clicks, 0)
-  const totalLeads = exportData.reduce((sum, s) => sum + s.leads, 0)
-  const totalConversions = exportData.reduce((sum, s) => sum + s.conversions, 0)
-  const totalReturnsFiled = exportData.reduce((sum, s) => sum + s.returnsFiled, 0)
-  const overallConversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0
+  const totalClicks = exportData.reduce((sum, s) => sum + s.clicks, 0);
+  const totalLeads = exportData.reduce((sum, s) => sum + s.leads, 0);
+  const totalConversions = exportData.reduce((sum, s) => sum + s.conversions, 0);
+  const totalReturnsFiled = exportData.reduce((sum, s) => sum + s.returnsFiled, 0);
+  const overallConversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0;
 
   // Create funnel data for overall conversion
   const funnelStages = createFunnelStages(
@@ -108,7 +113,7 @@ export default async function AdminAnalyticsOverviewPage({
     totalLeads,
     totalConversions,
     totalReturnsFiled
-  )
+  );
 
   // Create source breakdown data
   const sourceBreakdown = createSourceBreakdown(
@@ -116,7 +121,7 @@ export default async function AdminAnalyticsOverviewPage({
     summary.taxPreparerLeads.leads,
     summary.affiliateLeads.leads,
     summary.clientReferrals.leads
-  )
+  );
 
   return (
     <div className="p-6 space-y-6">
@@ -130,11 +135,7 @@ export default async function AdminAnalyticsOverviewPage({
         </div>
         <div className="flex items-center gap-3">
           <AnalyticsPeriodSelector currentPeriod={period} />
-          <ExportButton
-            data={exportData}
-            filename="lead-analytics-overview"
-            variant="default"
-          />
+          <ExportButton data={exportData} filename="lead-analytics-overview" variant="default" />
         </div>
       </div>
 
@@ -286,7 +287,7 @@ export default async function AdminAnalyticsOverviewPage({
 
       {/* Quick Links to Detailed Pages */}
       <div className="grid gap-4 md:grid-cols-3">
-        <a
+        <Link
           href="/admin/analytics/preparers"
           className="block p-6 border rounded-lg hover:bg-accent transition-colors"
         >
@@ -297,9 +298,9 @@ export default async function AdminAnalyticsOverviewPage({
           <p className="text-sm text-muted-foreground">
             View individual preparer performance and filter by specific preparers
           </p>
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/admin/analytics/affiliates"
           className="block p-6 border rounded-lg hover:bg-accent transition-colors"
         >
@@ -310,9 +311,9 @@ export default async function AdminAnalyticsOverviewPage({
           <p className="text-sm text-muted-foreground">
             Track affiliate campaign performance and earnings
           </p>
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/admin/analytics/clients"
           className="block p-6 border rounded-lg hover:bg-accent transition-colors"
         >
@@ -323,8 +324,8 @@ export default async function AdminAnalyticsOverviewPage({
           <p className="text-sm text-muted-foreground">
             Monitor client referral programs and rewards
           </p>
-        </a>
+        </Link>
       </div>
     </div>
-  )
+  );
 }

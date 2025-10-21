@@ -25,7 +25,7 @@ import { PermissionModal } from '@/components/PermissionModal';
 import { UserRole, UserPermissions } from '@/lib/permissions';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 interface User {
   id: string;
@@ -42,7 +42,10 @@ interface UserManagementClientProps {
   isSuperAdmin: boolean;
 }
 
-export function UserManagementClient({ users: initialUsers, isSuperAdmin }: UserManagementClientProps) {
+export function UserManagementClient({
+  users: initialUsers,
+  isSuperAdmin,
+}: UserManagementClientProps) {
   const [users, setUsers] = useState(initialUsers);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -229,7 +232,10 @@ export function UserManagementClient({ users: initialUsers, isSuperAdmin }: User
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        <Badge
+                          variant="outline"
+                          className="bg-green-50 text-green-700 border-green-200"
+                        >
                           Active
                         </Badge>
                       </TableCell>
@@ -255,9 +261,7 @@ export function UserManagementClient({ users: initialUsers, isSuperAdmin }: User
             <div className="text-center py-12">
               <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No users found</h3>
-              <p className="text-muted-foreground">
-                Try adjusting your search or filter criteria
-              </p>
+              <p className="text-muted-foreground">Try adjusting your search or filter criteria</p>
             </div>
           )}
         </CardContent>

@@ -3,7 +3,15 @@
 import { SignUp } from '@clerk/nextjs';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import { DollarSign, Shield, Award, ArrowRight, CheckCircle, TrendingUp, Users } from 'lucide-react';
+import {
+  DollarSign,
+  Shield,
+  Award,
+  ArrowRight,
+  CheckCircle,
+  TrendingUp,
+  Users,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Suspense } from 'react';
 
@@ -17,7 +25,8 @@ function SignupContent() {
       badge: 'Professional Tax Services',
       icon: Shield,
       heading: 'Get Your Taxes Done by Professionals',
-      subheading: 'Join 50,000+ satisfied customers who trust us for accurate, stress-free tax filing',
+      subheading:
+        'Join 50,000+ satisfied customers who trust us for accurate, stress-free tax filing',
       benefits: [
         { icon: CheckCircle, text: 'Maximum refund guaranteed' },
         { icon: Shield, text: 'IRS-certified CPAs' },
@@ -32,7 +41,8 @@ function SignupContent() {
       badge: 'Career Opportunity',
       icon: Award,
       heading: 'Build Your Tax Preparation Career',
-      subheading: 'Join our network of professional tax preparers. Flexible hours, remote work, earn $45-75 per return',
+      subheading:
+        'Join our network of professional tax preparers. Flexible hours, remote work, earn $45-75 per return',
       benefits: [
         { icon: DollarSign, text: 'Earn up to $5,000/month' },
         { icon: Users, text: '100% remote - work from anywhere' },
@@ -47,7 +57,8 @@ function SignupContent() {
       badge: '💰 Start Earning Today',
       icon: DollarSign,
       heading: 'Start Making Money Now!',
-      subheading: 'Earn up to $50 for each friend you refer. Easy money, unlimited potential. Join thousands earning extra cash!',
+      subheading:
+        'Earn up to $50 for each friend you refer. Easy money, unlimited potential. Join thousands earning extra cash!',
       benefits: [
         { icon: DollarSign, text: 'Up to $50 per referral - No limits!' },
         { icon: TrendingUp, text: 'Get paid within 7 days' },
@@ -66,7 +77,9 @@ function SignupContent() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       {/* Left Side - Role-specific messaging with image */}
-      <div className={`relative bg-gradient-to-br ${content.theme} p-8 lg:p-16 flex flex-col justify-center`}>
+      <div
+        className={`relative bg-gradient-to-br ${content.theme} p-8 lg:p-16 flex flex-col justify-center`}
+      >
         <div className="max-w-lg mx-auto space-y-8">
           <div>
             <Badge className="mb-4 text-base px-4 py-2">
@@ -74,31 +87,25 @@ function SignupContent() {
               {content.badge}
             </Badge>
 
-            <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">
-              {content.heading}
-            </h1>
+            <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">{content.heading}</h1>
 
-            <p className="text-xl text-muted-foreground">
-              {content.subheading}
-            </p>
+            <p className="text-xl text-muted-foreground">{content.subheading}</p>
           </div>
 
           {/* Image Placeholder */}
           <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-white/50 dark:bg-black/20 backdrop-blur">
             <div className="aspect-video flex items-center justify-center p-12">
               <div className="text-center">
-                <div className={`w-32 h-32 bg-white/80 dark:bg-black/40 rounded-full mx-auto mb-6 flex items-center justify-center`}>
+                <div
+                  className={`w-32 h-32 bg-white/80 dark:bg-black/40 rounded-full mx-auto mb-6 flex items-center justify-center`}
+                >
                   <IconComponent className={`w-16 h-16 ${content.accentColor}`} />
                 </div>
                 <p className="text-sm font-semibold text-muted-foreground mb-2">
                   [Replace with image]
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  {content.imageSuggestion}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Recommended: 800x450px
-                </p>
+                <p className="text-xs text-muted-foreground">{content.imageSuggestion}</p>
+                <p className="text-xs text-muted-foreground mt-1">Recommended: 800x450px</p>
               </div>
             </div>
           </div>
@@ -107,7 +114,9 @@ function SignupContent() {
           <div className="space-y-4">
             {content.benefits.map((benefit, index) => (
               <div key={index} className="flex items-start">
-                <benefit.icon className={`w-6 h-6 ${content.accentColor} mr-3 flex-shrink-0 mt-0.5`} />
+                <benefit.icon
+                  className={`w-6 h-6 ${content.accentColor} mr-3 flex-shrink-0 mt-0.5`}
+                />
                 <p className="text-lg">{benefit.text}</p>
               </div>
             ))}
@@ -119,9 +128,8 @@ function SignupContent() {
               {role === 'affiliate'
                 ? '🔥 Join 10,000+ people already earning extra cash'
                 : role === 'preparer'
-                ? '✓ Trusted by 500+ professional tax preparers'
-                : '✓ Trusted by 50,000+ satisfied customers'
-              }
+                  ? '✓ Trusted by 500+ professional tax preparers'
+                  : '✓ Trusted by 50,000+ satisfied customers'}
             </p>
           </div>
         </div>
@@ -143,9 +151,8 @@ function SignupContent() {
               {role === 'affiliate'
                 ? 'Create your account and start earning in minutes'
                 : role === 'preparer'
-                ? 'Create your professional account to get started'
-                : 'Create your account to begin filing'
-              }
+                  ? 'Create your professional account to get started'
+                  : 'Create your account to begin filing'}
             </p>
           </div>
 
@@ -161,11 +168,6 @@ function SignupContent() {
                   role === 'affiliate' ? 'bg-yellow-500 hover:bg-yellow-600' : ''
                 }`,
                 footerActionLink: 'text-primary hover:text-primary/80',
-                formFieldInput__emailAddress: 'hidden',
-                formFieldInput__password: 'hidden',
-                formFieldLabel__emailAddress: 'hidden',
-                formFieldLabel__password: 'hidden',
-                identityPreviewEditButton: 'hidden',
               },
             }}
             redirectUrl={role ? `?role=${role}` : undefined}
@@ -173,7 +175,10 @@ function SignupContent() {
 
           <div className="text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <a href={`/auth/login${role ? `?role=${role}` : ''}`} className="text-primary hover:underline font-semibold">
+            <a
+              href={`/auth/login${role ? `?role=${role}` : ''}`}
+              className="text-primary hover:underline font-semibold"
+            >
               Sign in
             </a>
           </div>
@@ -185,7 +190,9 @@ function SignupContent() {
 
 export default function SignupPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}
+    >
       <SignupContent />
     </Suspense>
   );

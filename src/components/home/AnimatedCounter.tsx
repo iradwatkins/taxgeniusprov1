@@ -29,7 +29,8 @@ export function AnimatedCounter({ value, suffix = '' }: AnimatedCounterProps) {
 
   return (
     <span ref={ref}>
-      {displayValue.toLocaleString()}{suffix}
+      {displayValue.toLocaleString()}
+      {suffix}
     </span>
   );
 }

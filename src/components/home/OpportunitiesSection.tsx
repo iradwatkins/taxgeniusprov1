@@ -1,54 +1,56 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowRight, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 const opportunities = [
   {
-    image: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=700&q=80",
-    alt: "Professional working on laptop",
-    badge: "$45-75 per return",
-    badgeColor: "bg-primary text-primary-foreground",
-    categoryBadge: "Career Opportunity",
-    categoryColor: "bg-primary/10 text-primary border-primary/20",
-    title: "Become a Tax Preparer",
-    description: "Join our network of professional tax preparers. Earn $45-75 per return with flexible hours and remote work.",
+    image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=700&q=80',
+    alt: 'Professional working on laptop',
+    badge: '$45-75 per return',
+    badgeColor: 'bg-primary text-primary-foreground',
+    categoryBadge: 'Career Opportunity',
+    categoryColor: 'bg-primary/10 text-primary border-primary/20',
+    title: 'Become a Tax Preparer',
+    description:
+      'Join our network of professional tax preparers. Earn $45-75 per return with flexible hours and remote work.',
     benefits: [
-      "Flexible schedule - work when you want",
-      "100% remote - work from anywhere",
-      "Professional E&O insurance included"
+      'Flexible schedule - work when you want',
+      '100% remote - work from anywhere',
+      'Professional E&O insurance included',
     ],
-    link: "/preparer",
-    buttonText: "Learn More",
-    buttonColor: "bg-primary hover:bg-primary/90",
-    checkColor: "text-primary",
-    delay: 0
+    link: '/preparer/start',
+    buttonText: 'Apply Now',
+    buttonColor: 'bg-primary hover:bg-primary/90',
+    checkColor: 'text-primary',
+    delay: 0,
   },
   {
-    image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=700&q=80",
-    alt: "People celebrating success",
-    badge: "Up to $50 per referral",
-    badgeColor: "bg-yellow-500 text-yellow-950",
-    categoryBadge: "Earn Extra Cash",
-    categoryColor: "bg-yellow-400/20 text-yellow-700 dark:text-yellow-400 border-yellow-400/30",
-    title: "Referral Program",
-    description: "Earn up to $50 for each friend you refer. Easy money during tax season with unlimited earning potential.",
+    image: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=700&q=80',
+    alt: 'People celebrating success',
+    badge: 'Up to $50 per referral',
+    badgeColor: 'bg-yellow-500 text-yellow-950',
+    categoryBadge: 'Earn Extra Cash',
+    categoryColor: 'bg-yellow-400/20 text-yellow-700 dark:text-yellow-400 border-yellow-400/30',
+    title: 'Affiliate Program',
+    description:
+      'Earn commissions for each client you refer. Perfect for marketers and influencers with unlimited earning potential.',
     benefits: [
-      "Earn up to $50 per successful referral",
-      "No limits - refer as many people as you want",
-      "Quick payouts within 7 days"
+      'Earn commission per successful referral',
+      'Marketing materials provided',
+      'Real-time tracking dashboard',
     ],
-    link: "/referral",
-    buttonText: "Join Program",
-    buttonColor: "bg-yellow-500 hover:bg-yellow-600 text-yellow-950",
-    checkColor: "text-yellow-600 dark:text-yellow-400",
-    delay: 0.2
-  }
+    link: '/affiliate/apply',
+    buttonText: 'Join Now',
+    buttonColor: 'bg-yellow-500 hover:bg-yellow-600 text-yellow-950',
+    checkColor: 'text-yellow-600 dark:text-yellow-400',
+    delay: 0.2,
+  },
 ];
 
 export function OpportunitiesSection() {
@@ -92,15 +94,15 @@ export function OpportunitiesSection() {
                     {opportunity.categoryBadge}
                   </Badge>
                   <CardTitle className="text-2xl">{opportunity.title}</CardTitle>
-                  <CardDescription className="text-base">
-                    {opportunity.description}
-                  </CardDescription>
+                  <CardDescription className="text-base">{opportunity.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2 mb-6">
                     {opportunity.benefits.map((benefit, benefitIndex) => (
                       <li key={benefitIndex} className="flex items-start text-sm">
-                        <CheckCircle className={`w-4 h-4 mr-2 ${opportunity.checkColor} mt-0.5 flex-shrink-0`} />
+                        <CheckCircle
+                          className={`w-4 h-4 mr-2 ${opportunity.checkColor} mt-0.5 flex-shrink-0`}
+                        />
                         <span>{benefit}</span>
                       </li>
                     ))}

@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { currentUser } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { currentUser } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 /**
  * POST /api/submissions/save
@@ -11,45 +11,36 @@ import { logger } from '@/lib/logger'
  */
 export async function POST(req: NextRequest) {
   try {
-    const user = await currentUser()
+    const user = await currentUser();
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user profile
     const profile = await prisma.profile.findFirst({
       where: {
-        user: { email: user.emailAddresses[0]?.emailAddress }
-      }
-    })
+        user: { email: user.emailAddresses[0]?.emailAddress },
+      },
+    });
 
     if (!profile) {
-      return NextResponse.json(
-        { error: 'Profile not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
     // Only clients can submit
     if (profile.role !== 'CLIENT') {
-      return NextResponse.json(
-        { error: 'Only clients can submit tax returns' },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: 'Only clients can submit tax returns' }, { status: 403 });
     }
 
-    const body = await req.json()
-    const { taxYear, formData, status } = body
+    const body = await req.json();
+    const { taxYear, formData, status } = body;
 
     if (!taxYear || !formData) {
       return NextResponse.json(
         { error: 'Missing required fields: taxYear, formData' },
         { status: 400 }
-      )
+      );
     }
 
     // Find or create tax return for this year
@@ -57,12 +48,12 @@ export async function POST(req: NextRequest) {
       where: {
         profileId_taxYear: {
           profileId: profile.id,
-          taxYear: parseInt(taxYear)
-        }
-      }
-    })
+          taxYear: parseInt(taxYear),
+        },
+      },
+    });
 
-    let taxReturn
+    let taxReturn;
 
     if (existingReturn) {
       // Update existing draft
@@ -71,9 +62,9 @@ export async function POST(req: NextRequest) {
         data: {
           formData,
           status: status || 'DRAFT',
-          updatedAt: new Date()
-        }
-      })
+          updatedAt: new Date(),
+        },
+      });
     } else {
       // Create new draft
       taxReturn = await prisma.taxReturn.create({
@@ -81,9 +72,9 @@ export async function POST(req: NextRequest) {
           profileId: profile.id,
           taxYear: parseInt(taxYear),
           formData,
-          status: status || 'DRAFT'
-        }
-      })
+          status: status || 'DRAFT',
+        },
+      });
     }
 
     return NextResponse.json({
@@ -92,16 +83,12 @@ export async function POST(req: NextRequest) {
         id: taxReturn.id,
         taxYear: taxReturn.taxYear,
         status: taxReturn.status,
-        updatedAt: taxReturn.updatedAt
-      }
-    })
-
+        updatedAt: taxReturn.updatedAt,
+      },
+    });
   } catch (error) {
-    logger.error('Error saving tax submission:', error)
-    return NextResponse.json(
-      { error: 'Failed to save submission' },
-      { status: 500 }
-    )
+    logger.error('Error saving tax submission:', error);
+    return NextResponse.json({ error: 'Failed to save submission' }, { status: 500 });
   }
 }
 
@@ -111,37 +98,28 @@ export async function POST(req: NextRequest) {
  */
 export async function GET(req: NextRequest) {
   try {
-    const user = await currentUser()
+    const user = await currentUser();
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(req.url)
-    const taxYear = searchParams.get('taxYear')
+    const { searchParams } = new URL(req.url);
+    const taxYear = searchParams.get('taxYear');
 
     if (!taxYear) {
-      return NextResponse.json(
-        { error: 'Missing taxYear parameter' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Missing taxYear parameter' }, { status: 400 });
     }
 
     // Get user profile
     const profile = await prisma.profile.findFirst({
       where: {
-        user: { email: user.emailAddresses[0]?.emailAddress }
-      }
-    })
+        user: { email: user.emailAddresses[0]?.emailAddress },
+      },
+    });
 
     if (!profile) {
-      return NextResponse.json(
-        { error: 'Profile not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
     // Get tax return for this year
@@ -149,19 +127,19 @@ export async function GET(req: NextRequest) {
       where: {
         profileId_taxYear: {
           profileId: profile.id,
-          taxYear: parseInt(taxYear)
-        }
+          taxYear: parseInt(taxYear),
+        },
       },
       include: {
-        documents: true
-      }
-    })
+        documents: true,
+      },
+    });
 
     if (!taxReturn) {
       return NextResponse.json({
         success: true,
-        taxReturn: null
-      })
+        taxReturn: null,
+      });
     }
 
     return NextResponse.json({
@@ -173,15 +151,11 @@ export async function GET(req: NextRequest) {
         formData: taxReturn.formData,
         documents: taxReturn.documents,
         createdAt: taxReturn.createdAt,
-        updatedAt: taxReturn.updatedAt
-      }
-    })
-
+        updatedAt: taxReturn.updatedAt,
+      },
+    });
   } catch (error) {
-    logger.error('Error fetching tax submission:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch submission' },
-      { status: 500 }
-    )
+    logger.error('Error fetching tax submission:', error);
+    return NextResponse.json({ error: 'Failed to fetch submission' }, { status: 500 });
   }
 }

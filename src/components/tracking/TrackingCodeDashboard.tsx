@@ -1,14 +1,14 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Skeleton } from '@/components/ui/skeleton'
-import { logger } from '@/lib/logger'
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
+import { logger } from '@/lib/logger';
 import {
   QrCode,
   Copy,
@@ -22,141 +22,141 @@ import {
   Users,
   MousePointerClick,
   DollarSign,
-} from 'lucide-react'
+} from 'lucide-react';
 
 interface TrackingCodeData {
-  trackingCode: string
-  customTrackingCode: string | null
-  trackingCodeChanged: boolean
-  trackingCodeQRUrl: string | null
-  canCustomize: boolean
-  activeCode: string
-  trackingUrl: string
+  trackingCode: string;
+  customTrackingCode: string | null;
+  trackingCodeChanged: boolean;
+  trackingCodeQRUrl: string | null;
+  canCustomize: boolean;
+  activeCode: string;
+  trackingUrl: string;
 }
 
 interface TrackingCodeDashboardProps {
-  userId: string
-  profileId: string
-  role: 'tax_preparer' | 'affiliate' | 'client'
+  userId: string;
+  profileId: string;
+  role: 'tax_preparer' | 'affiliate' | 'client';
 }
 
 export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeDashboardProps) {
-  const [trackingData, setTrackingData] = useState<TrackingCodeData | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isEditing, setIsEditing] = useState(false)
-  const [customCode, setCustomCode] = useState('')
-  const [isChecking, setIsChecking] = useState(false)
+  const [trackingData, setTrackingData] = useState<TrackingCodeData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [customCode, setCustomCode] = useState('');
+  const [isChecking, setIsChecking] = useState(false);
   const [availability, setAvailability] = useState<{
-    available: boolean
-    reason?: string
-  } | null>(null)
-  const [isSaving, setIsSaving] = useState(false)
-  const [saveError, setSaveError] = useState<string | null>(null)
-  const [copied, setCopied] = useState<'code' | 'url' | null>(null)
+    available: boolean;
+    reason?: string;
+  } | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [copied, setCopied] = useState<'code' | 'url' | null>(null);
 
   // Fetch tracking code data
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await fetch('/api/profile/tracking-code')
-        if (!response.ok) throw new Error('Failed to fetch tracking code')
-        const result = await response.json()
-        setTrackingData(result.data)
+        const response = await fetch('/api/profile/tracking-code');
+        if (!response.ok) throw new Error('Failed to fetch tracking code');
+        const result = await response.json();
+        setTrackingData(result.data);
       } catch (error) {
-        logger.error('Error fetching tracking code:', error)
+        logger.error('Error fetching tracking code:', error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
 
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   // Check code availability
   const checkAvailability = async (code: string) => {
     if (!code || code.length < 3) {
-      setAvailability(null)
-      return
+      setAvailability(null);
+      return;
     }
 
-    setIsChecking(true)
+    setIsChecking(true);
     try {
       const response = await fetch('/api/profile/tracking-code/check-availability', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code }),
-      })
-      const result = await response.json()
-      setAvailability(result)
+      });
+      const result = await response.json();
+      setAvailability(result);
     } catch (error) {
-      logger.error('Error checking availability:', error)
+      logger.error('Error checking availability:', error);
     } finally {
-      setIsChecking(false)
+      setIsChecking(false);
     }
-  }
+  };
 
   // Handle custom code input
   const handleCodeChange = (value: string) => {
-    setCustomCode(value)
+    setCustomCode(value);
     const debounceTimeout = setTimeout(() => {
-      checkAvailability(value)
-    }, 500)
-    return () => clearTimeout(debounceTimeout)
-  }
+      checkAvailability(value);
+    }, 500);
+    return () => clearTimeout(debounceTimeout);
+  };
 
   // Save custom code
   const handleSaveCustomCode = async () => {
-    if (!customCode || !availability?.available) return
+    if (!customCode || !availability?.available) return;
 
-    setIsSaving(true)
-    setSaveError(null)
+    setIsSaving(true);
+    setSaveError(null);
 
     try {
       const response = await fetch('/api/profile/tracking-code', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ customCode }),
-      })
+      });
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to save custom code')
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to save custom code');
       }
 
-      const result = await response.json()
-      setTrackingData(result.data)
-      setIsEditing(false)
-      setCustomCode('')
-      setAvailability(null)
-    } catch (error: any) {
-      setSaveError(error.message || 'Failed to save custom code')
+      const result = await response.json();
+      setTrackingData(result.data);
+      setIsEditing(false);
+      setCustomCode('');
+      setAvailability(null);
+    } catch (error) {
+      setSaveError(error.message || 'Failed to save custom code');
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   // Copy to clipboard
   const copyToClipboard = async (text: string, type: 'code' | 'url') => {
     try {
-      await navigator.clipboard.writeText(text)
-      setCopied(type)
-      setTimeout(() => setCopied(null), 2000)
+      await navigator.clipboard.writeText(text);
+      setCopied(type);
+      setTimeout(() => setCopied(null), 2000);
     } catch (error) {
-      logger.error('Failed to copy:', error)
+      logger.error('Failed to copy:', error);
     }
-  }
+  };
 
   // Download QR code
   const downloadQRCode = () => {
-    if (!trackingData?.trackingCodeQRUrl) return
+    if (!trackingData?.trackingCodeQRUrl) return;
 
-    const link = document.createElement('a')
-    link.href = trackingData.trackingCodeQRUrl
-    link.download = `${trackingData.activeCode}-qr-code.png`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+    const link = document.createElement('a');
+    link.href = trackingData.trackingCodeQRUrl;
+    link.download = `${trackingData.activeCode}-qr-code.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   if (isLoading) {
     return (
@@ -170,7 +170,7 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
           <Skeleton className="h-64" />
         </div>
       </div>
-    )
+    );
   }
 
   if (!trackingData) {
@@ -183,7 +183,7 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
           </AlertDescription>
         </Alert>
       </div>
-    )
+    );
   }
 
   return (
@@ -216,9 +216,7 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
             <div className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-lg">
               <div className="flex items-center justify-between mb-2">
                 <Label className="text-sm font-medium">Active Code</Label>
-                {trackingData.customTrackingCode && (
-                  <Badge variant="secondary">Custom</Badge>
-                )}
+                {trackingData.customTrackingCode && <Badge variant="secondary">Custom</Badge>}
               </div>
               <div className="flex items-center gap-2">
                 <code className="flex-1 text-2xl font-bold text-primary">
@@ -242,9 +240,7 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
             <div className="space-y-2">
               <Label className="text-sm font-medium">Tracking URL</Label>
               <div className="flex items-center gap-2 p-3 bg-muted rounded-md">
-                <code className="flex-1 text-sm truncate">
-                  {trackingData.trackingUrl}
-                </code>
+                <code className="flex-1 text-sm truncate">{trackingData.trackingUrl}</code>
                 <Button
                   size="icon"
                   variant="ghost"
@@ -256,11 +252,7 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
                     <Copy className="h-4 w-4" />
                   )}
                 </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  asChild
-                >
+                <Button size="icon" variant="ghost" asChild>
                   <a href={trackingData.trackingUrl} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="h-4 w-4" />
                   </a>
@@ -270,11 +262,7 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
 
             {/* Customize Button */}
             {trackingData.canCustomize && !isEditing && (
-              <Button
-                onClick={() => setIsEditing(true)}
-                variant="outline"
-                className="w-full"
-              >
+              <Button onClick={() => setIsEditing(true)} variant="outline" className="w-full">
                 <Edit3 className="h-4 w-4 mr-2" />
                 Customize Your Code (One-Time)
               </Button>
@@ -298,9 +286,7 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
               <QrCode className="h-5 w-5 text-primary" />
               QR Code
             </CardTitle>
-            <CardDescription>
-              Download and use in your marketing materials
-            </CardDescription>
+            <CardDescription>Download and use in your marketing materials</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {trackingData.trackingCodeQRUrl ? (
@@ -393,10 +379,10 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
               </Button>
               <Button
                 onClick={() => {
-                  setIsEditing(false)
-                  setCustomCode('')
-                  setAvailability(null)
-                  setSaveError(null)
+                  setIsEditing(false);
+                  setCustomCode('');
+                  setAvailability(null);
+                  setSaveError(null);
                 }}
                 variant="outline"
                 disabled={isSaving}
@@ -408,7 +394,8 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription className="text-xs">
-                <strong>Important:</strong> You can only customize your tracking code once. Choose carefully!
+                <strong>Important:</strong> You can only customize your tracking code once. Choose
+                carefully!
               </AlertDescription>
             </Alert>
           </CardContent>
@@ -422,9 +409,7 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
             <TrendingUp className="h-5 w-5 text-primary" />
             Tracking Code Performance
           </CardTitle>
-          <CardDescription>
-            Track how your marketing materials are performing
-          </CardDescription>
+          <CardDescription>Track how your marketing materials are performing</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -467,7 +452,8 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
 
           <div className="mt-6 p-4 bg-muted/50 rounded-lg text-center">
             <p className="text-sm text-muted-foreground">
-              Performance tracking will be available once you start using your tracking code in marketing materials.
+              Performance tracking will be available once you start using your tracking code in
+              marketing materials.
             </p>
           </div>
         </CardContent>
@@ -487,7 +473,10 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
               <div className="flex-1">
                 <h4 className="font-medium mb-1">Add to URLs</h4>
                 <p className="text-sm text-muted-foreground">
-                  Append your tracking code to any Tax Genius Pro URL: <code className="text-xs bg-muted px-1 py-0.5 rounded">?ref={trackingData.activeCode}</code>
+                  Append your tracking code to any Tax Genius Pro URL:{' '}
+                  <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                    ?ref={trackingData.activeCode}
+                  </code>
                 </p>
               </div>
             </div>
@@ -499,7 +488,8 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
               <div className="flex-1">
                 <h4 className="font-medium mb-1">Use QR Code</h4>
                 <p className="text-sm text-muted-foreground">
-                  Download and add the QR code to business cards, flyers, and other printed materials
+                  Download and add the QR code to business cards, flyers, and other printed
+                  materials
                 </p>
               </div>
             </div>
@@ -519,5 +509,5 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

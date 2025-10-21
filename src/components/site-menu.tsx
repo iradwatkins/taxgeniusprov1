@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -11,7 +11,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+} from '@/components/ui/navigation-menu';
 import {
   Calculator,
   FileText,
@@ -21,8 +21,8 @@ import {
   Clock,
   Shield,
   DollarSign,
-  ChevronRight
-} from "lucide-react";
+  ChevronRight,
+} from 'lucide-react';
 
 interface MenuItem {
   title: string;
@@ -37,88 +37,88 @@ interface MenuSection {
 }
 
 const servicesMenu: MenuSection = {
-  title: "Services",
+  title: 'Services',
   items: [
     {
-      title: "Individual Tax Returns",
-      href: "/services/individual",
-      description: "Personal tax preparation with maximum deductions",
-      icon: Calculator
+      title: 'Individual Tax Returns',
+      href: '/services/individual',
+      description: 'Personal tax preparation with maximum deductions',
+      icon: Calculator,
     },
     {
-      title: "Business Tax Services",
-      href: "/services/business",
-      description: "Comprehensive business tax solutions",
-      icon: Building
+      title: 'Business Tax Services',
+      href: '/services/business',
+      description: 'Comprehensive business tax solutions',
+      icon: Building,
     },
     {
-      title: "Tax Planning",
-      href: "/services/planning",
-      description: "Strategic planning to minimize tax liability",
-      icon: TrendingUp
+      title: 'Tax Planning',
+      href: '/services/planning',
+      description: 'Strategic planning to minimize tax liability',
+      icon: TrendingUp,
     },
     {
-      title: "Audit Support",
-      href: "/services/audit",
-      description: "IRS audit representation and support",
-      icon: Shield
+      title: 'Audit Support',
+      href: '/services/audit',
+      description: 'IRS audit representation and support',
+      icon: Shield,
     },
     {
-      title: "Express Filing",
-      href: "/services/express",
-      description: "Fast-track filing for simple returns",
-      icon: Clock
+      title: 'Express Filing',
+      href: '/services/express',
+      description: 'Fast-track filing for simple returns',
+      icon: Clock,
     },
     {
-      title: "View All Services",
-      href: "/services",
-      description: "Browse our complete service catalog",
-      icon: ChevronRight
-    }
-  ]
+      title: 'View All Services',
+      href: '/services',
+      description: 'Browse our complete service catalog',
+      icon: ChevronRight,
+    },
+  ],
 };
 
 const resourcesMenu: MenuSection = {
-  title: "Resources",
+  title: 'Resources',
   items: [
     {
-      title: "Tax Calculator",
-      href: "/resources/calculator",
-      description: "Estimate your tax refund or liability",
-      icon: Calculator
+      title: 'Tax Calculator',
+      href: '/resources/calculator',
+      description: 'Estimate your tax refund or liability',
+      icon: Calculator,
     },
     {
-      title: "Tax Forms",
-      href: "/resources/forms",
-      description: "Download common tax forms",
-      icon: FileText
+      title: 'Tax Forms',
+      href: '/resources/forms',
+      description: 'Download common tax forms',
+      icon: FileText,
     },
     {
-      title: "Tax Guide",
-      href: "/resources/guide",
-      description: "Comprehensive tax preparation guide",
-      icon: FileText
+      title: 'Tax Guide',
+      href: '/resources/guide',
+      description: 'Comprehensive tax preparation guide',
+      icon: FileText,
     },
     {
-      title: "FAQ",
-      href: "/faq",
-      description: "Frequently asked questions",
-      icon: Users
+      title: 'FAQ',
+      href: '/faq',
+      description: 'Frequently asked questions',
+      icon: Users,
     },
     {
-      title: "Blog",
-      href: "/blog",
-      description: "Tax tips and industry insights",
-      icon: TrendingUp
-    }
-  ]
+      title: 'Blog',
+      href: '/blog',
+      description: 'Tax tips and industry insights',
+      icon: TrendingUp,
+    },
+  ],
 };
 
 const mainNavItems: MenuItem[] = [
-  { title: "Home", href: "/" },
-  { title: "About", href: "/about" },
-  { title: "Pricing", href: "/pricing" },
-  { title: "Contact", href: "/contact" }
+  { title: 'Home', href: '/' },
+  { title: 'About', href: '/about' },
+  { title: 'Pricing', href: '/pricing' },
+  { title: 'Contact', href: '/contact' },
 ];
 
 export function SiteMenu() {
@@ -131,10 +131,7 @@ export function SiteMenu() {
           <NavigationMenuItem key={item.href}>
             <Link href={item.href} legacyBehavior passHref>
               <NavigationMenuLink
-                className={cn(
-                  navigationMenuTriggerStyle(),
-                  pathname === item.href && "bg-accent"
-                )}
+                className={cn(navigationMenuTriggerStyle(), pathname === item.href && 'bg-accent')}
               >
                 {item.title}
               </NavigationMenuLink>
@@ -153,13 +150,11 @@ export function SiteMenu() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "group grid grid-cols-[auto,1fr] items-start gap-3 rounded-lg p-3 hover:bg-accent transition-colors",
-                      pathname === item.href && "bg-accent"
+                      'group grid grid-cols-[auto,1fr] items-start gap-3 rounded-lg p-3 hover:bg-accent transition-colors',
+                      pathname === item.href && 'bg-accent'
                     )}
                   >
-                    {Icon && (
-                      <Icon className="h-5 w-5 text-primary mt-0.5" />
-                    )}
+                    {Icon && <Icon className="h-5 w-5 text-primary mt-0.5" />}
                     <div className="space-y-1">
                       <div className="font-medium leading-none group-hover:underline">
                         {item.title}
@@ -186,20 +181,16 @@ export function SiteMenu() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "group grid grid-cols-[auto,1fr] items-start gap-3 rounded-lg p-3 hover:bg-accent transition-colors",
-                      pathname === item.href && "bg-accent"
+                      'group grid grid-cols-[auto,1fr] items-start gap-3 rounded-lg p-3 hover:bg-accent transition-colors',
+                      pathname === item.href && 'bg-accent'
                     )}
                   >
-                    {Icon && (
-                      <Icon className="h-5 w-5 text-primary mt-0.5" />
-                    )}
+                    {Icon && <Icon className="h-5 w-5 text-primary mt-0.5" />}
                     <div className="space-y-1">
                       <div className="font-medium leading-none group-hover:underline">
                         {item.title}
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        {item.description}
-                      </p>
+                      <p className="text-sm text-muted-foreground">{item.description}</p>
                     </div>
                   </Link>
                 );
@@ -212,10 +203,7 @@ export function SiteMenu() {
           <NavigationMenuItem key={item.href}>
             <Link href={item.href} legacyBehavior passHref>
               <NavigationMenuLink
-                className={cn(
-                  navigationMenuTriggerStyle(),
-                  pathname === item.href && "bg-accent"
-                )}
+                className={cn(navigationMenuTriggerStyle(), pathname === item.href && 'bg-accent')}
               >
                 {item.title}
               </NavigationMenuLink>
@@ -232,9 +220,9 @@ export function MobileMenu() {
 
   const allItems = [
     ...mainNavItems,
-    { title: "Services", href: "/services" },
+    { title: 'Services', href: '/services' },
     ...servicesMenu.items.slice(0, -1),
-    ...resourcesMenu.items
+    ...resourcesMenu.items,
   ];
 
   return (
@@ -248,10 +236,10 @@ export function MobileMenu() {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+              'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
               isActive
-                ? "bg-primary text-primary-foreground"
-                : "hover:bg-accent hover:text-accent-foreground"
+                ? 'bg-primary text-primary-foreground'
+                : 'hover:bg-accent hover:text-accent-foreground'
             )}
           >
             {Icon && <Icon className="h-4 w-4" />}

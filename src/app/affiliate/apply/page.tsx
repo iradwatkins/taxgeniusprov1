@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 /**
  * Affiliate Application Form
@@ -13,28 +13,36 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement
  */
 
-import { useState, useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Loader2, CheckCircle2, UserCheck, Link2 } from 'lucide-react'
-import { logger } from '@/lib/logger'
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, CheckCircle2, UserCheck, Link2 } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 const PLATFORMS = [
-  'Facebook', 'Instagram', 'Twitter', 'TikTok', 'YouTube',
-  'Blog/Website', 'Email List', 'WhatsApp', 'LinkedIn', 'Pinterest'
-]
+  'Facebook',
+  'Instagram',
+  'Twitter',
+  'TikTok',
+  'YouTube',
+  'Blog/Website',
+  'Email List',
+  'WhatsApp',
+  'LinkedIn',
+  'Pinterest',
+];
 
 // Component that uses searchParams - must be wrapped in Suspense
 function AffiliateApplicationForm() {
-  const searchParams = useSearchParams()
-  const preparerUsername = searchParams?.get('preparer')
+  const searchParams = useSearchParams();
+  const preparerUsername = searchParams?.get('preparer');
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -50,30 +58,30 @@ function AffiliateApplicationForm() {
       instagram: '',
       twitter: '',
       tiktok: '',
-      youtube: ''
+      youtube: '',
     },
     message: '',
     agreeToTerms: false,
-    bondToPreparerUsername: preparerUsername || ''
-  })
+    bondToPreparerUsername: preparerUsername || '',
+  });
 
-  const [loading, setLoading] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handlePlatformToggle = (platform: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       platforms: prev.platforms.includes(platform)
-        ? prev.platforms.filter(p => p !== platform)
-        : [...prev.platforms, platform]
-    }))
-  }
+        ? prev.platforms.filter((p) => p !== platform)
+        : [...prev.platforms, platform],
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
     try {
       const response = await fetch('/api/applications/affiliate', {
@@ -82,23 +90,23 @@ function AffiliateApplicationForm() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit application')
+        throw new Error(data.error || 'Failed to submit application');
       }
 
-      setSubmitted(true)
-      logger.info('Affiliate application submitted', { email: formData.email })
+      setSubmitted(true);
+      logger.info('Affiliate application submitted', { email: formData.email });
     } catch (err: any) {
-      setError(err.message || 'Failed to submit application')
-      logger.error('Failed to submit affiliate application', { error: err })
+      setError(err.message || 'Failed to submit application');
+      logger.error('Failed to submit affiliate application', { error: err });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Success state
   if (submitted) {
@@ -113,7 +121,7 @@ function AffiliateApplicationForm() {
             <CardDescription>
               {preparerUsername
                 ? 'Your bonding request has been sent to the tax preparer for review.'
-                : 'We\'ll review your application and get back to you within 24-48 hours.'}
+                : "We'll review your application and get back to you within 24-48 hours."}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -123,9 +131,7 @@ function AffiliateApplicationForm() {
                 <ul className="list-disc list-inside space-y-1 text-sm">
                   <li>Check your email for a confirmation message</li>
                   <li>Our team will review your application</li>
-                  {preparerUsername && (
-                    <li>The tax preparer will review your bonding request</li>
-                  )}
+                  {preparerUsername && <li>The tax preparer will review your bonding request</li>}
                   <li>You'll receive login credentials once approved</li>
                   <li>Access to marketing materials and your custom links</li>
                 </ul>
@@ -133,14 +139,14 @@ function AffiliateApplicationForm() {
             </Alert>
 
             <div className="flex justify-center gap-4">
-              <Button variant="outline" onClick={() => window.location.href = '/'}>
+              <Button variant="outline" onClick={() => (window.location.href = '/')}>
                 Back to Home
               </Button>
             </div>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   // Application form
@@ -149,9 +155,7 @@ function AffiliateApplicationForm() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold tracking-tight mb-2">
-            Become an Affiliate Partner
-          </h1>
+          <h1 className="text-4xl font-bold tracking-tight mb-2">Become an Affiliate Partner</h1>
           <p className="text-lg text-muted-foreground">
             Join our network and earn commissions for every referral
           </p>
@@ -164,8 +168,9 @@ function AffiliateApplicationForm() {
             <AlertDescription>
               <p className="font-medium">Bonding with Tax Preparer</p>
               <p className="text-sm mt-1">
-                You're applying to work with <Badge className="font-mono">{preparerUsername}</Badge>.
-                This creates a partnership where you earn custom commission rates set by this preparer.
+                You're applying to work with <Badge className="font-mono">{preparerUsername}</Badge>
+                . This creates a partnership where you earn custom commission rates set by this
+                preparer.
               </p>
             </AlertDescription>
           </Alert>
@@ -301,10 +306,12 @@ function AffiliateApplicationForm() {
                   <Input
                     id="facebook"
                     value={formData.socialMedia.facebook}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      socialMedia: { ...formData.socialMedia, facebook: e.target.value }
-                    })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        socialMedia: { ...formData.socialMedia, facebook: e.target.value },
+                      })
+                    }
                     placeholder="facebook.com/yourpage"
                   />
                 </div>
@@ -313,10 +320,12 @@ function AffiliateApplicationForm() {
                   <Input
                     id="instagram"
                     value={formData.socialMedia.instagram}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      socialMedia: { ...formData.socialMedia, instagram: e.target.value }
-                    })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        socialMedia: { ...formData.socialMedia, instagram: e.target.value },
+                      })
+                    }
                     placeholder="@yourusername"
                   />
                 </div>
@@ -325,10 +334,12 @@ function AffiliateApplicationForm() {
                   <Input
                     id="twitter"
                     value={formData.socialMedia.twitter}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      socialMedia: { ...formData.socialMedia, twitter: e.target.value }
-                    })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        socialMedia: { ...formData.socialMedia, twitter: e.target.value },
+                      })
+                    }
                     placeholder="@yourusername"
                   />
                 </div>
@@ -337,10 +348,12 @@ function AffiliateApplicationForm() {
                   <Input
                     id="youtube"
                     value={formData.socialMedia.youtube}
-                    onChange={(e) => setFormData({
-                      ...formData,
-                      socialMedia: { ...formData.socialMedia, youtube: e.target.value }
-                    })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        socialMedia: { ...formData.socialMedia, youtube: e.target.value },
+                      })
+                    }
                     placeholder="youtube.com/@yourchannel"
                   />
                 </div>
@@ -386,7 +399,8 @@ function AffiliateApplicationForm() {
                   <a href="/privacy" className="text-primary hover:underline" target="_blank">
                     Privacy Policy
                   </a>
-                  . I understand that my application will be reviewed and I'll receive login credentials once approved.
+                  . I understand that my application will be reviewed and I'll receive login
+                  credentials once approved.
                 </label>
               </div>
             </CardContent>
@@ -420,21 +434,23 @@ function AffiliateApplicationForm() {
         </form>
       </div>
     </div>
-  )
+  );
 }
 
 // Main page component with Suspense boundary
 export default function AffiliateApplicationPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground">Loading application form...</p>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-muted-foreground">Loading application form...</p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <AffiliateApplicationForm />
     </Suspense>
-  )
+  );
 }

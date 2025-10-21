@@ -5,29 +5,34 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from '@/components/ui/accordion';
 
 const faqs = [
   {
-    question: "How quickly can I get my refund?",
-    answer: "With direct deposit, you can receive your federal refund in as little as 24 hours after IRS acceptance. Paper checks typically take 2-3 weeks."
+    question: 'How quickly can I get my refund?',
+    answer:
+      'With direct deposit, you can receive your federal refund in as little as 24 hours after IRS acceptance. Paper checks typically take 2-3 weeks.',
   },
   {
-    question: "What documents do I need to file?",
-    answer: "You'll need your W-2s, 1099s, receipts for deductions, last year's tax return, and any other income or deduction documents. Our platform will guide you through everything you need."
+    question: 'What documents do I need to file?',
+    answer:
+      "You'll need your W-2s, 1099s, receipts for deductions, last year's tax return, and any other income or deduction documents. Our platform will guide you through everything you need.",
   },
   {
-    question: "Is my information secure?",
-    answer: "Yes! We use bank-level 256-bit encryption and are IRS-authorized. Your data is protected with the same security standards used by major financial institutions."
+    question: 'Is my information secure?',
+    answer:
+      'Yes! We use bank-level 256-bit encryption and are IRS-authorized. Your data is protected with the same security standards used by major financial institutions.',
   },
   {
-    question: "What if I need help during filing?",
-    answer: "Our CPAs are available via chat, phone, or video call. Premium plans include unlimited CPA support throughout the filing process."
+    question: 'What if I need help during filing?',
+    answer:
+      'Our CPAs are available via chat, phone, or video call. Premium plans include unlimited CPA support throughout the filing process.',
   },
   {
-    question: "Do you offer audit protection?",
-    answer: "Yes! All our plans include free audit protection. If you're audited, we'll represent you and handle all IRS communications at no extra cost."
-  }
+    question: 'Do you offer audit protection?',
+    answer:
+      "Yes! All our plans include free audit protection. If you're audited, we'll represent you and handle all IRS communications at no extra cost.",
+  },
 ];
 
 export function FAQSection() {
@@ -48,9 +53,7 @@ export function FAQSection() {
                 <AccordionTrigger className="text-left hover:no-underline">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent>
-                  {faq.answer}
-                </AccordionContent>
+                <AccordionContent>{faq.answer}</AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>

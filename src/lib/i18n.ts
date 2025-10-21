@@ -1,7 +1,7 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 i18n
   .use(LanguageDetector)
@@ -9,7 +9,7 @@ i18n
   .init({
     fallbackLng: 'en',
     debug: process.env.NODE_ENV === 'development',
-    
+
     interpolation: {
       escapeValue: false, // React already does escaping
     },
@@ -21,20 +21,20 @@ i18n
 
     resources: {
       en: {
-        translation: {}
+        translation: {},
       },
       es: {
-        translation: {}
-      }
-    }
+        translation: {},
+      },
+    },
   });
 
 // Load translations dynamically
 const loadTranslations = async () => {
   try {
     const [enTranslation, esTranslation] = await Promise.all([
-      fetch('/locales/en/translation.json').then(res => res.json()),
-      fetch('/locales/es/translation.json').then(res => res.json())
+      fetch('/locales/en/translation.json').then((res) => res.json()),
+      fetch('/locales/es/translation.json').then((res) => res.json()),
     ]);
 
     i18n.addResourceBundle('en', 'translation', enTranslation);

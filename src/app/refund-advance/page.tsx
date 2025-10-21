@@ -1,10 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   DollarSign,
   Clock,
@@ -19,7 +19,7 @@ import {
   Award,
   Calendar,
   Phone,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -86,12 +86,17 @@ export default function RefundAdvancePage() {
               <div className="absolute bottom-8 left-8 right-8">
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg" asChild>
-                    <Link href="/start-filing">
+                    <Link href="/start-filing/form">
                       Get Started Today
                       <ArrowRight className="w-5 h-5 ml-2" />
                     </Link>
                   </Button>
-                  <Button size="lg" variant="outline" className="text-lg bg-white/90 hover:bg-white" asChild>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="text-lg bg-white/90 hover:bg-white"
+                    asChild
+                  >
                     <Link href="/contact">
                       <Phone className="w-5 h-5 mr-2" />
                       Speak with a Tax Pro
@@ -130,7 +135,9 @@ export default function RefundAdvancePage() {
                     <FileText className="w-10 h-10 text-primary" />
                   </div>
                   <div className="mb-3">
-                    <Badge className="bg-primary text-primary-foreground text-base px-3 py-1">Step 1</Badge>
+                    <Badge className="bg-primary text-primary-foreground text-base px-3 py-1">
+                      Step 1
+                    </Badge>
                   </div>
                   <CardTitle className="text-xl mb-4">File Your Taxes with a Tax Pro</CardTitle>
                 </CardHeader>
@@ -160,7 +167,9 @@ export default function RefundAdvancePage() {
                     <CreditCard className="w-10 h-10 text-success" />
                   </div>
                   <div className="mb-3">
-                    <Badge className="bg-success text-success-foreground text-base px-3 py-1">Step 2</Badge>
+                    <Badge className="bg-success text-success-foreground text-base px-3 py-1">
+                      Step 2
+                    </Badge>
                   </div>
                   <CardTitle className="text-xl mb-4">Receive Your Loan Funds</CardTitle>
                 </CardHeader>
@@ -190,7 +199,9 @@ export default function RefundAdvancePage() {
                     <RefreshCw className="w-10 h-10 text-secondary" />
                   </div>
                   <div className="mb-3">
-                    <Badge className="bg-secondary text-secondary-foreground text-base px-3 py-1">Step 3</Badge>
+                    <Badge className="bg-secondary text-secondary-foreground text-base px-3 py-1">
+                      Step 3
+                    </Badge>
                   </div>
                   <CardTitle className="text-xl mb-4">Automatic Repayment</CardTitle>
                 </CardHeader>
@@ -234,7 +245,8 @@ export default function RefundAdvancePage() {
                   <Shield className="w-12 h-12 text-primary mx-auto mb-4" />
                   <h3 className="text-xl font-bold mb-3">No Credit Impact</h3>
                   <p className="text-muted-foreground">
-                    Applying won't affect your credit score. Quick approval process with minimal requirements.
+                    Applying won't affect your credit score. Quick approval process with minimal
+                    requirements.
                   </p>
                 </CardContent>
               </Card>
@@ -292,8 +304,8 @@ export default function RefundAdvancePage() {
                     ))}
                   </div>
                   <p className="text-muted-foreground italic mb-4">
-                    "I had the Refund Advance money loaded on my card by the time I got home.
-                    I really needed the advance and Tax Genius Pro made it so easy."
+                    "I had the Refund Advance money loaded on my card by the time I got home. I
+                    really needed the advance and Tax Genius Pro made it so easy."
                   </p>
                   <p className="font-semibold text-foreground">— Donna</p>
                 </CardContent>
@@ -315,8 +327,8 @@ export default function RefundAdvancePage() {
                     ))}
                   </div>
                   <p className="text-muted-foreground italic mb-4">
-                    "I like how fast and simple Refund Advance was. And how quickly I got money
-                    on my card. Couldn't be happier!"
+                    "I like how fast and simple Refund Advance was. And how quickly I got money on
+                    my card. Couldn't be happier!"
                   </p>
                   <p className="font-semibold text-foreground">— Hollis</p>
                 </CardContent>
@@ -338,8 +350,8 @@ export default function RefundAdvancePage() {
                     ))}
                   </div>
                   <p className="text-muted-foreground italic mb-4">
-                    "Refund Advance was easy. Love that there are no fees for it. Makes a
-                    huge difference when money is tight."
+                    "Refund Advance was easy. Love that there are no fees for it. Makes a huge
+                    difference when money is tight."
                   </p>
                   <p className="font-semibold text-foreground">— Tax Genius Pro Client</p>
                 </CardContent>
@@ -361,8 +373,8 @@ export default function RefundAdvancePage() {
                     ))}
                   </div>
                   <p className="text-muted-foreground italic mb-4">
-                    "I like that with Refund Advance we are able to get some money now instead
-                    of waiting for the IRS. Perfect solution!"
+                    "I like that with Refund Advance we are able to get some money now instead of
+                    waiting for the IRS. Perfect solution!"
                   </p>
                   <p className="font-semibold text-foreground">— Brittany B.</p>
                 </CardContent>
@@ -384,8 +396,8 @@ export default function RefundAdvancePage() {
                     ))}
                   </div>
                   <p className="text-muted-foreground italic mb-4">
-                    "Refund Advance allowed me to get a jumpstart into the new year. I was able
-                    to get ahead of my bills by a couple months even."
+                    "Refund Advance allowed me to get a jumpstart into the new year. I was able to
+                    get ahead of my bills by a couple months even."
                   </p>
                   <p className="font-semibold text-foreground">— Vernisha A.</p>
                 </CardContent>
@@ -407,8 +419,8 @@ export default function RefundAdvancePage() {
                     ))}
                   </div>
                   <p className="text-muted-foreground italic mb-4">
-                    "Overall, it was very quick. I would recommend a Refund Advance. Always
-                    helps in any pinch."
+                    "Overall, it was very quick. I would recommend a Refund Advance. Always helps in
+                    any pinch."
                   </p>
                   <p className="font-semibold text-foreground">— S. Bryant</p>
                 </CardContent>
@@ -519,8 +531,8 @@ export default function RefundAdvancePage() {
                       Ready to File and Access Your Refund Faster?
                     </h2>
                     <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                      Our tax professionals are ready to help you file your return and apply for
-                      a Refund Advance. Get started today!
+                      Our tax professionals are ready to help you file your return and apply for a
+                      Refund Advance. Get started today!
                     </p>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
@@ -531,7 +543,7 @@ export default function RefundAdvancePage() {
                       </Link>
                     </Button>
                     <Button size="lg" variant="outline" className="text-lg" asChild>
-                      <Link href="/start-filing">
+                      <Link href="/start-filing/form">
                         Start Filing Today
                         <ArrowRight className="w-5 h-5 ml-2" />
                       </Link>

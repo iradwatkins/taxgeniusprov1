@@ -1,78 +1,72 @@
-import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useAuth } from '@/core/providers/AuthProvider'
-import { useProfile } from '@/core/hooks/useProfile'
-import { User, Settings, ExternalLink } from 'lucide-react'
-import { logger } from '@/lib/logger'
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/core/providers/AuthProvider';
+import { useProfile } from '@/core/hooks/useProfile';
+import { User, Settings, ExternalLink } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 export const ProfileManager: React.FC = () => {
-  const { t } = useTranslation()
-  const { user } = useAuth()
-  const { 
-    profile, 
-    isLoading, 
-    updateProfile, 
-    updateProfileLoading,
-    setVanitySlug 
-  } = useProfile()
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  const { profile, isLoading, updateProfile, updateProfileLoading, setVanitySlug } = useProfile();
 
-  const [firstName, setFirstName] = useState(profile?.first_name || '')
-  const [lastName, setLastName] = useState(profile?.last_name || '')
-  const [phone, setPhone] = useState(profile?.phone || '')
-  const [vanitySlugInput, setVanitySlugInput] = useState('')
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
+  const [firstName, setFirstName] = useState(profile?.first_name || '');
+  const [lastName, setLastName] = useState(profile?.last_name || '');
+  const [phone, setPhone] = useState(profile?.phone || '');
+  const [vanitySlugInput, setVanitySlugInput] = useState('');
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
   React.useEffect(() => {
     if (profile) {
-      setFirstName(profile.first_name || '')
-      setLastName(profile.last_name || '')
-      setPhone(profile.phone || '')
+      setFirstName(profile.first_name || '');
+      setLastName(profile.last_name || '');
+      setPhone(profile.phone || '');
     }
-  }, [profile])
+  }, [profile]);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setMessage('')
+    e.preventDefault();
+    setError('');
+    setMessage('');
 
     try {
       await updateProfile({
         first_name: firstName.trim() || null,
         last_name: lastName.trim() || null,
         phone: phone.trim() || null,
-      })
-      setMessage('Profile updated successfully!')
+      });
+      setMessage('Profile updated successfully!');
     } catch (err) {
-      setError('Failed to update profile')
-      logger.error('Profile update error:', err)
+      setError('Failed to update profile');
+      logger.error('Profile update error:', err);
     }
-  }
+  };
 
   const handleSetVanitySlug = async () => {
-    setError('')
-    setMessage('')
+    setError('');
+    setMessage('');
 
     if (!vanitySlugInput.trim()) {
-      setError('Please enter a vanity URL')
-      return
+      setError('Please enter a vanity URL');
+      return;
     }
 
-    const result = await setVanitySlug(vanitySlugInput.trim())
+    const result = await setVanitySlug(vanitySlugInput.trim());
     if (result.success) {
-      setMessage('Vanity URL set successfully!')
-      setVanitySlugInput('')
+      setMessage('Vanity URL set successfully!');
+      setVanitySlugInput('');
     } else {
-      setError(result.error || 'Failed to set vanity URL')
+      setError(result.error || 'Failed to set vanity URL');
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -86,7 +80,7 @@ export const ProfileManager: React.FC = () => {
           <Skeleton className="h-4 w-1/2" />
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (!user) {
@@ -94,7 +88,7 @@ export const ProfileManager: React.FC = () => {
       <Alert>
         <AlertDescription>Please log in to view your profile.</AlertDescription>
       </Alert>
-    )
+    );
   }
 
   return (
@@ -124,9 +118,9 @@ export const ProfileManager: React.FC = () => {
           {profile?.vanity_slug && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Vanity URL:</span>
-              <a 
-                href={`/r/${profile.vanity_slug}`} 
-                target="_blank" 
+              <a
+                href={`/r/${profile.vanity_slug}`}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-primary hover:underline flex items-center gap-1"
               >
@@ -202,7 +196,7 @@ export const ProfileManager: React.FC = () => {
             <p className="text-sm text-muted-foreground">
               Create a custom URL for your referral link (e.g., TaxGenius.com/YourName)
             </p>
-            
+
             <div className="flex gap-2">
               <div className="flex-1">
                 <div className="flex">
@@ -226,5 +220,5 @@ export const ProfileManager: React.FC = () => {
         </Card>
       )}
     </div>
-  )
-}
+  );
+};

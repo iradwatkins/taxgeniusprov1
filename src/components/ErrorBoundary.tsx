@@ -1,46 +1,53 @@
-'use client'
+'use client';
 
-import React from 'react'
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { logger } from '@/lib/logger'
+import React from 'react';
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { logger } from '@/lib/logger';
 
 interface ErrorBoundaryState {
-  hasError: boolean
-  error?: Error
-  errorInfo?: React.ErrorInfo
+  hasError: boolean;
+  error?: Error;
+  errorInfo?: React.ErrorInfo;
 }
 
 interface ErrorBoundaryProps {
-  children: React.ReactNode
-  fallback?: React.ComponentType<{ error: Error; reset: () => void }>
-  onError?: (error: Error, errorInfo: React.ErrorInfo) => void
+  children: React.ReactNode;
+  fallback?: React.ComponentType<{ error: Error; reset: () => void }>;
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
 }
 
 export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
-    super(props)
-    this.state = { hasError: false }
+    super(props);
+    this.state = { hasError: false };
   }
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return {
       hasError: true,
       error,
-    }
+    };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    logger.error('Error caught by boundary:', error, errorInfo)
+    logger.error('Error caught by boundary:', error, errorInfo);
 
     this.setState({
       error,
       errorInfo,
-    })
+    });
 
     if (this.props.onError) {
-      this.props.onError(error, errorInfo)
+      this.props.onError(error, errorInfo);
     }
 
     // Report to error tracking service in production
@@ -53,23 +60,23 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
         timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent,
         url: window.location.href,
-      })
+      });
     }
   }
 
   handleReset = () => {
-    this.setState({ hasError: false, error: undefined, errorInfo: undefined })
-  }
+    this.setState({ hasError: false, error: undefined, errorInfo: undefined });
+  };
 
   handleGoHome = () => {
-    window.location.href = '/'
-  }
+    window.location.href = '/';
+  };
 
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
-        const FallbackComponent = this.props.fallback
-        return <FallbackComponent error={this.state.error!} reset={this.handleReset} />
+        const FallbackComponent = this.props.fallback;
+        return <FallbackComponent error={this.state.error!} reset={this.handleReset} />;
       }
 
       return (
@@ -101,41 +108,27 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
               )}
             </CardContent>
             <CardFooter className="flex flex-col space-y-2">
-              <Button
-                onClick={this.handleReset}
-                className="w-full"
-                variant="default"
-              >
+              <Button onClick={this.handleReset} className="w-full" variant="default">
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Try Again
               </Button>
-              <Button
-                onClick={this.handleGoHome}
-                variant="outline"
-                className="w-full"
-              >
+              <Button onClick={this.handleGoHome} variant="outline" className="w-full">
                 <Home className="w-4 h-4 mr-2" />
                 Go Home
               </Button>
             </CardFooter>
           </Card>
         </div>
-      )
+      );
     }
 
-    return this.props.children
+    return this.props.children;
   }
 }
 
 // API Error Component for server errors
-export function APIErrorDisplay({
-  error,
-  retry
-}: {
-  error: string | Error
-  retry?: () => void
-}) {
-  const errorMessage = error instanceof Error ? error.message : error
+export function APIErrorDisplay({ error, retry }: { error: string | Error; retry?: () => void }) {
+  const errorMessage = error instanceof Error ? error.message : error;
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -147,8 +140,7 @@ export function APIErrorDisplay({
         <CardDescription className="text-center">
           {errorMessage.includes('500')
             ? "We're experiencing technical difficulties. Please try again in a moment."
-            : errorMessage
-          }
+            : errorMessage}
         </CardDescription>
       </CardHeader>
       {retry && (
@@ -160,15 +152,11 @@ export function APIErrorDisplay({
         </CardFooter>
       )}
     </Card>
-  )
+  );
 }
 
 // Connection Error Component for network issues
-export function ConnectionErrorDisplay({
-  onRetry
-}: {
-  onRetry?: () => void
-}) {
+export function ConnectionErrorDisplay({ onRetry }: { onRetry?: () => void }) {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
@@ -189,5 +177,5 @@ export function ConnectionErrorDisplay({
         </CardFooter>
       )}
     </Card>
-  )
+  );
 }

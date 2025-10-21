@@ -10,34 +10,44 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement
  */
 
-import { prisma } from '../prisma'
-import type { LinkClick, MarketingLink } from '@prisma/client'
-import type { UTMAttribution } from './utm-tracking.service'
-import { logger } from '@/lib/logger'
+import { prisma } from '../prisma';
+import type { LinkClick, MarketingLink, Prisma } from '@prisma/client';
+import type { UTMAttribution } from './utm-tracking.service';
+import { logger } from '@/lib/logger';
 
-export type JourneyStage =
-  | 'CLICKED'
-  | 'INTAKE_STARTED'
-  | 'INTAKE_COMPLETED'
-  | 'RETURN_FILED'
+export type JourneyStage = 'CLICKED' | 'INTAKE_STARTED' | 'INTAKE_COMPLETED' | 'RETURN_FILED';
+
+// Extended LinkClick with journey tracking metadata
+type LinkClickWithJourney = LinkClick & {
+  intakeStartedAt?: Date | null;
+  intakeCompletedAt?: Date | null;
+  taxReturnCompletedAt?: Date | null;
+};
+
+// Extended MarketingLink with aggregate stats
+type MarketingLinkWithStats = MarketingLink & {
+  intakeStarts?: number;
+  intakeCompletes?: number;
+  returnsFiled?: number;
+};
 
 export interface TrackJourneyStageParams {
-  trackingCode: string
-  stage: JourneyStage
-  userId?: string
-  metadata?: Record<string, any>
+  trackingCode: string;
+  stage: JourneyStage;
+  userId?: string;
+  metadata?: Record<string, any>;
 }
 
 export interface JourneyStageResult {
-  success: boolean
-  journeyStage: JourneyStage
-  linkClick?: LinkClick
+  success: boolean;
+  journeyStage: JourneyStage;
+  linkClick?: LinkClick;
   attribution?: {
-    materialId: string
-    materialType: string
-    creatorId: string
-  }
-  error?: string
+    materialId: string;
+    materialType: string;
+    creatorId: string;
+  };
+  error?: string;
 }
 
 /**
@@ -46,58 +56,60 @@ export interface JourneyStageResult {
 export async function trackJourneyStage(
   params: TrackJourneyStageParams
 ): Promise<JourneyStageResult> {
-  const { trackingCode, stage, userId, metadata } = params
+  const { trackingCode, stage, userId, metadata } = params;
 
   try {
     // Find the link click by tracking code
-    const linkClick = await findLinkClickByTrackingCode(trackingCode)
+    const linkClick = await findLinkClickByTrackingCode(trackingCode);
 
     if (!linkClick) {
       return {
         success: false,
         journeyStage: stage,
         error: 'Link click not found for tracking code',
-      }
+      };
     }
 
     // Validate stage progression
-    const validationError = validateStageProgression(linkClick, stage)
+    const validationError = validateStageProgression(linkClick, stage);
     if (validationError) {
       return {
         success: false,
         journeyStage: stage,
         error: validationError,
-      }
+      };
     }
 
     // Update the link click with the new stage
-    const updatedLinkClick = await updateLinkClickStage(linkClick.id, stage, userId)
+    const updatedLinkClick = await updateLinkClickStage(linkClick.id, stage, userId);
 
     // Update cached counters on the marketing link
-    await updateMarketingLinkCounters(linkClick.linkId, stage)
+    await updateMarketingLinkCounters(linkClick.linkId, stage);
 
     // Get attribution info
     const marketingLink = await prisma.marketingLink.findUnique({
       where: { id: linkClick.linkId },
-    })
+    });
 
     return {
       success: true,
       journeyStage: stage,
       linkClick: updatedLinkClick,
-      attribution: marketingLink ? {
-        materialId: marketingLink.id,
-        materialType: marketingLink.linkType,
-        creatorId: marketingLink.creatorId,
-      } : undefined,
-    }
+      attribution: marketingLink
+        ? {
+            materialId: marketingLink.id,
+            materialType: marketingLink.linkType,
+            creatorId: marketingLink.creatorId,
+          }
+        : undefined,
+    };
   } catch (error) {
-    logger.error('Failed to track journey stage:', error)
+    logger.error('Failed to track journey stage:', error);
     return {
       success: false,
       journeyStage: stage,
       error: error instanceof Error ? error.message : 'Unknown error',
-    }
+    };
   }
 }
 
@@ -118,58 +130,58 @@ async function findLinkClickByTrackingCode(trackingCode: string): Promise<LinkCl
     orderBy: {
       clickedAt: 'desc',
     },
-  })
+  });
 }
 
 /**
  * Validate stage progression (cannot skip stages)
  */
-function validateStageProgression(linkClick: LinkClick, stage: JourneyStage): string | null {
-  const clicked = linkClick.clickedAt
-  const intakeStarted = (linkClick as any).intakeStartedAt
-  const intakeCompleted = (linkClick as any).intakeCompletedAt
-  const returnFiled = (linkClick as any).taxReturnCompletedAt
+function validateStageProgression(linkClick: LinkClickWithJourney, stage: JourneyStage): string | null {
+  const clicked = linkClick.clickedAt;
+  const intakeStarted = linkClick.intakeStartedAt;
+  const intakeCompleted = linkClick.intakeCompletedAt;
+  const returnFiled = linkClick.taxReturnCompletedAt;
 
   switch (stage) {
     case 'CLICKED':
       // First stage, always valid
-      return null
+      return null;
 
     case 'INTAKE_STARTED':
       // Must have clicked first
       if (!clicked) {
-        return 'Cannot start intake without clicking link first'
+        return 'Cannot start intake without clicking link first';
       }
       // Cannot start twice
       if (intakeStarted) {
-        return 'Intake already started'
+        return 'Intake already started';
       }
-      return null
+      return null;
 
     case 'INTAKE_COMPLETED':
       // Must have started intake first
       if (!intakeStarted) {
-        return 'Cannot complete intake without starting it first'
+        return 'Cannot complete intake without starting it first';
       }
       // Cannot complete twice
       if (intakeCompleted) {
-        return 'Intake already completed'
+        return 'Intake already completed';
       }
-      return null
+      return null;
 
     case 'RETURN_FILED':
       // Must have completed intake first
       if (!intakeCompleted) {
-        return 'Cannot file return without completing intake first'
+        return 'Cannot file return without completing intake first';
       }
       // Cannot file twice
       if (returnFiled) {
-        return 'Return already filed'
+        return 'Return already filed';
       }
-      return null
+      return null;
 
     default:
-      return `Invalid stage: ${stage}`
+      return `Invalid stage: ${stage}`;
   }
 }
 
@@ -181,65 +193,62 @@ async function updateLinkClickStage(
   stage: JourneyStage,
   userId?: string
 ): Promise<LinkClick> {
-  const now = new Date()
-  const updateData: any = {}
+  const now = new Date();
+  const updateData: Prisma.LinkClickUpdateInput = {};
 
   switch (stage) {
     case 'INTAKE_STARTED':
-      updateData.intakeStartedAt = now
-      break
+      updateData.intakeStartedAt = now;
+      break;
     case 'INTAKE_COMPLETED':
-      updateData.intakeCompletedAt = now
-      updateData.converted = true
+      updateData.intakeCompletedAt = now;
+      updateData.converted = true;
       if (userId) {
-        updateData.clientId = userId
+        updateData.clientId = userId;
       }
-      break
+      break;
     case 'RETURN_FILED':
-      updateData.taxReturnCompletedAt = now
-      break
+      updateData.taxReturnCompletedAt = now;
+      break;
   }
 
   return await prisma.linkClick.update({
     where: { id: linkClickId },
     data: updateData,
-  })
+  });
 }
 
 /**
  * Update cached counters on marketing link
  */
-async function updateMarketingLinkCounters(
-  linkId: string,
-  stage: JourneyStage
-): Promise<void> {
-  const updateData: any = {}
+async function updateMarketingLinkCounters(linkId: string, stage: JourneyStage): Promise<void> {
+  const updateData: Prisma.MarketingLinkUpdateInput = {};
 
   switch (stage) {
     case 'INTAKE_STARTED':
       // Increment intakeStarts counter
-      updateData.intakeStarts = { increment: 1 }
-      break
+      updateData.intakeStarts = { increment: 1 };
+      break;
     case 'INTAKE_COMPLETED':
       // Increment intakeCompletes and conversions counters
-      updateData.intakeCompletes = { increment: 1 }
-      updateData.conversions = { increment: 1 }
-      break
+      updateData.intakeCompletes = { increment: 1 };
+      updateData.conversions = { increment: 1 };
+      break;
     case 'RETURN_FILED':
       // Increment returnsFiled counter
-      updateData.returnsFiled = { increment: 1 }
-      updateData.returns = { increment: 1 }
-      break
+      updateData.returnsFiled = { increment: 1 };
+      updateData.returns = { increment: 1 };
+      break;
   }
 
   if (Object.keys(updateData).length > 0) {
     await prisma.marketingLink.update({
       where: { id: linkId },
       data: updateData,
-    })
+    });
 
     // Recalculate conversion rates
-    await recalculateConversionRates(linkId)
+    await recalculateConversionRates(linkId);
   }
 }
 
@@ -249,14 +258,15 @@ async function updateMarketingLinkCounters(
 async function recalculateConversionRates(linkId: string): Promise<void> {
   const link = await prisma.marketingLink.findUnique({
     where: { id: linkId },
-  })
+  });
 
-  if (!link) return
+  if (!link) return;
 
-  const clicks = link.clicks || 0
-  const intakeStarts = (link as any).intakeStarts || 0
-  const intakeCompletes = (link as any).intakeCompletes || 0
-  const returnsFiled = (link as any).returnsFiled || 0
+  const linkWithStats = link as MarketingLinkWithStats;
+  const clicks = link.clicks || 0;
+  const intakeStarts = linkWithStats.intakeStarts || 0;
+  const intakeCompletes = linkWithStats.intakeCompletes || 0;
+  const returnsFiled = linkWithStats.returnsFiled || 0;
 
   await prisma.marketingLink.update({
     where: { id: linkId },
@@ -264,27 +274,27 @@ async function recalculateConversionRates(linkId: string): Promise<void> {
       intakeConversionRate: clicks > 0 ? (intakeStarts / clicks) * 100 : 0,
       completeConversionRate: clicks > 0 ? (intakeCompletes / clicks) * 100 : 0,
       filedConversionRate: clicks > 0 ? (returnsFiled / clicks) * 100 : 0,
-    } as any,
-  })
+    },
+  });
 }
 
 /**
  * Create initial link click with UTM attribution
  */
 export async function createLinkClick(params: {
-  linkId: string
-  ipAddress?: string
-  userAgent?: string
-  referrer?: string
-  attribution?: UTMAttribution
+  linkId: string;
+  ipAddress?: string;
+  userAgent?: string;
+  referrer?: string;
+  attribution?: UTMAttribution;
 }): Promise<LinkClick> {
-  const { linkId, ipAddress, userAgent, referrer, attribution } = params
+  const { linkId, ipAddress, userAgent, referrer, attribution } = params;
 
   // Store tracking code in referrer field temporarily
   // TODO: Add proper trackingCode field in next migration
   const referrerWithTracking = attribution
     ? `${referrer || ''} [tracking:${attribution.trackingCode}]`
-    : referrer
+    : referrer;
 
   const linkClick = await prisma.linkClick.create({
     data: {
@@ -299,7 +309,7 @@ export async function createLinkClick(params: {
       // utmContent: attribution?.content,
       // utmTerm: attribution?.term,
     },
-  })
+  });
 
   // Increment click counter on marketing link
   await prisma.marketingLink.update({
@@ -307,36 +317,37 @@ export async function createLinkClick(params: {
     data: {
       clicks: { increment: 1 },
     },
-  })
+  });
 
-  return linkClick
+  return linkClick;
 }
 
 /**
  * Get journey status for a tracking code
  */
 export async function getJourneyStatus(trackingCode: string): Promise<{
-  found: boolean
+  found: boolean;
   stages: {
-    clicked: boolean
-    clickedAt?: Date
-    intakeStarted: boolean
-    intakeStartedAt?: Date
-    intakeCompleted: boolean
-    intakeCompletedAt?: Date
-    returnFiled: boolean
-    returnFiledAt?: Date
-  }
+    clicked: boolean;
+    clickedAt?: Date;
+    intakeStarted: boolean;
+    intakeStartedAt?: Date;
+    intakeCompleted: boolean;
+    intakeCompletedAt?: Date;
+    returnFiled: boolean;
+    returnFiledAt?: Date;
+  };
 } | null> {
-  const linkClick = await findLinkClickByTrackingCode(trackingCode)
+  const linkClick = await findLinkClickByTrackingCode(trackingCode);
 
   if (!linkClick) {
-    return null
+    return null;
   }
 
-  const intakeStartedAt = (linkClick as any).intakeStartedAt
-  const intakeCompletedAt = (linkClick as any).intakeCompletedAt
-  const returnFiledAt = (linkClick as any).taxReturnCompletedAt
+  const linkClickWithJourney = linkClick as LinkClickWithJourney;
+  const intakeStartedAt = linkClickWithJourney.intakeStartedAt;
+  const intakeCompletedAt = linkClickWithJourney.intakeCompletedAt;
+  const returnFiledAt = linkClickWithJourney.taxReturnCompletedAt;
 
   return {
     found: true,
@@ -350,5 +361,5 @@ export async function getJourneyStatus(trackingCode: string): Promise<{
       returnFiled: !!returnFiledAt,
       returnFiledAt,
     },
-  }
+  };
 }

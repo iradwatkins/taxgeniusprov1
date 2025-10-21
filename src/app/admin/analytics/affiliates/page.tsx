@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
 import {
   Target,
   MousePointerClick,
@@ -9,64 +9,64 @@ import {
   Link2,
   TrendingUp,
   Award,
-} from 'lucide-react'
-import { getAffiliatesAnalytics } from '@/lib/services/lead-analytics.service'
-import { LeadMetricCard } from '@/components/admin/analytics/LeadMetricCard'
-import { PerformanceTable, type Column, type PerformanceData } from '@/components/admin/analytics/PerformanceTable'
-import { createFunnelStages } from '@/lib/utils/analytics'
-import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart'
-import { ExportButton } from '@/components/admin/analytics/ExportButton'
-import { AffiliateFilterBar } from './AffiliateFilterBar'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+} from 'lucide-react';
+import { getAffiliatesAnalytics } from '@/lib/services/lead-analytics.service';
+import { LeadMetricCard } from '@/components/admin/analytics/LeadMetricCard';
+import {
+  PerformanceTable,
+  type Column,
+  type PerformanceData,
+} from '@/components/admin/analytics/PerformanceTable';
+import { createFunnelStages } from '@/lib/utils/analytics';
+import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart';
+import { ExportButton } from '@/components/admin/analytics/ExportButton';
+import { AffiliateFilterBar } from './AffiliateFilterBar';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export const metadata = {
   title: 'Affiliate Analytics - Admin | Tax Genius Pro',
   description: 'Track affiliate partner lead generation and commission performance',
-}
+};
 
 async function checkAdminAccess() {
-  const user = await currentUser()
-  if (!user) return { hasAccess: false, userId: null, role: null }
+  const user = await currentUser();
+  if (!user) return { hasAccess: false, userId: null, role: null };
 
-  const role = user.publicMetadata?.role as string
-  const hasAccess = role === 'admin' || role === 'super_admin'
+  const role = user.publicMetadata?.role as string;
+  const hasAccess = role === 'admin' || role === 'super_admin';
 
-  return { hasAccess, userId: user.id, role }
+  return { hasAccess, userId: user.id, role };
 }
 
 export default async function AdminAffiliatesAnalyticsPage({
   searchParams,
 }: {
-  searchParams: { affiliateId?: string }
+  searchParams: { affiliateId?: string };
 }) {
-  const { hasAccess, userId, role } = await checkAdminAccess()
+  const { hasAccess, userId, role } = await checkAdminAccess();
 
   if (!hasAccess || !userId) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
   // Get filter from URL
-  const filterAffiliateId = searchParams.affiliateId || undefined
+  const filterAffiliateId = searchParams.affiliateId || undefined;
 
   // Fetch affiliates analytics (filtered or all)
-  const affiliatesData = await getAffiliatesAnalytics(
-    userId,
-    role as any,
-    filterAffiliateId
-  )
+  const affiliatesData = await getAffiliatesAnalytics(userId, role as any, filterAffiliateId);
 
   // Calculate aggregate metrics
-  const totalClicks = affiliatesData.reduce((sum, a) => sum + a.clicks, 0)
-  const totalLeads = affiliatesData.reduce((sum, a) => sum + a.leads, 0)
-  const totalConversions = affiliatesData.reduce((sum, a) => sum + a.conversions, 0)
-  const totalReturnsFiled = affiliatesData.reduce((sum, a) => sum + a.returnsFiled, 0)
-  const totalRevenue = affiliatesData.reduce((sum, a) => sum + a.revenue, 0)
-  const totalCommissions = affiliatesData.reduce((sum, a) => sum + a.commissionsEarned, 0)
-  const totalMarketingLinks = affiliatesData.reduce((sum, a) => sum + a.marketingLinksCount, 0)
+  const totalClicks = affiliatesData.reduce((sum, a) => sum + a.clicks, 0);
+  const totalLeads = affiliatesData.reduce((sum, a) => sum + a.leads, 0);
+  const totalConversions = affiliatesData.reduce((sum, a) => sum + a.conversions, 0);
+  const totalReturnsFiled = affiliatesData.reduce((sum, a) => sum + a.returnsFiled, 0);
+  const totalRevenue = affiliatesData.reduce((sum, a) => sum + a.revenue, 0);
+  const totalCommissions = affiliatesData.reduce((sum, a) => sum + a.commissionsEarned, 0);
+  const totalMarketingLinks = affiliatesData.reduce((sum, a) => sum + a.marketingLinksCount, 0);
   const avgConversionRate =
     affiliatesData.length > 0
       ? affiliatesData.reduce((sum, a) => sum + a.conversionRate, 0) / affiliatesData.length
-      : 0
+      : 0;
 
   // Create funnel data
   const funnelStages = createFunnelStages(
@@ -74,7 +74,7 @@ export default async function AdminAffiliatesAnalyticsPage({
     totalLeads,
     totalConversions,
     totalReturnsFiled
-  )
+  );
 
   // Prepare table data
   const tableData: PerformanceData[] = affiliatesData.map((affiliate) => ({
@@ -90,7 +90,7 @@ export default async function AdminAffiliatesAnalyticsPage({
     revenue: affiliate.revenue,
     commissions: affiliate.commissionsEarned,
     lastActive: affiliate.lastActive,
-  }))
+  }));
 
   // Define table columns
   const columns: Column[] = [
@@ -109,7 +109,7 @@ export default async function AdminAffiliatesAnalyticsPage({
     },
     { key: 'revenue', label: 'Revenue', sortable: true, format: 'currency' },
     { key: 'commissions', label: 'Commissions', sortable: true, format: 'currency' },
-  ]
+  ];
 
   // Prepare export data
   const exportData = affiliatesData.map((a) => ({
@@ -126,7 +126,7 @@ export default async function AdminAffiliatesAnalyticsPage({
     commissionsEarned: a.commissionsEarned,
     commissionsPending: a.commissionsPending,
     lastActive: a.lastActive?.toISOString() || 'Never',
-  }))
+  }));
 
   return (
     <div className="p-6 space-y-6">
@@ -264,86 +264,87 @@ export default async function AdminAffiliatesAnalyticsPage({
       </Card>
 
       {/* Recent Leads (for filtered view) */}
-      {filterAffiliateId && affiliatesData.length > 0 && affiliatesData[0].recentLeads.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Leads</CardTitle>
-            <CardDescription>
-              Latest leads generated by {affiliatesData[0].affiliateName}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {affiliatesData[0].recentLeads.map((lead) => (
-                <div
-                  key={lead.id}
-                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors"
-                >
-                  <div>
-                    <p className="font-medium">{lead.name}</p>
-                    <p className="text-sm text-muted-foreground">{lead.email}</p>
+      {filterAffiliateId &&
+        affiliatesData.length > 0 &&
+        affiliatesData[0].recentLeads.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Leads</CardTitle>
+              <CardDescription>
+                Latest leads generated by {affiliatesData[0].affiliateName}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {affiliatesData[0].recentLeads.map((lead) => (
+                  <div
+                    key={lead.id}
+                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent/50 transition-colors"
+                  >
+                    <div>
+                      <p className="font-medium">{lead.name}</p>
+                      <p className="text-sm text-muted-foreground">{lead.email}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium">
+                        {lead.status === 'CONVERTED' ? '✓ Converted' : 'In Progress'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(lead.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">
-                      {lead.status === 'CONVERTED' ? '✓ Converted' : 'In Progress'}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(lead.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
       {/* Link Performance (for filtered view) */}
-      {filterAffiliateId && affiliatesData.length > 0 && affiliatesData[0].linkBreakdown.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Marketing Link Performance</CardTitle>
-            <CardDescription>
-              Individual link metrics for {affiliatesData[0].affiliateName}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {affiliatesData[0].linkBreakdown.map((link) => (
-                <div
-                  key={link.linkId}
-                  className="p-4 border rounded-lg space-y-2"
-                >
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium truncate">{link.linkName}</p>
-                    <span className="text-xs text-muted-foreground">
-                      {link.conversionRate.toFixed(1)}% conversion
-                    </span>
+      {filterAffiliateId &&
+        affiliatesData.length > 0 &&
+        affiliatesData[0].linkBreakdown.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Marketing Link Performance</CardTitle>
+              <CardDescription>
+                Individual link metrics for {affiliatesData[0].affiliateName}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {affiliatesData[0].linkBreakdown.map((link) => (
+                  <div key={link.linkId} className="p-4 border rounded-lg space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium truncate">{link.linkName}</p>
+                      <span className="text-xs text-muted-foreground">
+                        {link.conversionRate.toFixed(1)}% conversion
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <p className="text-muted-foreground text-xs">Clicks</p>
+                        <p className="font-semibold">{link.clicks}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs">Leads</p>
+                        <p className="font-semibold">{link.leads}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs">Conversions</p>
+                        <p className="font-semibold">{link.conversions}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs">Revenue</p>
+                        <p className="font-semibold">${link.revenue.toLocaleString()}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <p className="text-muted-foreground text-xs">Clicks</p>
-                      <p className="font-semibold">{link.clicks}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground text-xs">Leads</p>
-                      <p className="font-semibold">{link.leads}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground text-xs">Conversions</p>
-                      <p className="font-semibold">{link.conversions}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground text-xs">Revenue</p>
-                      <p className="font-semibold">${link.revenue.toLocaleString()}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
     </div>
-  )
+  );
 }

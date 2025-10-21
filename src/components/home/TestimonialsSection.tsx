@@ -1,8 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { Star, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -10,32 +10,35 @@ import { TypingText } from './TypingText';
 
 const testimonials = [
   {
-    name: "Sarah Johnson",
-    role: "Small Business Owner",
-    location: "Austin, TX",
-    content: "The CPA team was incredibly knowledgeable and helped me find deductions I didn't even know existed. Professional service from start to finish.",
+    name: 'Sarah Johnson',
+    role: 'Small Business Owner',
+    location: 'Austin, TX',
+    content:
+      "The CPA team was incredibly knowledgeable and helped me find deductions I didn't even know existed. Professional service from start to finish.",
     rating: 5,
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&q=80",
-    delay: 0
+    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&q=80',
+    delay: 0,
   },
   {
-    name: "Michael Chen",
-    role: "Software Engineer",
-    location: "San Francisco, CA",
-    content: "Fast, efficient, and professional. The entire process was seamless and my CPA answered all my questions promptly.",
+    name: 'Michael Chen',
+    role: 'Software Engineer',
+    location: 'San Francisco, CA',
+    content:
+      'Fast, efficient, and professional. The entire process was seamless and my CPA answered all my questions promptly.',
     rating: 5,
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&q=80",
-    delay: 500
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&q=80',
+    delay: 500,
   },
   {
-    name: "Maria Garcia",
-    role: "Teacher",
-    location: "Miami, FL",
-    content: "Best tax service I've used. They made everything easy to understand and were always available when I had questions.",
+    name: 'Maria Garcia',
+    role: 'Teacher',
+    location: 'Miami, FL',
+    content:
+      "Best tax service I've used. They made everything easy to understand and were always available when I had questions.",
     rating: 5,
-    image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150&q=80",
-    delay: 1000
-  }
+    image: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150&q=80',
+    delay: 1000,
+  },
 ];
 
 export function TestimonialsSection() {
@@ -109,9 +112,7 @@ export function TestimonialsSection() {
 
         <div className="text-center mt-12">
           <Button variant="outline" size="lg" asChild>
-            <Link href="/testimonials">
-              Read More Reviews
-            </Link>
+            <Link href="/testimonials">Read More Reviews</Link>
           </Button>
         </div>
       </div>

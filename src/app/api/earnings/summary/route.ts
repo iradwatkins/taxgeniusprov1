@@ -7,22 +7,19 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 6
  */
 
-import { NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/db'
-import { getEarningsSummary } from '@/lib/services/commission.service'
-import { logger } from '@/lib/logger'
+import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/db';
+import { getEarningsSummary } from '@/lib/services/commission.service';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
     // Authenticate user
-    const { userId } = await auth()
+    const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user profile with username
@@ -31,9 +28,9 @@ export async function GET() {
       select: {
         id: true,
         shortLinkUsername: true,
-        role: true
-      }
-    })
+        role: true,
+      },
+    });
 
     if (!profile || !profile.shortLinkUsername) {
       return NextResponse.json({
@@ -45,19 +42,16 @@ export async function GET() {
         convertedLeads: 0,
         averageCommission: 0,
         thisMonthEarnings: 0,
-        lastMonthEarnings: 0
-      })
+        lastMonthEarnings: 0,
+      });
     }
 
     // Get earnings summary
-    const summary = await getEarningsSummary(profile.shortLinkUsername)
+    const summary = await getEarningsSummary(profile.shortLinkUsername);
 
-    return NextResponse.json(summary)
+    return NextResponse.json(summary);
   } catch (error) {
-    logger.error('Error fetching earnings summary', { error })
-    return NextResponse.json(
-      { error: 'Failed to fetch earnings summary' },
-      { status: 500 }
-    )
+    logger.error('Error fetching earnings summary', { error });
+    return NextResponse.json({ error: 'Failed to fetch earnings summary' }, { status: 500 });
   }
 }

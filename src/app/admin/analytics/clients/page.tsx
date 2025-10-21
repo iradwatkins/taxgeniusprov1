@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
 import {
   Users,
   MousePointerClick,
@@ -9,64 +9,64 @@ import {
   Link2,
   TrendingUp,
   Gift,
-} from 'lucide-react'
-import { getClientsReferralAnalytics } from '@/lib/services/lead-analytics.service'
-import { LeadMetricCard } from '@/components/admin/analytics/LeadMetricCard'
-import { PerformanceTable, type Column, type PerformanceData } from '@/components/admin/analytics/PerformanceTable'
-import { createFunnelStages } from '@/lib/utils/analytics'
-import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart'
-import { ExportButton } from '@/components/admin/analytics/ExportButton'
-import { ClientFilterBar } from './ClientFilterBar'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+} from 'lucide-react';
+import { getClientsReferralAnalytics } from '@/lib/services/lead-analytics.service';
+import { LeadMetricCard } from '@/components/admin/analytics/LeadMetricCard';
+import {
+  PerformanceTable,
+  type Column,
+  type PerformanceData,
+} from '@/components/admin/analytics/PerformanceTable';
+import { createFunnelStages } from '@/lib/utils/analytics';
+import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart';
+import { ExportButton } from '@/components/admin/analytics/ExportButton';
+import { ClientFilterBar } from './ClientFilterBar';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export const metadata = {
   title: 'Client Referral Analytics - Admin | Tax Genius Pro',
   description: 'Track client referral program performance and rewards',
-}
+};
 
 async function checkAdminAccess() {
-  const user = await currentUser()
-  if (!user) return { hasAccess: false, userId: null, role: null }
+  const user = await currentUser();
+  if (!user) return { hasAccess: false, userId: null, role: null };
 
-  const role = user.publicMetadata?.role as string
-  const hasAccess = role === 'admin' || role === 'super_admin'
+  const role = user.publicMetadata?.role as string;
+  const hasAccess = role === 'admin' || role === 'super_admin';
 
-  return { hasAccess, userId: user.id, role }
+  return { hasAccess, userId: user.id, role };
 }
 
 export default async function AdminClientsAnalyticsPage({
   searchParams,
 }: {
-  searchParams: { clientId?: string }
+  searchParams: { clientId?: string };
 }) {
-  const { hasAccess, userId, role } = await checkAdminAccess()
+  const { hasAccess, userId, role } = await checkAdminAccess();
 
   if (!hasAccess || !userId) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
   // Get filter from URL
-  const filterClientId = searchParams.clientId || undefined
+  const filterClientId = searchParams.clientId || undefined;
 
   // Fetch clients referral analytics (filtered or all)
-  const clientsData = await getClientsReferralAnalytics(
-    userId,
-    role as any,
-    filterClientId
-  )
+  const clientsData = await getClientsReferralAnalytics(userId, role as any, filterClientId);
 
   // Calculate aggregate metrics
-  const totalClicks = clientsData.reduce((sum, c) => sum + c.clicks, 0)
-  const totalLeads = clientsData.reduce((sum, c) => sum + c.leads, 0)
-  const totalConversions = clientsData.reduce((sum, c) => sum + c.conversions, 0)
-  const totalReturnsFiled = clientsData.reduce((sum, c) => sum + c.returnsFiled, 0)
-  const totalRevenue = clientsData.reduce((sum, c) => sum + c.revenue, 0)
-  const totalRewards = clientsData.reduce((sum, c) => sum + c.rewardsEarned, 0)
-  const totalReferralLinks = clientsData.reduce((sum, c) => sum + c.referralLinksCount, 0)
+  const totalClicks = clientsData.reduce((sum, c) => sum + c.clicks, 0);
+  const totalLeads = clientsData.reduce((sum, c) => sum + c.leads, 0);
+  const totalConversions = clientsData.reduce((sum, c) => sum + c.conversions, 0);
+  const totalReturnsFiled = clientsData.reduce((sum, c) => sum + c.returnsFiled, 0);
+  const totalRevenue = clientsData.reduce((sum, c) => sum + c.revenue, 0);
+  const totalRewards = clientsData.reduce((sum, c) => sum + c.rewardsEarned, 0);
+  const totalReferralLinks = clientsData.reduce((sum, c) => sum + c.referralLinksCount, 0);
   const avgConversionRate =
     clientsData.length > 0
       ? clientsData.reduce((sum, c) => sum + c.conversionRate, 0) / clientsData.length
-      : 0
+      : 0;
 
   // Create funnel data
   const funnelStages = createFunnelStages(
@@ -74,7 +74,7 @@ export default async function AdminClientsAnalyticsPage({
     totalLeads,
     totalConversions,
     totalReturnsFiled
-  )
+  );
 
   // Prepare table data
   const tableData: PerformanceData[] = clientsData.map((client) => ({
@@ -90,7 +90,7 @@ export default async function AdminClientsAnalyticsPage({
     revenue: client.revenue,
     rewards: client.rewardsEarned,
     lastActive: client.lastActive,
-  }))
+  }));
 
   // Define table columns
   const columns: Column[] = [
@@ -109,7 +109,7 @@ export default async function AdminClientsAnalyticsPage({
     },
     { key: 'revenue', label: 'Revenue', sortable: true, format: 'currency' },
     { key: 'rewards', label: 'Rewards', sortable: true, format: 'currency' },
-  ]
+  ];
 
   // Prepare export data
   const exportData = clientsData.map((c) => ({
@@ -126,7 +126,7 @@ export default async function AdminClientsAnalyticsPage({
     rewardsEarned: c.rewardsEarned,
     rewardsPending: c.rewardsPending,
     lastActive: c.lastActive?.toISOString() || 'Never',
-  }))
+  }));
 
   return (
     <div className="p-6 space-y-6">
@@ -233,9 +233,7 @@ export default async function AdminClientsAnalyticsPage({
       <ConversionFunnelChart
         stages={funnelStages}
         title={
-          filterClientId
-            ? 'Individual Client Referral Funnel'
-            : 'Aggregate Client Referral Funnel'
+          filterClientId ? 'Individual Client Referral Funnel' : 'Aggregate Client Referral Funnel'
         }
         subtitle={
           filterClientId
@@ -268,9 +266,7 @@ export default async function AdminClientsAnalyticsPage({
         <Card>
           <CardHeader>
             <CardTitle>Recent Referrals</CardTitle>
-            <CardDescription>
-              Latest referrals from {clientsData[0].clientName}
-            </CardDescription>
+            <CardDescription>Latest referrals from {clientsData[0].clientName}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -310,10 +306,7 @@ export default async function AdminClientsAnalyticsPage({
           <CardContent>
             <div className="space-y-3">
               {clientsData[0].linkBreakdown.map((link) => (
-                <div
-                  key={link.linkId}
-                  className="p-4 border rounded-lg space-y-2"
-                >
+                <div key={link.linkId} className="p-4 border rounded-lg space-y-2">
                   <div className="flex items-center justify-between">
                     <p className="font-medium truncate">{link.linkName}</p>
                     <span className="text-xs text-muted-foreground">
@@ -345,5 +338,5 @@ export default async function AdminClientsAnalyticsPage({
         </Card>
       )}
     </div>
-  )
+  );
 }

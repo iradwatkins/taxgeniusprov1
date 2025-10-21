@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 // Payment mode: 'test', 'stripe', or 'square'
 const PAYMENT_MODE = (process.env.PAYMENT_MODE || 'test') as 'test' | 'stripe' | 'square';
@@ -37,10 +37,7 @@ export async function POST(request: NextRequest) {
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
 
     // STEP 2: Validate request body
@@ -80,9 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     // STEP 5: Create price map from database (CRITICAL: Server-side validation)
-    const priceMap = new Map(
-      products.map((p) => [p.id, { price: Number(p.price), name: p.name }])
-    );
+    const priceMap = new Map(products.map((p) => [p.id, { price: Number(p.price), name: p.name }]));
 
     // STEP 6: Validate client-submitted prices match database prices (AC24)
     const priceMismatches: string[] = [];
@@ -117,7 +112,7 @@ export async function POST(request: NextRequest) {
     // Calculate total from database prices
     const total = cartItems.reduce((sum, item) => {
       const dbProduct = priceMap.get(item.productId)!;
-      return sum + (dbProduct.price * item.quantity);
+      return sum + dbProduct.price * item.quantity;
     }, 0);
 
     logger.info(`💳 Payment mode: ${PAYMENT_MODE}`);
@@ -150,7 +145,6 @@ export async function POST(request: NextRequest) {
         mode: 'test',
         orderId: order.id,
       });
-
     } else if (PAYMENT_MODE === 'stripe') {
       // STRIPE MODE: Create Stripe Checkout Session
       logger.info('💳 STRIPE MODE: Creating Stripe checkout session');
@@ -191,7 +185,6 @@ export async function POST(request: NextRequest) {
       logger.info(`✅ Stripe session created: ${session.id}`);
 
       return NextResponse.json({ url: session.url, mode: 'stripe' });
-
     } else if (PAYMENT_MODE === 'square') {
       // SQUARE MODE: Placeholder for Square integration
       logger.info('🟦 SQUARE MODE: Square integration not yet implemented');
@@ -203,19 +196,11 @@ export async function POST(request: NextRequest) {
         },
         { status: 501 }
       );
-
     } else {
-      return NextResponse.json(
-        { error: 'Invalid payment mode configured' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Invalid payment mode configured' }, { status: 500 });
     }
-
   } catch (error) {
     logger.error('❌ Checkout session creation failed:', error);
-    return NextResponse.json(
-      { error: 'Failed to create checkout session' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 });
   }
 }

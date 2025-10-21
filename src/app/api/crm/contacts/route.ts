@@ -79,11 +79,7 @@ export async function GET(request: NextRequest) {
     if (search) filters.search = search;
 
     // Get contacts
-    const result = await CRMService.listContacts(
-      filters,
-      { page, limit },
-      accessContext
-    );
+    const result = await CRMService.listContacts(filters, { page, limit }, accessContext);
 
     logger.info('[CRM API] Contacts listed successfully', {
       total: result.total,
@@ -98,10 +94,7 @@ export async function GET(request: NextRequest) {
     logger.error('[CRM API] Error listing contacts', { error: error.message });
 
     if (error.message.includes('Unauthorized') || error.message.includes('permissions')) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
     return NextResponse.json(
@@ -139,10 +132,7 @@ export async function POST(request: NextRequest) {
     logger.error('[CRM API] Error creating contact', { error: error.message });
 
     if (error.message.includes('Unauthorized') || error.message.includes('permissions')) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
     if (error.message.includes('Unique constraint')) {

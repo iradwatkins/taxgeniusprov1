@@ -18,15 +18,15 @@
  * ```
  */
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error'
+type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 interface LogMetadata {
-  [key: string]: any
+  [key: string]: string | number | boolean | null | undefined | Record<string, unknown>;
 }
 
 class Logger {
-  private isProduction = process.env.NODE_ENV === 'production'
-  private isDevelopment = process.env.NODE_ENV === 'development'
+  private isProduction = process.env.NODE_ENV === 'production';
+  private isDevelopment = process.env.NODE_ENV === 'development';
 
   /**
    * Determines if a log level should be output based on the environment
@@ -34,10 +34,10 @@ class Logger {
   private shouldLog(level: LogLevel): boolean {
     if (this.isProduction) {
       // In production, only log warnings and errors
-      return level === 'error' || level === 'warn'
+      return level === 'error' || level === 'warn';
     }
     // In development, log everything
-    return true
+    return true;
   }
 
   /**
@@ -45,9 +45,9 @@ class Logger {
    */
   private formatMetadata(metadata?: LogMetadata): string {
     if (!metadata || Object.keys(metadata).length === 0) {
-      return ''
+      return '';
     }
-    return '\n' + JSON.stringify(metadata, null, 2)
+    return '\n' + JSON.stringify(metadata, null, 2);
   }
 
   /**
@@ -56,7 +56,7 @@ class Logger {
    */
   debug(message: string, metadata?: LogMetadata) {
     if (this.shouldLog('debug')) {
-      console.debug(`[DEBUG] ${message}${this.formatMetadata(metadata)}`)
+      console.debug(`[DEBUG] ${message}${this.formatMetadata(metadata)}`);
     }
   }
 
@@ -66,7 +66,7 @@ class Logger {
    */
   info(message: string, metadata?: LogMetadata) {
     if (this.shouldLog('info')) {
-      console.log(`[INFO] ${message}${this.formatMetadata(metadata)}`)
+      console.log(`[INFO] ${message}${this.formatMetadata(metadata)}`);
     }
   }
 
@@ -76,7 +76,7 @@ class Logger {
    */
   warn(message: string, metadata?: LogMetadata) {
     if (this.shouldLog('warn')) {
-      console.warn(`[WARN] ${message}${this.formatMetadata(metadata)}`)
+      console.warn(`[WARN] ${message}${this.formatMetadata(metadata)}`);
     }
   }
 
@@ -88,18 +88,21 @@ class Logger {
    * like Sentry, DataDog, or similar.
    */
   error(message: string, error?: Error | unknown, metadata?: LogMetadata) {
-    const errorDetails = error instanceof Error ? {
-      name: error.name,
-      message: error.message,
-      stack: error.stack,
-    } : { error }
+    const errorDetails =
+      error instanceof Error
+        ? {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+          }
+        : { error };
 
     const fullMetadata = {
       ...errorDetails,
       ...metadata,
-    }
+    };
 
-    console.error(`[ERROR] ${message}${this.formatMetadata(fullMetadata)}`)
+    console.error(`[ERROR] ${message}${this.formatMetadata(fullMetadata)}`);
 
     // TODO: Integrate with Sentry or other error tracking service
     // if (this.isProduction) {
@@ -114,29 +117,29 @@ class Logger {
    * Convenience method for logging API requests
    */
   apiRequest(method: string, path: string, metadata?: LogMetadata) {
-    this.info(`API ${method} ${path}`, metadata)
+    this.info(`API ${method} ${path}`, metadata);
   }
 
   /**
    * Convenience method for logging API responses
    */
   apiResponse(method: string, path: string, status: number, metadata?: LogMetadata) {
-    const logMethod = status >= 400 ? 'warn' : 'info'
-    this[logMethod](`API ${method} ${path} - ${status}`, metadata)
+    const logMethod = status >= 400 ? 'warn' : 'info';
+    this[logMethod](`API ${method} ${path} - ${status}`, metadata);
   }
 
   /**
    * Convenience method for logging database queries
    */
   dbQuery(query: string, metadata?: LogMetadata) {
-    this.debug(`DB Query: ${query}`, metadata)
+    this.debug(`DB Query: ${query}`, metadata);
   }
 
   /**
    * Convenience method for logging authentication events
    */
   auth(event: string, metadata?: LogMetadata) {
-    this.info(`Auth: ${event}`, metadata)
+    this.info(`Auth: ${event}`, metadata);
   }
 }
 
@@ -144,4 +147,4 @@ class Logger {
  * Singleton logger instance
  * Import and use this throughout the application
  */
-export const logger = new Logger()
+export const logger = new Logger();

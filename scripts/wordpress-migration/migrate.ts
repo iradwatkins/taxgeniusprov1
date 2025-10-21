@@ -5,20 +5,68 @@ import crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
+interface SiteInfo {
+  name: string;
+  url: string;
+  description?: string;
+  [key: string]: unknown;
+}
+
+interface WordPressPage {
+  id: string | number;
+  title: string;
+  content: string;
+  slug: string;
+  [key: string]: unknown;
+}
+
+interface NavigationItem {
+  label: string;
+  url: string;
+  children?: NavigationItem[];
+  [key: string]: unknown;
+}
+
+interface DesignSystem {
+  colors?: Record<string, string>;
+  fonts?: Record<string, string>;
+  [key: string]: unknown;
+}
+
+interface MediaAsset {
+  id: string | number;
+  url: string;
+  type: string;
+  [key: string]: unknown;
+}
+
+interface WordPressForm {
+  id: string | number;
+  name: string;
+  fields: unknown[];
+  [key: string]: unknown;
+}
+
+interface WordPressPlugin {
+  name: string;
+  version?: string;
+  [key: string]: unknown;
+}
+
 interface WordPressData {
-  site_info: any;
-  pages: any[];
-  navigation: any;
-  design_system: any;
-  media_assets: any[];
-  forms: any[];
-  plugins: any[];
+  site_info: SiteInfo;
+  pages: WordPressPage[];
+  navigation: NavigationItem;
+  design_system: DesignSystem;
+  media_assets: MediaAsset[];
+  forms: WordPressForm[];
+  plugins: WordPressPlugin[];
 }
 
 interface MigrationResult {
   success: boolean;
   message: string;
-  data?: any;
+  data?: Record<string, unknown>;
 }
 
 class WordPressMigration {

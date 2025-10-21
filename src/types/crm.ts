@@ -4,7 +4,15 @@
  * Type definitions for CRM Contact Management, Interactions, and Pipeline Management
  */
 
-import { ContactType, InteractionType, Direction, PipelineStage, CRMContact, CRMInteraction, CRMStageHistory } from '@prisma/client';
+import {
+  ContactType,
+  InteractionType,
+  Direction,
+  PipelineStage,
+  CRMContact,
+  CRMInteraction,
+  CRMStageHistory,
+} from '@prisma/client';
 
 // ============ Contact Management Types ============
 

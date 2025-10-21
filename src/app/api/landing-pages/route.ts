@@ -3,27 +3,33 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { isAdmin } from '@/lib/auth';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
+import type { Prisma } from '@prisma/client';
 
 // Zod validation schema for saving landing pages
 const SaveLandingPageSchema = z.object({
-  slug: z.string().min(1, 'Slug is required').regex(
-    /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-    'Slug must contain only lowercase letters, numbers, and hyphens'
-  ),
+  slug: z
+    .string()
+    .min(1, 'Slug is required')
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      'Slug must contain only lowercase letters, numbers, and hyphens'
+    ),
   city: z.string().min(1, 'City is required').max(100),
   state: z.string().max(50).optional(),
   headline: z.string().min(1, 'Headline is required').max(200),
   bodyContent: z.string().min(1, 'Body content is required'),
   metaTitle: z.string().min(1, 'Meta title is required').max(200),
   metaDescription: z.string().min(1, 'Meta description is required').max(500),
-  qaAccordion: z.array(
-    z.object({
-      question: z.string().min(1, 'Question is required'),
-      answer: z.string().min(1, 'Answer is required')
-    })
-  ).min(1, 'At least one Q&A is required'),
-  generatedBy: z.string().optional()
+  qaAccordion: z
+    .array(
+      z.object({
+        question: z.string().min(1, 'Question is required'),
+        answer: z.string().min(1, 'Answer is required'),
+      })
+    )
+    .min(1, 'At least one Q&A is required'),
+  generatedBy: z.string().optional(),
 });
 
 /**
@@ -55,7 +61,7 @@ export async function POST(request: Request) {
     const data = validationResult.data;
 
     const existingPage = await prisma.landingPage.findUnique({
-      where: { slug: data.slug }
+      where: { slug: data.slug },
     });
 
     if (existingPage) {
@@ -70,22 +76,18 @@ export async function POST(request: Request) {
         ...data,
         generatedBy: data.generatedBy || userId,
         version: 1,
-        isPublished: false
-      }
+        isPublished: false,
+      },
     });
 
     return NextResponse.json({
       success: true,
       message: `Landing page saved for ${data.city}. Set to draft status.`,
-      data: landingPage
+      data: landingPage,
     });
-
   } catch (error) {
     logger.error('[Save Landing Page Error]:', error);
-    return NextResponse.json(
-      { error: 'Failed to save landing page' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to save landing page' }, { status: 500 });
   }
 }
 
@@ -104,18 +106,17 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const publishedFilter = searchParams.get('published');
 
-    const where: any = {};
+    const where: Prisma.LandingPageWhereInput = {};
     if (publishedFilter !== null) {
       where.isPublished = publishedFilter === 'true';
     }
 
     const landingPages = await prisma.landingPage.findMany({
       where,
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
 
     return NextResponse.json({ success: true, data: landingPages });
-
   } catch (error) {
     logger.error('[List Landing Pages Error]:', error);
     return NextResponse.json({ error: 'Failed to fetch landing pages' }, { status: 500 });

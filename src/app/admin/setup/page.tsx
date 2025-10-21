@@ -40,7 +40,7 @@ export default function AdminSetupPage() {
     } catch (error) {
       setMessage({
         type: 'error',
-        text: error instanceof Error ? error.message : 'An error occurred'
+        text: error instanceof Error ? error.message : 'An error occurred',
       });
     } finally {
       setIsLoading(false);
@@ -71,9 +71,7 @@ export default function AdminSetupPage() {
         <Card className="w-full max-w-md border-destructive">
           <CardHeader>
             <CardTitle className="text-destructive">Access Denied</CardTitle>
-            <CardDescription>
-              This page is restricted to authorized personnel only.
-            </CardDescription>
+            <CardDescription>This page is restricted to authorized personnel only.</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground mb-4">
@@ -96,9 +94,7 @@ export default function AdminSetupPage() {
             <Shield className="w-8 h-8 text-primary" />
           </div>
           <CardTitle className="text-2xl">Super Admin Setup</CardTitle>
-          <CardDescription>
-            Configure super administrator access for your account
-          </CardDescription>
+          <CardDescription>Configure super administrator access for your account</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="bg-muted rounded-lg p-4 space-y-2">
@@ -111,7 +107,8 @@ export default function AdminSetupPage() {
                 User ID: <span className="font-mono text-foreground text-xs">{user.id}</span>
               </p>
               <p className="text-muted-foreground">
-                Current Role: <span className="font-mono text-foreground">
+                Current Role:{' '}
+                <span className="font-mono text-foreground">
                   {(user.publicMetadata?.role as string) || 'none'}
                 </span>
               </p>
@@ -133,12 +130,7 @@ export default function AdminSetupPage() {
             </div>
           )}
 
-          <Button
-            onClick={handleSetupSuperAdmin}
-            disabled={isLoading}
-            className="w-full"
-            size="lg"
-          >
+          <Button onClick={handleSetupSuperAdmin} disabled={isLoading} className="w-full" size="lg">
             {isLoading ? 'Setting up...' : 'Activate Super Admin Access'}
           </Button>
 

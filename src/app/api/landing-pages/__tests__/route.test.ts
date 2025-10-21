@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client';
 
 // Mock Clerk auth
 vi.mock('@clerk/nextjs/server', () => ({
-  auth: vi.fn()
+  auth: vi.fn(),
 }));
 
 // Mock Prisma Client
@@ -14,11 +14,11 @@ vi.mock('@prisma/client', () => {
     landingPage: {
       findUnique: vi.fn(),
       create: vi.fn(),
-      findMany: vi.fn()
-    }
+      findMany: vi.fn(),
+    },
   };
   return {
-    PrismaClient: vi.fn(() => mockPrismaClient)
+    PrismaClient: vi.fn(() => mockPrismaClient),
   };
 });
 
@@ -45,8 +45,8 @@ describe('POST /api/landing-pages - Integration Tests', () => {
           bodyContent: '<p>Test content</p>',
           metaTitle: 'Test Meta Title',
           metaDescription: 'Test meta description',
-          qaAccordion: []
-        })
+          qaAccordion: [],
+        }),
       });
 
       const response = await POST(request);
@@ -66,7 +66,7 @@ describe('POST /api/landing-pages - Integration Tests', () => {
         slug: 'atlanta',
         city: 'Atlanta',
         isPublished: false,
-        createdAt: new Date()
+        createdAt: new Date(),
       });
     });
 
@@ -81,8 +81,8 @@ describe('POST /api/landing-pages - Integration Tests', () => {
           bodyContent: '<p>Test</p>',
           metaTitle: 'Test',
           metaDescription: 'Test',
-          qaAccordion: []
-        })
+          qaAccordion: [],
+        }),
       });
 
       const response = await POST(request);
@@ -99,9 +99,9 @@ describe('POST /api/landing-pages - Integration Tests', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           slug: 'atlanta',
-          city: 'Atlanta'
+          city: 'Atlanta',
           // missing headline, bodyContent, metaTitle, metaDescription, qaAccordion
-        })
+        }),
       });
 
       const response = await POST(request);
@@ -125,8 +125,8 @@ describe('POST /api/landing-pages - Integration Tests', () => {
           bodyContent: '<p>Test</p>',
           metaTitle: 'Test',
           metaDescription: 'Test',
-          qaAccordion: []
-        })
+          qaAccordion: [],
+        }),
       });
 
       const response = await POST(request);
@@ -149,8 +149,8 @@ describe('POST /api/landing-pages - Integration Tests', () => {
           bodyContent: '<p>Test</p>',
           metaTitle: longMetaTitle,
           metaDescription: 'Test',
-          qaAccordion: []
-        })
+          qaAccordion: [],
+        }),
       });
 
       const response = await POST(request);
@@ -173,8 +173,8 @@ describe('POST /api/landing-pages - Integration Tests', () => {
           bodyContent: '<p>Test</p>',
           metaTitle: 'Test',
           metaDescription: longMetaDesc,
-          qaAccordion: []
-        })
+          qaAccordion: [],
+        }),
       });
 
       const response = await POST(request);
@@ -196,11 +196,9 @@ describe('POST /api/landing-pages - Integration Tests', () => {
           bodyContent: '<p>Professional tax services</p>',
           metaTitle: 'Atlanta Tax Prep | Tax Genius',
           metaDescription: 'Expert tax preparation services in Atlanta',
-          qaAccordion: [
-            { question: 'What are your hours?', answer: '<p>9am-6pm</p>' }
-          ],
-          generatedBy: mockUserId
-        })
+          qaAccordion: [{ question: 'What are your hours?', answer: '<p>9am-6pm</p>' }],
+          generatedBy: mockUserId,
+        }),
       });
 
       const response = await POST(request);
@@ -219,7 +217,7 @@ describe('POST /api/landing-pages - Integration Tests', () => {
       mockPrisma.landingPage.findUnique.mockResolvedValue({
         id: 'existing_id',
         slug: 'atlanta',
-        city: 'Atlanta'
+        city: 'Atlanta',
       });
 
       const request = new Request('http://localhost:3005/api/landing-pages', {
@@ -232,8 +230,8 @@ describe('POST /api/landing-pages - Integration Tests', () => {
           bodyContent: '<p>Test</p>',
           metaTitle: 'Test',
           metaDescription: 'Test',
-          qaAccordion: []
-        })
+          qaAccordion: [],
+        }),
       });
 
       const response = await POST(request);
@@ -251,7 +249,7 @@ describe('POST /api/landing-pages - Integration Tests', () => {
         slug: 'atlanta',
         city: 'Atlanta',
         isPublished: false,
-        createdAt: new Date()
+        createdAt: new Date(),
       });
 
       const request = new Request('http://localhost:3005/api/landing-pages', {
@@ -264,8 +262,8 @@ describe('POST /api/landing-pages - Integration Tests', () => {
           bodyContent: '<p>Test</p>',
           metaTitle: 'Test',
           metaDescription: 'Test',
-          qaAccordion: []
-        })
+          qaAccordion: [],
+        }),
       });
 
       const response = await POST(request);
@@ -290,7 +288,7 @@ describe('POST /api/landing-pages - Integration Tests', () => {
         headline: 'Test Headline',
         isPublished: false,
         version: 1,
-        createdAt: new Date()
+        createdAt: new Date(),
       };
 
       mockPrisma.landingPage.create.mockResolvedValue(mockCreatedPage);
@@ -306,8 +304,8 @@ describe('POST /api/landing-pages - Integration Tests', () => {
           bodyContent: '<p>Test content</p>',
           metaTitle: 'Test Meta Title',
           metaDescription: 'Test meta description',
-          qaAccordion: []
-        })
+          qaAccordion: [],
+        }),
       });
 
       const response = await POST(request);
@@ -323,8 +321,8 @@ describe('POST /api/landing-pages - Integration Tests', () => {
         expect.objectContaining({
           data: expect.objectContaining({
             isPublished: false,
-            version: 1
-          })
+            version: 1,
+          }),
         })
       );
     });
@@ -334,7 +332,7 @@ describe('POST /api/landing-pages - Integration Tests', () => {
         id: 'test_id',
         slug: 'atlanta',
         generatedBy: mockUserId,
-        createdAt: new Date()
+        createdAt: new Date(),
       });
 
       const request = new Request('http://localhost:3005/api/landing-pages', {
@@ -347,9 +345,9 @@ describe('POST /api/landing-pages - Integration Tests', () => {
           bodyContent: '<p>Test</p>',
           metaTitle: 'Test',
           metaDescription: 'Test',
-          qaAccordion: []
+          qaAccordion: [],
           // generatedBy not provided
-        })
+        }),
       });
 
       await POST(request);
@@ -357,8 +355,8 @@ describe('POST /api/landing-pages - Integration Tests', () => {
       expect(mockPrisma.landingPage.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            generatedBy: mockUserId
-          })
+            generatedBy: mockUserId,
+          }),
         })
       );
     });
@@ -369,7 +367,7 @@ describe('POST /api/landing-pages - Integration Tests', () => {
         slug: 'atlanta',
         city: 'Atlanta',
         isPublished: false,
-        createdAt: new Date('2025-01-15T10:30:00Z')
+        createdAt: new Date('2025-01-15T10:30:00Z'),
       };
 
       mockPrisma.landingPage.create.mockResolvedValue(mockCreatedPage);
@@ -384,8 +382,8 @@ describe('POST /api/landing-pages - Integration Tests', () => {
           bodyContent: '<p>Test</p>',
           metaTitle: 'Test',
           metaDescription: 'Test',
-          qaAccordion: []
-        })
+          qaAccordion: [],
+        }),
       });
 
       const response = await POST(request);
@@ -395,7 +393,7 @@ describe('POST /api/landing-pages - Integration Tests', () => {
         id: 'test_id_123',
         slug: 'atlanta',
         city: 'Atlanta',
-        isPublished: false
+        isPublished: false,
       });
       expect(data.data).toHaveProperty('createdAt');
     });
@@ -408,9 +406,7 @@ describe('POST /api/landing-pages - Integration Tests', () => {
     });
 
     it('should return 500 on database error', async () => {
-      mockPrisma.landingPage.create.mockRejectedValue(
-        new Error('Database connection failed')
-      );
+      mockPrisma.landingPage.create.mockRejectedValue(new Error('Database connection failed'));
 
       const request = new Request('http://localhost:3005/api/landing-pages', {
         method: 'POST',
@@ -422,8 +418,8 @@ describe('POST /api/landing-pages - Integration Tests', () => {
           bodyContent: '<p>Test</p>',
           metaTitle: 'Test',
           metaDescription: 'Test',
-          qaAccordion: []
-        })
+          qaAccordion: [],
+        }),
       });
 
       const response = await POST(request);
@@ -449,7 +445,7 @@ describe('GET /api/landing-pages - Integration Tests', () => {
       (auth as Mock).mockResolvedValue({ userId: null });
 
       const request = new Request('http://localhost:3005/api/landing-pages', {
-        method: 'GET'
+        method: 'GET',
       });
 
       const response = await GET(request);
@@ -476,7 +472,7 @@ describe('GET /api/landing-pages - Integration Tests', () => {
           metaTitle: 'Boston Tax',
           isPublished: true,
           createdAt: new Date('2025-01-15'),
-          updatedAt: new Date('2025-01-15')
+          updatedAt: new Date('2025-01-15'),
         },
         {
           id: 'id_1',
@@ -487,14 +483,14 @@ describe('GET /api/landing-pages - Integration Tests', () => {
           metaTitle: 'Atlanta Tax',
           isPublished: false,
           createdAt: new Date('2025-01-14'),
-          updatedAt: new Date('2025-01-14')
-        }
+          updatedAt: new Date('2025-01-14'),
+        },
       ];
 
       mockPrisma.landingPage.findMany.mockResolvedValue(mockPages);
 
       const request = new Request('http://localhost:3005/api/landing-pages', {
-        method: 'GET'
+        method: 'GET',
       });
 
       const response = await GET(request);
@@ -506,7 +502,7 @@ describe('GET /api/landing-pages - Integration Tests', () => {
       expect(data.count).toBe(2);
       expect(mockPrisma.landingPage.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          orderBy: { createdAt: 'desc' }
+          orderBy: { createdAt: 'desc' },
         })
       );
     });
@@ -515,7 +511,7 @@ describe('GET /api/landing-pages - Integration Tests', () => {
       mockPrisma.landingPage.findMany.mockResolvedValue([]);
 
       const request = new Request('http://localhost:3005/api/landing-pages', {
-        method: 'GET'
+        method: 'GET',
       });
 
       const response = await GET(request);
@@ -527,12 +523,10 @@ describe('GET /api/landing-pages - Integration Tests', () => {
     });
 
     it('should return 500 on database error', async () => {
-      mockPrisma.landingPage.findMany.mockRejectedValue(
-        new Error('Database connection failed')
-      );
+      mockPrisma.landingPage.findMany.mockRejectedValue(new Error('Database connection failed'));
 
       const request = new Request('http://localhost:3005/api/landing-pages', {
-        method: 'GET'
+        method: 'GET',
       });
 
       const response = await GET(request);

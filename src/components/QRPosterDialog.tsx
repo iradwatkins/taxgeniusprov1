@@ -1,29 +1,29 @@
-import React, { useState } from 'react'
-import { QrCode } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import React, { useState } from 'react';
+import { QrCode } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { QRPosterGenerator } from '@/components/QRPosterGenerator'
+} from '@/components/ui/dialog';
+import { QRPosterGenerator } from '@/components/QRPosterGenerator';
 
 interface QRPosterDialogProps {
-  referralUrl: string
-  referrerName?: string
-  variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive'
-  className?: string
+  referralUrl: string;
+  referrerName?: string;
+  variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive';
+  className?: string;
 }
 
 export const QRPosterDialog: React.FC<QRPosterDialogProps> = ({
   referralUrl,
   referrerName,
   variant = 'outline',
-  className = 'w-full justify-start'
+  className = 'w-full justify-start',
 }) => {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -37,13 +37,10 @@ export const QRPosterDialog: React.FC<QRPosterDialogProps> = ({
         <DialogHeader>
           <DialogTitle>QR Code Poster Generator</DialogTitle>
         </DialogHeader>
-        <QRPosterGenerator 
-          referralUrl={referralUrl} 
-          referrerName={referrerName}
-        />
+        <QRPosterGenerator referralUrl={referralUrl} referrerName={referrerName} />
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default QRPosterDialog
+export default QRPosterDialog;

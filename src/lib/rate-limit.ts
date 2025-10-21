@@ -42,7 +42,7 @@ export const documentRateLimit = new Ratelimit({
 // Upload endpoints: 20 uploads per hour per user (prevent abuse)
 export const uploadRateLimit = new Ratelimit({
   redis: redis as any,
-  limiter: Ratelimit.slidingWindow(20, '1 h'),
+  limiter: Ratelimit.slidingWindow(20, '60 m'),
   analytics: true,
   prefix: 'ratelimit:upload',
 });

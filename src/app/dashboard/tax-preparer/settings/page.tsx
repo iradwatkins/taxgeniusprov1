@@ -1,21 +1,21 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
+} from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import {
   Settings,
   User,
@@ -27,28 +27,28 @@ import {
   Save,
   Upload,
   FileText,
-} from 'lucide-react'
+} from 'lucide-react';
 
 export const metadata = {
   title: 'Settings | Tax Genius Pro',
   description: 'Manage your tax preparer settings',
-}
+};
 
 async function isTaxPreparer() {
-  const user = await currentUser()
-  if (!user) return false
-  const role = user.publicMetadata?.role
-  return role === 'tax_preparer' || role === 'admin'
+  const user = await currentUser();
+  if (!user) return false;
+  const role = user.publicMetadata?.role;
+  return role === 'tax_preparer' || role === 'admin';
 }
 
 export default async function TaxPreparerSettingsPage() {
-  const userIsTaxPreparer = await isTaxPreparer()
+  const userIsTaxPreparer = await isTaxPreparer();
 
   if (!userIsTaxPreparer) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
-  const user = await currentUser()
+  const user = await currentUser();
 
   return (
     <div className="p-6 space-y-6">
@@ -73,9 +73,7 @@ export default async function TaxPreparerSettingsPage() {
             <User className="w-5 h-5" />
             <CardTitle>Professional Profile</CardTitle>
           </div>
-          <CardDescription>
-            Your public profile visible to clients
-          </CardDescription>
+          <CardDescription>Your public profile visible to clients</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Profile Photo */}
@@ -91,9 +89,7 @@ export default async function TaxPreparerSettingsPage() {
                 <Upload className="w-4 h-4 mr-2" />
                 Change Photo
               </Button>
-              <p className="text-xs text-muted-foreground">
-                JPG, PNG or GIF. Max size 2MB.
-              </p>
+              <p className="text-xs text-muted-foreground">JPG, PNG or GIF. Max size 2MB.</p>
             </div>
           </div>
 
@@ -124,11 +120,7 @@ export default async function TaxPreparerSettingsPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="+1 (555) 000-0000"
-              />
+              <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="timezone">Timezone</Label>
@@ -164,9 +156,7 @@ export default async function TaxPreparerSettingsPage() {
             <Award className="w-5 h-5" />
             <CardTitle>Credentials & Certifications</CardTitle>
           </div>
-          <CardDescription>
-            Your professional qualifications and licenses
-          </CardDescription>
+          <CardDescription>Your professional qualifications and licenses</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
@@ -244,9 +234,7 @@ export default async function TaxPreparerSettingsPage() {
             <Bell className="w-5 h-5" />
             <CardTitle>Availability & Client Settings</CardTitle>
           </div>
-          <CardDescription>
-            Manage when you're available for clients
-          </CardDescription>
+          <CardDescription>Manage when you're available for clients</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
@@ -306,9 +294,7 @@ export default async function TaxPreparerSettingsPage() {
             <Bell className="w-5 h-5" />
             <CardTitle>Notification Preferences</CardTitle>
           </div>
-          <CardDescription>
-            Choose how you want to receive updates
-          </CardDescription>
+          <CardDescription>Choose how you want to receive updates</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {[
@@ -323,9 +309,7 @@ export default async function TaxPreparerSettingsPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>{setting.label}</Label>
-                  <p className="text-sm text-muted-foreground">
-                    {setting.description}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{setting.description}</p>
                 </div>
                 <Switch defaultChecked={!setting.label.includes('Marketing')} />
               </div>
@@ -342,9 +326,7 @@ export default async function TaxPreparerSettingsPage() {
             <CreditCard className="w-5 h-5" />
             <CardTitle>Payment Settings</CardTitle>
           </div>
-          <CardDescription>
-            Manage how you receive payments
-          </CardDescription>
+          <CardDescription>Manage how you receive payments</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between p-4 border rounded-lg">
@@ -359,7 +341,9 @@ export default async function TaxPreparerSettingsPage() {
             </div>
             <div className="flex items-center gap-2">
               <Badge className="bg-green-100 text-green-700">Active</Badge>
-              <Button variant="outline" size="sm">Edit</Button>
+              <Button variant="outline" size="sm">
+                Edit
+              </Button>
             </div>
           </div>
 
@@ -377,9 +361,7 @@ export default async function TaxPreparerSettingsPage() {
             <FileText className="w-5 h-5" />
             <CardTitle>Professional Documents</CardTitle>
           </div>
-          <CardDescription>
-            Upload required licenses and certifications
-          </CardDescription>
+          <CardDescription>Upload required licenses and certifications</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -420,17 +402,13 @@ export default async function TaxPreparerSettingsPage() {
             <Shield className="w-5 h-5" />
             <CardTitle>Security & Privacy</CardTitle>
           </div>
-          <CardDescription>
-            Manage your account security settings
-          </CardDescription>
+          <CardDescription>Manage your account security settings</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Two-Factor Authentication</Label>
-              <p className="text-sm text-muted-foreground">
-                Add an extra layer of security
-              </p>
+              <p className="text-sm text-muted-foreground">Add an extra layer of security</p>
             </div>
             <Button variant="outline" size="sm">
               Enable
@@ -442,9 +420,7 @@ export default async function TaxPreparerSettingsPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Change Password</Label>
-              <p className="text-sm text-muted-foreground">
-                Update your account password
-              </p>
+              <p className="text-sm text-muted-foreground">Update your account password</p>
             </div>
             <Button variant="outline" size="sm">
               Change
@@ -460,9 +436,7 @@ export default async function TaxPreparerSettingsPage() {
             <Trash2 className="w-5 h-5 text-red-600" />
             <CardTitle className="text-red-600 dark:text-red-400">Danger Zone</CardTitle>
           </div>
-          <CardDescription>
-            Irreversible actions for your account
-          </CardDescription>
+          <CardDescription>Irreversible actions for your account</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
@@ -502,5 +476,5 @@ export default async function TaxPreparerSettingsPage() {
         </Button>
       </div>
     </div>
-  )
+  );
 }

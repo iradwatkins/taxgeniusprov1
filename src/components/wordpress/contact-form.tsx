@@ -1,24 +1,30 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "sonner";
-import { Send, Phone, Mail, MapPin, Clock } from "lucide-react";
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { toast } from 'sonner';
+import { Send, Phone, Mail, MapPin, Clock } from 'lucide-react';
 
 const contactSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  service: z.string().min(1, "Please select a service"),
-  message: z.string().min(10, "Message must be at least 10 characters")
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().min(10, 'Phone number must be at least 10 digits'),
+  service: z.string().min(1, 'Please select a service'),
+  message: z.string().min(10, 'Message must be at least 10 characters'),
 });
 
 type ContactFormValues = z.infer<typeof contactSchema>;
@@ -31,28 +37,28 @@ export function ContactForm() {
     handleSubmit,
     setValue,
     reset,
-    formState: { errors }
+    formState: { errors },
   } = useForm<ContactFormValues>({
-    resolver: zodResolver(contactSchema)
+    resolver: zodResolver(contactSchema),
   });
 
   const onSubmit = async (data: ContactFormValues) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
 
       if (response.ok) {
         toast.success("Message sent successfully! We'll contact you soon.");
         reset();
       } else {
-        throw new Error("Failed to send message");
+        throw new Error('Failed to send message');
       }
     } catch (error) {
-      toast.error("Failed to send message. Please try again.");
+      toast.error('Failed to send message. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -75,14 +81,8 @@ export function ContactForm() {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="name">Full Name *</Label>
-                      <Input
-                        id="name"
-                        {...register("name")}
-                        placeholder="John Doe"
-                      />
-                      {errors.name && (
-                        <p className="text-sm text-red-500">{errors.name.message}</p>
-                      )}
+                      <Input id="name" {...register('name')} placeholder="John Doe" />
+                      {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
                     </div>
 
                     <div className="space-y-2">
@@ -90,7 +90,7 @@ export function ContactForm() {
                       <Input
                         id="email"
                         type="email"
-                        {...register("email")}
+                        {...register('email')}
                         placeholder="john@example.com"
                       />
                       {errors.email && (
@@ -105,7 +105,7 @@ export function ContactForm() {
                       <Input
                         id="phone"
                         type="tel"
-                        {...register("phone")}
+                        {...register('phone')}
                         placeholder="(555) 123-4567"
                       />
                       {errors.phone && (
@@ -115,7 +115,7 @@ export function ContactForm() {
 
                     <div className="space-y-2">
                       <Label htmlFor="service">Service Needed *</Label>
-                      <Select onValueChange={(value) => setValue("service", value)}>
+                      <Select onValueChange={(value) => setValue('service', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a service" />
                         </SelectTrigger>
@@ -137,7 +137,7 @@ export function ContactForm() {
                     <Label htmlFor="message">Message *</Label>
                     <Textarea
                       id="message"
-                      {...register("message")}
+                      {...register('message')}
                       placeholder="Tell us how we can help you..."
                       rows={5}
                     />
@@ -147,7 +147,9 @@ export function ContactForm() {
                   </div>
 
                   <Button type="submit" size="lg" disabled={isSubmitting} className="w-full">
-                    {isSubmitting ? "Sending..." : (
+                    {isSubmitting ? (
+                      'Sending...'
+                    ) : (
                       <>
                         Send Message
                         <Send className="ml-2 h-4 w-4" />
@@ -186,8 +188,10 @@ export function ContactForm() {
                   <div>
                     <p className="font-medium">Office</p>
                     <p className="text-sm text-muted-foreground">
-                      123 Tax Street<br />
-                      Suite 100<br />
+                      123 Tax Street
+                      <br />
+                      Suite 100
+                      <br />
                       Dallas, TX 75201
                     </p>
                   </div>
@@ -198,8 +202,10 @@ export function ContactForm() {
                   <div>
                     <p className="font-medium">Business Hours</p>
                     <p className="text-sm text-muted-foreground">
-                      Monday - Friday: 9:00 AM - 6:00 PM<br />
-                      Saturday: 10:00 AM - 2:00 PM<br />
+                      Monday - Friday: 9:00 AM - 6:00 PM
+                      <br />
+                      Saturday: 10:00 AM - 2:00 PM
+                      <br />
                       Sunday: Closed
                     </p>
                   </div>

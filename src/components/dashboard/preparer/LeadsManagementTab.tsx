@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -57,7 +58,7 @@ export function LeadsManagementTab() {
       const data = await response.json();
       setLeads(data.leads || []);
     } catch (error) {
-      console.error('Error fetching leads:', error);
+      logger.error('Error fetching leads', error);
       toast({
         title: 'Error',
         description: 'Failed to load leads',
@@ -100,15 +101,14 @@ export function LeadsManagementTab() {
       const data = await response.json();
 
       // Remove the lead from the list (they're now a client)
-      setLeads(prev => prev.filter(lead => lead.id !== userId));
+      setLeads((prev) => prev.filter((lead) => lead.id !== userId));
 
       toast({
         title: 'Success',
         description: `${data.user.firstName} ${data.user.lastName} is now a client`,
       });
-
     } catch (error) {
-      console.error('Error changing role:', error);
+      logger.error('Error changing role', error, { userId });
       toast({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Failed to change role',
@@ -119,7 +119,7 @@ export function LeadsManagementTab() {
     }
   };
 
-  const filteredLeads = leads.filter(lead => {
+  const filteredLeads = leads.filter((lead) => {
     const matchesSearch =
       searchQuery === '' ||
       lead.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -142,7 +142,8 @@ export function LeadsManagementTab() {
       <CardHeader>
         <CardTitle>Pending Leads</CardTitle>
         <CardDescription>
-          Approve leads and promote them to clients. As a tax preparer, you can only change leads to clients.
+          Approve leads and promote them to clients. As a tax preparer, you can only change leads to
+          clients.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -150,8 +151,8 @@ export function LeadsManagementTab() {
         <Alert className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            <strong>Limited Access:</strong> Tax preparers can only promote leads to clients.
-            To create affiliates or tax preparers, contact an administrator.
+            <strong>Limited Access:</strong> Tax preparers can only promote leads to clients. To
+            create affiliates or tax preparers, contact an administrator.
           </AlertDescription>
         </Alert>
 
@@ -176,7 +177,9 @@ export function LeadsManagementTab() {
             <UserCheck className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
             <h3 className="text-lg font-semibold mb-2">No Pending Leads</h3>
             <p className="text-muted-foreground">
-              {searchQuery ? 'No leads match your search.' : 'All leads have been approved or there are no new signups.'}
+              {searchQuery
+                ? 'No leads match your search.'
+                : 'All leads have been approved or there are no new signups.'}
             </p>
           </div>
         ) : (
@@ -200,7 +203,9 @@ export function LeadsManagementTab() {
                     <TableRow key={lead.id}>
                       <TableCell className="font-medium">
                         <div>
-                          <p>{lead.firstName} {lead.lastName}</p>
+                          <p>
+                            {lead.firstName} {lead.lastName}
+                          </p>
                           <p className="text-sm text-muted-foreground">
                             ID: {lead.id.substring(0, 12)}...
                           </p>
@@ -208,7 +213,10 @@ export function LeadsManagementTab() {
                       </TableCell>
                       <TableCell>{lead.email}</TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
+                        <Badge
+                          variant="outline"
+                          className="bg-orange-50 text-orange-700 border-orange-200"
+                        >
                           Pending Approval
                         </Badge>
                       </TableCell>
@@ -222,9 +230,7 @@ export function LeadsManagementTab() {
                             <SelectValue placeholder="Promote to..." />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="client">
-                              ✅ Promote to Client
-                            </SelectItem>
+                            <SelectItem value="client">✅ Promote to Client</SelectItem>
                             <SelectItem value="affiliate" disabled>
                               🚫 Affiliate (Admin Only)
                             </SelectItem>

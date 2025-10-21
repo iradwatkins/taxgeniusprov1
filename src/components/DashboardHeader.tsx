@@ -1,25 +1,25 @@
-'use client'
+'use client';
 
-import { UserButton, useUser } from '@clerk/nextjs'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Bell, Menu, Eye } from 'lucide-react'
-import { useTheme } from 'next-themes'
-import { Moon, Sun } from 'lucide-react'
+import { UserButton, useUser } from '@clerk/nextjs';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Bell, Menu, Eye } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { Moon, Sun } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { RoleSwitcher } from '@/components/admin/RoleSwitcher'
-import { UserRole } from '@/lib/permissions'
+} from '@/components/ui/dropdown-menu';
+import { RoleSwitcher } from '@/components/admin/RoleSwitcher';
+import { UserRole } from '@/lib/permissions';
 
 interface DashboardHeaderProps {
-  onMenuClick?: () => void
-  actualRole?: UserRole
-  effectiveRole?: UserRole
-  isViewingAsOtherRole?: boolean
+  onMenuClick?: () => void;
+  actualRole?: UserRole;
+  effectiveRole?: UserRole;
+  isViewingAsOtherRole?: boolean;
 }
 
 export function DashboardHeader({
@@ -28,55 +28,50 @@ export function DashboardHeader({
   effectiveRole,
   isViewingAsOtherRole = false,
 }: DashboardHeaderProps) {
-  const { user } = useUser()
-  const { theme, setTheme } = useTheme()
+  const { user } = useUser();
+  const { theme, setTheme } = useTheme();
 
   // ALWAYS trust server props if provided (prevents flickering from stale Clerk cache)
   // Only fall back to client-side user data if server didn't provide props
-  const role = effectiveRole ?? (user?.publicMetadata?.role as UserRole | undefined)
-  const realRole = actualRole ?? (user?.publicMetadata?.role as UserRole | undefined)
+  const role = effectiveRole ?? (user?.publicMetadata?.role as UserRole | undefined);
+  const realRole = actualRole ?? (user?.publicMetadata?.role as UserRole | undefined);
 
   // If we have server props, don't let client data override them during hydration
-  const displayRole = (effectiveRole !== undefined) ? effectiveRole : role
-  const displayRealRole = (actualRole !== undefined) ? actualRole : realRole
+  const displayRole = effectiveRole !== undefined ? effectiveRole : role;
+  const displayRealRole = actualRole !== undefined ? actualRole : realRole;
 
   const getRoleBadgeColor = (role?: string) => {
     switch (role) {
       case 'super_admin':
-        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
       case 'admin':
-        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
       case 'lead':
-        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
+        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
       case 'tax_preparer':
-        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
       case 'affiliate':
-        return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+        return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300';
       case 'client':
-        return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300'
+        return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300';
       default:
-        return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300'
+        return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300';
     }
-  }
+  };
 
   const formatRole = (role?: string) => {
-    if (!role) return 'User'
+    if (!role) return 'User';
     return role
       .split('_')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ')
-  }
+      .join(' ');
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center gap-4 px-4 md:px-6">
         {/* Mobile Menu Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={onMenuClick}
-        >
+        <Button variant="ghost" size="icon" className="md:hidden" onClick={onMenuClick}>
           <Menu className="h-5 w-5" />
         </Button>
 
@@ -114,15 +109,9 @@ export function DashboardHeader({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme('light')}>
-                Light
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme('dark')}>
-                Dark
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme('system')}>
-                System
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -162,5 +151,5 @@ export function DashboardHeader({
         </div>
       </div>
     </header>
-  )
+  );
 }

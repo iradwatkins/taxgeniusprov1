@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 // Simulated OCR processing for tax documents
 function extractDataFromDocument(fileName: string, fileType: string): any {
@@ -13,8 +13,8 @@ function extractDataFromDocument(fileName: string, fileType: string): any {
       federalWithholding: Math.floor(Math.random() * 5000) + 2000,
       socialSecurityWages: Math.floor(Math.random() * 30000) + 25000,
       medicareWages: Math.floor(Math.random() * 30000) + 25000,
-      year: 2023
-    }
+      year: 2023,
+    };
   } else if (fileType.includes('1099')) {
     return {
       documentType: '1099-NEC',
@@ -22,8 +22,8 @@ function extractDataFromDocument(fileName: string, fileType: string): any {
       payerTIN: '98-7654321',
       nonemployeeCompensation: Math.floor(Math.random() * 40000) + 15000,
       federalWithholding: 0,
-      year: 2023
-    }
+      year: 2023,
+    };
   } else if (fileType.includes('id')) {
     return {
       documentType: 'Driver License',
@@ -32,49 +32,43 @@ function extractDataFromDocument(fileName: string, fileType: string): any {
       dateOfBirth: '1990-01-15',
       expirationDate: '2025-01-15',
       state: 'CA',
-      verified: true
-    }
+      verified: true,
+    };
   }
 
-  return null
+  return null;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData()
-    const file = formData.get('file') as File
-    const documentType = formData.get('type') as string
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+    const documentType = formData.get('type') as string;
 
     if (!file) {
-      return NextResponse.json(
-        { error: 'No file provided' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
     // Validate file type
-    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf']
+    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
     if (!validTypes.includes(file.type)) {
       return NextResponse.json(
         { error: 'Invalid file type. Please upload an image or PDF.' },
         { status: 400 }
-      )
+      );
     }
 
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: 'File too large. Maximum size is 10MB.' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'File too large. Maximum size is 10MB.' }, { status: 400 });
     }
 
     // Simulate file upload to storage (in production, upload to S3/R2)
-    const fileId = crypto.randomUUID()
-    const fileUrl = `/uploads/${fileId}/${file.name}`
+    const fileId = crypto.randomUUID();
+    const fileUrl = `/uploads/${fileId}/${file.name}`;
 
     // Simulate OCR processing
-    const extractedData = extractDataFromDocument(file.name, documentType)
+    const extractedData = extractDataFromDocument(file.name, documentType);
 
     // Prepare response
     const response = {
@@ -86,38 +80,31 @@ export async function POST(request: NextRequest) {
       url: fileUrl,
       extractedData: extractedData,
       processingStatus: extractedData ? 'completed' : 'pending',
-      uploadedAt: new Date().toISOString()
-    }
+      uploadedAt: new Date().toISOString(),
+    };
 
     // Log upload (in production, save to database)
     logger.info('Document uploaded:', {
       id: fileId,
       name: file.name,
       type: documentType,
-      size: file.size
-    })
+      size: file.size,
+    });
 
-    return NextResponse.json(response, { status: 200 })
-
+    return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    logger.error('Upload error:', error)
-    return NextResponse.json(
-      { error: 'Failed to upload document' },
-      { status: 500 }
-    )
+    logger.error('Upload error:', error);
+    return NextResponse.json({ error: 'Failed to upload document' }, { status: 500 });
   }
 }
 
 // GET endpoint to check document processing status
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams
-  const documentId = searchParams.get('id')
+  const searchParams = request.nextUrl.searchParams;
+  const documentId = searchParams.get('id');
 
   if (!documentId) {
-    return NextResponse.json(
-      { error: 'Document ID required' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: 'Document ID required' }, { status: 400 });
   }
 
   // Simulate database lookup (in production, query database)
@@ -128,11 +115,11 @@ export async function GET(request: NextRequest) {
       documentType: 'W-2',
       wages: 45000,
       federalWithholding: 6750,
-      year: 2023
+      year: 2023,
     },
     verificationStatus: 'verified',
-    processedAt: new Date().toISOString()
-  }
+    processedAt: new Date().toISOString(),
+  };
 
-  return NextResponse.json(mockDocument, { status: 200 })
+  return NextResponse.json(mockDocument, { status: 200 });
 }

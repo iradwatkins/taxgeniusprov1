@@ -1,12 +1,12 @@
 import { redirect } from 'next/navigation';
 import { currentUser } from '@clerk/nextjs/server';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Mail,
   Send,
@@ -122,20 +122,27 @@ export default async function EmailsPage() {
                   <CardContent>
                     <div className="space-y-4">
                       {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/50 cursor-pointer">
+                        <div
+                          key={i}
+                          className="flex items-start gap-4 p-4 border rounded-lg hover:bg-muted/50 cursor-pointer"
+                        >
                           <CheckCircle className="w-5 h-5 text-green-600 mt-1" />
                           <div className="flex-1">
                             <div className="flex items-start justify-between">
                               <div>
                                 <p className="font-medium">John Doe</p>
-                                <p className="text-sm font-medium mt-1">Tax Documents Ready for Review</p>
+                                <p className="text-sm font-medium mt-1">
+                                  Tax Documents Ready for Review
+                                </p>
                                 <p className="text-sm text-muted-foreground mt-1">
                                   Hi, I've uploaded all my tax documents for this year...
                                 </p>
                               </div>
                               <div className="text-right">
                                 <p className="text-xs text-muted-foreground">2 hours ago</p>
-                                <Badge variant="secondary" className="mt-1">Client</Badge>
+                                <Badge variant="secondary" className="mt-1">
+                                  Client
+                                </Badge>
                               </div>
                             </div>
                           </div>
@@ -204,8 +211,12 @@ export default async function EmailsPage() {
                               </p>
                             </div>
                             <div className="space-x-2">
-                              <Button variant="outline" size="sm">Edit</Button>
-                              <Button variant="outline" size="sm">Preview</Button>
+                              <Button variant="outline" size="sm">
+                                Edit
+                              </Button>
+                              <Button variant="outline" size="sm">
+                                Preview
+                              </Button>
                             </div>
                           </div>
                         </div>

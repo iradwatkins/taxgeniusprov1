@@ -1,26 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { ZodError } from 'zod'
-import { Prisma } from '@prisma/client'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { ZodError } from 'zod';
+import { Prisma } from '@prisma/client';
+import { logger } from '@/lib/logger';
 
 export interface APIError {
-  code: string
-  message: string
-  details?: unknown
-  statusCode: number
+  code: string;
+  message: string;
+  details?: unknown;
+  statusCode: number;
 }
 
 export class CustomAPIError extends Error {
-  public statusCode: number
-  public code: string
-  public details?: unknown
+  public statusCode: number;
+  public code: string;
+  public details?: unknown;
 
   constructor(message: string, statusCode: number, code: string, details?: unknown) {
-    super(message)
-    this.statusCode = statusCode
-    this.code = code
-    this.details = details
-    this.name = 'CustomAPIError'
+    super(message);
+    this.statusCode = statusCode;
+    this.code = code;
+    this.details = details;
+    this.name = 'CustomAPIError';
   }
 }
 
@@ -30,11 +30,11 @@ export function createAPIError(
   code: string = 'INTERNAL_ERROR',
   details?: unknown
 ): CustomAPIError {
-  return new CustomAPIError(message, statusCode, code, details)
+  return new CustomAPIError(message, statusCode, code, details);
 }
 
 export function handleAPIError(error: unknown): NextResponse {
-  logger.error('API Error:', error)
+  logger.error('API Error:', error);
 
   // Handle custom API errors
   if (error instanceof CustomAPIError) {
@@ -43,11 +43,11 @@ export function handleAPIError(error: unknown): NextResponse {
         error: {
           code: error.code,
           message: error.message,
-          details: error.details
-        }
+          details: error.details,
+        },
       },
       { status: error.statusCode }
-    )
+    );
   }
 
   // Handle Zod validation errors
@@ -57,15 +57,15 @@ export function handleAPIError(error: unknown): NextResponse {
         error: {
           code: 'VALIDATION_ERROR',
           message: 'Invalid request data',
-          details: error.errors.map(err => ({
+          details: error.errors.map((err) => ({
             path: err.path.join('.'),
             message: err.message,
-            code: err.code
-          }))
-        }
+            code: err.code,
+          })),
+        },
       },
       { status: 400 }
-    )
+    );
   }
 
   // Handle Prisma errors
@@ -77,44 +77,44 @@ export function handleAPIError(error: unknown): NextResponse {
             error: {
               code: 'DUPLICATE_ENTRY',
               message: 'A record with this information already exists',
-              details: { constraint: error.meta?.target }
-            }
+              details: { constraint: error.meta?.target },
+            },
           },
           { status: 409 }
-        )
+        );
       case 'P2025':
         return NextResponse.json(
           {
             error: {
               code: 'NOT_FOUND',
               message: 'The requested resource was not found',
-              details: { cause: error.meta?.cause }
-            }
+              details: { cause: error.meta?.cause },
+            },
           },
           { status: 404 }
-        )
+        );
       case 'P2003':
         return NextResponse.json(
           {
             error: {
               code: 'FOREIGN_KEY_CONSTRAINT',
               message: 'Referenced record does not exist',
-              details: { field: error.meta?.field_name }
-            }
+              details: { field: error.meta?.field_name },
+            },
           },
           { status: 400 }
-        )
+        );
       default:
         return NextResponse.json(
           {
             error: {
               code: 'DATABASE_ERROR',
               message: 'Database operation failed',
-              details: process.env.NODE_ENV === 'development' ? error.message : undefined
-            }
+              details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+            },
           },
           { status: 500 }
-        )
+        );
     }
   }
 
@@ -125,11 +125,11 @@ export function handleAPIError(error: unknown): NextResponse {
         error: {
           code: 'DATABASE_CONNECTION_ERROR',
           message: 'Unable to connect to database',
-          details: process.env.NODE_ENV === 'development' ? error.message : undefined
-        }
+          details: process.env.NODE_ENV === 'development' ? error.message : undefined,
+        },
       },
       { status: 503 }
-    )
+    );
   }
 
   // Handle authentication/authorization errors
@@ -139,11 +139,11 @@ export function handleAPIError(error: unknown): NextResponse {
         {
           error: {
             code: 'UNAUTHORIZED',
-            message: 'Authentication required'
-          }
+            message: 'Authentication required',
+          },
         },
         { status: 401 }
-      )
+      );
     }
 
     if (error.message === 'Insufficient permissions') {
@@ -151,11 +151,11 @@ export function handleAPIError(error: unknown): NextResponse {
         {
           error: {
             code: 'FORBIDDEN',
-            message: 'Insufficient permissions to access this resource'
-          }
+            message: 'Insufficient permissions to access this resource',
+          },
         },
         { status: 403 }
-      )
+      );
     }
   }
 
@@ -165,13 +165,14 @@ export function handleAPIError(error: unknown): NextResponse {
       error: {
         code: 'INTERNAL_ERROR',
         message: 'An unexpected error occurred. Please try again.',
-        details: process.env.NODE_ENV === 'development' && error instanceof Error
-          ? { message: error.message, stack: error.stack }
-          : undefined
-      }
+        details:
+          process.env.NODE_ENV === 'development' && error instanceof Error
+            ? { message: error.message, stack: error.stack }
+            : undefined,
+      },
     },
     { status: 500 }
-  )
+  );
 }
 
 // Wrapper function for API route handlers
@@ -180,11 +181,11 @@ export function withErrorHandler(
 ) {
   return async function (request: NextRequest, context?: any): Promise<NextResponse> {
     try {
-      return await handler(request, context)
+      return await handler(request, context);
     } catch (error) {
-      return handleAPIError(error)
+      return handleAPIError(error);
     }
-  }
+  };
 }
 
 // Rate limiting error
@@ -194,7 +195,7 @@ export function createRateLimitError(resetTime: number): CustomAPIError {
     429,
     'RATE_LIMIT_EXCEEDED',
     { resetTime }
-  )
+  );
 }
 
 // Service unavailable error (for maintenance, Redis down, etc.)
@@ -204,5 +205,5 @@ export function createServiceUnavailableError(service: string): CustomAPIError {
     503,
     'SERVICE_UNAVAILABLE',
     { service }
-  )
+  );
 }

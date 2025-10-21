@@ -43,17 +43,19 @@ export function StatsGrid({ stats }: StatsGridProps) {
                     {stat.changeType === 'decrease' && (
                       <TrendingDown className="h-3 w-3 text-red-500" />
                     )}
-                    <span className={cn(
-                      "text-xs",
-                      stat.changeType === 'increase' && "text-green-600",
-                      stat.changeType === 'decrease' && "text-red-600",
-                      stat.changeType === 'neutral' && "text-muted-foreground"
-                    )}>
+                    <span
+                      className={cn(
+                        'text-xs',
+                        stat.changeType === 'increase' && 'text-green-600',
+                        stat.changeType === 'decrease' && 'text-red-600',
+                        stat.changeType === 'neutral' && 'text-muted-foreground'
+                      )}
+                    >
                       {stat.change}
                     </span>
                   </div>
                 </div>
-                <div className={cn("p-2 rounded-lg bg-gradient-to-br", stat.color)}>
+                <div className={cn('p-2 rounded-lg bg-gradient-to-br', stat.color)}>
                   <stat.icon className="h-4 w-4 md:h-5 md:w-5 text-white" />
                 </div>
               </div>

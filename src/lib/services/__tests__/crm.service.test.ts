@@ -191,17 +191,17 @@ describe('CRMService - Unit Tests', () => {
 
       vi.mocked(prisma.cRMContact.findUnique).mockResolvedValue(mockContact as any);
 
-      await expect(
-        CRMService.getContactById('contact-1', preparerAccessContext)
-      ).rejects.toThrow('Access denied: Contact not assigned to you');
+      await expect(CRMService.getContactById('contact-1', preparerAccessContext)).rejects.toThrow(
+        'Access denied: Contact not assigned to you'
+      );
     });
 
     it('should throw error if contact not found', async () => {
       vi.mocked(prisma.cRMContact.findUnique).mockResolvedValue(null);
 
-      await expect(
-        CRMService.getContactById('nonexistent', adminAccessContext)
-      ).rejects.toThrow('Contact not found');
+      await expect(CRMService.getContactById('nonexistent', adminAccessContext)).rejects.toThrow(
+        'Contact not found'
+      );
     });
   });
 
@@ -286,9 +286,9 @@ describe('CRMService - Unit Tests', () => {
         userRole: UserRole.TAX_PREPARER,
       };
 
-      await expect(
-        CRMService.deleteContact('contact-1', preparerAccessContext)
-      ).rejects.toThrow('Only admins can delete contacts');
+      await expect(CRMService.deleteContact('contact-1', preparerAccessContext)).rejects.toThrow(
+        'Only admins can delete contacts'
+      );
     });
   });
 
@@ -308,11 +308,7 @@ describe('CRMService - Unit Tests', () => {
       vi.mocked(prisma.cRMContact.findMany).mockResolvedValue(mockContacts as any);
       vi.mocked(prisma.cRMContact.count).mockResolvedValue(10);
 
-      const result = await CRMService.listContacts(
-        {},
-        { page: 1, limit: 50 },
-        adminAccessContext
-      );
+      const result = await CRMService.listContacts({}, { page: 1, limit: 50 }, adminAccessContext);
 
       expect(result.contacts).toHaveLength(2);
       expect(result.total).toBe(10);
@@ -362,11 +358,7 @@ describe('CRMService - Unit Tests', () => {
       vi.mocked(prisma.cRMContact.findMany).mockResolvedValue([]);
       vi.mocked(prisma.cRMContact.count).mockResolvedValue(0);
 
-      await CRMService.listContacts(
-        { search: 'john' },
-        { page: 1, limit: 50 },
-        adminAccessContext
-      );
+      await CRMService.listContacts({ search: 'john' }, { page: 1, limit: 50 }, adminAccessContext);
 
       expect(prisma.cRMContact.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -575,11 +567,7 @@ describe('CRMService - Unit Tests', () => {
       vi.mocked(prisma.cRMContact.findUnique).mockResolvedValue(mockContact as any);
       vi.mocked(prisma.cRMInteraction.findMany).mockResolvedValue(mockInteractions as any);
 
-      const result = await CRMService.getContactInteractions(
-        'contact-1',
-        adminAccessContext,
-        50
-      );
+      const result = await CRMService.getContactInteractions('contact-1', adminAccessContext, 50);
 
       expect(result).toHaveLength(2);
       expect(prisma.cRMInteraction.findMany).toHaveBeenCalledWith({

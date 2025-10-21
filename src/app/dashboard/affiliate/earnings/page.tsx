@@ -1,8 +1,8 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -10,14 +10,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from '@/components/ui/table';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@/components/ui/select';
 import {
   DollarSign,
   TrendingUp,
@@ -30,25 +30,25 @@ import {
   CheckCircle2,
   Clock,
   Users,
-} from 'lucide-react'
+} from 'lucide-react';
 
 export const metadata = {
   title: 'Earnings | Tax Genius Pro',
   description: 'Track your affiliate commissions',
-}
+};
 
 async function isAffiliate() {
-  const user = await currentUser()
-  if (!user) return false
-  const role = user.publicMetadata?.role
-  return role === 'affiliate' || role === 'admin'
+  const user = await currentUser();
+  if (!user) return false;
+  const role = user.publicMetadata?.role;
+  return role === 'affiliate' || role === 'admin';
 }
 
 export default async function AffiliateEarningsPage() {
-  const userIsAffiliate = await isAffiliate()
+  const userIsAffiliate = await isAffiliate();
 
   if (!userIsAffiliate) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
   // Mock earnings data
@@ -89,40 +89,38 @@ export default async function AffiliateEarningsPage() {
       status: 'Processing',
       tier: 'Standard',
     },
-  ]
+  ];
 
   const monthlyData = [
     { month: 'Jan', earnings: 420 },
     { month: 'Feb', earnings: 680 },
     { month: 'Mar', earnings: 330 },
-  ]
+  ];
 
-  const totalEarnings = commissions.reduce((sum, c) => sum + c.commission, 0)
+  const totalEarnings = commissions.reduce((sum, c) => sum + c.commission, 0);
   const paidEarnings = commissions
-    .filter(c => c.status === 'Paid')
-    .reduce((sum, c) => sum + c.commission, 0)
+    .filter((c) => c.status === 'Paid')
+    .reduce((sum, c) => sum + c.commission, 0);
   const pendingEarnings = commissions
-    .filter(c => c.status === 'Pending' || c.status === 'Processing')
-    .reduce((sum, c) => sum + c.commission, 0)
+    .filter((c) => c.status === 'Pending' || c.status === 'Processing')
+    .reduce((sum, c) => sum + c.commission, 0);
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Paid':
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
       case 'Processing':
-        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
       case 'Pending':
-        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
+        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
       default:
-        return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300'
+        return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300';
     }
-  }
+  };
 
   const getTierBadgeColor = (tier: string) => {
-    return tier === 'Premium'
-      ? 'bg-purple-100 text-purple-700'
-      : 'bg-blue-100 text-blue-700'
-  }
+    return tier === 'Premium' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700';
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -130,9 +128,7 @@ export default async function AffiliateEarningsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Affiliate Earnings</h1>
-          <p className="text-muted-foreground mt-1">
-            Track your commission earnings and payouts
-          </p>
+          <p className="text-muted-foreground mt-1">Track your commission earnings and payouts</p>
         </div>
         <div className="flex items-center gap-2">
           <Select defaultValue="this-month">
@@ -162,9 +158,7 @@ export default async function AffiliateEarningsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${totalEarnings}</div>
-            <p className="text-xs text-muted-foreground">
-              This month
-            </p>
+            <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
         </Card>
 
@@ -177,7 +171,7 @@ export default async function AffiliateEarningsPage() {
             <div className="text-2xl font-bold">${paidEarnings}</div>
             <div className="flex items-center text-xs text-green-600 mt-1">
               <ArrowUp className="w-3 h-3 mr-1" />
-              {commissions.filter(c => c.status === 'Paid').length} commissions
+              {commissions.filter((c) => c.status === 'Paid').length} commissions
             </div>
           </CardContent>
         </Card>
@@ -190,7 +184,7 @@ export default async function AffiliateEarningsPage() {
           <CardContent>
             <div className="text-2xl font-bold">${pendingEarnings}</div>
             <p className="text-xs text-muted-foreground">
-              {commissions.filter(c => c.status !== 'Paid').length} pending payouts
+              {commissions.filter((c) => c.status !== 'Paid').length} pending payouts
             </p>
           </CardContent>
         </Card>
@@ -204,9 +198,7 @@ export default async function AffiliateEarningsPage() {
             <div className="text-2xl font-bold">
               ${Math.round(totalEarnings / commissions.length)}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Per conversion
-            </p>
+            <p className="text-xs text-muted-foreground">Per conversion</p>
           </CardContent>
         </Card>
       </div>
@@ -270,9 +262,7 @@ export default async function AffiliateEarningsPage() {
                   style={{ height: `${(data.earnings / 1000) * 100}%` }}
                 />
                 <div className="text-sm font-medium">{data.month}</div>
-                <div className="text-xs text-muted-foreground">
-                  ${data.earnings}
-                </div>
+                <div className="text-xs text-muted-foreground">${data.earnings}</div>
               </div>
             ))}
           </div>
@@ -318,14 +308,10 @@ export default async function AffiliateEarningsPage() {
                     <p className="text-sm">{commission.service}</p>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getTierBadgeColor(commission.tier)}>
-                      {commission.tier}
-                    </Badge>
+                    <Badge className={getTierBadgeColor(commission.tier)}>{commission.tier}</Badge>
                   </TableCell>
                   <TableCell>
-                    <p className="font-semibold text-green-600">
-                      ${commission.commission}
-                    </p>
+                    <p className="font-semibold text-green-600">${commission.commission}</p>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1 text-sm">
@@ -334,9 +320,7 @@ export default async function AffiliateEarningsPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(commission.status)}>
-                      {commission.status}
-                    </Badge>
+                    <Badge className={getStatusColor(commission.status)}>{commission.status}</Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
@@ -425,5 +409,5 @@ export default async function AffiliateEarningsPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

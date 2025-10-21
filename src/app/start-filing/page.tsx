@@ -1,8 +1,8 @@
-import { Metadata } from 'next'
-import Link from 'next/link'
-import Image from 'next/image'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Metadata } from 'next';
+import Link from 'next/link';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   CheckCircle,
   DollarSign,
@@ -12,26 +12,29 @@ import {
   Zap,
   TrendingUp,
   ArrowRight,
-  Users
-} from 'lucide-react'
+  Users,
+} from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Start Your Tax Return - Fast Filing & Maximum Refund | Tax Genius Pro',
-  description: 'File your taxes in minutes and get every dollar you deserve. Expert CPAs find all deductions and credits. Average client refund: $3,200. Start your return now.',
-  keywords: 'file taxes fast, maximum tax refund, tax preparation, CPA tax filing, quick tax return',
+  description:
+    'File your taxes in minutes and get every dollar you deserve. Expert CPAs find all deductions and credits. Average client refund: $3,200. Start your return now.',
+  keywords:
+    'file taxes fast, maximum tax refund, tax preparation, CPA tax filing, quick tax return',
   openGraph: {
     title: 'Get Your Maximum Tax Refund Fast | Tax Genius Pro',
     description: 'File your taxes in minutes with certified CPAs. See what you qualify for today.',
     type: 'website',
-  }
-}
+  },
+};
 
 export default function StartFilingPage() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Service',
     name: 'Tax Genius Pro - Tax Preparation Service',
-    description: 'Fast tax filing service with expert CPAs. File your taxes in 15 minutes and get your maximum refund.',
+    description:
+      'Fast tax filing service with expert CPAs. File your taxes in 15 minutes and get your maximum refund.',
     provider: {
       '@type': 'Organization',
       name: 'Tax Genius Pro',
@@ -41,26 +44,26 @@ export default function StartFilingPage() {
         addressLocality: 'Atlanta',
         addressRegion: 'GA',
         postalCode: '30315',
-        addressCountry: 'US'
+        addressCountry: 'US',
       },
       contactPoint: {
         '@type': 'ContactPoint',
         telephone: '+1-404-627-1015',
-        contactType: 'customer service'
-      }
+        contactType: 'customer service',
+      },
     },
     aggregateRating: {
       '@type': 'AggregateRating',
       ratingValue: '4.9',
       bestRating: '5',
-      ratingCount: '50000'
+      ratingCount: '50000',
     },
     offers: {
       '@type': 'Offer',
       description: 'Professional tax preparation with maximum refund guarantee',
-      priceCurrency: 'USD'
-    }
-  }
+      priceCurrency: 'USD',
+    },
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-background to-green-50">
@@ -84,7 +87,8 @@ export default function StartFilingPage() {
             </h1>
 
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Expert CPAs find all the deductions and credits you qualify for. Fast, easy, and you keep more money.
+              Expert CPAs find all the deductions and credits you qualify for. Fast, easy, and you
+              keep more money.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
@@ -149,9 +153,7 @@ export default function StartFilingPage() {
       <section className="bg-white py-16 mt-12">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">
-              Why People Choose Tax Genius Pro
-            </h2>
+            <h2 className="text-4xl font-bold mb-4">Why People Choose Tax Genius Pro</h2>
             <p className="text-xl text-muted-foreground">
               We focus on what matters most: your time and your money
             </p>
@@ -165,7 +167,8 @@ export default function StartFilingPage() {
                 </div>
                 <h3 className="text-2xl font-bold mb-4">Lightning Fast Filing</h3>
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  Most clients complete their return in under 15 minutes. Our smart form asks only what's needed for YOUR situation.
+                  Most clients complete their return in under 15 minutes. Our smart form asks only
+                  what's needed for YOUR situation.
                 </p>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
@@ -191,7 +194,8 @@ export default function StartFilingPage() {
                 </div>
                 <h3 className="text-2xl font-bold mb-4">Maximum Refund Promise</h3>
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  Our CPAs find every deduction and credit you qualify for. See what you're entitled to - most clients get $3,200+.
+                  Our CPAs find every deduction and credit you qualify for. See what you're entitled
+                  to - most clients get $3,200+.
                 </p>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
@@ -235,10 +239,13 @@ export default function StartFilingPage() {
           <Card>
             <CardContent className="p-6">
               <div className="flex gap-1 mb-4">
-                {[1,2,3,4,5].map(i => <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />)}
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                ))}
               </div>
               <p className="text-muted-foreground mb-4 leading-relaxed">
-                "Filed my taxes in 12 minutes during lunch break! Got back $3,850 - way more than I expected. These guys know their stuff."
+                "Filed my taxes in 12 minutes during lunch break! Got back $3,850 - way more than I
+                expected. These guys know their stuff."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-full"></div>
@@ -253,10 +260,13 @@ export default function StartFilingPage() {
           <Card>
             <CardContent className="p-6">
               <div className="flex gap-1 mb-4">
-                {[1,2,3,4,5].map(i => <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />)}
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                ))}
               </div>
               <p className="text-muted-foreground mb-4 leading-relaxed">
-                "I was shocked! Found deductions I didn't even know existed. Got $4,200 back and the whole process took less time than my coffee break."
+                "I was shocked! Found deductions I didn't even know existed. Got $4,200 back and the
+                whole process took less time than my coffee break."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full"></div>
@@ -271,10 +281,13 @@ export default function StartFilingPage() {
           <Card>
             <CardContent className="p-6">
               <div className="flex gap-1 mb-4">
-                {[1,2,3,4,5].map(i => <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />)}
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                ))}
               </div>
               <p className="text-muted-foreground mb-4 leading-relaxed">
-                "Super fast and easy. My CPA found credits I missed last year. Got $2,800 refund and paid way less in fees than H&R Block wanted."
+                "Super fast and easy. My CPA found credits I missed last year. Got $2,800 refund and
+                paid way less in fees than H&R Block wanted."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-red-500 rounded-full"></div>
@@ -317,7 +330,8 @@ export default function StartFilingPage() {
               </div>
               <h3 className="text-xl font-bold mb-3">Answer Quick Questions</h3>
               <p className="text-muted-foreground">
-                Takes 15 minutes or less. Simple questions about your income, family, and deductions.
+                Takes 15 minutes or less. Simple questions about your income, family, and
+                deductions.
               </p>
             </div>
 
@@ -332,7 +346,8 @@ export default function StartFilingPage() {
               </div>
               <h3 className="text-xl font-bold mb-3">Expert CPA Review</h3>
               <p className="text-muted-foreground">
-                Licensed tax professionals review your return and find every deduction you qualify for.
+                Licensed tax professionals review your return and find every deduction you qualify
+                for.
               </p>
             </div>
 
@@ -369,9 +384,7 @@ export default function StartFilingPage() {
                 />
               </div>
               <CardContent className="p-8 md:p-12 flex flex-col justify-center">
-                <h2 className="text-3xl font-bold mb-4">
-                  Ready to See What You Qualify For?
-                </h2>
+                <h2 className="text-3xl font-bold mb-4">Ready to See What You Qualify For?</h2>
                 <p className="text-muted-foreground mb-6 leading-relaxed">
                   Start your return now. No signup required. Most people finish in under 15 minutes.
                 </p>
@@ -425,5 +438,5 @@ export default function StartFilingPage() {
         </div>
       </section>
     </div>
-  )
+  );
 }

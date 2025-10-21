@@ -12,11 +12,11 @@
  * - Story 5.2: Commission Automation
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { currentUser } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma'
-import { EmailService } from '@/lib/services/email.service'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { currentUser } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/prisma';
+import { EmailService } from '@/lib/services/email.service';
+import { logger } from '@/lib/logger';
 
 /**
  * Calculate commission amount based on tax package type
@@ -28,9 +28,9 @@ function calculateCommissionAmount(packageType: string): number {
     STANDARD: Number(process.env.COMMISSION_RATE_STANDARD) || 35,
     PREMIUM: Number(process.env.COMMISSION_RATE_PREMIUM) || 50,
     DELUXE: Number(process.env.COMMISSION_RATE_DELUXE) || 75,
-  }
+  };
 
-  return rates[packageType.toUpperCase()] || 25 // Default to $25
+  return rates[packageType.toUpperCase()] || 25; // Default to $25
 }
 
 /**
@@ -39,31 +39,28 @@ function calculateCommissionAmount(packageType: string): number {
  * - DRAFT → IN_REVIEW: Send "Documents Received" email
  * - IN_REVIEW → FILED: Send "Return Filed" + "Referral Invitation" emails + Commission Creation
  */
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await currentUser()
+    const user = await currentUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get the return ID from params
-    const { id } = await params
+    const { id } = await params;
 
     // Parse request body
-    const body = await req.json()
-    const { status, refundAmount, oweAmount, filedDate } = body
+    const body = await req.json();
+    const { status, refundAmount, oweAmount, filedDate } = body;
 
     // Validate status
-    const validStatuses = ['DRAFT', 'IN_REVIEW', 'FILED', 'COMPLETED']
+    const validStatuses = ['DRAFT', 'IN_REVIEW', 'FILED', 'COMPLETED'];
     if (!validStatuses.includes(status)) {
       return NextResponse.json(
         { error: 'Invalid status. Must be one of: DRAFT, IN_REVIEW, FILED, COMPLETED' },
         { status: 400 }
-      )
+      );
     }
 
     // Find user profile
@@ -73,10 +70,10 @@ export async function PATCH(
           email: user.emailAddresses[0]?.emailAddress,
         },
       },
-    })
+    });
 
     if (!profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
     // Get the tax return
@@ -90,18 +87,18 @@ export async function PATCH(
         },
         documents: true,
       },
-    })
+    });
 
     if (!taxReturn) {
-      return NextResponse.json({ error: 'Tax return not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Tax return not found' }, { status: 404 });
     }
 
     // Authorization check
     // Only preparers assigned to this client or admins can update status
-    let isAuthorized = false
+    let isAuthorized = false;
 
     if (profile.role === 'ADMIN') {
-      isAuthorized = true
+      isAuthorized = true;
     } else if (profile.role === 'PREPARER') {
       const assignment = await prisma.clientPreparer.findFirst({
         where: {
@@ -109,9 +106,9 @@ export async function PATCH(
           clientId: taxReturn.profileId,
           isActive: true,
         },
-      })
+      });
       if (assignment) {
-        isAuthorized = true
+        isAuthorized = true;
       }
     }
 
@@ -119,11 +116,11 @@ export async function PATCH(
       return NextResponse.json(
         { error: 'Not authorized to update this tax return' },
         { status: 403 }
-      )
+      );
     }
 
     // Store old status for email triggers
-    const oldStatus = taxReturn.status
+    const oldStatus = taxReturn.status;
 
     // Update the tax return
     const updatedReturn = await prisma.taxReturn.update({
@@ -142,13 +139,13 @@ export async function PATCH(
         },
         documents: true,
       },
-    })
+    });
 
     // Get client information for emails
-    const clientEmail = taxReturn.profile.user.email
+    const clientEmail = taxReturn.profile.user.email;
     const clientName = taxReturn.profile.firstName
       ? `${taxReturn.profile.firstName} ${taxReturn.profile.lastName || ''}`?.trim()
-      : 'Valued Client'
+      : 'Valued Client';
 
     // Get preparer information
     const preparerAssignment = await prisma.clientPreparer.findFirst({
@@ -163,19 +160,19 @@ export async function PATCH(
           },
         },
       },
-    })
+    });
 
     const preparerName = preparerAssignment?.preparer.firstName
       ? `${preparerAssignment.preparer.firstName} ${preparerAssignment.preparer.lastName || ''}`?.trim()
-      : 'Your Tax Preparer'
-    const preparerEmail = preparerAssignment?.preparer.user.email || 'support@taxgeniuspro.tax'
+      : 'Your Tax Preparer';
+    const preparerEmail = preparerAssignment?.preparer.user.email || 'support@taxgeniuspro.tax';
 
     // Email automation triggers based on status transitions
-    const emailsSent: string[] = []
+    const emailsSent: string[] = [];
 
     // DRAFT → IN_REVIEW: Send "Documents Received" email
     if (oldStatus === 'DRAFT' && status === 'IN_REVIEW') {
-      const documentCount = taxReturn.documents.length
+      const documentCount = taxReturn.documents.length;
 
       const success = await EmailService.sendDocumentsReceivedEmail(
         clientEmail,
@@ -184,10 +181,10 @@ export async function PATCH(
         preparerEmail,
         taxReturn.taxYear,
         documentCount
-      )
+      );
 
       if (success) {
-        emailsSent.push('documents-received')
+        emailsSent.push('documents-received');
       }
     }
 
@@ -202,10 +199,10 @@ export async function PATCH(
         refundAmount,
         oweAmount,
         filedDate
-      )
+      );
 
       if (returnFiledSuccess) {
-        emailsSent.push('return-filed')
+        emailsSent.push('return-filed');
       }
 
       // Send "Referral Invitation" email (Story 3.5)
@@ -215,10 +212,10 @@ export async function PATCH(
         preparerName,
         taxReturn.taxYear,
         refundAmount
-      )
+      );
 
       if (referralSuccess) {
-        emailsSent.push('referral-invitation')
+        emailsSent.push('referral-invitation');
       }
 
       // === EPIC 5 - STORY 5.2: COMMISSION AUTOMATION ===
@@ -235,13 +232,11 @@ export async function PATCH(
             },
           },
         },
-      })
+      });
 
       if (referral) {
         // Calculate commission based on package type
-        const commissionAmount = calculateCommissionAmount(
-          taxReturn.packageType || 'BASIC'
-        )
+        const commissionAmount = calculateCommissionAmount(taxReturn.packageType || 'BASIC');
 
         // Create commission record
         const commission = await prisma.commission.create({
@@ -251,7 +246,7 @@ export async function PATCH(
             amount: commissionAmount,
             status: 'PENDING',
           },
-        })
+        });
 
         // Update referral status to COMPLETED
         await prisma.referral.update({
@@ -261,7 +256,7 @@ export async function PATCH(
             returnFiledDate: new Date(),
             commissionEarned: commissionAmount,
           },
-        })
+        });
 
         // Get updated pending balance for email
         const pendingCommissions = await prisma.commission.findMany({
@@ -269,17 +264,14 @@ export async function PATCH(
             referrerId: referral.referrerId,
             status: 'PENDING',
           },
-        })
+        });
 
-        const pendingBalance = pendingCommissions.reduce(
-          (sum, c) => sum + Number(c.amount),
-          0
-        )
+        const pendingBalance = pendingCommissions.reduce((sum, c) => sum + Number(c.amount), 0);
 
         // Send commission earned email
         const referrerName = referral.referrer.firstName
           ? `${referral.referrer.firstName} ${referral.referrer.lastName || ''}`.trim()
-          : 'Referrer'
+          : 'Referrer';
 
         const commissionEmailSuccess = await EmailService.sendCommissionEarnedEmail(
           referral.referrer.user.email,
@@ -287,13 +279,15 @@ export async function PATCH(
           clientName,
           Number(commissionAmount),
           pendingBalance
-        )
+        );
 
         if (commissionEmailSuccess) {
-          emailsSent.push('commission-earned')
+          emailsSent.push('commission-earned');
         }
 
-        logger.info(`✅ Commission created: $${commissionAmount} for referrer ${referral.referrerId}`)
+        logger.info(
+          `✅ Commission created: $${commissionAmount} for referrer ${referral.referrerId}`
+        );
       }
     }
 
@@ -302,31 +296,25 @@ export async function PATCH(
       taxReturn: updatedReturn,
       emailsSent,
       message: `Status updated from ${oldStatus} to ${status}`,
-    })
+    });
   } catch (error) {
-    logger.error('Error updating tax return status:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    logger.error('Error updating tax return status:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 /**
  * Get current status of a tax return
  */
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await currentUser()
+    const user = await currentUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = await params
+    const { id } = await params;
 
     // Find user profile
     const profile = await prisma.profile.findFirst({
@@ -335,10 +323,10 @@ export async function GET(
           email: user.emailAddresses[0]?.emailAddress,
         },
       },
-    })
+    });
 
     if (!profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
     // Get the tax return
@@ -355,18 +343,18 @@ export async function GET(
         createdAt: true,
         updatedAt: true,
       },
-    })
+    });
 
     if (!taxReturn) {
-      return NextResponse.json({ error: 'Tax return not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Tax return not found' }, { status: 404 });
     }
 
     // Authorization check
-    let isAuthorized = false
+    let isAuthorized = false;
 
     // Owner can view
     if (taxReturn.profileId === profile.id) {
-      isAuthorized = true
+      isAuthorized = true;
     }
 
     // Assigned preparer can view
@@ -377,30 +365,27 @@ export async function GET(
           clientId: taxReturn.profileId,
           isActive: true,
         },
-      })
+      });
       if (assignment) {
-        isAuthorized = true
+        isAuthorized = true;
       }
     }
 
     // Admin can view
     if (profile.role === 'ADMIN') {
-      isAuthorized = true
+      isAuthorized = true;
     }
 
     if (!isAuthorized) {
       return NextResponse.json(
         { error: 'Not authorized to view this tax return' },
         { status: 403 }
-      )
+      );
     }
 
-    return NextResponse.json({ taxReturn })
+    return NextResponse.json({ taxReturn });
   } catch (error) {
-    logger.error('Error fetching tax return status:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    logger.error('Error fetching tax return status:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

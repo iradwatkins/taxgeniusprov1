@@ -1,15 +1,15 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { X, Download, Smartphone, Bell, Wifi, WifiOff } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { usePWA } from '@/hooks/usePWA'
+import { useState, useEffect } from 'react';
+import { X, Download, Smartphone, Bell, Wifi, WifiOff } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { usePWA } from '@/hooks/usePWA';
 
 export function PWAInstallPrompt() {
-  const [showPrompt, setShowPrompt] = useState(false)
-  const [showNotificationPrompt, setShowNotificationPrompt] = useState(false)
+  const [showPrompt, setShowPrompt] = useState(false);
+  const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
   const {
     isInstalled,
     isOffline,
@@ -18,45 +18,45 @@ export function PWAInstallPrompt() {
     pushSubscription,
     installApp,
     subscribeToPush,
-    updateApp
-  } = usePWA()
+    updateApp,
+  } = usePWA();
 
   useEffect(() => {
     // Show install prompt after 30 seconds if not installed
     if (!isInstalled && canInstall) {
       const timer = setTimeout(() => {
-        setShowPrompt(true)
-      }, 30000)
+        setShowPrompt(true);
+      }, 30000);
 
-      return () => clearTimeout(timer)
+      return () => clearTimeout(timer);
     }
-  }, [isInstalled, canInstall])
+  }, [isInstalled, canInstall]);
 
   useEffect(() => {
     // Show notification prompt after install
     if (isInstalled && !pushSubscription) {
       const timer = setTimeout(() => {
-        setShowNotificationPrompt(true)
-      }, 5000)
+        setShowNotificationPrompt(true);
+      }, 5000);
 
-      return () => clearTimeout(timer)
+      return () => clearTimeout(timer);
     }
-  }, [isInstalled, pushSubscription])
+  }, [isInstalled, pushSubscription]);
 
   const handleInstall = async () => {
-    await installApp()
-    setShowPrompt(false)
+    await installApp();
+    setShowPrompt(false);
 
     // Show notification prompt after install
     setTimeout(() => {
-      setShowNotificationPrompt(true)
-    }, 2000)
-  }
+      setShowNotificationPrompt(true);
+    }, 2000);
+  };
 
   const handleEnableNotifications = async () => {
-    await subscribeToPush()
-    setShowNotificationPrompt(false)
-  }
+    await subscribeToPush();
+    setShowNotificationPrompt(false);
+  };
 
   // Connection status indicator
   const ConnectionStatus = () => (
@@ -68,13 +68,17 @@ export function PWAInstallPrompt() {
         </Badge>
       )}
       {!isOffline && updateAvailable && (
-        <Badge variant="default" className="flex items-center gap-2 cursor-pointer" onClick={updateApp}>
+        <Badge
+          variant="default"
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={updateApp}
+        >
           <Download className="h-3 w-3" />
           Update Available
         </Badge>
       )}
     </div>
-  )
+  );
 
   return (
     <>
@@ -127,17 +131,10 @@ export function PWAInstallPrompt() {
               </div>
 
               <div className="flex gap-3 w-full">
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => setShowPrompt(false)}
-                >
+                <Button variant="outline" className="flex-1" onClick={() => setShowPrompt(false)}>
                   Not Now
                 </Button>
-                <Button
-                  className="flex-1"
-                  onClick={handleInstall}
-                >
+                <Button className="flex-1" onClick={handleInstall}>
                   <Download className="h-4 w-4 mr-2" />
                   Install
                 </Button>
@@ -168,7 +165,8 @@ export function PWAInstallPrompt() {
               <div>
                 <h3 className="text-lg font-semibold">Stay Updated</h3>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Enable notifications to receive important updates about your tax returns and deadlines.
+                  Enable notifications to receive important updates about your tax returns and
+                  deadlines.
                 </p>
               </div>
 
@@ -195,10 +193,7 @@ export function PWAInstallPrompt() {
                 >
                   Maybe Later
                 </Button>
-                <Button
-                  className="flex-1"
-                  onClick={handleEnableNotifications}
-                >
+                <Button className="flex-1" onClick={handleEnableNotifications}>
                   <Bell className="h-4 w-4 mr-2" />
                   Enable
                 </Button>
@@ -208,5 +203,5 @@ export function PWAInstallPrompt() {
         </div>
       )}
     </>
-  )
+  );
 }

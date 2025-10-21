@@ -1,8 +1,8 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -10,14 +10,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from '@/components/ui/table';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@/components/ui/select';
 import {
   DollarSign,
   TrendingUp,
@@ -29,25 +29,25 @@ import {
   FileText,
   CheckCircle2,
   Clock,
-} from 'lucide-react'
+} from 'lucide-react';
 
 export const metadata = {
   title: 'Earnings | Tax Genius Pro',
   description: 'Track your earnings and payouts',
-}
+};
 
 async function isTaxPreparer() {
-  const user = await currentUser()
-  if (!user) return false
-  const role = user.publicMetadata?.role
-  return role === 'tax_preparer' || role === 'admin'
+  const user = await currentUser();
+  if (!user) return false;
+  const role = user.publicMetadata?.role;
+  return role === 'tax_preparer' || role === 'admin';
 }
 
 export default async function TaxPreparerEarningsPage() {
-  const userIsTaxPreparer = await isTaxPreparer()
+  const userIsTaxPreparer = await isTaxPreparer();
 
   if (!userIsTaxPreparer) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
   // Mock earnings data
@@ -97,34 +97,34 @@ export default async function TaxPreparerEarningsPage() {
       status: 'Processing',
       paymentMethod: 'Direct Deposit',
     },
-  ]
+  ];
 
   const monthlyData = [
     { month: 'Jan', earnings: 3200 },
     { month: 'Feb', earnings: 4100 },
     { month: 'Mar', earnings: 1900 },
-  ]
+  ];
 
-  const totalEarnings = earnings.reduce((sum, e) => sum + e.amount, 0)
+  const totalEarnings = earnings.reduce((sum, e) => sum + e.amount, 0);
   const paidEarnings = earnings
-    .filter(e => e.status === 'Paid')
-    .reduce((sum, e) => sum + e.amount, 0)
+    .filter((e) => e.status === 'Paid')
+    .reduce((sum, e) => sum + e.amount, 0);
   const pendingEarnings = earnings
-    .filter(e => e.status === 'Pending' || e.status === 'Processing')
-    .reduce((sum, e) => sum + e.amount, 0)
+    .filter((e) => e.status === 'Pending' || e.status === 'Processing')
+    .reduce((sum, e) => sum + e.amount, 0);
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Paid':
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
       case 'Processing':
-        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
       case 'Pending':
-        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
+        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
       default:
-        return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300'
+        return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300';
     }
-  }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -132,9 +132,7 @@ export default async function TaxPreparerEarningsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Earnings & Payouts</h1>
-          <p className="text-muted-foreground mt-1">
-            Track your income and payment history
-          </p>
+          <p className="text-muted-foreground mt-1">Track your income and payment history</p>
         </div>
         <div className="flex items-center gap-2">
           <Select defaultValue="this-month">
@@ -164,9 +162,7 @@ export default async function TaxPreparerEarningsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${totalEarnings.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              This month
-            </p>
+            <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
         </Card>
 
@@ -179,7 +175,7 @@ export default async function TaxPreparerEarningsPage() {
             <div className="text-2xl font-bold">${paidEarnings.toLocaleString()}</div>
             <div className="flex items-center text-xs text-green-600 mt-1">
               <ArrowUp className="w-3 h-3 mr-1" />
-              {earnings.filter(e => e.status === 'Paid').length} transactions
+              {earnings.filter((e) => e.status === 'Paid').length} transactions
             </div>
           </CardContent>
         </Card>
@@ -192,7 +188,7 @@ export default async function TaxPreparerEarningsPage() {
           <CardContent>
             <div className="text-2xl font-bold">${pendingEarnings.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
-              {earnings.filter(e => e.status !== 'Paid').length} pending payments
+              {earnings.filter((e) => e.status !== 'Paid').length} pending payments
             </p>
           </CardContent>
         </Card>
@@ -203,12 +199,8 @@ export default async function TaxPreparerEarningsPage() {
             <TrendingUp className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              ${Math.round(totalEarnings / earnings.length)}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Based on {earnings.length} returns
-            </p>
+            <div className="text-2xl font-bold">${Math.round(totalEarnings / earnings.length)}</div>
+            <p className="text-xs text-muted-foreground">Based on {earnings.length} returns</p>
           </CardContent>
         </Card>
       </div>
@@ -267,9 +259,7 @@ export default async function TaxPreparerEarningsPage() {
                 <TableRow key={earning.id}>
                   <TableCell>
                     <p className="font-medium">{earning.client}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {earning.paymentMethod}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{earning.paymentMethod}</p>
                   </TableCell>
                   <TableCell>
                     <p className="text-sm">{earning.service}</p>
@@ -286,9 +276,7 @@ export default async function TaxPreparerEarningsPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(earning.status)}>
-                      {earning.status}
-                    </Badge>
+                    <Badge className={getStatusColor(earning.status)}>{earning.status}</Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
@@ -377,5 +365,5 @@ export default async function TaxPreparerEarningsPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

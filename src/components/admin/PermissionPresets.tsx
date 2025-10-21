@@ -1,15 +1,10 @@
-'use client'
+'use client';
 
-import { Button } from "@/components/ui/button";
-import {
-  Lock,
-  ShieldCheck,
-  Settings,
-  Users,
-} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Lock, ShieldCheck, Settings, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { UserPermissions } from '@/lib/permissions';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 interface PermissionPresetsProps {
   onApplyPreset?: (permissions: Partial<UserPermissions>) => void;
@@ -217,7 +212,7 @@ export function PermissionPresets({ onApplyPreset }: PermissionPresetsProps) {
     },
   ];
 
-  const applyPreset = async (preset: typeof presets[0]) => {
+  const applyPreset = async (preset: (typeof presets)[0]) => {
     if (onApplyPreset) {
       onApplyPreset(preset.permissions);
       return;
@@ -245,16 +240,16 @@ export function PermissionPresets({ onApplyPreset }: PermissionPresetsProps) {
       const result = await response.json();
 
       toast({
-        title: "Preset Applied",
+        title: 'Preset Applied',
         description: `${preset.name} permissions have been applied to ${result.affectedUsers || 'all'} admin users.`,
         duration: 3000,
       });
     } catch (error) {
       logger.error('Error applying preset:', error);
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to apply preset",
-        variant: "destructive",
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to apply preset',
+        variant: 'destructive',
       });
     }
   };
@@ -269,9 +264,7 @@ export function PermissionPresets({ onApplyPreset }: PermissionPresetsProps) {
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h3 className="font-medium">{preset.name}</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {preset.description}
-                </p>
+                <p className="text-sm text-muted-foreground mt-1">{preset.description}</p>
               </div>
               <Icon className={`w-5 h-5 ${preset.iconColor}`} />
             </div>
@@ -320,11 +313,7 @@ export function PermissionPresets({ onApplyPreset }: PermissionPresetsProps) {
                 )}
               </ul>
             </div>
-            <Button
-              className="w-full mt-4"
-              variant="outline"
-              onClick={() => applyPreset(preset)}
-            >
+            <Button className="w-full mt-4" variant="outline" onClick={() => applyPreset(preset)}>
               Apply to All Admins
             </Button>
           </div>

@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { jwtVerify } from 'jose'
-import { prisma } from '@/lib/prisma'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { jwtVerify } from 'jose';
+import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 /**
  * GET /api/documents/view/[token]
@@ -17,52 +17,40 @@ import { logger } from '@/lib/logger'
  * - Token contains documentId, userId, and fileUrl
  * - No authentication required (token IS the authentication)
  */
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { token: string } }
-) {
+export async function GET(req: NextRequest, { params }: { params: { token: string } }) {
   try {
-    const token = params.token
+    const token = params.token;
 
     // Verify JWT token
-    const jwtSecret = process.env.JWT_SECRET || process.env.CLERK_SECRET_KEY
+    const jwtSecret = process.env.JWT_SECRET || process.env.CLERK_SECRET_KEY;
     if (!jwtSecret) {
-      logger.error('CRITICAL: JWT_SECRET or CLERK_SECRET_KEY environment variable is missing')
-      return NextResponse.json(
-        { error: 'Server configuration error' },
-        { status: 500 }
-      )
+      logger.error('CRITICAL: JWT_SECRET or CLERK_SECRET_KEY environment variable is missing');
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
     }
-    const secret = new TextEncoder().encode(jwtSecret)
+    const secret = new TextEncoder().encode(jwtSecret);
 
-    let payload
+    let payload;
     try {
-      const verified = await jwtVerify(token, secret)
-      payload = verified.payload
+      const verified = await jwtVerify(token, secret);
+      payload = verified.payload;
     } catch (error) {
-      return NextResponse.json(
-        { error: 'Invalid or expired token' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
     }
 
     // Extract claims
     const { documentId, userId, fileUrl } = payload as {
-      documentId: string
-      userId: string
-      fileUrl: string
-    }
+      documentId: string;
+      userId: string;
+      fileUrl: string;
+    };
 
     // Verify document still exists
     const document = await prisma.document.findUnique({
-      where: { id: documentId }
-    })
+      where: { id: documentId },
+    });
 
     if (!document) {
-      return NextResponse.json(
-        { error: 'Document not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Document not found' }, { status: 404 });
     }
 
     // For now, redirect to the file URL
@@ -92,27 +80,26 @@ export async function GET(
     */
 
     // For now, return JSON with file info for client-side handling
-    return NextResponse.json({
-      success: true,
-      document: {
-        id: document.id,
-        fileName: document.fileName,
-        fileType: document.fileType,
-        fileSize: document.fileSize,
-        fileUrl: document.fileUrl,
-      },
-      message: 'Document access granted. Use fileUrl to view/download.'
-    }, {
-      headers: {
-        'Cache-Control': 'private, no-cache, no-store, must-revalidate',
-      }
-    })
-
-  } catch (error) {
-    logger.error('Error serving document:', error)
     return NextResponse.json(
-      { error: 'Failed to serve document' },
-      { status: 500 }
-    )
+      {
+        success: true,
+        document: {
+          id: document.id,
+          fileName: document.fileName,
+          fileType: document.fileType,
+          fileSize: document.fileSize,
+          fileUrl: document.fileUrl,
+        },
+        message: 'Document access granted. Use fileUrl to view/download.',
+      },
+      {
+        headers: {
+          'Cache-Control': 'private, no-cache, no-store, must-revalidate',
+        },
+      }
+    );
+  } catch (error) {
+    logger.error('Error serving document:', error);
+    return NextResponse.json({ error: 'Failed to serve document' }, { status: 500 });
   }
 }

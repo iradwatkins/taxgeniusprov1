@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /*
  * OPTIONAL THEME: Professional Bank Theme (Blue Primary)
@@ -28,7 +28,7 @@
     --secondary-foreground: #ffffff;
     --muted: #e5e5e6;
     --muted-foreground: #30394b;
-    --accent: #E3ECF6;
+    --accent: #e3ecf6;
     --accent-foreground: #30394b;
     --destructive: #f4212e;
     --destructive-foreground: #ffffff;
@@ -57,15 +57,25 @@
     --shadow-blur: 0px;
     --shadow-spread: 0px;
     --shadow-opacity: 0;
-    --shadow-color: rgba(29,161,242,0.15);
-    --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
-    --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
-    --shadow-sm: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-    --shadow: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-    --shadow-md: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 2px 4px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-    --shadow-lg: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 4px 6px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-    --shadow-xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 8px 10px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-    --shadow-2xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
+    --shadow-color: rgba(29, 161, 242, 0.15);
+    --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0);
+    --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0);
+    --shadow-sm:
+      0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+      0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+    --shadow:
+      0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+      0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+    --shadow-md:
+      0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+      0px 2px 4px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+    --shadow-lg:
+      0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+      0px 4px 6px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+    --shadow-xl:
+      0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+      0px 8px 10px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+    --shadow-2xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0);
     --tracking-normal: 0em;
     --spacing: 0.25rem;
     --line-height-relaxed: 1.7;
@@ -114,15 +124,25 @@
     --shadow-blur: 0px;
     --shadow-spread: 0px;
     --shadow-opacity: 0;
-    --shadow-color: rgba(29,161,242,0.25);
-    --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
-    --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
-    --shadow-sm: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-    --shadow: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-    --shadow-md: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 2px 4px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-    --shadow-lg: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 4px 6px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-    --shadow-xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00), 0px 8px 10px -1px hsl(202.8169 89.1213% 53.1373% / 0.00);
-    --shadow-2xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
+    --shadow-color: rgba(29, 161, 242, 0.25);
+    --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0);
+    --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0);
+    --shadow-sm:
+      0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+      0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+    --shadow:
+      0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+      0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+    --shadow-md:
+      0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+      0px 2px 4px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+    --shadow-lg:
+      0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+      0px 4px 6px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+    --shadow-xl:
+      0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+      0px 8px 10px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+    --shadow-2xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0);
     --tracking-normal: 0em;
     --spacing: 0.25rem;
     --line-height-relaxed: 1.7;
@@ -138,7 +158,12 @@
     line-height: 1.7;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     line-height: 1.2;
     font-weight: 600;
     letter-spacing: -0.02em;

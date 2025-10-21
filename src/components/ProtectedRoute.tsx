@@ -1,21 +1,21 @@
-import React from 'react'
-import { Navigate, useLocation } from 'react-router-dom'
-import { useAuth } from '@/core/providers/AuthProvider'
-import { Skeleton } from '@/components/ui/skeleton'
+import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/core/providers/AuthProvider';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProtectedRouteProps {
-  children: React.ReactNode
-  requiredRole?: 'client' | 'affiliate' | 'preparer'
-  requireProfile?: boolean
+  children: React.ReactNode;
+  requiredRole?: 'client' | 'affiliate' | 'preparer';
+  requireProfile?: boolean;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
   requiredRole,
-  requireProfile = false 
+  requireProfile = false,
 }) => {
-  const { user, loading } = useAuth()
-  const location = useLocation()
+  const { user, loading } = useAuth();
+  const location = useLocation();
 
   // Show loading while authentication state is being determined
   if (loading) {
@@ -31,17 +31,17 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   // Redirect to login if not authenticated
   if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   // If profile is required but user doesn't have one, redirect to profile setup
   if (requireProfile && !user.profile) {
-    return <Navigate to="/setup-profile" state={{ from: location }} replace />
+    return <Navigate to="/setup-profile" state={{ from: location }} replace />;
   }
 
   // If specific role is required, check user's role
@@ -50,17 +50,17 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     if (user.role) {
       switch (user.role) {
         case 'client':
-          return <Navigate to="/dashboard/client" replace />
+          return <Navigate to="/dashboard/client" replace />;
         case 'affiliate':
-          return <Navigate to="/dashboard/affiliate" replace />
+          return <Navigate to="/dashboard/affiliate" replace />;
         case 'preparer':
-          return <Navigate to="/dashboard/preparer" replace />
+          return <Navigate to="/dashboard/preparer" replace />;
         default:
-          return <Navigate to="/dashboard" replace />
+          return <Navigate to="/dashboard" replace />;
       }
     }
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to="/dashboard" replace />;
   }
 
-  return <>{children}</>
-}
+  return <>{children}</>;
+};

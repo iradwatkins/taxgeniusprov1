@@ -7,13 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import {
-  Send,
-  Paperclip,
-  MoreVertical,
-  Phone,
-  Video
-} from 'lucide-react';
+import { Send, Paperclip, MoreVertical, Phone, Video } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Message {
@@ -85,28 +79,21 @@ export function MessagesTab({ messages, onSendMessage }: MessagesTabProps) {
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={cn(
-                  "flex gap-3",
-                  !message.isFromPreparer && "flex-row-reverse"
-                )}
+                className={cn('flex gap-3', !message.isFromPreparer && 'flex-row-reverse')}
               >
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback>
-                    {message.isFromPreparer ? 'TP' : 'ME'}
-                  </AvatarFallback>
+                  <AvatarFallback>{message.isFromPreparer ? 'TP' : 'ME'}</AvatarFallback>
                 </Avatar>
                 <div
                   className={cn(
-                    "flex flex-col gap-1 max-w-[70%]",
-                    !message.isFromPreparer && "items-end"
+                    'flex flex-col gap-1 max-w-[70%]',
+                    !message.isFromPreparer && 'items-end'
                   )}
                 >
                   <div
                     className={cn(
-                      "rounded-lg px-4 py-2",
-                      message.isFromPreparer
-                        ? "bg-muted"
-                        : "bg-primary text-primary-foreground"
+                      'rounded-lg px-4 py-2',
+                      message.isFromPreparer ? 'bg-muted' : 'bg-primary text-primary-foreground'
                     )}
                   >
                     <p className="text-sm">{message.content}</p>
@@ -121,9 +108,7 @@ export function MessagesTab({ messages, onSendMessage }: MessagesTabProps) {
                       ))}
                     </div>
                   )}
-                  <p className="text-xs text-muted-foreground">
-                    {message.createdAt}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{message.createdAt}</p>
                 </div>
               </div>
             ))}

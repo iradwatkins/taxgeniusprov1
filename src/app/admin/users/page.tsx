@@ -1,9 +1,9 @@
-import { redirect } from 'next/navigation'
-import { currentUser, clerkClient } from '@clerk/nextjs/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { redirect } from 'next/navigation';
+import { currentUser, clerkClient } from '@clerk/nextjs/server';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -11,47 +11,47 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from '@/components/ui/table';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Users, Search, Filter, Download, UserPlus, Mail, Shield } from 'lucide-react'
-import { UserManagementClient } from '@/components/UserManagementClient'
+} from '@/components/ui/select';
+import { Users, Search, Filter, Download, UserPlus, Mail, Shield } from 'lucide-react';
+import { UserManagementClient } from '@/components/UserManagementClient';
 
 export const metadata = {
   title: 'User Management - Admin | Tax Genius Pro',
   description: 'Manage users and roles',
-}
+};
 
 async function isAdmin() {
-  const user = await currentUser()
-  if (!user) return false
-  const role = user.publicMetadata?.role as string
-  return role === 'admin' || role === 'super_admin'
+  const user = await currentUser();
+  if (!user) return false;
+  const role = user.publicMetadata?.role as string;
+  return role === 'admin' || role === 'super_admin';
 }
 
 export default async function AdminUsersPage() {
-  const userIsAdmin = await isAdmin()
+  const userIsAdmin = await isAdmin();
 
   if (!userIsAdmin) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
-  const currentUserData = await currentUser()
-  const isSuperAdmin = currentUserData?.publicMetadata?.role === 'super_admin'
+  const currentUserData = await currentUser();
+  const isSuperAdmin = currentUserData?.publicMetadata?.role === 'super_admin';
 
   // Fetch all users from Clerk
-  const clerk = await clerkClient()
+  const clerk = await clerkClient();
   const { data: users } = await clerk.users.getUserList({
     limit: 100,
-  })
+  });
 
   // Format users data for client component
-  const formattedUsers = users.map(user => ({
+  const formattedUsers = users.map((user) => ({
     id: user.id,
     email: user.emailAddresses[0]?.emailAddress || '',
     firstName: user.firstName || '',
@@ -59,14 +59,17 @@ export default async function AdminUsersPage() {
     role: (user.publicMetadata?.role as string) || 'client',
     permissions: user.publicMetadata?.permissions as Record<string, boolean> | undefined,
     createdAt: new Date(user.createdAt).toISOString(),
-  }))
+  }));
 
   // Count users by role
-  const usersByRole = users.reduce((acc, user) => {
-    const role = (user.publicMetadata?.role as string) || 'no_role'
-    acc[role] = (acc[role] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
+  const usersByRole = users.reduce(
+    (acc, user) => {
+      const role = (user.publicMetadata?.role as string) || 'no_role';
+      acc[role] = (acc[role] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 
   return (
     <div className="p-6 space-y-6">
@@ -93,9 +96,7 @@ export default async function AdminUsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{users.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Across all roles
-            </p>
+            <p className="text-xs text-muted-foreground">Across all roles</p>
           </CardContent>
         </Card>
 
@@ -106,9 +107,7 @@ export default async function AdminUsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{usersByRole['tax_preparer'] || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              Professional tax preparers
-            </p>
+            <p className="text-xs text-muted-foreground">Professional tax preparers</p>
           </CardContent>
         </Card>
 
@@ -119,9 +118,7 @@ export default async function AdminUsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{usersByRole['lead'] || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              Pending approval
-            </p>
+            <p className="text-xs text-muted-foreground">Pending approval</p>
           </CardContent>
         </Card>
 
@@ -132,18 +129,13 @@ export default async function AdminUsersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{usersByRole['client'] || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              Active clients
-            </p>
+            <p className="text-xs text-muted-foreground">Active clients</p>
           </CardContent>
         </Card>
       </div>
 
       {/* User Table - Client Component */}
-      <UserManagementClient
-        users={formattedUsers}
-        isSuperAdmin={isSuperAdmin}
-      />
+      <UserManagementClient users={formattedUsers} isSuperAdmin={isSuperAdmin} />
     </div>
-  )
+  );
 }

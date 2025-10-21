@@ -1,48 +1,48 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Download, Upload } from 'lucide-react'
-import Link from 'next/link'
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Download, Upload } from 'lucide-react';
+import Link from 'next/link';
 
 export function ClientImportExport() {
-  const [importing, setImporting] = useState(false)
+  const [importing, setImporting] = useState(false);
 
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    setImporting(true)
+    setImporting(true);
 
     try {
-      const formData = new FormData()
-      formData.append('file', file)
+      const formData = new FormData();
+      formData.append('file', file);
 
       const response = await fetch('/api/tax-preparer/clients/import', {
         method: 'POST',
         body: formData,
-      })
+      });
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (result.success) {
         alert(
           `Successfully imported ${result.imported} clients.\n` +
-          `${result.skipped} skipped.` +
-          (result.errors ? `\n\nErrors:\n${result.errors.join('\n')}` : '')
-        )
-        window.location.reload()
+            `${result.skipped} skipped.` +
+            (result.errors ? `\n\nErrors:\n${result.errors.join('\n')}` : '')
+        );
+        window.location.reload();
       } else {
-        alert(`Error: ${result.error}${result.details ? '\n' + result.details : ''}`)
+        alert(`Error: ${result.error}${result.details ? '\n' + result.details : ''}`);
       }
     } catch (error) {
-      alert(`Failed to import: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      alert(`Failed to import: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
-      setImporting(false)
+      setImporting(false);
       // Reset file input
-      e.target.value = ''
+      e.target.value = '';
     }
-  }
+  };
 
   return (
     <div className="flex items-center gap-2">
@@ -72,5 +72,5 @@ export function ClientImportExport() {
         </Button>
       </div>
     </div>
-  )
+  );
 }

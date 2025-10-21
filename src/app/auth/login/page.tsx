@@ -17,7 +17,8 @@ function LoginContent() {
       badge: 'Welcome Back',
       icon: Shield,
       heading: 'Continue Your Tax Filing',
-      subheading: 'Sign in to access your tax documents, track your refund, and manage your account',
+      subheading:
+        'Sign in to access your tax documents, track your refund, and manage your account',
       benefits: [
         { icon: CheckCircle, text: 'Pick up where you left off' },
         { icon: TrendingUp, text: 'Track your refund status' },
@@ -27,7 +28,7 @@ function LoginContent() {
       imageSuggestion: 'Professional reviewing documents confidently',
       theme: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20',
       accentColor: 'text-blue-600 dark:text-blue-400',
-      welcomeBack: 'Welcome back! Let\'s get your taxes done.',
+      welcomeBack: "Welcome back! Let's get your taxes done.",
     },
     preparer: {
       badge: 'Preparer Portal',
@@ -49,7 +50,7 @@ function LoginContent() {
       badge: '💰 Affiliate Portal',
       icon: DollarSign,
       heading: 'Welcome Back!',
-      subheading: 'Check your earnings, share your link, and see how much money you\'ve made!',
+      subheading: "Check your earnings, share your link, and see how much money you've made!",
       benefits: [
         { icon: Zap, text: 'See your earnings instantly' },
         { icon: TrendingUp, text: 'Track active referrals' },
@@ -59,7 +60,7 @@ function LoginContent() {
       imageSuggestion: 'Person checking earnings on phone happily',
       theme: 'from-yellow-50 to-orange-100 dark:from-yellow-900/20 dark:to-orange-800/20',
       accentColor: 'text-yellow-600 dark:text-yellow-400',
-      welcomeBack: 'Let\'s see how much you\'ve earned! 🤑',
+      welcomeBack: "Let's see how much you've earned! 🤑",
     },
   };
 
@@ -69,7 +70,9 @@ function LoginContent() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       {/* Left Side - Role-specific messaging with image */}
-      <div className={`relative bg-gradient-to-br ${content.theme} p-8 lg:p-16 flex flex-col justify-center`}>
+      <div
+        className={`relative bg-gradient-to-br ${content.theme} p-8 lg:p-16 flex flex-col justify-center`}
+      >
         <div className="max-w-lg mx-auto space-y-8">
           <div>
             <Badge className="mb-4 text-base px-4 py-2">
@@ -77,31 +80,25 @@ function LoginContent() {
               {content.badge}
             </Badge>
 
-            <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">
-              {content.heading}
-            </h1>
+            <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">{content.heading}</h1>
 
-            <p className="text-xl text-muted-foreground">
-              {content.subheading}
-            </p>
+            <p className="text-xl text-muted-foreground">{content.subheading}</p>
           </div>
 
           {/* Image Placeholder */}
           <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-white/50 dark:bg-black/20 backdrop-blur">
             <div className="aspect-video flex items-center justify-center p-12">
               <div className="text-center">
-                <div className={`w-32 h-32 bg-white/80 dark:bg-black/40 rounded-full mx-auto mb-6 flex items-center justify-center`}>
+                <div
+                  className={`w-32 h-32 bg-white/80 dark:bg-black/40 rounded-full mx-auto mb-6 flex items-center justify-center`}
+                >
                   <IconComponent className={`w-16 h-16 ${content.accentColor}`} />
                 </div>
                 <p className="text-sm font-semibold text-muted-foreground mb-2">
                   [Replace with image]
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  {content.imageSuggestion}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Recommended: 800x450px
-                </p>
+                <p className="text-xs text-muted-foreground">{content.imageSuggestion}</p>
+                <p className="text-xs text-muted-foreground mt-1">Recommended: 800x450px</p>
               </div>
             </div>
           </div>
@@ -110,7 +107,9 @@ function LoginContent() {
           <div className="space-y-4">
             {content.benefits.map((benefit, index) => (
               <div key={index} className="flex items-start">
-                <benefit.icon className={`w-6 h-6 ${content.accentColor} mr-3 flex-shrink-0 mt-0.5`} />
+                <benefit.icon
+                  className={`w-6 h-6 ${content.accentColor} mr-3 flex-shrink-0 mt-0.5`}
+                />
                 <p className="text-lg">{benefit.text}</p>
               </div>
             ))}
@@ -118,9 +117,7 @@ function LoginContent() {
 
           {/* Welcome back message */}
           <div className="pt-4 border-t">
-            <p className="text-lg font-semibold">
-              {content.welcomeBack}
-            </p>
+            <p className="text-lg font-semibold">{content.welcomeBack}</p>
           </div>
         </div>
       </div>
@@ -141,9 +138,8 @@ function LoginContent() {
               {role === 'affiliate'
                 ? 'Sign in to check your earnings and share your link'
                 : role === 'preparer'
-                ? 'Access your professional dashboard'
-                : 'Continue your tax filing journey'
-              }
+                  ? 'Access your professional dashboard'
+                  : 'Continue your tax filing journey'}
             </p>
           </div>
 
@@ -159,23 +155,37 @@ function LoginContent() {
                   role === 'affiliate' ? 'bg-yellow-500 hover:bg-yellow-600' : ''
                 }`,
                 footerActionLink: 'text-primary hover:text-primary/80',
-                formFieldInput__emailAddress: 'hidden',
-                formFieldInput__password: 'hidden',
-                formFieldLabel__emailAddress: 'hidden',
-                formFieldLabel__password: 'hidden',
-                identityPreviewEditButton: 'hidden',
               },
             }}
-            forceRedirectUrl="/dashboard"
+            afterSignInUrl="/dashboard"
+            fallbackRedirectUrl="/dashboard"
             signUpUrl="/auth/signup"
           />
 
           <div className="text-center text-sm text-muted-foreground">
             Don't have an account?{' '}
-            <a href={`/auth/signup${role ? `?role=${role}` : ''}`} className="text-primary hover:underline font-semibold">
+            <a
+              href={`/auth/signup${role ? `?role=${role}` : ''}`}
+              className="text-primary hover:underline font-semibold"
+            >
               Sign up
             </a>
           </div>
+
+          {/* Test Login Link (Development Only) */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mt-6 pt-6 border-t text-center">
+              <p className="text-xs text-muted-foreground mb-2">
+                🧪 Development Mode
+              </p>
+              <a
+                href="/auth/test-login"
+                className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline font-medium"
+              >
+                Use Test Login (Email/Password)
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -184,7 +194,9 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+    <Suspense
+      fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}
+    >
       <LoginContent />
     </Suspense>
   );

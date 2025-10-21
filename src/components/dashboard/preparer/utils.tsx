@@ -1,11 +1,4 @@
-import {
-  Clock,
-  AlertCircle,
-  Send,
-  CheckCircle,
-  XCircle,
-  FileText
-} from 'lucide-react';
+import { Clock, AlertCircle, Send, CheckCircle, XCircle, FileText } from 'lucide-react';
 
 export type ClientStatus = 'DRAFT' | 'IN_REVIEW' | 'FILED' | 'ACCEPTED' | 'REJECTED' | 'AMENDED';
 export type ClientPriority = 'HIGH' | 'MEDIUM' | 'LOW';

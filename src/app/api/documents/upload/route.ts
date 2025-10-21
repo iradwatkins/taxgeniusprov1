@@ -4,16 +4,23 @@ import { prisma } from '@/lib/prisma';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
-import { uploadRateLimit, getClientIdentifier, getUserIdentifier, getRateLimitHeaders, checkRateLimit } from '@/lib/rate-limit';
-import { logger } from '@/lib/logger'
+// Rate limiting temporarily disabled
+// import {
+//   uploadRateLimit,
+//   getClientIdentifier,
+//   getUserIdentifier,
+//   getRateLimitHeaders,
+//   checkRateLimit,
+// } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger';
 
 // Map form categories to DocumentType enum
 const CATEGORY_TO_TYPE: Record<string, string> = {
-  'w2': 'W2',
+  w2: 'W2',
   '1099': 'FORM_1099',
-  'receipts': 'RECEIPT',
-  'mortgage': 'OTHER',
-  'other': 'OTHER',
+  receipts: 'RECEIPT',
+  mortgage: 'OTHER',
+  other: 'OTHER',
 };
 
 /**
@@ -33,25 +40,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Rate limiting: 20 uploads per hour
-    const ip = getClientIdentifier(req);
-    const identifier = getUserIdentifier(userId, ip);
-    const rateLimitResult = await checkRateLimit(identifier, uploadRateLimit);
-
-    if (!rateLimitResult.success) {
-      return NextResponse.json(
-        {
-          error: 'Upload limit exceeded. Please try again later.',
-          retryAfter: rateLimitResult.retryAfter,
-          limit: rateLimitResult.limit,
-          reset: new Date(rateLimitResult.reset).toISOString()
-        },
-        {
-          status: 429,
-          headers: getRateLimitHeaders(rateLimitResult)
-        }
-      );
-    }
+    // Rate limiting: Temporarily disabled due to Redis compatibility issues
+    // TODO: Re-implement with a different rate limiting approach
+    // const ip = getClientIdentifier(req);
+    // const identifier = getUserIdentifier(userId, ip);
+    // const rateLimitResult = await checkRateLimit(identifier, uploadRateLimit);
+    //
+    // if (!rateLimitResult.success) {
+    //   return NextResponse.json(
+    //     {
+    //       error: 'Upload limit exceeded. Please try again later.',
+    //       retryAfter: rateLimitResult.retryAfter,
+    //       limit: rateLimitResult.limit,
+    //       reset: new Date(rateLimitResult.reset).toISOString(),
+    //     },
+    //     {
+    //       status: 429,
+    //       headers: getRateLimitHeaders(rateLimitResult),
+    //     }
+    //   );
+    // }
 
     // Get user's profile
     const profile = await prisma.profile.findUnique({
@@ -67,6 +75,15 @@ export async function POST(req: NextRequest) {
     const category = formData.get('category') as string;
     const taxReturnId = formData.get('taxReturnId') as string | null;
 
+    // Get tax year from form data or default to previous year
+    // Tax year defaults to previous year year-round (e.g., in 2026, default is 2025)
+    // Only changes on January 1st when calendar year rolls over
+    const currentYear = new Date().getFullYear();
+    const defaultTaxYear = currentYear - 1;
+    const taxYear = formData.get('taxYear')
+      ? parseInt(formData.get('taxYear') as string)
+      : defaultTaxYear;
+
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
@@ -75,8 +92,8 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create upload directory if it doesn't exist
-    const uploadDir = join(process.cwd(), 'uploads', 'documents', profile.id);
+    // Create upload directory with year subfolder: /uploads/documents/{profileId}/{taxYear}/
+    const uploadDir = join(process.cwd(), 'uploads', 'documents', profile.id, taxYear.toString());
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true });
     }
@@ -90,17 +107,19 @@ export async function POST(req: NextRequest) {
     // Save file to disk
     await writeFile(filePath, buffer);
 
-    // Save document record to database
+    // Save document record to database with new fields
     const document = await prisma.document.create({
       data: {
         profileId: profile.id,
         taxReturnId: taxReturnId || undefined,
         type: CATEGORY_TO_TYPE[category] || 'OTHER',
         fileName: file.name,
-        fileUrl: `/uploads/documents/${profile.id}/${fileName}`,
+        fileUrl: `/uploads/documents/${profile.id}/${taxYear}/${fileName}`,
         fileSize: file.size,
         mimeType: file.type,
         isEncrypted: false, // TODO: Implement encryption
+        taxYear: taxYear,
+        status: 'REVIEWED', // Default to REVIEWED for client uploads (no pending review needed until assigned to preparer)
         metadata: {
           category,
           uploadedAt: new Date().toISOString(),
@@ -115,15 +134,14 @@ export async function POST(req: NextRequest) {
         fileName: document.fileName,
         fileUrl: document.fileUrl,
         fileSize: document.fileSize,
+        taxYear: document.taxYear,
+        status: document.status,
         category,
       },
     });
   } catch (error) {
     logger.error('Error uploading document:', error);
-    return NextResponse.json(
-      { error: 'Failed to upload document' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to upload document' }, { status: 500 });
   }
 }
 
@@ -154,9 +172,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ documents });
   } catch (error) {
     logger.error('Error fetching documents:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch documents' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch documents' }, { status: 500 });
   }
 }

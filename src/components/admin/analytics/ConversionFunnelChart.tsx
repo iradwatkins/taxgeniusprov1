@@ -1,16 +1,16 @@
-'use client'
+'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { FunnelStage } from '@/lib/utils/analytics'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { FunnelStage } from '@/lib/utils/analytics';
 
 interface ConversionFunnelChartProps {
-  stages: FunnelStage[]
-  title?: string
-  subtitle?: string
-  loading?: boolean
-  className?: string
+  stages: FunnelStage[];
+  title?: string;
+  subtitle?: string;
+  loading?: boolean;
+  className?: string;
 }
 
 export function ConversionFunnelChart({
@@ -38,7 +38,7 @@ export function ConversionFunnelChart({
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (stages.length === 0) {
@@ -54,10 +54,10 @@ export function ConversionFunnelChart({
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
-  const maxValue = stages[0]?.value || 1
+  const maxValue = stages[0]?.value || 1;
 
   return (
     <Card className={className}>
@@ -68,8 +68,8 @@ export function ConversionFunnelChart({
       <CardContent>
         <div className="space-y-6">
           {stages.map((stage, index) => {
-            const widthPercentage = (stage.value / maxValue) * 100
-            const isLast = index === stages.length - 1
+            const widthPercentage = (stage.value / maxValue) * 100;
+            const isLast = index === stages.length - 1;
 
             return (
               <div key={stage.name} className="space-y-2">
@@ -83,9 +83,7 @@ export function ConversionFunnelChart({
                     <span className="text-sm font-medium">{stage.name}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-semibold">
-                      {stage.value.toLocaleString()}
-                    </span>
+                    <span className="text-sm font-semibold">{stage.value.toLocaleString()}</span>
                     <span className="text-xs text-muted-foreground w-12 text-right">
                       {stage.percentage.toFixed(1)}%
                     </span>
@@ -130,7 +128,7 @@ export function ConversionFunnelChart({
                   </div>
                 )}
               </div>
-            )
+            );
           })}
         </div>
 
@@ -147,5 +145,5 @@ export function ConversionFunnelChart({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

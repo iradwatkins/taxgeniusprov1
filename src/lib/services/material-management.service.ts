@@ -5,38 +5,36 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 6.2
  */
 
-import { prisma } from '../prisma'
-import type { MarketingLink, LinkType } from '@prisma/client'
+import { prisma } from '../prisma';
+import type { MarketingLink, LinkType } from '@prisma/client';
 import {
   generateQRCode,
   generateTrackingURL,
   generateMaterialTrackingCode,
-} from './qr-code.service'
+} from './qr-code.service';
 
 export interface CreateMaterialParams {
-  creatorId: string
-  creatorType: 'TAX_PREPARER' | 'REFERRER' | 'AFFILIATE' | 'ADMIN'
-  materialType: LinkType
-  campaignName: string
-  location?: string
-  notes?: string
-  targetPage?: string
-  userSlug?: string
-  brandColor?: string
+  creatorId: string;
+  creatorType: 'TAX_PREPARER' | 'REFERRER' | 'AFFILIATE' | 'ADMIN';
+  materialType: LinkType;
+  campaignName: string;
+  location?: string;
+  notes?: string;
+  targetPage?: string;
+  userSlug?: string;
+  brandColor?: string;
 }
 
 export interface MaterialWithStats extends MarketingLink {
-  totalClicks: number
-  totalConversions: number
-  conversionRate: number
+  totalClicks: number;
+  totalConversions: number;
+  conversionRate: number;
 }
 
 /**
  * Create a new marketing material with QR code
  */
-export async function createMaterial(
-  params: CreateMaterialParams
-): Promise<MarketingLink> {
+export async function createMaterial(params: CreateMaterialParams): Promise<MarketingLink> {
   const {
     creatorId,
     creatorType,
@@ -47,13 +45,13 @@ export async function createMaterial(
     targetPage = '/start-filing',
     userSlug,
     brandColor,
-  } = params
+  } = params;
 
   // Generate unique tracking code
   const trackingCode = generateMaterialTrackingCode({
     userSlug,
     materialType,
-  })
+  });
 
   // Create the marketing link first to get the ID
   const material = await prisma.marketingLink.create({
@@ -72,7 +70,7 @@ export async function createMaterial(
       // Temporary URL, will be updated after QR generation
       url: `https://taxgeniuspro.tax${targetPage}`,
     },
-  })
+  });
 
   // Generate tracking URL with UTM parameters
   const trackingURL = generateTrackingURL({
@@ -82,7 +80,7 @@ export async function createMaterial(
     materialType,
     campaignName,
     location,
-  })
+  });
 
   // Generate QR code
   const qrResult = await generateQRCode({
@@ -91,7 +89,7 @@ export async function createMaterial(
     format: 'PNG',
     size: 512,
     brandColor,
-  })
+  });
 
   // Update material with final URL and QR code
   const updatedMaterial = await prisma.marketingLink.update({
@@ -100,9 +98,9 @@ export async function createMaterial(
       url: trackingURL,
       qrCodeImageUrl: qrResult.dataUrl,
     },
-  })
+  });
 
-  return updatedMaterial
+  return updatedMaterial;
 }
 
 /**
@@ -111,17 +109,17 @@ export async function createMaterial(
 export async function getCreatorMaterials(
   creatorId: string,
   options?: {
-    limit?: number
-    offset?: number
-    includeInactive?: boolean
+    limit?: number;
+    offset?: number;
+    includeInactive?: boolean;
   }
 ): Promise<{ materials: MaterialWithStats[]; total: number }> {
-  const { limit = 50, offset = 0, includeInactive = false } = options || {}
+  const { limit = 50, offset = 0, includeInactive = false } = options || {};
 
   const where = {
     creatorId,
     ...(includeInactive ? {} : { isActive: true }),
-  }
+  };
 
   const [materials, total] = await Promise.all([
     prisma.marketingLink.findMany({
@@ -131,7 +129,7 @@ export async function getCreatorMaterials(
       skip: offset,
     }),
     prisma.marketingLink.count({ where }),
-  ])
+  ]);
 
   // Calculate stats for each material
   const materialsWithStats: MaterialWithStats[] = materials.map((material) => ({
@@ -139,23 +137,21 @@ export async function getCreatorMaterials(
     totalClicks: material.clicks,
     totalConversions: material.conversions,
     conversionRate: material.clicks > 0 ? (material.conversions / material.clicks) * 100 : 0,
-  }))
+  }));
 
   return {
     materials: materialsWithStats,
     total,
-  }
+  };
 }
 
 /**
  * Get a single material by ID
  */
-export async function getMaterialById(
-  materialId: string
-): Promise<MarketingLink | null> {
+export async function getMaterialById(materialId: string): Promise<MarketingLink | null> {
   return await prisma.marketingLink.findUnique({
     where: { id: materialId },
-  })
+  });
 }
 
 /**
@@ -164,18 +160,18 @@ export async function getMaterialById(
 export async function updateMaterial(
   materialId: string,
   updates: {
-    title?: string
-    campaign?: string
-    location?: string
-    notes?: string
-    dateExpired?: Date
-    isActive?: boolean
+    title?: string;
+    campaign?: string;
+    location?: string;
+    notes?: string;
+    dateExpired?: Date;
+    isActive?: boolean;
   }
 ): Promise<MarketingLink> {
   return await prisma.marketingLink.update({
     where: { id: materialId },
     data: updates,
-  })
+  });
 }
 
 /**
@@ -185,7 +181,7 @@ export async function deleteMaterial(materialId: string): Promise<MarketingLink>
   return await prisma.marketingLink.update({
     where: { id: materialId },
     data: { isActive: false },
-  })
+  });
 }
 
 /**
@@ -194,7 +190,7 @@ export async function deleteMaterial(materialId: string): Promise<MarketingLink>
 export async function permanentlyDeleteMaterial(materialId: string): Promise<void> {
   await prisma.marketingLink.delete({
     where: { id: materialId },
-  })
+  });
 }
 
 /**
@@ -206,27 +202,27 @@ export async function incrementPrintCount(materialId: string): Promise<void> {
     data: {
       printCount: { increment: 1 },
     },
-  })
+  });
 }
 
 /**
  * Get material performance summary
  */
 export async function getMaterialPerformance(materialId: string): Promise<{
-  clicks: number
-  intakeStarts: number
-  intakeCompletes: number
-  returnsFiled: number
-  intakeConversionRate: number
-  completeConversionRate: number
-  filedConversionRate: number
+  clicks: number;
+  intakeStarts: number;
+  intakeCompletes: number;
+  returnsFiled: number;
+  intakeConversionRate: number;
+  completeConversionRate: number;
+  filedConversionRate: number;
 }> {
   const material = await prisma.marketingLink.findUnique({
     where: { id: materialId },
-  })
+  });
 
   if (!material) {
-    throw new Error('Material not found')
+    throw new Error('Material not found');
   }
 
   return {
@@ -237,7 +233,7 @@ export async function getMaterialPerformance(materialId: string): Promise<{
     intakeConversionRate: material.intakeConversionRate || 0,
     completeConversionRate: material.completeConversionRate || 0,
     filedConversionRate: material.filedConversionRate || 0,
-  }
+  };
 }
 
 /**
@@ -246,17 +242,17 @@ export async function getMaterialPerformance(materialId: string): Promise<{
 export async function getTopMaterials(
   creatorId: string,
   options?: {
-    limit?: number
-    sortBy?: 'clicks' | 'conversions' | 'conversion_rate'
+    limit?: number;
+    sortBy?: 'clicks' | 'conversions' | 'conversion_rate';
   }
 ): Promise<MaterialWithStats[]> {
-  const { limit = 15, sortBy = 'conversions' } = options || {}
+  const { limit = 15, sortBy = 'conversions' } = options || {};
 
   const orderByMap = {
     clicks: { clicks: 'desc' as const },
     conversions: { conversions: 'desc' as const },
     conversion_rate: { conversionRate: 'desc' as const },
-  }
+  };
 
   const materials = await prisma.marketingLink.findMany({
     where: {
@@ -265,14 +261,14 @@ export async function getTopMaterials(
     },
     orderBy: orderByMap[sortBy],
     take: limit,
-  })
+  });
 
   return materials.map((material) => ({
     ...material,
     totalClicks: material.clicks,
     totalConversions: material.conversions,
     conversionRate: material.clicks > 0 ? (material.conversions / material.clicks) * 100 : 0,
-  }))
+  }));
 }
 
 /**
@@ -287,11 +283,11 @@ export async function checkMaterialLimit(
       creatorId,
       isActive: true,
     },
-  })
+  });
 
   return {
     canCreate: count < limit,
     current: count,
     limit,
-  }
+  };
 }

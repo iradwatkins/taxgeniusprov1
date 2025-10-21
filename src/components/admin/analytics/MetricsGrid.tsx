@@ -1,30 +1,31 @@
-'use client'
+'use client';
 
-import { type LucideIcon } from 'lucide-react'
-import { LeadMetricCard } from './LeadMetricCard'
+import { type LucideIcon } from 'lucide-react';
+import { LeadMetricCard } from './LeadMetricCard';
 
 export interface MetricCardData {
-  title: string
-  value: number | string
-  growthRate?: number
-  icon: LucideIcon
-  color?: 'blue' | 'green' | 'purple' | 'yellow' | 'orange' | 'gray'
-  format?: 'number' | 'currency' | 'percent'
-  subtitle?: string
-  loading?: boolean
+  title: string;
+  value: number | string;
+  growthRate?: number;
+  icon: LucideIcon;
+  color?: 'blue' | 'green' | 'purple' | 'yellow' | 'orange' | 'gray';
+  format?: 'number' | 'currency' | 'percent';
+  subtitle?: string;
+  loading?: boolean;
 }
 
 interface MetricsGridProps {
-  metrics: MetricCardData[]
-  columns?: 2 | 3 | 4
+  metrics: MetricCardData[];
+  columns?: 2 | 3 | 4;
 }
 
 export function MetricsGrid({ metrics, columns = 4 }: MetricsGridProps) {
-  const gridClass = columns === 2
-    ? 'md:grid-cols-2'
-    : columns === 3
-    ? 'md:grid-cols-2 lg:grid-cols-3'
-    : 'md:grid-cols-2 lg:grid-cols-4'
+  const gridClass =
+    columns === 2
+      ? 'md:grid-cols-2'
+      : columns === 3
+        ? 'md:grid-cols-2 lg:grid-cols-3'
+        : 'md:grid-cols-2 lg:grid-cols-4';
 
   return (
     <div className={`grid gap-4 ${gridClass}`}>
@@ -42,5 +43,5 @@ export function MetricsGrid({ metrics, columns = 4 }: MetricsGridProps) {
         />
       ))}
     </div>
-  )
+  );
 }

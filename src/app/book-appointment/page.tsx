@@ -5,9 +5,7 @@ export default function BookAppointmentPage() {
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 py-12 px-4">
       <div className="container mx-auto max-w-4xl">
         <div className="text-center mb-8">
-          <h1 className="text-4xl lg:text-5xl font-bold mb-4">
-            Book Your Appointment
-          </h1>
+          <h1 className="text-4xl lg:text-5xl font-bold mb-4">Book Your Appointment</h1>
           <p className="text-xl text-muted-foreground">
             Meet with a tax professional • Free consultation • No signup required
           </p>

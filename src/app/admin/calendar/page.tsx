@@ -1,10 +1,10 @@
 import { redirect } from 'next/navigation';
 import { currentUser } from '@clerk/nextjs/server';
-import { getUserPermissions, UserRole } from '@/lib/permissions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getUserPermissions, UserRole, type UserPermissions } from '@/lib/permissions';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Calendar,
   Clock,
@@ -19,7 +19,7 @@ import {
   User,
 } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 const statusColors: Record<string, string> = {
   REQUESTED: 'secondary',
@@ -44,13 +44,14 @@ export default async function CalendarPage() {
   if (!user) redirect('/auth/login');
 
   const role = user.publicMetadata?.role as UserRole | undefined;
-  const customPermissions = user.publicMetadata?.permissions as any;
+  const customPermissions = user.publicMetadata?.permissions as Partial<UserPermissions> | undefined;
   const permissions = getUserPermissions(role || 'client', customPermissions);
 
   if (!permissions.calendar) redirect('/forbidden');
 
   // Fetch appointments
-  let appointments: any[] = []
+  type AppointmentWithUser = Awaited<ReturnType<typeof prisma.appointment.findMany>>[number];
+  let appointments: AppointmentWithUser[] = [];
 
   try {
     appointments = await prisma.appointment.findMany({
@@ -60,7 +61,7 @@ export default async function CalendarPage() {
       take: 50, // Limit for performance
     });
   } catch (error) {
-    logger.error('Error fetching appointments:', error)
+    logger.error('Error fetching appointments:', error);
     // Continue with empty array - will show "No appointments scheduled" message
   }
 
@@ -70,19 +71,19 @@ export default async function CalendarPage() {
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const todaysAppointments = appointments.filter(apt => {
+  const todaysAppointments = appointments.filter((apt) => {
     if (!apt.scheduledFor) return false;
     return apt.scheduledFor >= today && apt.scheduledFor < tomorrow;
   });
 
   // Get upcoming appointments
-  const upcomingAppointments = appointments.filter(apt => {
+  const upcomingAppointments = appointments.filter((apt) => {
     if (!apt.scheduledFor) return false;
     return apt.scheduledFor >= tomorrow;
   });
 
   // Get requested appointments (need scheduling)
-  const requestedAppointments = appointments.filter(apt => apt.status === 'REQUESTED');
+  const requestedAppointments = appointments.filter((apt) => apt.status === 'REQUESTED');
 
   return (
     <div className="min-h-screen bg-background">
@@ -98,9 +99,7 @@ export default async function CalendarPage() {
               New Appointment
             </Button>
           </div>
-          <p className="text-muted-foreground">
-            Manage appointments and schedules
-          </p>
+          <p className="text-muted-foreground">Manage appointments and schedules</p>
         </div>
 
         {/* Stats */}
@@ -214,9 +213,7 @@ export default async function CalendarPage() {
                             <div className="flex items-center gap-2">
                               {apt.type && typeIcons[apt.type]}
                               <p className="font-medium">{apt.subject || apt.type}</p>
-                              <Badge variant={statusColors[apt.status] as any}>
-                                {apt.status}
-                              </Badge>
+                              <Badge variant={statusColors[apt.status] as any}>{apt.status}</Badge>
                             </div>
                             <div className="flex items-center gap-4 text-sm text-muted-foreground">
                               <div className="flex items-center gap-1">
@@ -249,8 +246,12 @@ export default async function CalendarPage() {
                             )}
                           </div>
                           <div className="space-x-2">
-                            <Button variant="outline" size="sm">View</Button>
-                            <Button variant="outline" size="sm">Edit</Button>
+                            <Button variant="outline" size="sm">
+                              View
+                            </Button>
+                            <Button variant="outline" size="sm">
+                              Edit
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -276,7 +277,10 @@ export default async function CalendarPage() {
                     </div>
                   ) : (
                     requestedAppointments.map((apt) => (
-                      <div key={apt.id} className="border rounded-lg p-4 bg-yellow-50 dark:bg-yellow-950/20">
+                      <div
+                        key={apt.id}
+                        className="border rounded-lg p-4 bg-yellow-50 dark:bg-yellow-950/20"
+                      >
                         <div className="flex items-start justify-between">
                           <div className="space-y-2">
                             <div className="flex items-center gap-2">
@@ -296,7 +300,9 @@ export default async function CalendarPage() {
                           </div>
                           <div className="space-x-2">
                             <Button size="sm">Schedule</Button>
-                            <Button size="sm" variant="outline">Contact</Button>
+                            <Button size="sm" variant="outline">
+                              Contact
+                            </Button>
                           </div>
                         </div>
                       </div>

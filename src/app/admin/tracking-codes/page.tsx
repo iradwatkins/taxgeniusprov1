@@ -1,42 +1,32 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { logger } from '@/lib/logger'
-import {
-  QrCode,
-  Users,
-  Search,
-  ExternalLink,
-  Copy,
-  Filter,
-} from 'lucide-react'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/prisma';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { logger } from '@/lib/logger';
+import { QrCode, Users, Search, ExternalLink, Copy, Filter } from 'lucide-react';
 
 export const metadata = {
   title: 'Tracking Codes Management | Tax Genius Pro',
   description: 'View and manage all user tracking codes',
-}
+};
 
 async function checkAdminAccess() {
-  const user = await currentUser()
-  if (!user) return { hasAccess: false }
+  const user = await currentUser();
+  if (!user) return { hasAccess: false };
 
-  const role = user.publicMetadata?.role as string
-  const hasAccess = role === 'admin' || role === 'super_admin'
+  const role = user.publicMetadata?.role as string;
+  const hasAccess = role === 'admin' || role === 'super_admin';
 
-  return { hasAccess, userId: user.id }
+  return { hasAccess, userId: user.id };
 }
 
 async function getAllTrackingCodes() {
   // Fetch all tracking codes with user details
   const profiles = await prisma.profile.findMany({
     where: {
-      OR: [
-        { trackingCode: { not: null } },
-        { customTrackingCode: { not: null } },
-      ],
+      OR: [{ trackingCode: { not: null } }, { customTrackingCode: { not: null } }],
     },
     select: {
       id: true,
@@ -51,22 +41,22 @@ async function getAllTrackingCodes() {
     orderBy: {
       createdAt: 'desc',
     },
-  })
+  });
 
   // Get Clerk user details for each profile
   const trackingCodes = await Promise.all(
     profiles.map(async (profile) => {
-      let userName = 'Unknown User'
-      let userEmail = 'unknown@example.com'
+      let userName = 'Unknown User';
+      let userEmail = 'unknown@example.com';
 
       if (profile.clerkUserId) {
         try {
           // In a real implementation, you'd fetch from Clerk API
           // For now, we'll use placeholder data
-          userName = `User ${profile.clerkUserId.substring(0, 8)}`
-          userEmail = `user${profile.clerkUserId.substring(0, 8)}@example.com`
+          userName = `User ${profile.clerkUserId.substring(0, 8)}`;
+          userEmail = `user${profile.clerkUserId.substring(0, 8)}@example.com`;
         } catch (error) {
-          logger.error('Error fetching user details:', error)
+          logger.error('Error fetching user details:', error);
         }
       }
 
@@ -82,31 +72,34 @@ async function getAllTrackingCodes() {
         isCustomized: profile.trackingCodeChanged,
         createdAt: profile.createdAt,
         updatedAt: profile.updatedAt,
-      }
+      };
     })
-  )
+  );
 
-  return trackingCodes
+  return trackingCodes;
 }
 
 export default async function AdminTrackingCodesPage() {
-  const { hasAccess } = await checkAdminAccess()
+  const { hasAccess } = await checkAdminAccess();
 
   if (!hasAccess) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
-  const trackingCodes = await getAllTrackingCodes()
+  const trackingCodes = await getAllTrackingCodes();
 
   // Calculate statistics
-  const totalCodes = trackingCodes.length
-  const customizedCodes = trackingCodes.filter((tc) => tc.isCustomized).length
-  const autoCodes = totalCodes - customizedCodes
+  const totalCodes = trackingCodes.length;
+  const customizedCodes = trackingCodes.filter((tc) => tc.isCustomized).length;
+  const autoCodes = totalCodes - customizedCodes;
 
-  const roleBreakdown = trackingCodes.reduce((acc, tc) => {
-    acc[tc.role] = (acc[tc.role] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
+  const roleBreakdown = trackingCodes.reduce(
+    (acc, tc) => {
+      acc[tc.role] = (acc[tc.role] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 
   return (
     <div className="p-6 space-y-6">
@@ -137,7 +130,8 @@ export default async function AdminTrackingCodesPage() {
           <CardContent>
             <div className="text-2xl font-bold text-primary">{customizedCodes}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              {totalCodes > 0 ? ((customizedCodes / totalCodes) * 100).toFixed(1) : 0}% customization rate
+              {totalCodes > 0 ? ((customizedCodes / totalCodes) * 100).toFixed(1) : 0}%
+              customization rate
             </p>
           </CardContent>
         </Card>
@@ -175,18 +169,12 @@ export default async function AdminTrackingCodesPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>All Tracking Codes</CardTitle>
-              <CardDescription>
-                View tracking codes for all users in the system
-              </CardDescription>
+              <CardDescription>View tracking codes for all users in the system</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search users..."
-                  className="pl-8 w-[250px]"
-                  disabled
-                />
+                <Input placeholder="Search users..." className="pl-8 w-[250px]" disabled />
               </div>
               <button
                 className="inline-flex items-center gap-2 px-3 py-2 text-sm border rounded-md hover:bg-accent transition-colors"
@@ -274,7 +262,9 @@ export default async function AdminTrackingCodesPage() {
       {/* Coming Soon - Performance Analytics */}
       <Card className="border-dashed">
         <CardHeader>
-          <CardTitle className="text-muted-foreground">Performance Analytics (Coming Soon)</CardTitle>
+          <CardTitle className="text-muted-foreground">
+            Performance Analytics (Coming Soon)
+          </CardTitle>
           <CardDescription>
             Track aggregate performance metrics across all tracking codes
           </CardDescription>
@@ -301,5 +291,5 @@ export default async function AdminTrackingCodesPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

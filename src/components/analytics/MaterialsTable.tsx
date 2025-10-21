@@ -7,10 +7,10 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 6.4
  */
 
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useMyTopMaterials } from '@/hooks/useMyMaterials'
+import { useState } from 'react';
+import { useMyTopMaterials } from '@/hooks/useMyMaterials';
 import {
   Table,
   TableBody,
@@ -18,17 +18,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
-import { ArrowUpDown, Eye } from 'lucide-react'
-import { ExportButton } from './ExportButton'
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ArrowUpDown, Eye } from 'lucide-react';
+import { ExportButton } from './ExportButton';
 
 interface MaterialsTableProps {
-  limit?: number
-  dateRange?: string
-  onViewMaterial?: (materialId: string) => void
+  limit?: number;
+  dateRange?: string;
+  onViewMaterial?: (materialId: string) => void;
 }
 
 export function MaterialsTable({
@@ -36,27 +36,27 @@ export function MaterialsTable({
   dateRange = 'all',
   onViewMaterial,
 }: MaterialsTableProps) {
-  const [sortBy, setSortBy] = useState('returnsFiled')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [sortBy, setSortBy] = useState('returnsFiled');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const { data, isLoading, error } = useMyTopMaterials({
     limit,
     sortBy,
     sortOrder,
     dateRange,
-  })
+  });
 
   const handleSort = (column: string) => {
     if (sortBy === column) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     } else {
-      setSortBy(column)
-      setSortOrder('desc')
+      setSortBy(column);
+      setSortOrder('desc');
     }
-  }
+  };
 
   if (isLoading) {
-    return <TableSkeleton />
+    return <TableSkeleton />;
   }
 
   if (error) {
@@ -64,17 +64,17 @@ export function MaterialsTable({
       <div className="text-center py-8 text-muted-foreground">
         <p>Failed to load materials. Please try again.</p>
       </div>
-    )
+    );
   }
 
-  const materials = data?.materials || []
+  const materials = data?.materials || [];
 
   if (materials.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
         <p>No materials found. Create your first material to get started!</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -84,7 +84,7 @@ export function MaterialsTable({
           {limit === 15 ? 'Top 15 Materials' : `Top ${limit} Materials`}
         </h3>
         <ExportButton
-          data={materials.map(m => ({
+          data={materials.map((m) => ({
             id: m.id,
             title: m.title,
             type: m.type,
@@ -98,7 +98,7 @@ export function MaterialsTable({
             completeConversionRate: m.metrics.completeConversionRate,
             filedConversionRate: m.metrics.filedConversionRate,
             lastActivity: m.lastActivity,
-            createdAt: m.createdAt
+            createdAt: m.createdAt,
           }))}
           type="materials"
           dateRange={dateRange}
@@ -157,9 +157,7 @@ export function MaterialsTable({
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
                     {idx < 3 && (
-                      <span className="text-lg">
-                        {idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'}
-                      </span>
+                      <span className="text-lg">{idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'}</span>
                     )}
                     <div className="flex flex-col">
                       <span className="font-medium">{material.title}</span>
@@ -195,26 +193,20 @@ export function MaterialsTable({
                       material.metrics.conversionRate > 10
                         ? 'default'
                         : material.metrics.conversionRate > 5
-                        ? 'secondary'
-                        : 'outline'
+                          ? 'secondary'
+                          : 'outline'
                     }
                   >
                     {material.metrics.conversionRate.toFixed(1)}%
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant={material.status === 'ACTIVE' ? 'default' : 'secondary'}
-                  >
+                  <Badge variant={material.status === 'ACTIVE' ? 'default' : 'secondary'}>
                     {material.status}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onViewMaterial?.(material.id)}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => onViewMaterial?.(material.id)}>
                     <Eye className="w-4 h-4" />
                   </Button>
                 </TableCell>
@@ -233,14 +225,14 @@ export function MaterialsTable({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 function formatMaterialType(type: string): string {
   return type
     .replace(/_/g, ' ')
     .toLowerCase()
-    .replace(/\b\w/g, (l) => l.toUpperCase())
+    .replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
 function TableSkeleton() {
@@ -305,5 +297,5 @@ function TableSkeleton() {
         </Table>
       </div>
     </div>
-  )
+  );
 }

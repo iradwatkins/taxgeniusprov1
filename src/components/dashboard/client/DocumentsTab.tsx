@@ -5,7 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -24,7 +30,7 @@ import {
   Filter,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
 } from 'lucide-react';
 
 interface Document {
@@ -49,7 +55,7 @@ function formatFileSize(bytes: number): string {
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 }
 
 function getStatusIcon(status: Document['status']) {
@@ -81,7 +87,7 @@ export function DocumentsTab({ documents, onUpload, onDownload, onDelete }: Docu
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
 
-  const filteredDocuments = documents.filter(doc => {
+  const filteredDocuments = documents.filter((doc) => {
     const matchesSearch = doc.fileName.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = typeFilter === 'ALL' || doc.type === typeFilter;
     const matchesStatus = statusFilter === 'ALL' || doc.status === statusFilter;
@@ -197,18 +203,10 @@ export function DocumentsTab({ documents, onUpload, onDownload, onDelete }: Docu
                         <Button variant="ghost" size="sm">
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onDownload?.(doc)}
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => onDownload?.(doc)}>
                           <Download className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onDelete?.(doc.id)}
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => onDelete?.(doc.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

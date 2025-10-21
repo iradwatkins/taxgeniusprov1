@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { customAlphabet } from 'nanoid';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 // Generate unique referral codes
 const nanoid = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 8);
@@ -11,19 +11,11 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const {
-      firstName,
-      lastName,
-      email,
-      phone,
-    } = body;
+    const { firstName, lastName, email, phone } = body;
 
     // Validate required fields
     if (!firstName || !lastName || !email || !phone) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     // Check if email already exists
@@ -78,10 +70,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     logger.error('Error creating referral signup:', error);
-    return NextResponse.json(
-      { error: 'Failed to create referral signup' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to create referral signup' }, { status: 500 });
   }
 }
 
@@ -120,9 +109,6 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     logger.error('Error fetching referrer:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch referrer' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch referrer' }, { status: 500 });
   }
 }

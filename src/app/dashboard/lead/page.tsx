@@ -1,34 +1,36 @@
-'use client'
+'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Clock, CheckCircle2, Mail, Phone, AlertCircle } from 'lucide-react'
-import { useUser } from '@clerk/nextjs'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Clock, CheckCircle2, Mail, Phone, AlertCircle } from 'lucide-react';
+import { useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function LeadDashboard() {
-  const { user, isLoaded } = useUser()
-  const router = useRouter()
+  const { user, isLoaded } = useUser();
+  const router = useRouter();
 
-  // Redirect if user is no longer a LEAD (role changed)
+  // Redirect if user is no longer a lead (role changed)
   useEffect(() => {
     if (isLoaded && user) {
-      const role = user.publicMetadata?.role as string
-      if (role && role !== 'LEAD') {
+      const role = user.publicMetadata?.role as string;
+      // Normalize role to lowercase to handle any case inconsistencies
+      const normalizedRole = role?.toLowerCase();
+      if (normalizedRole && normalizedRole !== 'lead') {
         // Role was changed, redirect to appropriate dashboard
         const dashboardMap: Record<string, string> = {
-          CLIENT: '/dashboard/client',
-          AFFILIATE: '/dashboard/affiliate',
-          TAX_PREPARER: '/dashboard/tax-preparer',
-          ADMIN: '/dashboard/admin',
-          SUPER_ADMIN: '/dashboard/admin'
-        }
-        router.push(dashboardMap[role] || '/dashboard')
+          client: '/dashboard/client',
+          affiliate: '/dashboard/affiliate',
+          tax_preparer: '/dashboard/tax-preparer',
+          admin: '/dashboard/admin',
+          super_admin: '/dashboard/admin',
+        };
+        router.push(dashboardMap[normalizedRole] || '/dashboard');
       }
     }
-  }, [isLoaded, user, router])
+  }, [isLoaded, user, router]);
 
   if (!isLoaded) {
     return (
@@ -38,7 +40,7 @@ export default function LeadDashboard() {
           <p className="mt-4 text-muted-foreground">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -52,9 +54,7 @@ export default function LeadDashboard() {
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">
             Account Pending Approval
           </h1>
-          <p className="text-lg text-muted-foreground">
-            Welcome to TaxGeniusPro!
-          </p>
+          <p className="text-lg text-muted-foreground">Welcome to TaxGeniusPro!</p>
         </div>
 
         {/* Main Status Card */}
@@ -64,17 +64,15 @@ export default function LeadDashboard() {
               <AlertCircle className="h-5 w-5 text-yellow-600" />
               Application Under Review
             </CardTitle>
-            <CardDescription>
-              Our team is currently reviewing your application
-            </CardDescription>
+            <CardDescription>Our team is currently reviewing your application</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Alert>
               <CheckCircle2 className="h-4 w-4" />
               <AlertTitle>Application Received</AlertTitle>
               <AlertDescription>
-                Thank you for signing up! Your account has been created and is currently pending approval
-                from our administrative team.
+                Thank you for signing up! Your account has been created and is currently pending
+                approval from our administrative team.
               </AlertDescription>
             </Alert>
 
@@ -139,8 +137,9 @@ export default function LeadDashboard() {
                 <div>
                   <h3 className="font-medium">Email Notification</h3>
                   <p className="text-sm text-muted-foreground">
-                    You'll receive an email at <span className="font-medium">{user?.emailAddresses[0]?.emailAddress}</span> once
-                    your account has been reviewed.
+                    You'll receive an email at{' '}
+                    <span className="font-medium">{user?.emailAddresses[0]?.emailAddress}</span>{' '}
+                    once your account has been reviewed.
                   </p>
                 </div>
               </div>
@@ -161,7 +160,10 @@ export default function LeadDashboard() {
                     </p>
                     <p className="text-sm">
                       <strong>Email:</strong>{' '}
-                      <a href="mailto:support@taxgeniuspro.com" className="text-primary hover:underline">
+                      <a
+                        href="mailto:support@taxgeniuspro.com"
+                        className="text-primary hover:underline"
+                      >
                         support@taxgeniuspro.com
                       </a>
                     </p>
@@ -193,20 +195,19 @@ export default function LeadDashboard() {
           <Button variant="outline" onClick={() => router.push('/')}>
             Return to Homepage
           </Button>
-          <Button onClick={() => window.location.reload()}>
-            Check Status
-          </Button>
+          <Button onClick={() => window.location.reload()}>Check Status</Button>
         </div>
 
         {/* Footer Note */}
         <p className="text-center text-sm text-muted-foreground mt-8">
-          Account created on {new Date().toLocaleDateString('en-US', {
+          Account created on{' '}
+          {new Date().toLocaleDateString('en-US', {
             month: 'long',
             day: 'numeric',
-            year: 'numeric'
+            year: 'numeric',
           })}
         </p>
       </div>
     </div>
-  )
+  );
 }

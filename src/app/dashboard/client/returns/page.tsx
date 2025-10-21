@@ -1,27 +1,27 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { FileText, Download, Eye, Calendar, DollarSign } from 'lucide-react'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { FileText, Download, Eye, Calendar, DollarSign } from 'lucide-react';
 
 export const metadata = {
   title: 'My Returns | Tax Genius Pro',
   description: 'View your tax returns',
-}
+};
 
 async function isClient() {
-  const user = await currentUser()
-  if (!user) return false
-  const role = user.publicMetadata?.role
-  return role === 'client' || role === 'admin'
+  const user = await currentUser();
+  if (!user) return false;
+  const role = user.publicMetadata?.role;
+  return role === 'client' || role === 'admin';
 }
 
 export default async function ClientReturnsPage() {
-  const userIsClient = await isClient()
+  const userIsClient = await isClient();
 
   if (!userIsClient) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
   // Mock tax returns data
@@ -50,20 +50,20 @@ export default async function ClientReturnsPage() {
       refundAmount: 2100,
       preparer: 'Michael Chen, CPA',
     },
-  ]
+  ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Filed':
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
       case 'In Progress':
-        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+        return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
       case 'Pending':
-        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
+        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
       default:
-        return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300'
+        return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300';
     }
-  }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -71,9 +71,7 @@ export default async function ClientReturnsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">My Tax Returns</h1>
-          <p className="text-muted-foreground mt-1">
-            View and download your tax returns
-          </p>
+          <p className="text-muted-foreground mt-1">View and download your tax returns</p>
         </div>
         <Button>
           <FileText className="w-4 h-4 mr-2" />
@@ -89,10 +87,10 @@ export default async function ClientReturnsPage() {
             <DollarSign className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${returns.reduce((acc, r) => acc + r.refundAmount, 0).toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              Across {returns.length} years
-            </p>
+            <div className="text-2xl font-bold">
+              ${returns.reduce((acc, r) => acc + r.refundAmount, 0).toLocaleString()}
+            </div>
+            <p className="text-xs text-muted-foreground">Across {returns.length} years</p>
           </CardContent>
         </Card>
 
@@ -103,9 +101,7 @@ export default async function ClientReturnsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{returns.length}</div>
-            <p className="text-xs text-muted-foreground">
-              All successfully filed
-            </p>
+            <p className="text-xs text-muted-foreground">All successfully filed</p>
           </CardContent>
         </Card>
 
@@ -156,9 +152,7 @@ export default async function ClientReturnsPage() {
                     <p className="text-sm font-medium text-green-600">
                       Refund: ${taxReturn.refundAmount.toLocaleString()}
                     </p>
-                    <Badge className={getStatusColor(taxReturn.status)}>
-                      {taxReturn.status}
-                    </Badge>
+                    <Badge className={getStatusColor(taxReturn.status)}>{taxReturn.status}</Badge>
                   </div>
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm">
@@ -177,5 +171,5 @@ export default async function ClientReturnsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

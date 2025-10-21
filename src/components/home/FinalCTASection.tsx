@@ -1,18 +1,15 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from '@/components/ui/button';
 import { CheckCircle, Shield, Award, TrendingUp } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 const trustIndicators = [
-  { icon: CheckCircle, text: "Licensed CPAs", color: "text-success" },
-  { icon: Shield, text: "100% Secure", color: "text-success" },
-  { icon: Award, text: "BBB A+ Rated", color: "text-success" }
+  { icon: CheckCircle, text: 'Licensed CPAs', color: 'text-success' },
+  { icon: Shield, text: '100% Secure', color: 'text-success' },
+  { icon: Award, text: 'BBB A+ Rated', color: 'text-success' },
 ];
 
 export function FinalCTASection() {
@@ -57,48 +54,24 @@ export function FinalCTASection() {
             </div>
           </motion.div>
 
-          {/* Right Side - Content & Form */}
+          {/* Right Side - Content & CTAs */}
           <div className="order-1 lg:order-2 space-y-8">
             <div className="space-y-4">
               <h2 className="text-3xl lg:text-4xl font-bold">Ready to Get Started?</h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                Schedule a free consultation with a licensed CPA. No obligation, no pressure.
+                File your taxes online in minutes, or schedule a free consultation with a licensed CPA.
               </p>
             </div>
 
-            {/* Contact Form */}
-            <Card className="border-2">
-              <CardHeader>
-                <CardTitle className="text-xl">Request Free Consultation</CardTitle>
-                <CardDescription>We'll contact you within 24 hours</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="cta-name">Full Name</Label>
-                  <Input id="cta-name" placeholder="John Doe" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cta-email">Email Address</Label>
-                  <Input id="cta-email" type="email" placeholder="john@example.com" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cta-phone">Phone Number</Label>
-                  <Input id="cta-phone" type="tel" placeholder="(555) 123-4567" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cta-time">Best Time to Call</Label>
-                  <Input id="cta-time" placeholder="Morning, Afternoon, Evening" />
-                </div>
-                <Button variant="professional" size="lg" className="w-full" asChild>
-                  <Link href="/start-filing">
-                    Request Free Consultation
-                  </Link>
-                </Button>
-                <p className="text-xs text-center text-muted-foreground">
-                  No credit card required. No obligation.
-                </p>
-              </CardContent>
-            </Card>
+            {/* CTA Buttons */}
+            <div className="space-y-4">
+              <Button variant="professional" size="lg" className="w-full" asChild>
+                <Link href="/start-filing/form">File Your Tax Return Online</Link>
+              </Button>
+              <Button variant="outline" size="lg" className="w-full" asChild>
+                <Link href="/book-appointment">Schedule Free Consultation</Link>
+              </Button>
+            </div>
 
             {/* Trust Indicators */}
             <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
@@ -109,6 +82,18 @@ export function FinalCTASection() {
                 </div>
               ))}
             </div>
+
+            <p className="text-sm text-muted-foreground text-center lg:text-left">
+              Have questions? Call us at{' '}
+              <Link href="tel:+14046271015" className="text-primary hover:underline">
+                (404) 627-1015
+              </Link>{' '}
+              or{' '}
+              <Link href="/contact" className="text-primary hover:underline">
+                contact us online
+              </Link>
+              .
+            </p>
           </div>
         </div>
       </div>

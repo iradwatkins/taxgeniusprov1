@@ -1,39 +1,39 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma'
-import { TrackingCodeDashboard } from '@/components/tracking/TrackingCodeDashboard'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/prisma';
+import { TrackingCodeDashboard } from '@/components/tracking/TrackingCodeDashboard';
 
 export const metadata = {
   title: 'My Tracking Code | Tax Genius Pro',
   description: 'Manage your universal tracking code and view performance',
-}
+};
 
 async function checkPreparerAccess() {
-  const user = await currentUser()
-  if (!user) return { hasAccess: false, userId: null, profileId: null }
+  const user = await currentUser();
+  if (!user) return { hasAccess: false, userId: null, profileId: null };
 
-  const role = user.publicMetadata?.role as string
-  const hasAccess = role === 'tax_preparer'
+  const role = user.publicMetadata?.role as string;
+  const hasAccess = role === 'tax_preparer';
 
   // Get profile ID
-  let profileId = null
+  let profileId = null;
   if (hasAccess && user.id) {
     const profile = await prisma.profile.findUnique({
       where: { clerkUserId: user.id },
-      select: { id: true }
-    })
-    profileId = profile?.id || null
+      select: { id: true },
+    });
+    profileId = profile?.id || null;
   }
 
-  return { hasAccess, userId: user.id, profileId }
+  return { hasAccess, userId: user.id, profileId };
 }
 
 export default async function TaxPreparerTrackingPage() {
-  const { hasAccess, userId, profileId } = await checkPreparerAccess()
+  const { hasAccess, userId, profileId } = await checkPreparerAccess();
 
   if (!hasAccess || !userId || !profileId) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
-  return <TrackingCodeDashboard userId={userId} profileId={profileId} role="tax_preparer" />
+  return <TrackingCodeDashboard userId={userId} profileId={profileId} role="tax_preparer" />;
 }

@@ -85,8 +85,9 @@ async function backfillCRMContacts() {
 
         stats.clients++;
         stats.totalProcessed++;
-      } catch (error: any) {
-        console.error(`❌ Error processing client ${profile.id}:`, error.message);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`❌ Error processing client ${profile.id}:`, errorMessage);
         stats.errors++;
       }
     }
@@ -138,8 +139,9 @@ async function backfillCRMContacts() {
 
         stats.preparers++;
         stats.totalProcessed++;
-      } catch (error: any) {
-        console.error(`❌ Error processing preparer ${profile.id}:`, error.message);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`❌ Error processing preparer ${profile.id}:`, errorMessage);
         stats.errors++;
       }
     }
@@ -191,8 +193,9 @@ async function backfillCRMContacts() {
 
         stats.affiliates++;
         stats.totalProcessed++;
-      } catch (error: any) {
-        console.error(`❌ Error processing affiliate ${profile.id}:`, error.message);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`❌ Error processing affiliate ${profile.id}:`, errorMessage);
         stats.errors++;
       }
     }
@@ -264,8 +267,9 @@ async function backfillCRMContacts() {
 
         stats.leads++;
         stats.totalProcessed++;
-      } catch (error: any) {
-        console.error(`❌ Error processing lead ${lead.id}:`, error.message);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`❌ Error processing lead ${lead.id}:`, errorMessage);
         stats.errors++;
       }
     }
@@ -319,8 +323,9 @@ async function backfillCRMContacts() {
         convertedCount++;
         stats.clients++; // Count as clients
         stats.totalProcessed++;
-      } catch (error: any) {
-        console.error(`❌ Error processing converted lead ${lead.id}:`, error.message);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`❌ Error processing converted lead ${lead.id}:`, errorMessage);
         stats.errors++;
       }
     }

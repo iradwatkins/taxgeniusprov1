@@ -1,9 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
   TrendingUp,
   Calendar,
@@ -20,7 +20,7 @@ import {
   Lightbulb,
   Clock,
   DollarSign,
-  Home
+  Home,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Header } from '@/components/header';
@@ -51,14 +51,13 @@ export default function TaxPlanningPage() {
               </h1>
 
               <p className="text-xl text-muted-foreground leading-relaxed">
-                Don't wait until April. Year-round strategic planning to minimize your tax burden and maximize wealth preservation.
+                Don't wait until April. Year-round strategic planning to minimize your tax burden
+                and maximize wealth preservation.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button variant="professional" size="lg" asChild>
-                  <Link href="/start-filing">
-                    Schedule Strategy Session
-                  </Link>
+                  <Link href="/start-filing/form">Schedule Strategy Session</Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <Link href="tel:+14046271015">
@@ -72,7 +71,7 @@ export default function TaxPlanningPage() {
                 {[
                   { icon: Clock, text: 'Year-Round Support' },
                   { icon: DollarSign, text: 'Save 20-40% on Taxes' },
-                  { icon: Award, text: 'CPA Tax Strategists' }
+                  { icon: Award, text: 'CPA Tax Strategists' },
                 ].map((item, i) => (
                   <motion.div
                     key={i}
@@ -105,7 +104,7 @@ export default function TaxPlanningPage() {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 1, duration: 0.5, type: "spring" }}
+                  transition={{ delay: 1, duration: 0.5, type: 'spring' }}
                   className="absolute top-4 right-4 bg-card/95 backdrop-blur-sm border-2 border-background rounded-lg shadow-xl p-4"
                 >
                   <div className="flex items-center gap-3">
@@ -135,7 +134,8 @@ export default function TaxPlanningPage() {
           >
             <h2 className="text-3xl lg:text-4xl font-bold mb-4">Why Year-Round Planning Matters</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Tax planning isn't just for April. Strategic decisions throughout the year can save you thousands.
+              Tax planning isn't just for April. Strategic decisions throughout the year can save
+              you thousands.
             </p>
           </motion.div>
 
@@ -145,26 +145,26 @@ export default function TaxPlanningPage() {
                 icon: Calendar,
                 title: 'Quarterly Reviews',
                 desc: 'Regular check-ins to optimize tax position throughout the year',
-                delay: 0
+                delay: 0,
               },
               {
                 icon: Lightbulb,
                 title: 'Strategic Decisions',
                 desc: 'Make informed choices about investments, business expenses, retirement',
-                delay: 0.1
+                delay: 0.1,
               },
               {
                 icon: DollarSign,
                 title: 'Maximize Deductions',
                 desc: 'Identify opportunities before year-end to reduce taxable income',
-                delay: 0.2
+                delay: 0.2,
               },
               {
                 icon: Shield,
                 title: 'Risk Management',
                 desc: 'Avoid penalties, estimated tax issues, and surprise tax bills',
-                delay: 0.3
-              }
+                delay: 0.3,
+              },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -201,7 +201,9 @@ export default function TaxPlanningPage() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl lg:text-4xl font-bold mb-4">Our Planning Process</h2>
-            <p className="text-lg text-muted-foreground">A systematic approach to minimizing your tax liability</p>
+            <p className="text-lg text-muted-foreground">
+              A systematic approach to minimizing your tax liability
+            </p>
           </motion.div>
 
           <div className="max-w-4xl mx-auto space-y-8">
@@ -211,29 +213,29 @@ export default function TaxPlanningPage() {
                 title: 'Initial Discovery',
                 desc: 'Deep dive into your financial situation, goals, and current tax position',
                 icon: Users,
-                color: 'bg-blue-500'
+                color: 'bg-blue-500',
               },
               {
                 step: '2',
                 title: 'Strategy Development',
                 desc: 'Create customized tax plan with specific action items and timelines',
                 icon: Target,
-                color: 'bg-green-500'
+                color: 'bg-green-500',
               },
               {
                 step: '3',
                 title: 'Implementation',
                 desc: 'Execute strategies with guidance on timing, documentation, and compliance',
                 icon: CheckCircle,
-                color: 'bg-purple-500'
+                color: 'bg-purple-500',
               },
               {
                 step: '4',
                 title: 'Ongoing Monitoring',
                 desc: 'Quarterly reviews and adjustments based on life changes and tax law updates',
                 icon: BarChart3,
-                color: 'bg-orange-500'
-              }
+                color: 'bg-orange-500',
+              },
             ].map((phase, i) => (
               <motion.div
                 key={i}
@@ -246,11 +248,15 @@ export default function TaxPlanningPage() {
                   <CardContent className="p-8">
                     <div className="flex gap-6 items-start">
                       <div className="flex-shrink-0">
-                        <div className={`w-16 h-16 ${phase.color} rounded-full flex items-center justify-center text-white group-hover:scale-110 transition-transform`}>
+                        <div
+                          className={`w-16 h-16 ${phase.color} rounded-full flex items-center justify-center text-white group-hover:scale-110 transition-transform`}
+                        >
                           <phase.icon className="w-8 h-8" />
                         </div>
                         <div className="mt-2 text-center">
-                          <Badge variant="secondary" className="font-bold">Step {phase.step}</Badge>
+                          <Badge variant="secondary" className="font-bold">
+                            Step {phase.step}
+                          </Badge>
                         </div>
                       </div>
                       <div className="flex-1">
@@ -283,33 +289,33 @@ export default function TaxPlanningPage() {
                   {
                     icon: PiggyBank,
                     title: 'Retirement Planning',
-                    desc: 'IRA, 401(k), SEP, Solo 401(k) strategies to reduce current taxes'
+                    desc: 'IRA, 401(k), SEP, Solo 401(k) strategies to reduce current taxes',
                   },
                   {
                     icon: Home,
                     title: 'Real Estate Strategies',
-                    desc: '1031 exchanges, rental property optimization, vacation home rules'
+                    desc: '1031 exchanges, rental property optimization, vacation home rules',
                   },
                   {
                     icon: TrendingUp,
                     title: 'Investment Tax Planning',
-                    desc: 'Capital gains harvesting, qualified dividend strategies, wash sales'
+                    desc: 'Capital gains harvesting, qualified dividend strategies, wash sales',
                   },
                   {
                     icon: Users,
                     title: 'Estate & Gift Planning',
-                    desc: 'Minimize estate taxes, optimize gifting, trust structures'
+                    desc: 'Minimize estate taxes, optimize gifting, trust structures',
                   },
                   {
                     icon: FileText,
                     title: 'Business Entity Selection',
-                    desc: 'LLC vs S-Corp vs C-Corp analysis for optimal tax treatment'
+                    desc: 'LLC vs S-Corp vs C-Corp analysis for optimal tax treatment',
                   },
                   {
                     icon: Shield,
                     title: 'Multi-State Planning',
-                    desc: 'Domicile strategy, state tax minimization for high earners'
-                  }
+                    desc: 'Domicile strategy, state tax minimization for high earners',
+                  },
                 ].map((service, i) => (
                   <motion.div
                     key={i}
@@ -360,7 +366,9 @@ export default function TaxPlanningPage() {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold mb-4">Planning Packages</h2>
-            <p className="text-lg text-muted-foreground">Choose the level of support that fits your needs</p>
+            <p className="text-lg text-muted-foreground">
+              Choose the level of support that fits your needs
+            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -373,9 +381,9 @@ export default function TaxPlanningPage() {
                   'Quarterly tax planning calls',
                   'Estimated tax calculations',
                   'Basic strategy recommendations',
-                  'Email support'
+                  'Email support',
                 ],
-                cta: 'Get Started'
+                cta: 'Get Started',
               },
               {
                 name: 'Professional',
@@ -386,10 +394,10 @@ export default function TaxPlanningPage() {
                   'Comprehensive tax modeling',
                   'Business & personal planning',
                   'Priority phone/email support',
-                  'Year-end planning session'
+                  'Year-end planning session',
                 ],
                 popular: true,
-                cta: 'Most Popular'
+                cta: 'Most Popular',
               },
               {
                 name: 'Executive',
@@ -401,10 +409,10 @@ export default function TaxPlanningPage() {
                   'Estate & succession planning',
                   'Investment strategy review',
                   'Dedicated tax strategist',
-                  'Same-day response'
+                  'Same-day response',
                 ],
-                cta: 'Premium Support'
-              }
+                cta: 'Premium Support',
+              },
             ].map((plan, i) => (
               <motion.div
                 key={i}
@@ -414,10 +422,14 @@ export default function TaxPlanningPage() {
                 transition={{ duration: 0.5, delay: i * 0.15 }}
                 whileHover={{ y: -10 }}
               >
-                <Card className={`h-full ${plan.popular ? 'border-2 border-primary shadow-xl scale-105' : ''}`}>
+                <Card
+                  className={`h-full ${plan.popular ? 'border-2 border-primary shadow-xl scale-105' : ''}`}
+                >
                   <CardHeader>
                     {plan.popular && (
-                      <Badge className="w-fit mb-2 bg-primary text-primary-foreground">Most Popular</Badge>
+                      <Badge className="w-fit mb-2 bg-primary text-primary-foreground">
+                        Most Popular
+                      </Badge>
                     )}
                     <CardTitle className="text-2xl">{plan.name}</CardTitle>
                     <div className="mt-4">
@@ -435,11 +447,11 @@ export default function TaxPlanningPage() {
                       ))}
                     </ul>
                     <Button
-                      variant={plan.popular ? "professional" : "outline"}
+                      variant={plan.popular ? 'professional' : 'outline'}
                       className="w-full"
                       asChild
                     >
-                      <Link href="/start-filing">{plan.cta}</Link>
+                      <Link href="/start-filing/form">{plan.cta}</Link>
                     </Button>
                   </CardContent>
                 </Card>
@@ -471,11 +483,12 @@ export default function TaxPlanningPage() {
           >
             <h2 className="text-3xl lg:text-4xl font-bold">Stop Overpaying on Taxes</h2>
             <p className="text-lg text-muted-foreground">
-              Schedule your free tax strategy consultation today and discover how much you could be saving
+              Schedule your free tax strategy consultation today and discover how much you could be
+              saving
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="professional" size="lg" asChild>
-                <Link href="/start-filing">
+                <Link href="/start-filing/form">
                   Schedule Free Consultation <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>

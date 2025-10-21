@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { CheckCircle, ShoppingBag, ArrowRight } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { ClearCartClient } from './_components/ClearCartClient';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 interface SuccessPageProps {
   searchParams: Promise<{
@@ -45,9 +45,7 @@ async function OrderDetails({ sessionId }: { sessionId: string }) {
             <p className="text-sm text-yellow-700">
               This usually takes just a few seconds. Your order confirmation will appear shortly.
             </p>
-            <div className="text-xs text-yellow-600">
-              Session ID: {sessionId}
-            </div>
+            <div className="text-xs text-yellow-600">Session ID: {sessionId}</div>
           </CardContent>
         </Card>
       );
@@ -65,11 +63,9 @@ async function OrderDetails({ sessionId }: { sessionId: string }) {
               Order Confirmed!
             </CardTitle>
             <CardDescription className="text-green-700">
-              {isTestMode ? (
-                'Test order created successfully (no payment processed)'
-              ) : (
-                'Your payment was successful and your order is being processed'
-              )}
+              {isTestMode
+                ? 'Test order created successfully (no payment processed)'
+                : 'Your payment was successful and your order is being processed'}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -100,9 +96,7 @@ async function OrderDetails({ sessionId }: { sessionId: string }) {
                     <span>
                       {item.name} × {item.quantity}
                     </span>
-                    <span className="font-medium">
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </span>
+                    <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
                   </li>
                 ))}
               </ul>
@@ -110,8 +104,8 @@ async function OrderDetails({ sessionId }: { sessionId: string }) {
 
             {isTestMode && (
               <div className="rounded-md bg-blue-50 p-3 text-sm text-blue-700">
-                <strong>Test Mode:</strong> This is a test order. No payment was processed.
-                Set <code className="text-xs">PAYMENT_MODE=stripe</code> for real payments.
+                <strong>Test Mode:</strong> This is a test order. No payment was processed. Set{' '}
+                <code className="text-xs">PAYMENT_MODE=stripe</code> for real payments.
               </div>
             )}
 
@@ -125,7 +119,6 @@ async function OrderDetails({ sessionId }: { sessionId: string }) {
         <ClearCartClient />
       </>
     );
-
   } catch (error) {
     logger.error('Error fetching order:', error);
 
@@ -166,9 +159,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
         <Card className="mx-auto max-w-md border-red-200 bg-red-50">
           <CardHeader>
             <CardTitle className="text-red-800">Invalid Order</CardTitle>
-            <CardDescription className="text-red-700">
-              No session ID provided
-            </CardDescription>
+            <CardDescription className="text-red-700">No session ID provided</CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild>
@@ -188,9 +179,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
       <div className="mx-auto max-w-2xl space-y-6">
         <div className="text-center">
           <h1 className="mb-2 text-3xl font-bold">Thank You for Your Order!</h1>
-          <p className="text-gray-600">
-            Your order has been received and is being processed.
-          </p>
+          <p className="text-gray-600">Your order has been received and is being processed.</p>
         </div>
 
         <Suspense
@@ -226,7 +215,10 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
         <div className="rounded-lg bg-gray-50 p-6 text-center text-sm text-gray-600">
           <p className="mb-2">
             Need help? Contact us at{' '}
-            <a href="mailto:support@taxgeniuspro.tax" className="font-medium text-blue-600 hover:underline">
+            <a
+              href="mailto:support@taxgeniuspro.tax"
+              className="font-medium text-blue-600 hover:underline"
+            >
               support@taxgeniuspro.tax
             </a>
           </p>

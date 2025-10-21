@@ -5,59 +5,60 @@
  * Used by tax preparers, referrers, and admin dashboards
  */
 
-import { prisma } from '@/lib/prisma'
-import { logger } from '@/lib/logger'
+import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
+import type { Prisma } from '@prisma/client';
 
 export interface LinkPerformance {
-  id: string
-  title: string
-  url: string
-  code: string
-  linkType: string
-  creatorId: string
-  creatorName?: string
-  clicks: number
-  uniqueClicks: number
-  conversions: number
-  signups: number
-  returns: number
-  conversionRate: number
-  signupRate: number
-  createdAt: Date
+  id: string;
+  title: string;
+  url: string;
+  code: string;
+  linkType: string;
+  creatorId: string;
+  creatorName?: string;
+  clicks: number;
+  uniqueClicks: number;
+  conversions: number;
+  signups: number;
+  returns: number;
+  conversionRate: number;
+  signupRate: number;
+  createdAt: Date;
 }
 
 export interface LinkConversionFunnel {
-  clicks: number
-  uniqueVisitors: number
-  intakeForms: number
-  signups: number
-  returns: number
-  intakeConversionRate: number
-  signupConversionRate: number
-  returnConversionRate: number
+  clicks: number;
+  uniqueVisitors: number;
+  intakeForms: number;
+  signups: number;
+  returns: number;
+  intakeConversionRate: number;
+  signupConversionRate: number;
+  returnConversionRate: number;
 }
 
 /**
  * Record a link click event
  */
 export async function trackLinkClick(params: {
-  linkCode: string
-  ipAddress?: string
-  userAgent?: string
-  referrer?: string
-  city?: string
-  state?: string
-  country?: string
+  linkCode: string;
+  ipAddress?: string;
+  userAgent?: string;
+  referrer?: string;
+  city?: string;
+  state?: string;
+  country?: string;
 }) {
   try {
     // Find the marketing link
     const link = await prisma.marketingLink.findUnique({
-      where: { code: params.linkCode }
-    })
+      where: { code: params.linkCode },
+    });
 
     if (!link) {
-      logger.error(`Link not found: ${params.linkCode}`)
-      return null
+      logger.error(`Link not found: ${params.linkCode}`);
+      return null;
     }
 
     // Create click record
@@ -70,23 +71,23 @@ export async function trackLinkClick(params: {
         city: params.city,
         state: params.state,
         country: params.country,
-      }
-    })
+      },
+    });
 
     // Update link click counts
-    const isUniqueVisitor = await isUniqueClick(link.id, params.ipAddress)
+    const isUniqueVisitor = await isUniqueClick(link.id, params.ipAddress);
     await prisma.marketingLink.update({
       where: { id: link.id },
       data: {
         clicks: { increment: 1 },
-        uniqueClicks: isUniqueVisitor ? { increment: 1 } : undefined
-      }
-    })
+        uniqueClicks: isUniqueVisitor ? { increment: 1 } : undefined,
+      },
+    });
 
-    return click
+    return click;
   } catch (error) {
-    logger.error('Error tracking link click:', error)
-    return null
+    logger.error('Error tracking link click:', error);
+    return null;
   }
 }
 
@@ -94,36 +95,36 @@ export async function trackLinkClick(params: {
  * Check if this is a unique click from this IP
  */
 async function isUniqueClick(linkId: string, ipAddress?: string): Promise<boolean> {
-  if (!ipAddress) return true
+  if (!ipAddress) return true;
 
   // Check if this IP clicked this link in the last 24 hours
-  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000)
+  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const existingClick = await prisma.linkClick.findFirst({
     where: {
       linkId,
       ipAddress,
-      clickedAt: { gte: yesterday }
-    }
-  })
+      clickedAt: { gte: yesterday },
+    },
+  });
 
-  return !existingClick
+  return !existingClick;
 }
 
 /**
  * Record a conversion from a link click
  */
 export async function recordLinkConversion(params: {
-  linkCode: string
-  clientId?: string
-  converted?: boolean
-  signedUp?: boolean
+  linkCode: string;
+  clientId?: string;
+  converted?: boolean;
+  signedUp?: boolean;
 }) {
   try {
     const link = await prisma.marketingLink.findUnique({
-      where: { code: params.linkCode }
-    })
+      where: { code: params.linkCode },
+    });
 
-    if (!link) return
+    if (!link) return;
 
     // Update the most recent click from this user if clientId provided
     if (params.clientId) {
@@ -135,27 +136,27 @@ export async function recordLinkConversion(params: {
         data: {
           converted: params.converted || false,
           signedUp: params.signedUp || false,
-          clientId: params.clientId
-        }
-      })
+          clientId: params.clientId,
+        },
+      });
     }
 
     // Update link aggregate stats
-    const updates: any = {}
-    if (params.converted) updates.conversions = { increment: 1 }
-    if (params.signedUp) updates.signups = { increment: 1 }
+    const updates: Prisma.MarketingLinkUpdateInput = {};
+    if (params.converted) updates.conversions = { increment: 1 };
+    if (params.signedUp) updates.signups = { increment: 1 };
 
     if (Object.keys(updates).length > 0) {
       await prisma.marketingLink.update({
         where: { id: link.id },
-        data: updates
-      })
+        data: updates,
+      });
     }
 
     // Recalculate conversion rates
-    await updateLinkConversionRates(link.id)
+    await updateLinkConversionRates(link.id);
   } catch (error) {
-    logger.error('Error recording link conversion:', error)
+    logger.error('Error recording link conversion:', error);
   }
 }
 
@@ -164,21 +165,21 @@ export async function recordLinkConversion(params: {
  */
 async function updateLinkConversionRates(linkId: string) {
   const link = await prisma.marketingLink.findUnique({
-    where: { id: linkId }
-  })
+    where: { id: linkId },
+  });
 
-  if (!link || link.clicks === 0) return
+  if (!link || link.clicks === 0) return;
 
-  const conversionRate = (link.conversions / link.clicks) * 100
-  const signupRate = (link.signups / link.clicks) * 100
+  const conversionRate = (link.conversions / link.clicks) * 100;
+  const signupRate = (link.signups / link.clicks) * 100;
 
   await prisma.marketingLink.update({
     where: { id: linkId },
     data: {
       conversionRate: Math.round(conversionRate * 10) / 10,
-      signupRate: Math.round(signupRate * 10) / 10
-    }
-  })
+      signupRate: Math.round(signupRate * 10) / 10,
+    },
+  });
 }
 
 /**
@@ -192,16 +193,13 @@ export async function getCreatorLinkPerformance(
     const links = await prisma.marketingLink.findMany({
       where: {
         creatorId,
-        isActive: true
+        isActive: true,
       },
-      orderBy: [
-        { clicks: 'desc' },
-        { createdAt: 'desc' }
-      ],
-      take: limit
-    })
+      orderBy: [{ clicks: 'desc' }, { createdAt: 'desc' }],
+      take: limit,
+    });
 
-    return links.map(link => ({
+    return links.map((link) => ({
       id: link.id,
       title: link.title || link.code,
       url: link.url,
@@ -215,11 +213,11 @@ export async function getCreatorLinkPerformance(
       returns: link.returns,
       conversionRate: link.conversionRate || 0,
       signupRate: link.signupRate || 0,
-      createdAt: link.createdAt
-    }))
+      createdAt: link.createdAt,
+    }));
   } catch (error) {
-    logger.error('Error fetching creator link performance:', error)
-    return []
+    logger.error('Error fetching creator link performance:', error);
+    return [];
   }
 }
 
@@ -232,28 +230,25 @@ export async function getTopPerformingLinks(limit: number = 10): Promise<LinkPer
       where: { isActive: true },
       include: {
         _count: {
-          select: { linkClicks: true }
-        }
+          select: { linkClicks: true },
+        },
       },
-      orderBy: [
-        { conversions: 'desc' },
-        { clicks: 'desc' }
-      ],
-      take: limit
-    })
+      orderBy: [{ conversions: 'desc' }, { clicks: 'desc' }],
+      take: limit,
+    });
 
     // Get creator names
-    const creatorIds = links.map(l => l.creatorId)
+    const creatorIds = links.map((l) => l.creatorId);
     const creators = await prisma.profile.findMany({
       where: { id: { in: creatorIds } },
-      select: { id: true, firstName: true, lastName: true }
-    })
+      select: { id: true, firstName: true, lastName: true },
+    });
 
     const creatorMap = new Map(
-      creators.map(c => [c.id, `${c.firstName || ''} ${c.lastName || ''}`.trim()])
-    )
+      creators.map((c) => [c.id, `${c.firstName || ''} ${c.lastName || ''}`.trim()])
+    );
 
-    return links.map(link => ({
+    return links.map((link) => ({
       id: link.id,
       title: link.title || link.code,
       url: link.url,
@@ -268,11 +263,11 @@ export async function getTopPerformingLinks(limit: number = 10): Promise<LinkPer
       returns: link.returns,
       conversionRate: link.conversionRate || 0,
       signupRate: link.signupRate || 0,
-      createdAt: link.createdAt
-    }))
+      createdAt: link.createdAt,
+    }));
   } catch (error) {
-    logger.error('Error fetching top performing links:', error)
-    return []
+    logger.error('Error fetching top performing links:', error);
+    return [];
   }
 }
 
@@ -287,11 +282,11 @@ export async function getLinkConversionFunnel(linkId: string): Promise<LinkConve
         linkClicks: {
           select: {
             converted: true,
-            signedUp: true
-          }
-        }
-      }
-    })
+            signedUp: true,
+          },
+        },
+      },
+    });
 
     if (!link) {
       return {
@@ -302,15 +297,15 @@ export async function getLinkConversionFunnel(linkId: string): Promise<LinkConve
         returns: 0,
         intakeConversionRate: 0,
         signupConversionRate: 0,
-        returnConversionRate: 0
-      }
+        returnConversionRate: 0,
+      };
     }
 
-    const clicks = link.clicks
-    const uniqueVisitors = link.uniqueClicks
-    const intakeForms = link.conversions
-    const signups = link.signups
-    const returns = link.returns
+    const clicks = link.clicks;
+    const uniqueVisitors = link.uniqueClicks;
+    const intakeForms = link.conversions;
+    const signups = link.signups;
+    const returns = link.returns;
 
     return {
       clicks,
@@ -320,10 +315,10 @@ export async function getLinkConversionFunnel(linkId: string): Promise<LinkConve
       returns,
       intakeConversionRate: clicks > 0 ? Math.round((intakeForms / clicks) * 100) : 0,
       signupConversionRate: clicks > 0 ? Math.round((signups / clicks) * 100) : 0,
-      returnConversionRate: clicks > 0 ? Math.round((returns / clicks) * 100) : 0
-    }
+      returnConversionRate: clicks > 0 ? Math.round((returns / clicks) * 100) : 0,
+    };
   } catch (error) {
-    logger.error('Error fetching link conversion funnel:', error)
+    logger.error('Error fetching link conversion funnel:', error);
     return {
       clicks: 0,
       uniqueVisitors: 0,
@@ -332,8 +327,8 @@ export async function getLinkConversionFunnel(linkId: string): Promise<LinkConve
       returns: 0,
       intakeConversionRate: 0,
       signupConversionRate: 0,
-      returnConversionRate: 0
-    }
+      returnConversionRate: 0,
+    };
   }
 }
 
@@ -348,15 +343,15 @@ export async function getLinkPerformanceByType() {
       _sum: {
         clicks: true,
         conversions: true,
-        signups: true
+        signups: true,
       },
       _avg: {
-        conversionRate: true
+        conversionRate: true,
       },
-      _count: true
-    })
+      _count: true,
+    });
 
-    return results.map(result => ({
+    return results.map((result) => ({
       linkType: result.linkType,
       totalLinks: result._count,
       totalClicks: result._sum.clicks || 0,
@@ -364,11 +359,11 @@ export async function getLinkPerformanceByType() {
       totalSignups: result._sum.signups || 0,
       avgConversionRate: result._avg.conversionRate
         ? Math.round(result._avg.conversionRate * 10) / 10
-        : 0
-    }))
+        : 0,
+    }));
   } catch (error) {
-    logger.error('Error fetching link performance by type:', error)
-    return []
+    logger.error('Error fetching link performance by type:', error);
+    return [];
   }
 }
 
@@ -384,14 +379,14 @@ export async function getPlatformLinkStats() {
         uniqueClicks: true,
         conversions: true,
         signups: true,
-        returns: true
+        returns: true,
       },
-      _count: true
-    })
+      _count: true,
+    });
 
-    const totalClicks = stats._sum.clicks || 0
-    const totalConversions = stats._sum.conversions || 0
-    const totalSignups = stats._sum.signups || 0
+    const totalClicks = stats._sum.clicks || 0;
+    const totalConversions = stats._sum.conversions || 0;
+    const totalSignups = stats._sum.signups || 0;
 
     return {
       totalLinks: stats._count,
@@ -400,15 +395,13 @@ export async function getPlatformLinkStats() {
       totalConversions,
       totalSignups,
       totalReturns: stats._sum.returns || 0,
-      platformConversionRate: totalClicks > 0
-        ? Math.round((totalConversions / totalClicks) * 100 * 10) / 10
-        : 0,
-      platformSignupRate: totalClicks > 0
-        ? Math.round((totalSignups / totalClicks) * 100 * 10) / 10
-        : 0
-    }
+      platformConversionRate:
+        totalClicks > 0 ? Math.round((totalConversions / totalClicks) * 100 * 10) / 10 : 0,
+      platformSignupRate:
+        totalClicks > 0 ? Math.round((totalSignups / totalClicks) * 100 * 10) / 10 : 0,
+    };
   } catch (error) {
-    logger.error('Error fetching platform link stats:', error)
+    logger.error('Error fetching platform link stats:', error);
     return {
       totalLinks: 0,
       totalClicks: 0,
@@ -417,7 +410,7 @@ export async function getPlatformLinkStats() {
       totalSignups: 0,
       totalReturns: 0,
       platformConversionRate: 0,
-      platformSignupRate: 0
-    }
+      platformSignupRate: 0,
+    };
   }
 }

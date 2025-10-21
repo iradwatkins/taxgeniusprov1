@@ -7,21 +7,18 @@
  * Epic 5 - Story 5.2: Admin Payout Management
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { currentUser } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma'
-import { EmailService } from '@/lib/services/email.service'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { currentUser } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/prisma';
+import { EmailService } from '@/lib/services/email.service';
+import { logger } from '@/lib/logger';
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await currentUser()
+    const user = await currentUser();
 
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Find user profile
@@ -31,10 +28,10 @@ export async function POST(
           email: user.emailAddresses[0]?.emailAddress,
         },
       },
-    })
+    });
 
     if (!profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
     // Only admins can approve payouts
@@ -42,18 +39,15 @@ export async function POST(
       return NextResponse.json(
         { error: 'Only administrators can approve payouts' },
         { status: 403 }
-      )
+      );
     }
 
-    const { id } = await params
-    const body = await req.json()
-    const { paymentRef } = body
+    const { id } = await params;
+    const body = await req.json();
+    const { paymentRef } = body;
 
     if (!paymentRef || !paymentRef.trim()) {
-      return NextResponse.json(
-        { error: 'Payment reference is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Payment reference is required' }, { status: 400 });
     }
 
     // Fetch payout request
@@ -70,10 +64,10 @@ export async function POST(
           },
         },
       },
-    })
+    });
 
     if (!payout) {
-      return NextResponse.json({ error: 'Payout request not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Payout request not found' }, { status: 404 });
     }
 
     // Validate payout is pending
@@ -81,7 +75,7 @@ export async function POST(
       return NextResponse.json(
         { error: `Cannot approve payout with status: ${payout.status}` },
         { status: 400 }
-      )
+      );
     }
 
     // Update payout request status to PAID
@@ -92,7 +86,7 @@ export async function POST(
         processedAt: new Date(),
         paymentRef: paymentRef.trim(),
       },
-    })
+    });
 
     // Update all related commissions to PAID status
     await prisma.commission.updateMany({
@@ -104,12 +98,12 @@ export async function POST(
         paidAt: new Date(),
         paymentRef: paymentRef.trim(),
       },
-    })
+    });
 
     // Send payout completed email to referrer
     const referrerName = payout.referrer.firstName
       ? `${payout.referrer.firstName} ${payout.referrer.lastName || ''}`.trim()
-      : 'Referrer'
+      : 'Referrer';
 
     await EmailService.sendPayoutCompletedEmail(
       payout.referrer.user.email,
@@ -117,10 +111,10 @@ export async function POST(
       Number(payout.amount),
       paymentRef.trim(),
       payout.paymentMethod
-    )
+    );
 
-    logger.info(`✅ Payout ${id} approved by admin ${profile.id}`)
-    logger.info(`💰 $${payout.amount} paid to referrer ${payout.referrerId}`)
+    logger.info(`✅ Payout ${id} approved by admin ${profile.id}`);
+    logger.info(`💰 $${payout.amount} paid to referrer ${payout.referrerId}`);
 
     return NextResponse.json({
       success: true,
@@ -131,12 +125,12 @@ export async function POST(
         processedAt: updatedPayout.processedAt?.toISOString(),
         paymentRef: updatedPayout.paymentRef,
       },
-    })
+    });
   } catch (error) {
-    logger.error('Error approving payout:', error)
+    logger.error('Error approving payout:', error);
     return NextResponse.json(
       { error: 'Failed to approve payout. Please try again.' },
       { status: 500 }
-    )
+    );
   }
 }

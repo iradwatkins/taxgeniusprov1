@@ -1,21 +1,21 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Textarea } from '@/components/ui/textarea'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Separator } from '@/components/ui/separator'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
+} from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import {
   Settings,
   User,
@@ -27,28 +27,28 @@ import {
   Save,
   Upload,
   FileText,
-} from 'lucide-react'
+} from 'lucide-react';
 
 export const metadata = {
   title: 'Settings | Tax Genius Pro',
   description: 'Manage your affiliate settings',
-}
+};
 
 async function isAffiliate() {
-  const user = await currentUser()
-  if (!user) return false
-  const role = user.publicMetadata?.role
-  return role === 'affiliate' || role === 'admin'
+  const user = await currentUser();
+  if (!user) return false;
+  const role = user.publicMetadata?.role;
+  return role === 'affiliate' || role === 'admin';
 }
 
 export default async function AffiliateSettingsPage() {
-  const userIsAffiliate = await isAffiliate()
+  const userIsAffiliate = await isAffiliate();
 
   if (!userIsAffiliate) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
-  const user = await currentUser()
+  const user = await currentUser();
 
   return (
     <div className="p-6 space-y-6">
@@ -73,9 +73,7 @@ export default async function AffiliateSettingsPage() {
             <User className="w-5 h-5" />
             <CardTitle>Profile Information</CardTitle>
           </div>
-          <CardDescription>
-            Your affiliate account details
-          </CardDescription>
+          <CardDescription>Your affiliate account details</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Profile Photo */}
@@ -91,9 +89,7 @@ export default async function AffiliateSettingsPage() {
                 <Upload className="w-4 h-4 mr-2" />
                 Change Photo
               </Button>
-              <p className="text-xs text-muted-foreground">
-                JPG, PNG or GIF. Max size 2MB.
-              </p>
+              <p className="text-xs text-muted-foreground">JPG, PNG or GIF. Max size 2MB.</p>
             </div>
           </div>
 
@@ -127,28 +123,17 @@ export default async function AffiliateSettingsPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="+1 (555) 000-0000"
-              />
+              <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="company">Company/Website Name</Label>
-              <Input
-                id="company"
-                placeholder="Your Company LLC"
-              />
+              <Input id="company" placeholder="Your Company LLC" />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="website">Website URL</Label>
-            <Input
-              id="website"
-              type="url"
-              placeholder="https://yourwebsite.com"
-            />
+            <Input id="website" type="url" placeholder="https://yourwebsite.com" />
           </div>
 
           <div className="space-y-2">
@@ -169,24 +154,15 @@ export default async function AffiliateSettingsPage() {
             <Link2 className="w-5 h-5" />
             <CardTitle>Affiliate Program Settings</CardTitle>
           </div>
-          <CardDescription>
-            Manage your affiliate ID and tracking
-          </CardDescription>
+          <CardDescription>Manage your affiliate ID and tracking</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="affiliateId">Affiliate ID</Label>
               <div className="flex gap-2">
-                <Input
-                  id="affiliateId"
-                  defaultValue="AFF12345"
-                  className="font-mono"
-                  disabled
-                />
-                <Button variant="outline">
-                  Regenerate
-                </Button>
+                <Input id="affiliateId" defaultValue="AFF12345" className="font-mono" disabled />
+                <Button variant="outline">Regenerate</Button>
               </div>
             </div>
             <div className="space-y-2">
@@ -235,13 +211,14 @@ export default async function AffiliateSettingsPage() {
             <Bell className="w-5 h-5" />
             <CardTitle>Notification Preferences</CardTitle>
           </div>
-          <CardDescription>
-            Choose how you want to receive updates
-          </CardDescription>
+          <CardDescription>Choose how you want to receive updates</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {[
-            { label: 'New Lead Signups', description: 'Notify when someone clicks your affiliate link' },
+            {
+              label: 'New Lead Signups',
+              description: 'Notify when someone clicks your affiliate link',
+            },
             { label: 'Lead Conversions', description: 'Alert when a lead becomes a customer' },
             { label: 'Commission Earned', description: 'Notify when you earn a commission' },
             { label: 'Payout Processed', description: 'Alert when your payout is sent' },
@@ -253,9 +230,7 @@ export default async function AffiliateSettingsPage() {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>{setting.label}</Label>
-                  <p className="text-sm text-muted-foreground">
-                    {setting.description}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{setting.description}</p>
                 </div>
                 <Switch defaultChecked={!setting.label.includes('Marketing')} />
               </div>
@@ -268,15 +243,21 @@ export default async function AffiliateSettingsPage() {
             <div className="flex gap-4">
               <div className="flex items-center space-x-2">
                 <input type="checkbox" id="email-notif" defaultChecked />
-                <Label htmlFor="email-notif" className="font-normal">Email</Label>
+                <Label htmlFor="email-notif" className="font-normal">
+                  Email
+                </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <input type="checkbox" id="sms-notif" />
-                <Label htmlFor="sms-notif" className="font-normal">SMS</Label>
+                <Label htmlFor="sms-notif" className="font-normal">
+                  SMS
+                </Label>
               </div>
               <div className="flex items-center space-x-2">
                 <input type="checkbox" id="push-notif" defaultChecked />
-                <Label htmlFor="push-notif" className="font-normal">Push Notifications</Label>
+                <Label htmlFor="push-notif" className="font-normal">
+                  Push Notifications
+                </Label>
               </div>
             </div>
           </div>
@@ -290,9 +271,7 @@ export default async function AffiliateSettingsPage() {
             <CreditCard className="w-5 h-5" />
             <CardTitle>Payment Settings</CardTitle>
           </div>
-          <CardDescription>
-            Manage how you receive commission payouts
-          </CardDescription>
+          <CardDescription>Manage how you receive commission payouts</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between p-4 border rounded-lg">
@@ -307,7 +286,9 @@ export default async function AffiliateSettingsPage() {
             </div>
             <div className="flex items-center gap-2">
               <Badge className="bg-green-100 text-green-700">Active</Badge>
-              <Button variant="outline" size="sm">Edit</Button>
+              <Button variant="outline" size="sm">
+                Edit
+              </Button>
             </div>
           </div>
 
@@ -359,20 +340,13 @@ export default async function AffiliateSettingsPage() {
             <FileText className="w-5 h-5" />
             <CardTitle>Tax Information</CardTitle>
           </div>
-          <CardDescription>
-            Required for IRS reporting
-          </CardDescription>
+          <CardDescription>Required for IRS reporting</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="taxId">Tax ID (EIN or SSN)</Label>
-              <Input
-                id="taxId"
-                type="password"
-                defaultValue="***-**-1234"
-                disabled
-              />
+              <Input id="taxId" type="password" defaultValue="***-**-1234" disabled />
             </div>
             <div className="space-y-2">
               <Label htmlFor="businessType">Business Type</Label>
@@ -420,17 +394,13 @@ export default async function AffiliateSettingsPage() {
             <Shield className="w-5 h-5" />
             <CardTitle>Privacy & Security</CardTitle>
           </div>
-          <CardDescription>
-            Manage your account security settings
-          </CardDescription>
+          <CardDescription>Manage your account security settings</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Two-Factor Authentication</Label>
-              <p className="text-sm text-muted-foreground">
-                Add an extra layer of security
-              </p>
+              <p className="text-sm text-muted-foreground">Add an extra layer of security</p>
             </div>
             <Button variant="outline" size="sm">
               Enable
@@ -442,9 +412,7 @@ export default async function AffiliateSettingsPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Change Password</Label>
-              <p className="text-sm text-muted-foreground">
-                Update your account password
-              </p>
+              <p className="text-sm text-muted-foreground">Update your account password</p>
             </div>
             <Button variant="outline" size="sm">
               Change
@@ -474,9 +442,7 @@ export default async function AffiliateSettingsPage() {
             <Trash2 className="w-5 h-5 text-red-600" />
             <CardTitle className="text-red-600 dark:text-red-400">Danger Zone</CardTitle>
           </div>
-          <CardDescription>
-            Irreversible actions for your account
-          </CardDescription>
+          <CardDescription>Irreversible actions for your account</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
@@ -516,5 +482,5 @@ export default async function AffiliateSettingsPage() {
         </Button>
       </div>
     </div>
-  )
+  );
 }

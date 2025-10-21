@@ -1,49 +1,40 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { currentUser } from '@clerk/nextjs/server'
-import { NotificationService } from '@/lib/services/notification.service'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { currentUser } from '@clerk/nextjs/server';
+import { NotificationService } from '@/lib/services/notification.service';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await currentUser()
+    const user = await currentUser();
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const subscription = await request.json()
+    const subscription = await request.json();
 
     // Validate subscription object
     if (!subscription.endpoint || !subscription.keys?.p256dh || !subscription.keys?.auth) {
-      return NextResponse.json(
-        { error: 'Invalid subscription object' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Invalid subscription object' }, { status: 400 });
     }
 
     // Save subscription to database
-    await NotificationService.subscribeToPush(user.id, subscription)
+    await NotificationService.subscribeToPush(user.id, subscription);
 
     // Send welcome notification
     await NotificationService.send({
       userId: user.id,
       type: 'SYSTEM',
       title: 'Notifications Enabled',
-      message: 'You\'ll now receive important updates about your tax returns.',
-      channels: ['PUSH']
-    })
+      message: "You'll now receive important updates about your tax returns.",
+      channels: ['PUSH'],
+    });
 
     return NextResponse.json({
       success: true,
-      message: 'Push subscription saved successfully'
-    })
+      message: 'Push subscription saved successfully',
+    });
   } catch (error) {
-    logger.error('Push subscription error:', error)
-    return NextResponse.json(
-      { error: 'Failed to save push subscription' },
-      { status: 500 }
-    )
+    logger.error('Push subscription error:', error);
+    return NextResponse.json({ error: 'Failed to save push subscription' }, { status: 500 });
   }
 }

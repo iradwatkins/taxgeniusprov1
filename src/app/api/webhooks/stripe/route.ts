@@ -2,7 +2,7 @@ import { headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { prisma } from '@/lib/prisma';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 // Initialize Stripe only if key is available (avoid build-time errors)
 const getStripe = () => {
@@ -27,10 +27,7 @@ export async function POST(request: NextRequest) {
 
     if (!signature) {
       logger.error('❌ Webhook Error: No stripe-signature header');
-      return NextResponse.json(
-        { error: 'No signature provided' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'No signature provided' }, { status: 400 });
     }
 
     // Verify webhook signature (CRITICAL SECURITY)
@@ -38,18 +35,11 @@ export async function POST(request: NextRequest) {
     let event: Stripe.Event;
 
     try {
-      event = stripe.webhooks.constructEvent(
-        body,
-        signature,
-        process.env.STRIPE_WEBHOOK_SECRET!
-      );
+      event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!);
     } catch (err) {
       const error = err as Error;
       logger.error('❌ Webhook signature verification failed:', error.message);
-      return NextResponse.json(
-        { error: 'Invalid signature' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
 
     logger.info(`✅ Webhook verified: ${event.type}`);
@@ -66,10 +56,7 @@ export async function POST(request: NextRequest) {
 
       if (!userId || !cartItemsJson) {
         logger.error('❌ Missing metadata in session:', session.id);
-        return NextResponse.json(
-          { error: 'Missing required metadata' },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: 'Missing required metadata' }, { status: 400 });
       }
 
       const cartItems = JSON.parse(cartItemsJson);
@@ -132,13 +119,9 @@ export async function POST(request: NextRequest) {
     // Acknowledge receipt of unhandled event types
     logger.info(`ℹ️  Unhandled event type: ${event.type}`);
     return NextResponse.json({ received: true });
-
   } catch (error) {
     logger.error('❌ Webhook processing error:', error);
-    return NextResponse.json(
-      { error: 'Webhook processing failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
   }
 }
 

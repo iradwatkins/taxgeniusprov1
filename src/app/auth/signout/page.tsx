@@ -1,18 +1,18 @@
-'use client'
+'use client';
 
-import { useEffect } from 'react'
-import { useClerk } from '@clerk/nextjs'
-import { Loader2 } from 'lucide-react'
+import { useEffect } from 'react';
+import { useClerk } from '@clerk/nextjs';
+import { Loader2 } from 'lucide-react';
 
 export default function SignOutPage() {
-  const { signOut } = useClerk()
+  const { signOut } = useClerk();
 
   useEffect(() => {
     // Sign out and redirect
     signOut({
       redirectUrl: '/auth/login',
-    })
-  }, [signOut])
+    });
+  }, [signOut]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background">
@@ -22,5 +22,5 @@ export default function SignOutPage() {
         <p className="text-muted-foreground">Please wait while we sign you out</p>
       </div>
     </div>
-  )
+  );
 }

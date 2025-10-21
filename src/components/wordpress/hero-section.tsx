@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ArrowRight, FileText, Users, Shield } from "lucide-react";
-import Link from "next/link";
-import Image from "next/image";
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { ArrowRight, FileText, Users, Shield } from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
 
 interface HeroSectionProps {
   title?: string;
@@ -15,23 +15,19 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({
-  title = "Professional Tax Services Made Simple",
-  subtitle = "Expert tax preparation, planning, and advice to maximize your refund",
-  ctaText = "Get Started",
-  ctaLink = "/onboarding",
-  imageUrl = "/wp-images/tax-genius-hero.svg"
+  title = 'Professional Tax Services Made Simple',
+  subtitle = 'Expert tax preparation, planning, and advice to maximize your refund',
+  ctaText = 'Get Started',
+  ctaLink = '/onboarding',
+  imageUrl = '/wp-images/tax-genius-hero.svg',
 }: HeroSectionProps) {
   return (
     <section className="relative min-h-[600px] flex items-center">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
-            <h1 className="text-4xl lg:text-6xl font-bold tracking-tight">
-              {title}
-            </h1>
-            <p className="text-xl text-muted-foreground">
-              {subtitle}
-            </p>
+            <h1 className="text-4xl lg:text-6xl font-bold tracking-tight">{title}</h1>
+            <p className="text-xl text-muted-foreground">{subtitle}</p>
             <div className="flex gap-4">
               <Button size="lg" asChild>
                 <Link href={ctaLink}>

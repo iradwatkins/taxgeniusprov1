@@ -256,9 +256,7 @@ describe('CRM Contacts API - Integration Tests', () => {
         profile: { id: 'admin-1' },
       } as any);
 
-      vi.mocked(CRMService.createContact).mockRejectedValue(
-        new Error('Unique constraint failed')
-      );
+      vi.mocked(CRMService.createContact).mockRejectedValue(new Error('Unique constraint failed'));
 
       const request = new Request('http://localhost/api/crm/contacts', {
         method: 'POST',
@@ -325,9 +323,7 @@ describe('CRM Contacts API - Integration Tests', () => {
         profile: { id: 'admin-1' },
       } as any);
 
-      vi.mocked(CRMService.getContactById).mockRejectedValue(
-        new Error('Contact not found')
-      );
+      vi.mocked(CRMService.getContactById).mockRejectedValue(new Error('Contact not found'));
 
       const request = new Request('http://localhost/api/crm/contacts/nonexistent');
       const response = await getContactById(request, { params: { id: 'nonexistent' } });
@@ -472,9 +468,7 @@ describe('CRM Contacts API - Integration Tests', () => {
 
       // The DELETE route requires super_admin or admin roles
       // When a tax_preparer tries to access, requireOneOfRoles throws
-      vi.mocked(requireOneOfRoles).mockRejectedValue(
-        new Error('Insufficient permissions')
-      );
+      vi.mocked(requireOneOfRoles).mockRejectedValue(new Error('Insufficient permissions'));
 
       const request = new Request('http://localhost/api/crm/contacts/contact-1', {
         method: 'DELETE',

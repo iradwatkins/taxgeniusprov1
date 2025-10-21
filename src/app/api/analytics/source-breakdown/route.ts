@@ -7,74 +7,74 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 6.4
  */
 
-import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
-import { prisma } from '@/lib/prisma'
-import { logger } from '@/lib/logger'
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
+import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 interface SourceBreakdown {
   byType: Array<{
-    type: string
-    count: number
-    clicks: number
-    conversions: number
-    conversionRate: number
-    earnings?: number
-  }>
+    type: string;
+    count: number;
+    clicks: number;
+    conversions: number;
+    conversionRate: number;
+    earnings?: number;
+  }>;
   byCampaign: Array<{
-    campaign: string
-    count: number
-    clicks: number
-    conversions: number
-    conversionRate: number
-  }>
+    campaign: string;
+    count: number;
+    clicks: number;
+    conversions: number;
+    conversionRate: number;
+  }>;
   byLocation: Array<{
-    location: string
-    count: number
-    clicks: number
-    conversions: number
-    conversionRate: number
-  }>
+    location: string;
+    count: number;
+    clicks: number;
+    conversions: number;
+    conversionRate: number;
+  }>;
   summary: {
-    totalMaterials: number
-    totalClicks: number
-    totalConversions: number
-    averageConversionRate: number
-    bestPerformingType: string
-    bestPerformingCampaign: string
-  }
+    totalMaterials: number;
+    totalClicks: number;
+    totalConversions: number;
+    averageConversionRate: number;
+    bestPerformingType: string;
+    bestPerformingCampaign: string;
+  };
 }
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth()
+    const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const url = new URL(request.url)
-    const dateRange = url.searchParams.get('dateRange') || 'all'
+    const url = new URL(request.url);
+    const dateRange = url.searchParams.get('dateRange') || 'all';
 
     // Calculate date filter
-    let dateFilter = {}
+    let dateFilter = {};
     if (dateRange !== 'all') {
-      const now = new Date()
-      const start = new Date()
+      const now = new Date();
+      const start = new Date();
 
       switch (dateRange) {
         case 'week':
-          start.setDate(now.getDate() - 7)
-          break
+          start.setDate(now.getDate() - 7);
+          break;
         case 'month':
-          start.setMonth(now.getMonth() - 1)
-          break
+          start.setMonth(now.getMonth() - 1);
+          break;
         case 'quarter':
-          start.setMonth(now.getMonth() - 3)
-          break
+          start.setMonth(now.getMonth() - 3);
+          break;
         case 'year':
-          start.setFullYear(now.getFullYear() - 1)
-          break
+          start.setFullYear(now.getFullYear() - 1);
+          break;
       }
 
       dateFilter = {
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
           gte: start,
           lte: now,
         },
-      }
+      };
     }
 
     // Group by type
@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
         clicks: true,
         returnsFiled: true,
       },
-    })
+    });
 
     // Group by campaign
     const byCampaign = await prisma.marketingLink.groupBy({
@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
         clicks: true,
         returnsFiled: true,
       },
-    })
+    });
 
     // Group by location
     const byLocation = await prisma.marketingLink.groupBy({
@@ -136,7 +136,7 @@ export async function GET(request: NextRequest) {
         clicks: true,
         returnsFiled: true,
       },
-    })
+    });
 
     // Get earnings by material (for referrers/affiliates)
     const commissions = await prisma.commission.groupBy({
@@ -147,17 +147,17 @@ export async function GET(request: NextRequest) {
       _sum: {
         amount: true,
       },
-    })
+    });
 
     const commissionMap = new Map(
       commissions.map((c) => [c.referralId, Number(c._sum.amount || 0)])
-    )
+    );
 
     // Format by type
     const formattedByType = byType.map((item) => {
-      const clicks = item._sum.clicks || 0
-      const conversions = item._sum.returnsFiled || 0
-      const conversionRate = clicks > 0 ? (conversions / clicks) * 100 : 0
+      const clicks = item._sum.clicks || 0;
+      const conversions = item._sum.returnsFiled || 0;
+      const conversionRate = clicks > 0 ? (conversions / clicks) * 100 : 0;
 
       return {
         type: item.linkType,
@@ -165,14 +165,14 @@ export async function GET(request: NextRequest) {
         clicks,
         conversions,
         conversionRate: Number(conversionRate.toFixed(2)),
-      }
-    })
+      };
+    });
 
     // Format by campaign
     const formattedByCampaign = byCampaign.map((item) => {
-      const clicks = item._sum.clicks || 0
-      const conversions = item._sum.returnsFiled || 0
-      const conversionRate = clicks > 0 ? (conversions / clicks) * 100 : 0
+      const clicks = item._sum.clicks || 0;
+      const conversions = item._sum.returnsFiled || 0;
+      const conversionRate = clicks > 0 ? (conversions / clicks) * 100 : 0;
 
       return {
         campaign: item.campaign || 'Uncategorized',
@@ -180,14 +180,14 @@ export async function GET(request: NextRequest) {
         clicks,
         conversions,
         conversionRate: Number(conversionRate.toFixed(2)),
-      }
-    })
+      };
+    });
 
     // Format by location
     const formattedByLocation = byLocation.map((item) => {
-      const clicks = item._sum.clicks || 0
-      const conversions = item._sum.returnsFiled || 0
-      const conversionRate = clicks > 0 ? (conversions / clicks) * 100 : 0
+      const clicks = item._sum.clicks || 0;
+      const conversions = item._sum.returnsFiled || 0;
+      const conversionRate = clicks > 0 ? (conversions / clicks) * 100 : 0;
 
       return {
         location: item.location || 'Not specified',
@@ -195,22 +195,20 @@ export async function GET(request: NextRequest) {
         clicks,
         conversions,
         conversionRate: Number(conversionRate.toFixed(2)),
-      }
-    })
+      };
+    });
 
     // Calculate summary
-    const totalMaterials = formattedByType.reduce((sum, item) => sum + item.count, 0)
-    const totalClicks = formattedByType.reduce((sum, item) => sum + item.clicks, 0)
-    const totalConversions = formattedByType.reduce((sum, item) => sum + item.conversions, 0)
-    const averageConversionRate =
-      totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0
+    const totalMaterials = formattedByType.reduce((sum, item) => sum + item.count, 0);
+    const totalClicks = formattedByType.reduce((sum, item) => sum + item.clicks, 0);
+    const totalConversions = formattedByType.reduce((sum, item) => sum + item.conversions, 0);
+    const averageConversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0;
 
     const bestPerformingType =
-      formattedByType.sort((a, b) => b.conversionRate - a.conversionRate)[0]?.type || 'N/A'
+      formattedByType.sort((a, b) => b.conversionRate - a.conversionRate)[0]?.type || 'N/A';
 
     const bestPerformingCampaign =
-      formattedByCampaign.sort((a, b) => b.conversionRate - a.conversionRate)[0]?.campaign ||
-      'N/A'
+      formattedByCampaign.sort((a, b) => b.conversionRate - a.conversionRate)[0]?.campaign || 'N/A';
 
     const response: SourceBreakdown = {
       byType: formattedByType.sort((a, b) => b.conversions - a.conversions),
@@ -224,14 +222,11 @@ export async function GET(request: NextRequest) {
         bestPerformingType,
         bestPerformingCampaign,
       },
-    }
+    };
 
-    return NextResponse.json(response)
+    return NextResponse.json(response);
   } catch (error) {
-    logger.error('Source breakdown error:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch source breakdown' },
-      { status: 500 }
-    )
+    logger.error('Source breakdown error:', error);
+    return NextResponse.json({ error: 'Failed to fetch source breakdown' }, { status: 500 });
   }
 }

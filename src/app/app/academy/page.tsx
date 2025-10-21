@@ -1,18 +1,18 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Progress } from '@/components/ui/progress'
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '@/components/ui/dialog';
 import {
   PlayCircle,
   CheckCircle,
@@ -24,31 +24,32 @@ import {
   FileText,
   Star,
   Filter,
-} from 'lucide-react'
+} from 'lucide-react';
 
 interface Video {
-  id: string
-  title: string
-  description: string
-  duration: string
-  thumbnail: string
-  videoUrl: string
-  completed: boolean
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced'
-  category: string
+  id: string;
+  title: string;
+  description: string;
+  duration: string;
+  thumbnail: string;
+  videoUrl: string;
+  completed: boolean;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  category: string;
 }
 
 export default function AcademyPage() {
-  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [completedVideos, setCompletedVideos] = useState<Set<string>>(new Set())
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [completedVideos, setCompletedVideos] = useState<Set<string>>(new Set());
 
   // Training videos - Real Tax Genius training content
   const videos: Video[] = [
     {
       id: '1',
       title: 'The Basics of Tax Preparation',
-      description: 'This will give you the basics of Tax preparations. Comprehensive introduction to tax preparation fundamentals and the Tax Genius software.',
+      description:
+        'This will give you the basics of Tax preparations. Comprehensive introduction to tax preparation fundamentals and the Tax Genius software.',
       duration: '90 min',
       thumbnail: 'https://img.youtube.com/vi/J1ebKU1YWnc/maxresdefault.jpg',
       videoUrl: 'https://www.youtube.com/embed/J1ebKU1YWnc',
@@ -59,7 +60,8 @@ export default function AcademyPage() {
     {
       id: '2',
       title: 'Tax Genius Software Mobile App and Portal',
-      description: 'Gain valuable insights into the Tax Genius Software through the lens of customers as we explore both the mobile app and portal functionalities. Understand the features and convenience from a customer\'s viewpoint.',
+      description:
+        "Gain valuable insights into the Tax Genius Software through the lens of customers as we explore both the mobile app and portal functionalities. Understand the features and convenience from a customer's viewpoint.",
       duration: '101 min',
       thumbnail: 'https://img.youtube.com/vi/z6KrrDK1KkY/maxresdefault.jpg',
       videoUrl: 'https://www.youtube.com/embed/z6KrrDK1KkY',
@@ -70,7 +72,8 @@ export default function AcademyPage() {
     {
       id: '3',
       title: 'Tax Genius Software Full Return Demo',
-      description: 'A comprehensive journey through the Tax Genius Software from start to finish, including payments and banking products. This walkthrough covers the complete spectrum of tax preparation.',
+      description:
+        'A comprehensive journey through the Tax Genius Software from start to finish, including payments and banking products. This walkthrough covers the complete spectrum of tax preparation.',
       duration: '66 min',
       thumbnail: 'https://img.youtube.com/vi/rxWy8O4Gqvc/maxresdefault.jpg',
       videoUrl: 'https://www.youtube.com/embed/rxWy8O4Gqvc',
@@ -81,7 +84,8 @@ export default function AcademyPage() {
     {
       id: '4',
       title: 'Tax Genius Software Login, Dashboard and Sections',
-      description: 'Explore the Tax Genius Software seamlessly from the login phase to navigating the dashboard and understanding the different sections. Ensure you have a comprehensive grasp of the Tax Genius Software\'s interface.',
+      description:
+        "Explore the Tax Genius Software seamlessly from the login phase to navigating the dashboard and understanding the different sections. Ensure you have a comprehensive grasp of the Tax Genius Software's interface.",
       duration: '45 min',
       thumbnail: 'https://img.youtube.com/vi/LjEWXwKdxGw/maxresdefault.jpg',
       videoUrl: 'https://www.youtube.com/embed/LjEWXwKdxGw',
@@ -92,7 +96,8 @@ export default function AcademyPage() {
     {
       id: '5',
       title: 'Tax Genius Complimentary Vacations',
-      description: 'Our Travel Partner Redeem Vacations has joined us to provide you with a complimentary vacation to destinations including Cancun, Cabo San Lucas, Puerto Vallarta, Las Vegas, Phuket, Kuta & Dubai when you hire us to help you with your taxes.',
+      description:
+        'Our Travel Partner Redeem Vacations has joined us to provide you with a complimentary vacation to destinations including Cancun, Cabo San Lucas, Puerto Vallarta, Las Vegas, Phuket, Kuta & Dubai when you hire us to help you with your taxes.',
       duration: '15 min',
       thumbnail: 'https://img.youtube.com/vi/ni_RRH39MB0/maxresdefault.jpg',
       videoUrl: 'https://www.youtube.com/embed/ni_RRH39MB0',
@@ -103,7 +108,8 @@ export default function AcademyPage() {
     {
       id: '6',
       title: 'Tax Genius Complimentary Vacations (Extended)',
-      description: 'Extended version: Our Travel Partner Redeem Vacations provides complimentary vacations to popular destinations when you use our tax services. Learn how to present this benefit to clients.',
+      description:
+        'Extended version: Our Travel Partner Redeem Vacations provides complimentary vacations to popular destinations when you use our tax services. Learn how to present this benefit to clients.',
       duration: '20 min',
       thumbnail: 'https://img.youtube.com/vi/Br8UqmAA5l8/maxresdefault.jpg',
       videoUrl: 'https://www.youtube.com/embed/Br8UqmAA5l8',
@@ -111,37 +117,38 @@ export default function AcademyPage() {
       difficulty: 'Beginner',
       category: 'Client Benefits',
     },
-  ]
+  ];
 
-  const filteredVideos = videos.filter(video =>
-    video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    video.description.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredVideos = videos.filter(
+    (video) =>
+      video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      video.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const totalVideos = videos.length
-  const watchedVideos = completedVideos.size
-  const progressPercentage = (watchedVideos / totalVideos) * 100
+  const totalVideos = videos.length;
+  const watchedVideos = completedVideos.size;
+  const progressPercentage = (watchedVideos / totalVideos) * 100;
 
   const handleMarkComplete = (videoId: string) => {
-    setCompletedVideos(prev => new Set([...prev, videoId]))
-  }
+    setCompletedVideos((prev) => new Set([...prev, videoId]));
+  };
 
   const handleWatchVideo = (video: Video) => {
-    setSelectedVideo(video)
-  }
+    setSelectedVideo(video);
+  };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Beginner':
-        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+        return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
       case 'Intermediate':
-        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
+        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
       case 'Advanced':
-        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
       default:
-        return 'bg-gray-100 text-gray-700'
+        return 'bg-gray-100 text-gray-700';
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -167,9 +174,7 @@ export default function AcademyPage() {
         <Card>
           <CardHeader>
             <CardTitle>Your Progress</CardTitle>
-            <CardDescription>
-              Track your learning journey through the academy
-            </CardDescription>
+            <CardDescription>Track your learning journey through the academy</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -214,9 +219,10 @@ export default function AcademyPage() {
               <div className="text-center">
                 <p className="text-2xl font-bold">
                   {videos.reduce((acc, v) => {
-                    const minutes = parseInt(v.duration.replace(/\D/g, ''))
-                    return acc + (isNaN(minutes) ? 0 : minutes)
-                  }, 0)} min
+                    const minutes = parseInt(v.duration.replace(/\D/g, ''));
+                    return acc + (isNaN(minutes) ? 0 : minutes);
+                  }, 0)}{' '}
+                  min
                 </p>
                 <p className="text-xs text-muted-foreground">Total Duration</p>
               </div>
@@ -244,7 +250,7 @@ export default function AcademyPage() {
         {/* Video Library */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredVideos.map((video) => {
-            const isCompleted = completedVideos.has(video.id)
+            const isCompleted = completedVideos.has(video.id);
 
             return (
               <Card key={video.id} className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -254,7 +260,8 @@ export default function AcademyPage() {
                     alt={video.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/50 transition-colors cursor-pointer group"
+                  <div
+                    className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/50 transition-colors cursor-pointer group"
                     onClick={() => handleWatchVideo(video)}
                   >
                     <PlayCircle className="h-16 w-16 text-white group-hover:scale-110 transition-transform" />
@@ -293,25 +300,19 @@ export default function AcademyPage() {
                   </CardDescription>
 
                   <div className="flex gap-2">
-                    <Button
-                      className="flex-1"
-                      onClick={() => handleWatchVideo(video)}
-                    >
+                    <Button className="flex-1" onClick={() => handleWatchVideo(video)}>
                       <PlayCircle className="mr-2 h-4 w-4" />
                       Watch
                     </Button>
                     {!isCompleted && (
-                      <Button
-                        variant="outline"
-                        onClick={() => handleMarkComplete(video.id)}
-                      >
+                      <Button variant="outline" onClick={() => handleMarkComplete(video.id)}>
                         <CheckCircle className="h-4 w-4" />
                       </Button>
                     )}
                   </div>
                 </CardContent>
               </Card>
-            )
+            );
           })}
         </div>
 
@@ -320,9 +321,7 @@ export default function AcademyPage() {
             <CardContent className="flex flex-col items-center justify-center py-12">
               <BookOpen className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">No videos found</h3>
-              <p className="text-muted-foreground text-sm">
-                Try adjusting your search query
-              </p>
+              <p className="text-muted-foreground text-sm">Try adjusting your search query</p>
             </CardContent>
           </Card>
         )}
@@ -334,9 +333,7 @@ export default function AcademyPage() {
               <FileText className="h-5 w-5" />
               Additional Resources
             </CardTitle>
-            <CardDescription>
-              Supplementary materials to enhance your learning
-            </CardDescription>
+            <CardDescription>Supplementary materials to enhance your learning</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3 md:grid-cols-2">
@@ -402,8 +399,8 @@ export default function AcademyPage() {
               </div>
               <Button
                 onClick={() => {
-                  handleMarkComplete(selectedVideo.id)
-                  setSelectedVideo(null)
+                  handleMarkComplete(selectedVideo.id);
+                  setSelectedVideo(null);
                 }}
                 disabled={completedVideos.has(selectedVideo.id)}
               >
@@ -415,5 +412,5 @@ export default function AcademyPage() {
         </Dialog>
       )}
     </div>
-  )
+  );
 }

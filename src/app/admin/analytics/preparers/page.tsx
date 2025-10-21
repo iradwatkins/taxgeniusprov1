@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
 import {
   Users,
   MousePointerClick,
@@ -8,63 +8,63 @@ import {
   DollarSign,
   Link2,
   TrendingUp,
-} from 'lucide-react'
-import { getPreparersAnalytics } from '@/lib/services/lead-analytics.service'
-import { LeadMetricCard } from '@/components/admin/analytics/LeadMetricCard'
-import { PerformanceTable, type Column, type PerformanceData } from '@/components/admin/analytics/PerformanceTable'
-import { createFunnelStages } from '@/lib/utils/analytics'
-import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart'
-import { ExportButton } from '@/components/admin/analytics/ExportButton'
-import { PreparerFilterBar } from './PreparerFilterBar'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+} from 'lucide-react';
+import { getPreparersAnalytics } from '@/lib/services/lead-analytics.service';
+import { LeadMetricCard } from '@/components/admin/analytics/LeadMetricCard';
+import {
+  PerformanceTable,
+  type Column,
+  type PerformanceData,
+} from '@/components/admin/analytics/PerformanceTable';
+import { createFunnelStages } from '@/lib/utils/analytics';
+import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart';
+import { ExportButton } from '@/components/admin/analytics/ExportButton';
+import { PreparerFilterBar } from './PreparerFilterBar';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export const metadata = {
   title: 'Tax Preparer Analytics - Admin | Tax Genius Pro',
   description: 'Track individual tax preparer lead generation performance',
-}
+};
 
 async function checkAdminAccess() {
-  const user = await currentUser()
-  if (!user) return { hasAccess: false, userId: null, role: null }
+  const user = await currentUser();
+  if (!user) return { hasAccess: false, userId: null, role: null };
 
-  const role = user.publicMetadata?.role as string
-  const hasAccess = role === 'admin' || role === 'super_admin'
+  const role = user.publicMetadata?.role as string;
+  const hasAccess = role === 'admin' || role === 'super_admin';
 
-  return { hasAccess, userId: user.id, role }
+  return { hasAccess, userId: user.id, role };
 }
 
 export default async function AdminPreparersAnalyticsPage({
   searchParams,
 }: {
-  searchParams: { preparerId?: string }
+  searchParams: { preparerId?: string };
 }) {
-  const { hasAccess, userId, role } = await checkAdminAccess()
+  const { hasAccess, userId, role } = await checkAdminAccess();
 
   if (!hasAccess || !userId) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
   // Get filter from URL
-  const filterPreparerId = searchParams.preparerId || undefined
+  const filterPreparerId = searchParams.preparerId || undefined;
 
   // Fetch preparers analytics (filtered or all)
-  const preparersData = await getPreparersAnalytics(
-    userId,
-    role as any,
-    filterPreparerId
-  )
+  const preparersData = await getPreparersAnalytics(userId, role as any, filterPreparerId);
 
   // Calculate aggregate metrics
-  const totalClicks = preparersData.reduce((sum, p) => sum + p.clicks, 0)
-  const totalLeads = preparersData.reduce((sum, p) => sum + p.leads, 0)
-  const totalConversions = preparersData.reduce((sum, p) => sum + p.conversions, 0)
-  const totalReturnsFiled = preparersData.reduce((sum, p) => sum + p.returnsFiled, 0)
-  const totalRevenue = preparersData.reduce((sum, p) => sum + p.revenue, 0)
-  const totalMarketingLinks = preparersData.reduce((sum, p) => sum + p.marketingLinksCount, 0)
+  const totalClicks = preparersData.reduce((sum, p) => sum + p.clicks, 0);
+  const totalLeads = preparersData.reduce((sum, p) => sum + p.leads, 0);
+  const totalConversions = preparersData.reduce((sum, p) => sum + p.conversions, 0);
+  const totalReturnsFiled = preparersData.reduce((sum, p) => sum + p.returnsFiled, 0);
+  const totalRevenue = preparersData.reduce((sum, p) => sum + p.revenue, 0);
+  const totalMarketingLinks = preparersData.reduce((sum, p) => sum + p.marketingLinksCount, 0);
   const avgConversionRate =
     preparersData.length > 0
       ? preparersData.reduce((sum, p) => sum + p.conversionRate, 0) / preparersData.length
-      : 0
+      : 0;
 
   // Create funnel data
   const funnelStages = createFunnelStages(
@@ -72,7 +72,7 @@ export default async function AdminPreparersAnalyticsPage({
     totalLeads,
     totalConversions,
     totalReturnsFiled
-  )
+  );
 
   // Prepare table data
   const tableData: PerformanceData[] = preparersData.map((preparer) => ({
@@ -87,7 +87,7 @@ export default async function AdminPreparersAnalyticsPage({
     conversionRate: preparer.conversionRate,
     revenue: preparer.revenue,
     lastActive: preparer.lastActive,
-  }))
+  }));
 
   // Define table columns
   const columns: Column[] = [
@@ -105,7 +105,7 @@ export default async function AdminPreparersAnalyticsPage({
       className: 'hidden lg:table-cell',
     },
     { key: 'revenue', label: 'Revenue', sortable: true, format: 'currency' },
-  ]
+  ];
 
   // Prepare export data
   const exportData = preparersData.map((p) => ({
@@ -120,7 +120,7 @@ export default async function AdminPreparersAnalyticsPage({
     conversionRate: p.conversionRate,
     revenue: p.revenue,
     lastActive: p.lastActive?.toISOString() || 'Never',
-  }))
+  }));
 
   return (
     <div className="p-6 space-y-6">
@@ -293,51 +293,50 @@ export default async function AdminPreparersAnalyticsPage({
       )}
 
       {/* Link Performance (for filtered view) */}
-      {filterPreparerId && preparersData.length > 0 && preparersData[0].linkBreakdown.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Marketing Link Performance</CardTitle>
-            <CardDescription>
-              Individual link metrics for {preparersData[0].preparerName}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {preparersData[0].linkBreakdown.map((link) => (
-                <div
-                  key={link.linkId}
-                  className="p-4 border rounded-lg space-y-2"
-                >
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium truncate">{link.linkName}</p>
-                    <span className="text-xs text-muted-foreground">
-                      {link.conversionRate.toFixed(1)}% conversion
-                    </span>
+      {filterPreparerId &&
+        preparersData.length > 0 &&
+        preparersData[0].linkBreakdown.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Marketing Link Performance</CardTitle>
+              <CardDescription>
+                Individual link metrics for {preparersData[0].preparerName}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {preparersData[0].linkBreakdown.map((link) => (
+                  <div key={link.linkId} className="p-4 border rounded-lg space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium truncate">{link.linkName}</p>
+                      <span className="text-xs text-muted-foreground">
+                        {link.conversionRate.toFixed(1)}% conversion
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <p className="text-muted-foreground text-xs">Clicks</p>
+                        <p className="font-semibold">{link.clicks}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs">Leads</p>
+                        <p className="font-semibold">{link.leads}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs">Conversions</p>
+                        <p className="font-semibold">{link.conversions}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs">Revenue</p>
+                        <p className="font-semibold">${link.revenue.toLocaleString()}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <p className="text-muted-foreground text-xs">Clicks</p>
-                      <p className="font-semibold">{link.clicks}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground text-xs">Leads</p>
-                      <p className="font-semibold">{link.leads}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground text-xs">Conversions</p>
-                      <p className="font-semibold">{link.conversions}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground text-xs">Revenue</p>
-                      <p className="font-semibold">${link.revenue.toLocaleString()}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
     </div>
-  )
+  );
 }

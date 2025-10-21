@@ -1,10 +1,10 @@
 import { redirect } from 'next/navigation';
 import { currentUser } from '@clerk/nextjs/server';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   GraduationCap,
   Video,
@@ -42,9 +42,7 @@ export default async function LearningCenterPage() {
               Upload Content
             </Button>
           </div>
-          <p className="text-muted-foreground">
-            Training hub for staff and client education
-          </p>
+          <p className="text-muted-foreground">Training hub for staff and client education</p>
         </div>
 
         {/* Stats */}
@@ -111,10 +109,30 @@ export default async function LearningCenterPage() {
               <CardContent>
                 <div className="grid md:grid-cols-2 gap-4">
                   {[
-                    { title: 'Tax Preparation Basics', modules: 8, duration: '4 hours', level: 'Beginner' },
-                    { title: 'Advanced Tax Strategies', modules: 12, duration: '6 hours', level: 'Advanced' },
-                    { title: 'Client Communication', modules: 5, duration: '2 hours', level: 'All Levels' },
-                    { title: 'Software Training', modules: 10, duration: '3 hours', level: 'Beginner' },
+                    {
+                      title: 'Tax Preparation Basics',
+                      modules: 8,
+                      duration: '4 hours',
+                      level: 'Beginner',
+                    },
+                    {
+                      title: 'Advanced Tax Strategies',
+                      modules: 12,
+                      duration: '6 hours',
+                      level: 'Advanced',
+                    },
+                    {
+                      title: 'Client Communication',
+                      modules: 5,
+                      duration: '2 hours',
+                      level: 'All Levels',
+                    },
+                    {
+                      title: 'Software Training',
+                      modules: 10,
+                      duration: '3 hours',
+                      level: 'Beginner',
+                    },
                   ].map((course) => (
                     <div key={course.title} className="border rounded-lg p-4">
                       <div className="flex items-start justify-between mb-3">
@@ -132,8 +150,12 @@ export default async function LearningCenterPage() {
                         </span>
                       </div>
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline" className="flex-1">View</Button>
-                        <Button size="sm" className="flex-1">Edit</Button>
+                        <Button size="sm" variant="outline" className="flex-1">
+                          View
+                        </Button>
+                        <Button size="sm" className="flex-1">
+                          Edit
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -156,7 +178,10 @@ export default async function LearningCenterPage() {
                     { title: 'Client Onboarding Process', duration: '12:15', views: 156 },
                     { title: 'Using the Document Scanner', duration: '8:20', views: 92 },
                   ].map((video) => (
-                    <div key={video.title} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={video.title}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div className="flex items-center gap-4">
                         <PlayCircle className="w-10 h-10 text-primary" />
                         <div>
@@ -168,7 +193,9 @@ export default async function LearningCenterPage() {
                         </div>
                       </div>
                       <div className="space-x-2">
-                        <Button size="sm" variant="outline">Edit</Button>
+                        <Button size="sm" variant="outline">
+                          Edit
+                        </Button>
                         <Button size="sm">Watch</Button>
                       </div>
                     </div>
@@ -192,7 +219,10 @@ export default async function LearningCenterPage() {
                     { title: 'Client FAQ Template', type: 'DOCX', size: '245 KB' },
                     { title: 'Tax Forms Checklist', type: 'PDF', size: '180 KB' },
                   ].map((doc) => (
-                    <div key={doc.title} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={doc.title}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div className="flex items-center gap-3">
                         <FileText className="w-8 h-8 text-blue-600" />
                         <div>
@@ -236,7 +266,9 @@ export default async function LearningCenterPage() {
                           <span className="font-medium">{form}</span>
                         </div>
                         <div className="space-x-2">
-                          <Button size="sm" variant="outline">View</Button>
+                          <Button size="sm" variant="outline">
+                            View
+                          </Button>
                           <Button size="sm" variant="outline">
                             <Download className="w-3 h-3" />
                           </Button>

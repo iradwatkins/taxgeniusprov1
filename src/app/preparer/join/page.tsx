@@ -1,12 +1,18 @@
-'use client'
+'use client';
 
-import { useState, useEffect, useRef } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useState, useEffect, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Briefcase,
   DollarSign,
@@ -17,66 +23,67 @@ import {
   Award,
   Clock,
   Palette,
-  BarChart3
-} from 'lucide-react'
-import Image from 'next/image'
-import { motion, useInView, useMotionValue, useSpring } from 'framer-motion'
-import { logger } from '@/lib/logger'
+  BarChart3,
+} from 'lucide-react';
+import Image from 'next/image';
+import { motion, useInView, useMotionValue, useSpring } from 'framer-motion';
+import { logger } from '@/lib/logger';
 
 // Animated counter component
 function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
-  const motionValue = useMotionValue(0)
-  const springValue = useSpring(motionValue, { duration: 2000 })
-  const [displayValue, setDisplayValue] = useState(0)
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+  const motionValue = useMotionValue(0);
+  const springValue = useSpring(motionValue, { duration: 2000 });
+  const [displayValue, setDisplayValue] = useState(0);
 
   useEffect(() => {
     if (isInView) {
-      motionValue.set(value)
+      motionValue.set(value);
     }
-  }, [isInView, motionValue, value])
+  }, [isInView, motionValue, value]);
 
   useEffect(() => {
     springValue.on('change', (latest) => {
-      setDisplayValue(Math.floor(latest))
-    })
-  }, [springValue])
+      setDisplayValue(Math.floor(latest));
+    });
+  }, [springValue]);
 
   return (
     <span ref={ref}>
-      {displayValue.toLocaleString()}{suffix}
+      {displayValue.toLocaleString()}
+      {suffix}
     </span>
-  )
+  );
 }
 
 // Typing animation component
 function TypingText({ text, delay = 0 }: { text: string; delay?: number }) {
-  const [displayText, setDisplayText] = useState('')
-  const [isTyping, setIsTyping] = useState(false)
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true })
+  const [displayText, setDisplayText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
 
   useEffect(() => {
     if (isInView && !isTyping) {
-      setIsTyping(true)
-      let currentIndex = 0
+      setIsTyping(true);
+      let currentIndex = 0;
       const timeout = setTimeout(() => {
         const interval = setInterval(() => {
           if (currentIndex <= text.length) {
-            setDisplayText(text.slice(0, currentIndex))
-            currentIndex++
+            setDisplayText(text.slice(0, currentIndex));
+            currentIndex++;
           } else {
-            clearInterval(interval)
+            clearInterval(interval);
           }
-        }, 30)
-        return () => clearInterval(interval)
-      }, delay)
-      return () => clearTimeout(timeout)
+        }, 30);
+        return () => clearInterval(interval);
+      }, delay);
+      return () => clearTimeout(timeout);
     }
-  }, [isInView, text, delay, isTyping])
+  }, [isInView, text, delay, isTyping]);
 
-  return <span ref={ref}>{displayText}</span>
+  return <span ref={ref}>{displayText}</span>;
 }
 
 export default function PreparerJoinPage() {
@@ -88,14 +95,14 @@ export default function PreparerJoinPage() {
     ptin: '',
     certification: '',
     experience: '',
-    message: ''
-  })
-  const [submitted, setSubmitted] = useState(false)
-  const [loading, setLoading] = useState(false)
+    message: '',
+  });
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
       const response = await fetch('/api/leads/preparer', {
@@ -104,22 +111,22 @@ export default function PreparerJoinPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to submit application')
+        throw new Error(data.message || 'Failed to submit application');
       }
 
-      setSubmitted(true)
+      setSubmitted(true);
     } catch (error) {
-      logger.error('Error submitting form:', error)
-      alert('An error occurred while submitting your application. Please try again.')
+      logger.error('Error submitting form:', error);
+      alert('An error occurred while submitting your application. Please try again.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (submitted) {
     return (
@@ -131,7 +138,8 @@ export default function PreparerJoinPage() {
             </div>
             <h2 className="text-3xl font-bold mb-4">Application Received!</h2>
             <p className="text-xl text-muted-foreground mb-6">
-              Thank you for your interest in joining Tax Genius Pro. We're reviewing your application.
+              Thank you for your interest in joining Tax Genius Pro. We're reviewing your
+              application.
             </p>
             <div className="bg-muted p-6 rounded-lg mb-6">
               <p className="font-semibold mb-2">Next Steps:</p>
@@ -160,7 +168,7 @@ export default function PreparerJoinPage() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -196,14 +204,22 @@ export default function PreparerJoinPage() {
               transition={{ delay: 0.4 }}
               className="text-xl text-muted-foreground mb-8"
             >
-              Join Tax Genius Pro and get the tools, clients, and support you need to succeed.
-              Earn $75K+ annually with flexible hours.
+              Join Tax Genius Pro and get the tools, clients, and support you need to succeed. Earn
+              $75K+ annually with flexible hours.
             </motion.p>
             <div className="space-y-3">
               {[
-                { icon: Palette, text: 'Customized marketing materials with YOUR branding', delay: 0.5 },
+                {
+                  icon: Palette,
+                  text: 'Customized marketing materials with YOUR branding',
+                  delay: 0.5,
+                },
                 { icon: Users, text: 'We bring you qualified leads & clients', delay: 0.6 },
-                { icon: BarChart3, text: 'Professional client portal & management tools', delay: 0.7 }
+                {
+                  icon: BarChart3,
+                  text: 'Professional client portal & management tools',
+                  delay: 0.7,
+                },
               ].map((item, index) => (
                 <motion.div
                   key={index}
@@ -238,10 +254,39 @@ export default function PreparerJoinPage() {
         {/* Stats */}
         <div className="grid md:grid-cols-4 gap-6 mb-16">
           {[
-            { icon: DollarSign, value: 75, suffix: 'K+', label: 'Avg. Annual Income', color: 'text-green-500', delay: 0 },
-            { icon: Users, value: 500, suffix: '+', label: 'Active Preparers', color: 'text-blue-500', delay: 0.1 },
-            { icon: TrendingUp, value: 10, suffix: 'K+', label: 'Returns Filed', color: 'text-purple-500', delay: 0.2 },
-            { icon: Clock, value: 0, suffix: '', label: 'Work Hours', text: 'Flexible', color: 'text-orange-500', delay: 0.3 }
+            {
+              icon: DollarSign,
+              value: 75,
+              suffix: 'K+',
+              label: 'Avg. Annual Income',
+              color: 'text-green-500',
+              delay: 0,
+            },
+            {
+              icon: Users,
+              value: 500,
+              suffix: '+',
+              label: 'Active Preparers',
+              color: 'text-blue-500',
+              delay: 0.1,
+            },
+            {
+              icon: TrendingUp,
+              value: 10,
+              suffix: 'K+',
+              label: 'Returns Filed',
+              color: 'text-purple-500',
+              delay: 0.2,
+            },
+            {
+              icon: Clock,
+              value: 0,
+              suffix: '',
+              label: 'Work Hours',
+              text: 'Flexible',
+              color: 'text-orange-500',
+              delay: 0.3,
+            },
           ].map((stat, index) => (
             <motion.div
               key={index}
@@ -261,7 +306,9 @@ export default function PreparerJoinPage() {
                     <stat.icon className={`h-8 w-8 mx-auto mb-2 ${stat.color}`} />
                   </motion.div>
                   <div className="text-3xl font-bold">
-                    {stat.text ? stat.text : (
+                    {stat.text ? (
+                      stat.text
+                    ) : (
                       <>
                         $<AnimatedCounter value={stat.value} suffix={stat.suffix} />
                       </>
@@ -296,23 +343,26 @@ export default function PreparerJoinPage() {
                 name: 'Sarah Martinez',
                 title: 'EA, 8 years experience',
                 image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&q=80',
-                quote: '"Tax Genius Pro gave me everything I needed to grow my practice. The marketing materials and client portal are top-notch!"',
-                delay: 0
+                quote:
+                  '"Tax Genius Pro gave me everything I needed to grow my practice. The marketing materials and client portal are top-notch!"',
+                delay: 0,
               },
               {
                 name: 'Michael Johnson',
                 title: 'CPA, 12 years experience',
                 image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&q=80',
-                quote: '"I doubled my client base in the first season. The lead generation and support team are exceptional!"',
-                delay: 200
+                quote:
+                  '"I doubled my client base in the first season. The lead generation and support team are exceptional!"',
+                delay: 200,
               },
               {
                 name: 'Jennifer Lee',
                 title: 'EA, 5 years experience',
                 image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&q=80',
-                quote: '"The flexibility to work on my own schedule while having professional tools made all the difference."',
-                delay: 400
-              }
+                quote:
+                  '"The flexibility to work on my own schedule while having professional tools made all the difference."',
+                delay: 400,
+              },
             ].map((testimonial, index) => (
               <motion.div
                 key={index}
@@ -377,7 +427,7 @@ export default function PreparerJoinPage() {
                       id="firstName"
                       required
                       value={formData.firstName}
-                      onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
@@ -386,7 +436,7 @@ export default function PreparerJoinPage() {
                       id="lastName"
                       required
                       value={formData.lastName}
-                      onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                     />
                   </div>
                 </div>
@@ -398,7 +448,7 @@ export default function PreparerJoinPage() {
                     type="email"
                     required
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   />
                 </div>
 
@@ -409,7 +459,7 @@ export default function PreparerJoinPage() {
                     type="tel"
                     required
                     value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="(555) 123-4567"
                   />
                 </div>
@@ -420,14 +470,17 @@ export default function PreparerJoinPage() {
                     id="ptin"
                     required
                     value={formData.ptin}
-                    onChange={(e) => setFormData({...formData, ptin: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, ptin: e.target.value })}
                     placeholder="P12345678"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="certification">Professional Certification</Label>
-                  <Select value={formData.certification} onValueChange={(value) => setFormData({...formData, certification: value})}>
+                  <Select
+                    value={formData.certification}
+                    onValueChange={(value) => setFormData({ ...formData, certification: value })}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select your certification" />
                     </SelectTrigger>
@@ -443,7 +496,10 @@ export default function PreparerJoinPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="experience">Years of Tax Preparation Experience *</Label>
-                  <Select value={formData.experience} onValueChange={(value) => setFormData({...formData, experience: value})}>
+                  <Select
+                    value={formData.experience}
+                    onValueChange={(value) => setFormData({ ...formData, experience: value })}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select experience level" />
                     </SelectTrigger>
@@ -462,7 +518,7 @@ export default function PreparerJoinPage() {
                   <Textarea
                     id="message"
                     value={formData.message}
-                    onChange={(e) => setFormData({...formData, message: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     rows={4}
                     placeholder="Tell us about your goals and what makes you a great fit..."
                   />
@@ -473,7 +529,8 @@ export default function PreparerJoinPage() {
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground">
-                  By submitting this application, you agree to a background check and verification of credentials.
+                  By submitting this application, you agree to a background check and verification
+                  of credentials.
                 </p>
               </form>
             </CardContent>
@@ -488,22 +545,24 @@ export default function PreparerJoinPage() {
               title: 'Support & Training',
               description: 'Complete onboarding, ongoing training, and 24/7 support from our team',
               image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&q=80',
-              alt: 'Support and training'
+              alt: 'Support and training',
             },
             {
               icon: Award,
               title: 'Professional Tools',
-              description: 'MyTaxOffice integration, client portal, e-signature, and payment processing',
+              description:
+                'MyTaxOffice integration, client portal, e-signature, and payment processing',
               image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80',
-              alt: 'Professional tools'
+              alt: 'Professional tools',
             },
             {
               icon: Palette,
               title: 'Your Brand',
-              description: 'Customized marketing materials with your name, photo, and contact information',
+              description:
+                'Customized marketing materials with your name, photo, and contact information',
               image: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&q=80',
-              alt: 'Your brand'
-            }
+              alt: 'Your brand',
+            },
           ].map((benefit, index) => (
             <motion.div
               key={index}
@@ -521,12 +580,7 @@ export default function PreparerJoinPage() {
                   transition={{ delay: index * 0.2 + 0.3, duration: 0.6 }}
                   className="relative h-48 w-full overflow-hidden"
                 >
-                  <Image
-                    src={benefit.image}
-                    alt={benefit.alt}
-                    fill
-                    className="object-cover"
-                  />
+                  <Image src={benefit.image} alt={benefit.alt} fill className="object-cover" />
                 </motion.div>
                 <CardHeader>
                   <motion.div
@@ -540,9 +594,7 @@ export default function PreparerJoinPage() {
                   <CardTitle>{benefit.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">
-                    {benefit.description}
-                  </p>
+                  <p className="text-muted-foreground">{benefit.description}</p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -560,8 +612,8 @@ export default function PreparerJoinPage() {
             >
               <h2 className="text-3xl font-bold mb-6">Build Your Tax Business</h2>
               <p className="text-lg text-muted-foreground mb-6">
-                Join hundreds of successful tax preparers who have grown their practice with Tax Genius Pro.
-                We provide everything you need to succeed.
+                Join hundreds of successful tax preparers who have grown their practice with Tax
+                Genius Pro. We provide everything you need to succeed.
               </p>
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
@@ -611,5 +663,5 @@ export default function PreparerJoinPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -16,9 +16,7 @@ export default async function UploadDocumentsPage() {
       <SaveFormDataClient />
       <div className="container mx-auto max-w-4xl">
         <div className="text-center mb-8">
-          <h1 className="text-4xl lg:text-5xl font-bold mb-4">
-            Upload Your Tax Documents
-          </h1>
+          <h1 className="text-4xl lg:text-5xl font-bold mb-4">Upload Your Tax Documents</h1>
           <p className="text-xl text-muted-foreground">
             Use your phone camera or upload from computer
           </p>

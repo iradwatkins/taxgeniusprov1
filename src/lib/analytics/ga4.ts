@@ -7,26 +7,26 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 7
  */
 
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 // GA4 Measurement ID from environment
-export const GA4_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID || ''
+export const GA4_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID || '';
 
 /**
  * Check if GA4 is properly configured
  */
 export function isGA4Enabled(): boolean {
-  return Boolean(GA4_MEASUREMENT_ID && typeof window !== 'undefined' && (window as any).gtag)
+  return Boolean(GA4_MEASUREMENT_ID && typeof window !== 'undefined' && (window as any).gtag);
 }
 
 /**
  * Initialize GA4 with referrer tracking
  */
 export function initGA4(referrerUsername?: string) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     // Send page view with referrer context
     gtag('config', GA4_MEASUREMENT_ID, {
@@ -34,20 +34,20 @@ export function initGA4(referrerUsername?: string) {
       page_location: window.location.href,
       ...(referrerUsername && {
         referrer_username: referrerUsername,
-        traffic_source: 'referral_link'
-      })
-    })
+        traffic_source: 'referral_link',
+      }),
+    });
 
     // Set custom dimension for referrer
     if (referrerUsername) {
       gtag('set', 'user_properties', {
-        referrer_username: referrerUsername
-      })
+        referrer_username: referrerUsername,
+      });
     }
 
-    logger.info('GA4 initialized', { referrerUsername, measurementId: GA4_MEASUREMENT_ID })
+    logger.info('GA4 initialized', { referrerUsername, measurementId: GA4_MEASUREMENT_ID });
   } catch (error) {
-    logger.error('GA4 initialization failed', { error })
+    logger.error('GA4 initialization failed', { error });
   }
 }
 
@@ -55,22 +55,22 @@ export function initGA4(referrerUsername?: string) {
  * Track page view with referrer context
  */
 export function trackPageView(pagePath: string, referrerUsername?: string) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'page_view', {
       page_path: pagePath,
       page_title: document.title,
       ...(referrerUsername && {
-        referrer_username: referrerUsername
-      })
-    })
+        referrer_username: referrerUsername,
+      }),
+    });
 
-    logger.info('GA4 page view tracked', { pagePath, referrerUsername })
+    logger.info('GA4 page view tracked', { pagePath, referrerUsername });
   } catch (error) {
-    logger.error('GA4 page view tracking failed', { error })
+    logger.error('GA4 page view tracking failed', { error });
   }
 }
 
@@ -79,22 +79,22 @@ export function trackPageView(pagePath: string, referrerUsername?: string) {
  * Fired when user lands via a referral link
  */
 export function trackReferralVisit(referrerUsername: string, source?: string) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'referral_visit', {
       event_category: 'Referral',
       event_label: referrerUsername,
       referrer_username: referrerUsername,
       traffic_source: source || 'direct',
-      value: 1
-    })
+      value: 1,
+    });
 
-    logger.info('GA4 referral visit tracked', { referrerUsername, source })
+    logger.info('GA4 referral visit tracked', { referrerUsername, source });
   } catch (error) {
-    logger.error('GA4 referral visit tracking failed', { error })
+    logger.error('GA4 referral visit tracking failed', { error });
   }
 }
 
@@ -103,23 +103,23 @@ export function trackReferralVisit(referrerUsername: string, source?: string) {
  * Fired when user begins filling out a lead form
  */
 export function trackFormStart(formType: string, referrerUsername?: string) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'form_start', {
       event_category: 'Lead Generation',
       event_label: formType,
       form_type: formType,
       ...(referrerUsername && {
-        referrer_username: referrerUsername
-      })
-    })
+        referrer_username: referrerUsername,
+      }),
+    });
 
-    logger.info('GA4 form start tracked', { formType, referrerUsername })
+    logger.info('GA4 form start tracked', { formType, referrerUsername });
   } catch (error) {
-    logger.error('GA4 form start tracking failed', { error })
+    logger.error('GA4 form start tracking failed', { error });
   }
 }
 
@@ -128,16 +128,16 @@ export function trackFormStart(formType: string, referrerUsername?: string) {
  * Fired when a lead form is successfully submitted
  */
 export function trackLeadSubmission(data: {
-  leadId: string
-  leadType: string
-  referrerUsername?: string
-  attributionMethod: string
-  source?: string
+  leadId: string;
+  leadType: string;
+  referrerUsername?: string;
+  attributionMethod: string;
+  source?: string;
 }) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'generate_lead', {
       event_category: 'Lead Generation',
@@ -146,17 +146,17 @@ export function trackLeadSubmission(data: {
       lead_type: data.leadType,
       attribution_method: data.attributionMethod,
       ...(data.referrerUsername && {
-        referrer_username: data.referrerUsername
+        referrer_username: data.referrerUsername,
       }),
       ...(data.source && {
-        traffic_source: data.source
+        traffic_source: data.source,
       }),
-      value: 1
-    })
+      value: 1,
+    });
 
-    logger.info('GA4 lead submission tracked', data)
+    logger.info('GA4 lead submission tracked', data);
   } catch (error) {
-    logger.error('GA4 lead submission tracking failed', { error })
+    logger.error('GA4 lead submission tracking failed', { error });
   }
 }
 
@@ -165,14 +165,14 @@ export function trackLeadSubmission(data: {
  * Fired when a lead is qualified by staff
  */
 export function trackLeadQualification(data: {
-  leadId: string
-  leadType: string
-  referrerUsername?: string
+  leadId: string;
+  leadType: string;
+  referrerUsername?: string;
 }) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'lead_qualified', {
       event_category: 'Lead Qualification',
@@ -180,14 +180,14 @@ export function trackLeadQualification(data: {
       lead_id: data.leadId,
       lead_type: data.leadType,
       ...(data.referrerUsername && {
-        referrer_username: data.referrerUsername
+        referrer_username: data.referrerUsername,
       }),
-      value: 5
-    })
+      value: 5,
+    });
 
-    logger.info('GA4 lead qualification tracked', data)
+    logger.info('GA4 lead qualification tracked', data);
   } catch (error) {
-    logger.error('GA4 lead qualification tracking failed', { error })
+    logger.error('GA4 lead qualification tracking failed', { error });
   }
 }
 
@@ -196,15 +196,15 @@ export function trackLeadQualification(data: {
  * Fired when a lead becomes a paying customer
  */
 export function trackLeadConversion(data: {
-  leadId: string
-  leadType: string
-  referrerUsername?: string
-  commissionAmount?: number
+  leadId: string;
+  leadType: string;
+  referrerUsername?: string;
+  commissionAmount?: number;
 }) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'conversion', {
       event_category: 'Conversion',
@@ -213,13 +213,13 @@ export function trackLeadConversion(data: {
       lead_type: data.leadType,
       send_to: GA4_MEASUREMENT_ID,
       ...(data.referrerUsername && {
-        referrer_username: data.referrerUsername
+        referrer_username: data.referrerUsername,
       }),
       ...(data.commissionAmount && {
         value: data.commissionAmount,
-        currency: 'USD'
-      })
-    })
+        currency: 'USD',
+      }),
+    });
 
     // Also fire purchase event for e-commerce tracking
     if (data.commissionAmount) {
@@ -227,19 +227,21 @@ export function trackLeadConversion(data: {
         transaction_id: data.leadId,
         value: data.commissionAmount,
         currency: 'USD',
-        items: [{
-          item_id: data.leadId,
-          item_name: `${data.leadType} Conversion`,
-          item_category: 'Referral Commission',
-          price: data.commissionAmount,
-          quantity: 1
-        }]
-      })
+        items: [
+          {
+            item_id: data.leadId,
+            item_name: `${data.leadType} Conversion`,
+            item_category: 'Referral Commission',
+            price: data.commissionAmount,
+            quantity: 1,
+          },
+        ],
+      });
     }
 
-    logger.info('GA4 lead conversion tracked', data)
+    logger.info('GA4 lead conversion tracked', data);
   } catch (error) {
-    logger.error('GA4 lead conversion tracking failed', { error })
+    logger.error('GA4 lead conversion tracking failed', { error });
   }
 }
 
@@ -247,27 +249,27 @@ export function trackLeadConversion(data: {
  * Track affiliate application submission
  */
 export function trackAffiliateApplication(data: {
-  email: string
-  bondedToPreparer: boolean
-  preparerUsername?: string
+  email: string;
+  bondedToPreparer: boolean;
+  preparerUsername?: string;
 }) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'affiliate_application', {
       event_category: 'Application',
       event_label: data.bondedToPreparer ? 'Bonded' : 'Independent',
       bonded_to_preparer: data.bondedToPreparer,
       ...(data.preparerUsername && {
-        preparer_username: data.preparerUsername
-      })
-    })
+        preparer_username: data.preparerUsername,
+      }),
+    });
 
-    logger.info('GA4 affiliate application tracked', data)
+    logger.info('GA4 affiliate application tracked', data);
   } catch (error) {
-    logger.error('GA4 affiliate application tracking failed', { error })
+    logger.error('GA4 affiliate application tracking failed', { error });
   }
 }
 
@@ -275,14 +277,14 @@ export function trackAffiliateApplication(data: {
  * Track commission payout request
  */
 export function trackPayoutRequest(data: {
-  amount: number
-  paymentMethod: string
-  referrerUsername: string
+  amount: number;
+  paymentMethod: string;
+  referrerUsername: string;
 }) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'payout_request', {
       event_category: 'Payout',
@@ -290,12 +292,12 @@ export function trackPayoutRequest(data: {
       value: data.amount,
       currency: 'USD',
       payment_method: data.paymentMethod,
-      referrer_username: data.referrerUsername
-    })
+      referrer_username: data.referrerUsername,
+    });
 
-    logger.info('GA4 payout request tracked', data)
+    logger.info('GA4 payout request tracked', data);
   } catch (error) {
-    logger.error('GA4 payout request tracking failed', { error })
+    logger.error('GA4 payout request tracking failed', { error });
   }
 }
 
@@ -303,15 +305,15 @@ export function trackPayoutRequest(data: {
  * Track marketing material click
  */
 export function trackMarketingClick(data: {
-  materialType: string
-  materialId: string
-  referrerUsername: string
-  destination: string
+  materialType: string;
+  materialId: string;
+  referrerUsername: string;
+  destination: string;
 }) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'marketing_click', {
       event_category: 'Marketing',
@@ -319,39 +321,36 @@ export function trackMarketingClick(data: {
       material_type: data.materialType,
       material_id: data.materialId,
       referrer_username: data.referrerUsername,
-      destination: data.destination
-    })
+      destination: data.destination,
+    });
 
-    logger.info('GA4 marketing click tracked', data)
+    logger.info('GA4 marketing click tracked', data);
   } catch (error) {
-    logger.error('GA4 marketing click tracking failed', { error })
+    logger.error('GA4 marketing click tracking failed', { error });
   }
 }
 
 /**
  * Track QR code scan
  */
-export function trackQRScan(data: {
-  referrerUsername: string
-  location?: string
-}) {
-  if (!isGA4Enabled()) return
+export function trackQRScan(data: { referrerUsername: string; location?: string }) {
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'qr_scan', {
       event_category: 'Engagement',
       event_label: 'QR Code Scan',
       referrer_username: data.referrerUsername,
       ...(data.location && {
-        scan_location: data.location
-      })
-    })
+        scan_location: data.location,
+      }),
+    });
 
-    logger.info('GA4 QR scan tracked', data)
+    logger.info('GA4 QR scan tracked', data);
   } catch (error) {
-    logger.error('GA4 QR scan tracking failed', { error })
+    logger.error('GA4 QR scan tracking failed', { error });
   }
 }
 
@@ -359,40 +358,37 @@ export function trackQRScan(data: {
  * Track user engagement with dashboard features
  */
 export function trackDashboardAction(action: string, details?: Record<string, any>) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'dashboard_action', {
       event_category: 'Dashboard',
       event_label: action,
       action,
-      ...details
-    })
+      ...details,
+    });
 
-    logger.info('GA4 dashboard action tracked', { action, details })
+    logger.info('GA4 dashboard action tracked', { action, details });
   } catch (error) {
-    logger.error('GA4 dashboard action tracking failed', { error })
+    logger.error('GA4 dashboard action tracking failed', { error });
   }
 }
 
 /**
  * Track custom event
  */
-export function trackCustomEvent(
-  eventName: string,
-  parameters?: Record<string, any>
-) {
-  if (!isGA4Enabled()) return
+export function trackCustomEvent(eventName: string, parameters?: Record<string, any>) {
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
-    gtag('event', eventName, parameters)
+    const gtag = (window as any).gtag;
+    gtag('event', eventName, parameters);
 
-    logger.info('GA4 custom event tracked', { eventName, parameters })
+    logger.info('GA4 custom event tracked', { eventName, parameters });
   } catch (error) {
-    logger.error('GA4 custom event tracking failed', { error })
+    logger.error('GA4 custom event tracking failed', { error });
   }
 }
 
@@ -414,16 +410,16 @@ export function trackCustomEvent(
  * Fired when a new contact is added to the CRM
  */
 export function trackCRMContactCreated(data: {
-  contactId: string
-  contactType: string
-  source?: string
-  referrerUsername?: string
-  attributionMethod?: string
+  contactId: string;
+  contactType: string;
+  source?: string;
+  referrerUsername?: string;
+  attributionMethod?: string;
 }) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'crm_contact_created', {
       event_category: 'CRM',
@@ -433,12 +429,12 @@ export function trackCRMContactCreated(data: {
       ...(data.source && { source: data.source }),
       ...(data.referrerUsername && { referrer_username: data.referrerUsername }),
       ...(data.attributionMethod && { attribution_method: data.attributionMethod }),
-      value: 1
-    })
+      value: 1,
+    });
 
-    logger.info('GA4 CRM contact created tracked', data)
+    logger.info('GA4 CRM contact created tracked', data);
   } catch (error) {
-    logger.error('GA4 CRM contact created tracking failed', { error })
+    logger.error('GA4 CRM contact created tracking failed', { error });
   }
 }
 
@@ -447,15 +443,15 @@ export function trackCRMContactCreated(data: {
  * Fired when contact information is modified
  */
 export function trackCRMContactUpdated(data: {
-  contactId: string
-  contactType: string
-  updatedFields: string[]
-  userRole: string
+  contactId: string;
+  contactType: string;
+  updatedFields: string[];
+  userRole: string;
 }) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'crm_contact_updated', {
       event_category: 'CRM',
@@ -463,12 +459,12 @@ export function trackCRMContactUpdated(data: {
       contact_id: data.contactId,
       contact_type: data.contactType,
       updated_fields: data.updatedFields.join(','),
-      user_role: data.userRole
-    })
+      user_role: data.userRole,
+    });
 
-    logger.info('GA4 CRM contact updated tracked', data)
+    logger.info('GA4 CRM contact updated tracked', data);
   } catch (error) {
-    logger.error('GA4 CRM contact updated tracking failed', { error })
+    logger.error('GA4 CRM contact updated tracking failed', { error });
   }
 }
 
@@ -477,15 +473,15 @@ export function trackCRMContactUpdated(data: {
  * Fired when contact is assigned to a preparer
  */
 export function trackCRMContactAssigned(data: {
-  contactId: string
-  contactType: string
-  preparerId: string
-  assignedBy: string
+  contactId: string;
+  contactType: string;
+  preparerId: string;
+  assignedBy: string;
 }) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'crm_contact_assigned', {
       event_category: 'CRM',
@@ -493,12 +489,12 @@ export function trackCRMContactAssigned(data: {
       contact_id: data.contactId,
       contact_type: data.contactType,
       preparer_id: data.preparerId,
-      assigned_by: data.assignedBy
-    })
+      assigned_by: data.assignedBy,
+    });
 
-    logger.info('GA4 CRM contact assigned tracked', data)
+    logger.info('GA4 CRM contact assigned tracked', data);
   } catch (error) {
-    logger.error('GA4 CRM contact assigned tracking failed', { error })
+    logger.error('GA4 CRM contact assigned tracking failed', { error });
   }
 }
 
@@ -507,17 +503,17 @@ export function trackCRMContactAssigned(data: {
  * Fired when contact moves through pipeline stages
  */
 export function trackCRMStageChanged(data: {
-  contactId: string
-  contactType: string
-  fromStage: string
-  toStage: string
-  timeInStage?: number // minutes
-  userRole: string
+  contactId: string;
+  contactType: string;
+  fromStage: string;
+  toStage: string;
+  timeInStage?: number; // minutes
+  userRole: string;
 }) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'crm_stage_changed', {
       event_category: 'CRM Pipeline',
@@ -528,12 +524,12 @@ export function trackCRMStageChanged(data: {
       to_stage: data.toStage,
       user_role: data.userRole,
       ...(data.timeInStage && { time_in_stage_minutes: data.timeInStage }),
-      value: 1
-    })
+      value: 1,
+    });
 
-    logger.info('GA4 CRM stage changed tracked', data)
+    logger.info('GA4 CRM stage changed tracked', data);
   } catch (error) {
-    logger.error('GA4 CRM stage changed tracking failed', { error })
+    logger.error('GA4 CRM stage changed tracking failed', { error });
   }
 }
 
@@ -542,18 +538,18 @@ export function trackCRMStageChanged(data: {
  * Fired when phone call, email, meeting, or note is logged
  */
 export function trackCRMInteractionLogged(data: {
-  interactionId: string
-  contactId: string
-  contactType: string
-  interactionType: string // EMAIL | PHONE_CALL | MEETING | NOTE
-  direction: string // INBOUND | OUTBOUND
-  duration?: number // minutes (for calls/meetings)
-  userRole: string
+  interactionId: string;
+  contactId: string;
+  contactType: string;
+  interactionType: string; // EMAIL | PHONE_CALL | MEETING | NOTE
+  direction: string; // INBOUND | OUTBOUND
+  duration?: number; // minutes (for calls/meetings)
+  userRole: string;
 }) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'crm_interaction_logged', {
       event_category: 'CRM Interaction',
@@ -565,12 +561,12 @@ export function trackCRMInteractionLogged(data: {
       direction: data.direction,
       user_role: data.userRole,
       ...(data.duration && { duration_minutes: data.duration }),
-      value: 1
-    })
+      value: 1,
+    });
 
-    logger.info('GA4 CRM interaction logged tracked', data)
+    logger.info('GA4 CRM interaction logged tracked', data);
   } catch (error) {
-    logger.error('GA4 CRM interaction logged tracking failed', { error })
+    logger.error('GA4 CRM interaction logged tracking failed', { error });
   }
 }
 
@@ -579,16 +575,16 @@ export function trackCRMInteractionLogged(data: {
  * Fired when email is automatically synced from Resend
  */
 export function trackCRMEmailSynced(data: {
-  emailId: string
-  contactId: string
-  contactType: string
-  emailThreadId?: string
-  syncMethod: string // 'webhook' | 'manual'
+  emailId: string;
+  contactId: string;
+  contactType: string;
+  emailThreadId?: string;
+  syncMethod: string; // 'webhook' | 'manual'
 }) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'crm_email_synced', {
       event_category: 'CRM Email Sync',
@@ -597,12 +593,12 @@ export function trackCRMEmailSynced(data: {
       contact_id: data.contactId,
       contact_type: data.contactType,
       sync_method: data.syncMethod,
-      ...(data.emailThreadId && { thread_id: data.emailThreadId })
-    })
+      ...(data.emailThreadId && { thread_id: data.emailThreadId }),
+    });
 
-    logger.info('GA4 CRM email synced tracked', data)
+    logger.info('GA4 CRM email synced tracked', data);
   } catch (error) {
-    logger.error('GA4 CRM email synced tracking failed', { error })
+    logger.error('GA4 CRM email synced tracking failed', { error });
   }
 }
 
@@ -611,26 +607,26 @@ export function trackCRMEmailSynced(data: {
  * Fired when user accesses CRM dashboard
  */
 export function trackCRMDashboardViewed(data: {
-  userRole: string
-  contactCount?: number
-  filterApplied?: string
+  userRole: string;
+  contactCount?: number;
+  filterApplied?: string;
 }) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'crm_dashboard_viewed', {
       event_category: 'CRM Dashboard',
       event_label: data.userRole,
       user_role: data.userRole,
       ...(data.contactCount !== undefined && { contact_count: data.contactCount }),
-      ...(data.filterApplied && { filter_applied: data.filterApplied })
-    })
+      ...(data.filterApplied && { filter_applied: data.filterApplied }),
+    });
 
-    logger.info('GA4 CRM dashboard viewed tracked', data)
+    logger.info('GA4 CRM dashboard viewed tracked', data);
   } catch (error) {
-    logger.error('GA4 CRM dashboard viewed tracking failed', { error })
+    logger.error('GA4 CRM dashboard viewed tracking failed', { error });
   }
 }
 
@@ -639,16 +635,16 @@ export function trackCRMDashboardViewed(data: {
  * Fired when user opens a contact's detail page
  */
 export function trackCRMContactViewed(data: {
-  contactId: string
-  contactType: string
-  contactStage: string
-  interactionCount?: number
-  userRole: string
+  contactId: string;
+  contactType: string;
+  contactStage: string;
+  interactionCount?: number;
+  userRole: string;
 }) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'crm_contact_viewed', {
       event_category: 'CRM',
@@ -657,12 +653,12 @@ export function trackCRMContactViewed(data: {
       contact_type: data.contactType,
       contact_stage: data.contactStage,
       user_role: data.userRole,
-      ...(data.interactionCount !== undefined && { interaction_count: data.interactionCount })
-    })
+      ...(data.interactionCount !== undefined && { interaction_count: data.interactionCount }),
+    });
 
-    logger.info('GA4 CRM contact viewed tracked', data)
+    logger.info('GA4 CRM contact viewed tracked', data);
   } catch (error) {
-    logger.error('GA4 CRM contact viewed tracking failed', { error })
+    logger.error('GA4 CRM contact viewed tracking failed', { error });
   }
 }
 
@@ -671,15 +667,15 @@ export function trackCRMContactViewed(data: {
  * Fired when user searches contacts
  */
 export function trackCRMSearchPerformed(data: {
-  searchQuery: string
-  resultCount: number
-  filterApplied?: string
-  userRole: string
+  searchQuery: string;
+  resultCount: number;
+  filterApplied?: string;
+  userRole: string;
 }) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'crm_search_performed', {
       event_category: 'CRM Search',
@@ -687,12 +683,12 @@ export function trackCRMSearchPerformed(data: {
       search_term: data.searchQuery,
       result_count: data.resultCount,
       user_role: data.userRole,
-      ...(data.filterApplied && { filter_applied: data.filterApplied })
-    })
+      ...(data.filterApplied && { filter_applied: data.filterApplied }),
+    });
 
-    logger.info('GA4 CRM search performed tracked', data)
+    logger.info('GA4 CRM search performed tracked', data);
   } catch (error) {
-    logger.error('GA4 CRM search performed tracking failed', { error })
+    logger.error('GA4 CRM search performed tracking failed', { error });
   }
 }
 
@@ -701,15 +697,15 @@ export function trackCRMSearchPerformed(data: {
  * Fired when user exports contacts or interactions to CSV
  */
 export function trackCRMExportCSV(data: {
-  exportType: string // 'contacts' | 'interactions'
-  recordCount: number
-  filterApplied?: string
-  userRole: string
+  exportType: string; // 'contacts' | 'interactions'
+  recordCount: number;
+  filterApplied?: string;
+  userRole: string;
 }) {
-  if (!isGA4Enabled()) return
+  if (!isGA4Enabled()) return;
 
   try {
-    const gtag = (window as any).gtag
+    const gtag = (window as any).gtag;
 
     gtag('event', 'crm_export_csv', {
       event_category: 'CRM Export',
@@ -717,11 +713,11 @@ export function trackCRMExportCSV(data: {
       export_type: data.exportType,
       record_count: data.recordCount,
       user_role: data.userRole,
-      ...(data.filterApplied && { filter_applied: data.filterApplied })
-    })
+      ...(data.filterApplied && { filter_applied: data.filterApplied }),
+    });
 
-    logger.info('GA4 CRM export CSV tracked', data)
+    logger.info('GA4 CRM export CSV tracked', data);
   } catch (error) {
-    logger.error('GA4 CRM export CSV tracking failed', { error })
+    logger.error('GA4 CRM export CSV tracking failed', { error });
   }
 }

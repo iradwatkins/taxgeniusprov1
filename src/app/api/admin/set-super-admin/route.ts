@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { currentUser } from '@clerk/nextjs/server';
 import { clerkClient } from '@clerk/nextjs/server';
 import { PrismaClient } from '@prisma/client';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 const prisma = new PrismaClient();
 
@@ -31,17 +31,19 @@ export async function POST() {
     logger.info(`🔐 Setting ${userEmail} as SUPER_ADMIN...`);
 
     // Update Clerk metadata
-    await (await clerkClient()).users.updateUserMetadata(user.id, {
+    await (
+      await clerkClient()
+    ).users.updateUserMetadata(user.id, {
       publicMetadata: {
-        role: 'super_admin'
-      }
+        role: 'super_admin',
+      },
     });
 
     logger.info('✅ Clerk metadata updated');
 
     // Update or create Profile in database
     const profile = await prisma.profile.findUnique({
-      where: { clerkUserId: user.id }
+      where: { clerkUserId: user.id },
     });
 
     if (!profile) {
@@ -51,14 +53,14 @@ export async function POST() {
           clerkUserId: user.id,
           role: 'SUPER_ADMIN',
           firstName: user.firstName || 'Irad',
-          lastName: user.lastName || 'Watkins'
-        }
+          lastName: user.lastName || 'Watkins',
+        },
       });
     } else {
       logger.info(`Updating profile from ${profile.role} to SUPER_ADMIN...`);
       await prisma.profile.update({
         where: { id: profile.id },
-        data: { role: 'SUPER_ADMIN' }
+        data: { role: 'SUPER_ADMIN' },
       });
     }
 
@@ -66,13 +68,15 @@ export async function POST() {
       success: true,
       message: `Successfully set ${userEmail} as SUPER_ADMIN`,
       userId: user.id,
-      role: 'super_admin'
+      role: 'super_admin',
     });
-
   } catch (error) {
     logger.error('Error setting super admin:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

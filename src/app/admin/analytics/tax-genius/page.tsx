@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation';
+import { currentUser } from '@clerk/nextjs/server';
 import {
   MousePointerClick,
   UserPlus,
@@ -8,49 +8,49 @@ import {
   Link2,
   TrendingUp,
   Zap,
-} from 'lucide-react'
-import { prisma } from '@/lib/prisma'
-import { LeadMetricCard } from '@/components/admin/analytics/LeadMetricCard'
-import { createFunnelStages } from '@/lib/utils/analytics'
-import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart'
-import { ExportButton } from '@/components/admin/analytics/ExportButton'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { logger } from '@/lib/logger'
+} from 'lucide-react';
+import { prisma } from '@/lib/prisma';
+import { LeadMetricCard } from '@/components/admin/analytics/LeadMetricCard';
+import { createFunnelStages } from '@/lib/utils/analytics';
+import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart';
+import { ExportButton } from '@/components/admin/analytics/ExportButton';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { logger } from '@/lib/logger';
 
 export const metadata = {
   title: 'Tax Genius Analytics - Admin | Tax Genius Pro',
   description: 'Track company-owned lead generation campaigns',
-}
+};
 
 async function checkAdminAccess() {
-  const user = await currentUser()
-  if (!user) return { hasAccess: false, userId: null, role: null }
+  const user = await currentUser();
+  if (!user) return { hasAccess: false, userId: null, role: null };
 
-  const role = user.publicMetadata?.role as string
-  const hasAccess = role === 'admin' || role === 'super_admin'
+  const role = user.publicMetadata?.role as string;
+  const hasAccess = role === 'admin' || role === 'super_admin';
 
-  return { hasAccess, userId: user.id, role }
+  return { hasAccess, userId: user.id, role };
 }
 
 export default async function TaxGeniusAnalyticsPage() {
-  const { hasAccess, userId, role } = await checkAdminAccess()
+  const { hasAccess, userId, role } = await checkAdminAccess();
 
   if (!hasAccess || !userId) {
-    redirect('/forbidden')
+    redirect('/forbidden');
   }
 
   // Initialize with empty defaults
-  let companyLinks: any[] = []
-  let linkIds: string[] = []
-  let linkCodes: string[] = []
-  let totalClicks = 0
-  let totalLeads = 0
-  let totalConversions = 0
-  let totalReturnsFiled = 0
-  let totalRevenue = 0
-  let conversionRate = 0
-  let linkBreakdown: any[] = []
-  let recentLeads: any[] = []
+  let companyLinks: any[] = [];
+  let linkIds: string[] = [];
+  let linkCodes: string[] = [];
+  let totalClicks = 0;
+  let totalLeads = 0;
+  let totalConversions = 0;
+  let totalReturnsFiled = 0;
+  let totalRevenue = 0;
+  let conversionRate = 0;
+  let linkBreakdown: any[] = [];
+  let recentLeads: any[] = [];
 
   try {
     // Get Tax Genius company marketing links
@@ -58,33 +58,27 @@ export default async function TaxGeniusAnalyticsPage() {
       where: {
         creatorType: 'TAX_GENIUS',
       },
-    })
+    });
 
-    linkIds = companyLinks.map(l => l.id)
-    linkCodes = companyLinks.map(l => l.code)
+    linkIds = companyLinks.map((l) => l.id);
+    linkCodes = companyLinks.map((l) => l.code);
 
     // Get metrics
     totalClicks = await prisma.linkClick.count({
       where: { linkId: { in: linkIds } },
-    })
+    });
 
     totalLeads = await prisma.lead.count({
       where: {
-        OR: [
-          { source: { in: linkCodes } },
-          { assignedPreparerId: null },
-        ],
+        OR: [{ source: { in: linkCodes } }, { assignedPreparerId: null }],
       },
-    })
+    });
 
     totalConversions = await prisma.clientIntake.count({
       where: {
-        OR: [
-          { sourceLink: { in: linkCodes } },
-          { assignedPreparerId: null },
-        ],
+        OR: [{ sourceLink: { in: linkCodes } }, { assignedPreparerId: null }],
       },
-    })
+    });
 
     totalReturnsFiled = await prisma.taxReturn.count({
       where: {
@@ -96,7 +90,7 @@ export default async function TaxGeniusAnalyticsPage() {
           },
         },
       },
-    })
+    });
 
     const revenueResult = await prisma.payment.aggregate({
       where: {
@@ -104,34 +98,31 @@ export default async function TaxGeniusAnalyticsPage() {
         profile: {
           clientIntakes: {
             some: {
-              OR: [
-                { sourceLink: { in: linkCodes } },
-                { assignedPreparerId: null },
-              ],
+              OR: [{ sourceLink: { in: linkCodes } }, { assignedPreparerId: null }],
             },
           },
         },
       },
       _sum: { amount: true },
-    })
+    });
 
-    totalRevenue = Number(revenueResult._sum.amount || 0)
-    conversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0
+    totalRevenue = Number(revenueResult._sum.amount || 0);
+    conversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0;
 
     // Get link breakdown
     linkBreakdown = await Promise.all(
       companyLinks.map(async (link) => {
         const linkClicks = await prisma.linkClick.count({
           where: { linkId: link.id },
-        })
+        });
 
         const linkLeads = await prisma.lead.count({
           where: { source: link.code },
-        })
+        });
 
         const linkConversions = await prisma.clientIntake.count({
           where: { sourceLink: link.code },
-        })
+        });
 
         const linkRevenue = await prisma.payment.aggregate({
           where: {
@@ -143,7 +134,7 @@ export default async function TaxGeniusAnalyticsPage() {
             },
           },
           _sum: { amount: true },
-        })
+        });
 
         return {
           linkId: link.id,
@@ -156,23 +147,20 @@ export default async function TaxGeniusAnalyticsPage() {
           conversionRate: linkClicks > 0 ? (linkConversions / linkClicks) * 100 : 0,
           revenue: Number(linkRevenue._sum.amount || 0),
           createdAt: link.createdAt,
-        }
+        };
       })
-    )
+    );
 
     // Get recent leads
     recentLeads = await prisma.lead.findMany({
       where: {
-        OR: [
-          { source: { in: linkCodes } },
-          { assignedPreparerId: null },
-        ],
+        OR: [{ source: { in: linkCodes } }, { assignedPreparerId: null }],
       },
       orderBy: { createdAt: 'desc' },
       take: 10,
-    })
+    });
   } catch (error) {
-    logger.error('Error fetching Tax Genius analytics:', error)
+    logger.error('Error fetching Tax Genius analytics:', error);
     // Continue with empty/zero defaults - will show "No company campaigns yet" message
   }
 
@@ -182,7 +170,7 @@ export default async function TaxGeniusAnalyticsPage() {
     totalLeads,
     totalConversions,
     totalReturnsFiled
-  )
+  );
 
   // Prepare export data
   const exportData = {
@@ -194,7 +182,7 @@ export default async function TaxGeniusAnalyticsPage() {
     returnsFiled: totalReturnsFiled,
     conversionRate,
     revenue: totalRevenue,
-    linkBreakdown: linkBreakdown.map(l => ({
+    linkBreakdown: linkBreakdown.map((l) => ({
       linkName: l.linkName,
       linkCode: l.linkCode,
       clicks: l.clicks,
@@ -203,7 +191,7 @@ export default async function TaxGeniusAnalyticsPage() {
       conversionRate: l.conversionRate,
       revenue: l.revenue,
     })),
-  }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -215,11 +203,7 @@ export default async function TaxGeniusAnalyticsPage() {
             Company-owned lead generation campaign performance
           </p>
         </div>
-        <ExportButton
-          data={[exportData]}
-          filename="tax-genius-analytics"
-          variant="default"
-        />
+        <ExportButton data={[exportData]} filename="tax-genius-analytics" variant="default" />
       </div>
 
       {/* Key Metrics */}
@@ -306,16 +290,11 @@ export default async function TaxGeniusAnalyticsPage() {
           <CardContent>
             <div className="space-y-3">
               {linkBreakdown.map((link) => (
-                <div
-                  key={link.linkId}
-                  className="p-4 border rounded-lg space-y-3"
-                >
+                <div key={link.linkId} className="p-4 border rounded-lg space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <p className="font-medium truncate">{link.linkName}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {link.linkUrl}
-                      </p>
+                      <p className="text-xs text-muted-foreground truncate">{link.linkUrl}</p>
                     </div>
                     <div className="text-right ml-4">
                       <p className="text-sm font-semibold">{link.conversionRate.toFixed(1)}%</p>
@@ -366,9 +345,7 @@ export default async function TaxGeniusAnalyticsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Recent Leads</CardTitle>
-            <CardDescription>
-              Latest leads from Tax Genius campaigns
-            </CardDescription>
+            <CardDescription>Latest leads from Tax Genius campaigns</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -419,5 +396,5 @@ export default async function TaxGeniusAnalyticsPage() {
         </Card>
       )}
     </div>
-  )
+  );
 }

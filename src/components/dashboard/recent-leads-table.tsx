@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 /**
  * Recent Leads Table
@@ -9,10 +9,10 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 5
  */
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -20,90 +20,90 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Loader2, RefreshCw, Cookie, Mail, Phone, Globe, TrendingUp } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { logger } from '@/lib/logger'
-import { formatDistanceToNow } from 'date-fns'
+} from '@/components/ui/table';
+import { Loader2, RefreshCw, Cookie, Mail, Phone, Globe, TrendingUp } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { logger } from '@/lib/logger';
+import { formatDistanceToNow } from 'date-fns';
 
 interface Lead {
-  id: string
-  firstName: string
-  lastName: string
-  email: string
-  status: string
-  attributionMethod: 'cookie' | 'email_match' | 'phone_match' | 'direct'
-  attributionConfidence: number
-  commissionRate: number
-  createdAt: string
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  status: string;
+  attributionMethod: 'cookie' | 'email_match' | 'phone_match' | 'direct';
+  attributionConfidence: number;
+  commissionRate: number;
+  createdAt: string;
 }
 
 interface RecentLeadsTableProps {
-  className?: string
-  limit?: number
+  className?: string;
+  limit?: number;
 }
 
 const ATTRIBUTION_ICONS = {
   cookie: Cookie,
   email_match: Mail,
   phone_match: Phone,
-  direct: Globe
-}
+  direct: Globe,
+};
 
 const ATTRIBUTION_COLORS = {
   cookie: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
   email_match: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
   phone_match: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-  direct: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
-}
+  direct: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400',
+};
 
 const STATUS_COLORS: Record<string, string> = {
   NEW: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
   CONTACTED: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
   QUALIFIED: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
   CONVERTED: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-  DISQUALIFIED: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-}
+  DISQUALIFIED: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+};
 
 export function RecentLeadsTable({ className, limit = 10 }: RecentLeadsTableProps) {
-  const [leads, setLeads] = useState<Lead[]>([])
-  const [loading, setLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchLeads()
-  }, [])
+    fetchLeads();
+  }, []);
 
   const fetchLeads = async (isRefresh = false) => {
     try {
       if (isRefresh) {
-        setRefreshing(true)
+        setRefreshing(true);
       } else {
-        setLoading(true)
+        setLoading(true);
       }
-      setError(null)
+      setError(null);
 
-      const response = await fetch(`/api/leads/my-leads?limit=${limit}`)
+      const response = await fetch(`/api/leads/my-leads?limit=${limit}`);
 
       if (!response.ok) {
-        throw new Error('Failed to fetch leads')
+        throw new Error('Failed to fetch leads');
       }
 
-      const data = await response.json()
-      setLeads(data.leads || [])
-    } catch (err: any) {
-      logger.error('Failed to fetch recent leads', { error: err })
-      setError(err.message || 'Failed to load leads')
+      const data = await response.json();
+      setLeads(data.leads || []);
+    } catch (err) {
+      logger.error('Failed to fetch recent leads', { error: err });
+      setError(err.message || 'Failed to load leads');
     } finally {
-      setLoading(false)
-      setRefreshing(false)
+      setLoading(false);
+      setRefreshing(false);
     }
-  }
+  };
 
   const handleRefresh = () => {
-    fetchLeads(true)
-  }
+    fetchLeads(true);
+  };
 
   if (loading) {
     return (
@@ -118,7 +118,7 @@ export function RecentLeadsTable({ className, limit = 10 }: RecentLeadsTableProp
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (error) {
@@ -137,7 +137,7 @@ export function RecentLeadsTable({ className, limit = 10 }: RecentLeadsTableProp
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (leads.length === 0) {
@@ -149,12 +149,7 @@ export function RecentLeadsTable({ className, limit = 10 }: RecentLeadsTableProp
               <CardTitle>Recent Leads</CardTitle>
               <CardDescription>Your latest referrals will appear here</CardDescription>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={refreshing}
-            >
+            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
               {refreshing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
@@ -171,7 +166,7 @@ export function RecentLeadsTable({ className, limit = 10 }: RecentLeadsTableProp
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -184,12 +179,7 @@ export function RecentLeadsTable({ className, limit = 10 }: RecentLeadsTableProp
               Your latest {leads.length} referrals with attribution tracking
             </CardDescription>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={refreshing}
-          >
+          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
             {refreshing ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
@@ -214,18 +204,16 @@ export function RecentLeadsTable({ className, limit = 10 }: RecentLeadsTableProp
             </TableHeader>
             <TableBody>
               {leads.map((lead) => {
-                const Icon = ATTRIBUTION_ICONS[lead.attributionMethod]
-                const attributionColor = ATTRIBUTION_COLORS[lead.attributionMethod]
-                const statusColor = STATUS_COLORS[lead.status] || STATUS_COLORS.NEW
+                const Icon = ATTRIBUTION_ICONS[lead.attributionMethod];
+                const attributionColor = ATTRIBUTION_COLORS[lead.attributionMethod];
+                const statusColor = STATUS_COLORS[lead.status] || STATUS_COLORS.NEW;
 
                 return (
                   <TableRow key={lead.id}>
                     <TableCell className="font-medium">
                       {lead.firstName} {lead.lastName}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {lead.email}
-                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{lead.email}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={cn('text-xs', statusColor)}>
                         {lead.status}
@@ -253,7 +241,7 @@ export function RecentLeadsTable({ className, limit = 10 }: RecentLeadsTableProp
                       {formatDistanceToNow(new Date(lead.createdAt), { addSuffix: true })}
                     </TableCell>
                   </TableRow>
-                )
+                );
               })}
             </TableBody>
           </Table>
@@ -268,5 +256,5 @@ export function RecentLeadsTable({ className, limit = 10 }: RecentLeadsTableProp
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

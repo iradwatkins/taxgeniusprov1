@@ -1,30 +1,30 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Search, X } from 'lucide-react'
-import { cn } from '@/lib/utils'
+} from '@/components/ui/select';
+import { Search, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export interface FilterItem {
-  id: string
-  name: string
-  email?: string
+  id: string;
+  name: string;
+  email?: string;
 }
 
 interface FilterBarProps {
-  items: FilterItem[]
-  onSelect: (itemId: string | null) => void
-  placeholder?: string
-  type: 'preparer' | 'affiliate' | 'client'
-  className?: string
+  items: FilterItem[];
+  onSelect: (itemId: string | null) => void;
+  placeholder?: string;
+  type: 'preparer' | 'affiliate' | 'client';
+  className?: string;
 }
 
 export function FilterBar({
@@ -34,38 +34,38 @@ export function FilterBar({
   type,
   className,
 }: FilterBarProps) {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const filteredItems = items.filter((item) => {
-    const searchLower = searchTerm.toLowerCase()
+    const searchLower = searchTerm.toLowerCase();
     return (
       item.name.toLowerCase().includes(searchLower) ||
       (item.email?.toLowerCase().includes(searchLower) ?? false)
-    )
-  })
+    );
+  });
 
   const handleSelect = (value: string) => {
     if (value === 'all') {
-      setSelectedId(null)
-      onSelect(null)
+      setSelectedId(null);
+      onSelect(null);
     } else {
-      setSelectedId(value)
-      onSelect(value)
+      setSelectedId(value);
+      onSelect(value);
     }
-  }
+  };
 
   const handleClear = () => {
-    setSearchTerm('')
-    setSelectedId(null)
-    onSelect(null)
-  }
+    setSearchTerm('');
+    setSelectedId(null);
+    onSelect(null);
+  };
 
   const typeLabels = {
     preparer: 'Tax Preparer',
     affiliate: 'Affiliate',
     client: 'Client',
-  }
+  };
 
   return (
     <div className={cn('flex flex-col md:flex-row gap-4', className)}>
@@ -102,7 +102,9 @@ export function FilterBar({
             {filteredItems.map((item) => (
               <SelectItem key={item.id} value={item.id}>
                 {item.name}
-                {item.email && <span className="text-muted-foreground ml-2 text-xs">({item.email})</span>}
+                {item.email && (
+                  <span className="text-muted-foreground ml-2 text-xs">({item.email})</span>
+                )}
               </SelectItem>
             ))}
           </SelectContent>
@@ -117,5 +119,5 @@ export function FilterBar({
         </Button>
       )}
     </div>
-  )
+  );
 }

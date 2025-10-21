@@ -1,0 +1,193 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - img [ref=e7]
+          - text: Welcome Back
+        - heading "Continue Your Tax Filing" [level=1] [ref=e9]
+        - paragraph [ref=e10]: Sign in to access your tax documents, track your refund, and manage your account
+      - generic [ref=e13]:
+        - img [ref=e15]
+        - paragraph [ref=e17]: "[Replace with image]"
+        - paragraph [ref=e18]: Professional reviewing documents confidently
+        - paragraph [ref=e19]: "Recommended: 800x450px"
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - img [ref=e22]
+          - paragraph [ref=e25]: Pick up where you left off
+        - generic [ref=e26]:
+          - img [ref=e27]
+          - paragraph [ref=e30]: Track your refund status
+        - generic [ref=e31]:
+          - img [ref=e32]
+          - paragraph [ref=e34]: Secure & encrypted
+      - paragraph [ref=e36]: Welcome back! Let's get your taxes done.
+    - generic [ref=e38]:
+      - generic [ref=e39]:
+        - img "Tax Genius Pro" [ref=e40]
+        - heading "Sign In to Your Account" [level=2] [ref=e41]
+        - paragraph [ref=e42]: Continue your tax filing journey
+      - generic [ref=e44]:
+        - generic [ref=e46]:
+          - button "Sign in with Google Continue with Google" [ref=e49] [cursor=pointer]:
+            - generic [ref=e50]:
+              - img "Sign in with Google" [ref=e52]
+              - generic [ref=e53]: Continue with Google
+          - paragraph [ref=e56]: or
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - generic [ref=e62]:
+                - generic [ref=e64]: Email address
+                - textbox "Email address" [ref=e65]:
+                  - /placeholder: Enter your email address
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Password
+                    - generic:
+                      - textbox "Password":
+                        - /placeholder: Enter your password
+                      - button "Show password":
+                        - img
+            - button "Continue" [ref=e67] [cursor=pointer]:
+              - generic [ref=e68]:
+                - text: Continue
+                - img [ref=e69]
+        - generic [ref=e71]:
+          - generic [ref=e72]:
+            - generic [ref=e73]: Don’t have an account?
+            - link "Sign up" [ref=e74] [cursor=pointer]:
+              - /url: http://localhost:3005/auth/signup#/?redirect_url=http%3A%2F%2F0.0.0.0%3A3005%2Fdashboard%2Fclient
+          - generic [ref=e76]:
+            - generic [ref=e78]:
+              - paragraph [ref=e79]: Secured by
+              - link "Clerk logo" [ref=e80] [cursor=pointer]:
+                - /url: https://go.clerk.com/components
+                - img [ref=e81]
+            - paragraph [ref=e86]: Development mode
+      - generic [ref=e87]:
+        - text: Don't have an account?
+        - link "Sign up" [ref=e88] [cursor=pointer]:
+          - /url: /auth/signup?role=client
+  - contentinfo [ref=e89]:
+    - generic [ref=e90]:
+      - generic [ref=e91]:
+        - generic [ref=e92]:
+          - img "Tax Genius Pro" [ref=e93]
+          - paragraph [ref=e94]: Professional tax preparation services with licensed CPAs. Serving individuals and businesses since 1999.
+          - generic [ref=e95]:
+            - generic [ref=e96]:
+              - img [ref=e97]
+              - text: IRS Authorized
+            - generic [ref=e99]:
+              - img [ref=e100]
+              - text: BBB A+
+        - generic [ref=e103]:
+          - heading "Services" [level=4] [ref=e104]
+          - list [ref=e105]:
+            - listitem [ref=e106]:
+              - link "Personal Tax Filing" [ref=e107] [cursor=pointer]:
+                - /url: /services/personal
+            - listitem [ref=e108]:
+              - link "Business Tax Services" [ref=e109] [cursor=pointer]:
+                - /url: /services/business
+            - listitem [ref=e110]:
+              - link "Tax Planning & Advisory" [ref=e111] [cursor=pointer]:
+                - /url: /services/planning
+            - listitem [ref=e112]:
+              - link "Audit Protection" [ref=e113] [cursor=pointer]:
+                - /url: /services/audit
+            - listitem [ref=e114]:
+              - link "IRS Resolution Services" [ref=e115] [cursor=pointer]:
+                - /url: /services/resolution
+        - generic [ref=e116]:
+          - heading "Resources" [level=4] [ref=e117]
+          - list [ref=e118]:
+            - listitem [ref=e119]:
+              - link "Tax Calculator" [ref=e120] [cursor=pointer]:
+                - /url: /calculator
+            - listitem [ref=e121]:
+              - link "2024 Tax Guide" [ref=e122] [cursor=pointer]:
+                - /url: /guide
+            - listitem [ref=e123]:
+              - link "Tax Blog & Tips" [ref=e124] [cursor=pointer]:
+                - /url: /blog
+            - listitem [ref=e125]:
+              - link "About Us" [ref=e126] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=e127]:
+              - link "Help Center" [ref=e128] [cursor=pointer]:
+                - /url: /support
+        - generic [ref=e129]:
+          - heading "Join Our Team" [level=4] [ref=e130]
+          - list [ref=e131]:
+            - listitem [ref=e132]:
+              - link "Become a Tax Preparer" [ref=e133] [cursor=pointer]:
+                - /url: /preparer/start
+            - listitem [ref=e134]:
+              - link "Affiliate Program" [ref=e135] [cursor=pointer]:
+                - /url: /affiliate/apply
+            - listitem [ref=e136]:
+              - link "Referral Program" [ref=e137] [cursor=pointer]:
+                - /url: /referral
+        - generic [ref=e138]:
+          - heading "Contact Us" [level=4] [ref=e139]
+          - list [ref=e140]:
+            - listitem [ref=e141]:
+              - img [ref=e142]
+              - link "+1 404-627-1015" [ref=e145] [cursor=pointer]:
+                - /url: tel:+14046271015
+            - listitem [ref=e146]:
+              - img [ref=e147]
+              - paragraph [ref=e151]:
+                - text: 1632 Jonesboro Rd SE
+                - text: Atlanta, GA 30315
+            - listitem [ref=e152]:
+              - img [ref=e153]
+              - generic [ref=e156]:
+                - paragraph [ref=e157]: "Mon-Fri: 9AM-7PM"
+                - paragraph [ref=e158]: "Sat: 10AM-5PM"
+                - paragraph [ref=e159]: "Sun: Closed"
+          - generic [ref=e160]:
+            - generic [ref=e161]:
+              - link [ref=e162] [cursor=pointer]:
+                - /url: https://www.facebook.com/Taxgeniusfb/
+                - img [ref=e163]
+              - link [ref=e165] [cursor=pointer]:
+                - /url: https://www.instagram.com/taxgeniusig/
+                - img [ref=e166]
+              - link [ref=e168] [cursor=pointer]:
+                - /url: https://www.linkedin.com/company/mytaxgenius
+                - img [ref=e169]
+            - link "Contact Us" [ref=e171] [cursor=pointer]:
+              - /url: /contact
+              - img
+              - text: Contact Us
+      - generic [ref=e173]:
+        - generic [ref=e174]:
+          - link "Privacy Policy" [ref=e175] [cursor=pointer]:
+            - /url: /privacy
+          - link "Terms of Service" [ref=e176] [cursor=pointer]:
+            - /url: /terms
+          - link "Security" [ref=e177] [cursor=pointer]:
+            - /url: /security
+          - link "Accessibility" [ref=e178] [cursor=pointer]:
+            - /url: /accessibility
+          - generic [ref=e179]:
+            - generic [ref=e180]: "Theme:"
+            - button "Toggle theme" [ref=e181]:
+              - img
+              - generic [ref=e182]: Toggle theme
+        - generic [ref=e183]:
+          - paragraph [ref=e184]: "EFIN: 12-3456789 | IRS Registered"
+          - paragraph [ref=e185]: © 2024 TaxGeniusPro. All rights reserved.
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - alert [ref=e186]
+```

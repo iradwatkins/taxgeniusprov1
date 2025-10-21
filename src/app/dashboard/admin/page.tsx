@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation';
 import { isAdmin, getAuthenticatedUser } from '@/lib/auth';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Users,
   DollarSign,
@@ -20,7 +20,7 @@ import {
   AlertTriangle,
   Trophy,
   Link as LinkIcon,
-  PhoneCall
+  PhoneCall,
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -30,18 +30,14 @@ import {
   getPagePerformance,
   getAIContentMetrics,
   getTrafficSources,
-  getPendingActionsCount
+  getPendingActionsCount,
 } from '@/lib/services/analytics.service';
 import {
   getAllMissedFollowUps,
-  getPlatformAccountabilityStats
+  getPlatformAccountabilityStats,
 } from '@/lib/services/accountability.service';
-import {
-  getTopPreparers
-} from '@/lib/services/preparer-analytics.service';
-import {
-  getTopPerformingLinks
-} from '@/lib/services/link-tracking.service';
+import { getTopPreparers } from '@/lib/services/preparer-analytics.service';
+import { getTopPerformingLinks } from '@/lib/services/link-tracking.service';
 
 export default async function AdminDashboardPage() {
   // Check if user is admin
@@ -77,9 +73,7 @@ export default async function AdminDashboardPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back, {user?.firstName || 'Admin'}
-          </p>
+          <p className="text-muted-foreground">Welcome back, {user?.firstName || 'Admin'}</p>
         </div>
 
         {/* Client Stats Grid */}
@@ -90,7 +84,9 @@ export default async function AdminDashboardPage() {
               <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">{stats.oldClients || 15}</div>
+              <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                {stats.oldClients || 15}
+              </div>
               <p className="text-xs text-blue-600 dark:text-blue-400">Returning customers</p>
             </CardContent>
           </Card>
@@ -101,7 +97,9 @@ export default async function AdminDashboardPage() {
               <Users className="w-4 h-4 text-green-600 dark:text-green-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-700 dark:text-green-300">{stats.newClients || 15}</div>
+              <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                {stats.newClients || 15}
+              </div>
               <p className="text-xs text-green-600 dark:text-green-400">First year clients</p>
             </CardContent>
           </Card>
@@ -112,7 +110,9 @@ export default async function AdminDashboardPage() {
               <TrendingUp className="w-4 h-4 text-purple-600 dark:text-purple-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">{stats.referrals || 10}</div>
+              <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
+                {stats.referrals || 10}
+              </div>
               <p className="text-xs text-purple-600 dark:text-purple-400">Pending intake</p>
             </CardContent>
           </Card>
@@ -123,7 +123,9 @@ export default async function AdminDashboardPage() {
               <Activity className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">{stats.todaysLeads || 2}</div>
+              <div className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">
+                {stats.todaysLeads || 2}
+              </div>
               <p className="text-xs text-yellow-600 dark:text-yellow-400">New today</p>
             </CardContent>
           </Card>
@@ -134,7 +136,9 @@ export default async function AdminDashboardPage() {
               <Activity className="w-4 h-4 text-orange-600 dark:text-orange-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-700 dark:text-orange-300">{stats.weeksLeads || 10}</div>
+              <div className="text-2xl font-bold text-orange-700 dark:text-orange-300">
+                {stats.weeksLeads || 10}
+              </div>
               <p className="text-xs text-orange-600 dark:text-orange-400">Last 7 days</p>
             </CardContent>
           </Card>
@@ -146,8 +150,14 @@ export default async function AdminDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">${stats.totalRevenue.toLocaleString()}</div>
-              <p className={`text-xs flex items-center gap-1 ${stats.revenueGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {stats.revenueGrowth >= 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+              <p
+                className={`text-xs flex items-center gap-1 ${stats.revenueGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}
+              >
+                {stats.revenueGrowth >= 0 ? (
+                  <ArrowUp className="w-3 h-3" />
+                ) : (
+                  <ArrowDown className="w-3 h-3" />
+                )}
                 {Math.abs(stats.revenueGrowth)}% from last month
               </p>
             </CardContent>
@@ -155,7 +165,9 @@ export default async function AdminDashboardPage() {
         </div>
 
         {/* Quick Action Alerts */}
-        {(pendingActions.pendingPayouts > 0 || pendingActions.newLeads > 0 || pendingActions.failedPayments > 0) && (
+        {(pendingActions.pendingPayouts > 0 ||
+          pendingActions.newLeads > 0 ||
+          pendingActions.failedPayments > 0) && (
           <div className="grid md:grid-cols-3 gap-4 mb-8">
             {pendingActions.pendingPayouts > 0 && (
               <Card className="border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950/20">
@@ -164,7 +176,9 @@ export default async function AdminDashboardPage() {
                   <Clock className="w-4 h-4 text-orange-600" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-orange-600">{pendingActions.pendingPayouts}</div>
+                  <div className="text-2xl font-bold text-orange-600">
+                    {pendingActions.pendingPayouts}
+                  </div>
                   <Button variant="link" className="px-0 h-auto text-xs mt-2" asChild>
                     <Link href="/admin/payouts">Review Payouts →</Link>
                   </Button>
@@ -232,8 +246,8 @@ export default async function AdminDashboardPage() {
                       followUp.urgency === 'critical'
                         ? 'border-red-300 bg-red-100 dark:bg-red-900/20'
                         : followUp.urgency === 'high'
-                        ? 'border-orange-300 bg-orange-100 dark:bg-orange-900/20'
-                        : 'border-yellow-300 bg-yellow-100 dark:bg-yellow-900/20'
+                          ? 'border-orange-300 bg-orange-100 dark:bg-orange-900/20'
+                          : 'border-yellow-300 bg-yellow-100 dark:bg-yellow-900/20'
                     }`}
                   >
                     <div className="flex items-start justify-between">
@@ -244,8 +258,8 @@ export default async function AdminDashboardPage() {
                               followUp.urgency === 'critical'
                                 ? 'destructive'
                                 : followUp.urgency === 'high'
-                                ? 'default'
-                                : 'secondary'
+                                  ? 'default'
+                                  : 'secondary'
                             }
                           >
                             {followUp.daysWaiting} days waiting
@@ -277,7 +291,8 @@ export default async function AdminDashboardPage() {
                 ))}
                 {accountabilityStats.totalMissedFollowUps > missedFollowUps.length && (
                   <p className="text-sm text-center text-muted-foreground pt-2">
-                    + {accountabilityStats.totalMissedFollowUps - missedFollowUps.length} more waiting for follow-up
+                    + {accountabilityStats.totalMissedFollowUps - missedFollowUps.length} more
+                    waiting for follow-up
                   </p>
                 )}
               </div>
@@ -315,10 +330,10 @@ export default async function AdminDashboardPage() {
                             index === 0
                               ? 'bg-yellow-500 text-white'
                               : index === 1
-                              ? 'bg-gray-400 text-white'
-                              : index === 2
-                              ? 'bg-amber-600 text-white'
-                              : 'bg-primary text-primary-foreground'
+                                ? 'bg-gray-400 text-white'
+                                : index === 2
+                                  ? 'bg-amber-600 text-white'
+                                  : 'bg-primary text-primary-foreground'
                           }`}
                         >
                           #{index + 1}
@@ -366,10 +381,10 @@ export default async function AdminDashboardPage() {
                             index === 0
                               ? 'bg-yellow-500 text-white'
                               : index === 1
-                              ? 'bg-gray-400 text-white'
-                              : index === 2
-                              ? 'bg-amber-600 text-white'
-                              : 'bg-primary text-primary-foreground'
+                                ? 'bg-gray-400 text-white'
+                                : index === 2
+                                  ? 'bg-amber-600 text-white'
+                                  : 'bg-primary text-primary-foreground'
                           }`}
                         >
                           #{index + 1}
@@ -377,7 +392,8 @@ export default async function AdminDashboardPage() {
                         <div>
                           <p className="font-medium text-sm">{link.title}</p>
                           <p className="text-xs text-muted-foreground">
-                            By {link.creatorName} • {link.clicks} clicks → {link.conversions} conversions
+                            By {link.creatorName} • {link.clicks} clicks → {link.conversions}{' '}
+                            conversions
                           </p>
                         </div>
                       </div>
@@ -450,7 +466,9 @@ export default async function AdminDashboardPage() {
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span>{page.visitors} visitors</span>
                         <span>{page.bounceRate}% bounce</span>
-                        <span className="text-green-600 font-medium">{page.conversionRate}% CVR</span>
+                        <span className="text-green-600 font-medium">
+                          {page.conversionRate}% CVR
+                        </span>
                       </div>
                       {i < pagePerformance.length - 1 && <div className="h-px bg-border mt-2" />}
                     </div>
@@ -477,18 +495,24 @@ export default async function AdminDashboardPage() {
                     <p className="text-xs text-muted-foreground">Generated</p>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-green-600">{aiContentMetrics.published}</div>
+                    <div className="text-2xl font-bold text-green-600">
+                      {aiContentMetrics.published}
+                    </div>
                     <p className="text-xs text-muted-foreground">Published</p>
                   </div>
                 </div>
                 <div className="space-y-2 pt-2 border-t">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Total Views</span>
-                    <span className="font-medium">{aiContentMetrics.totalViews.toLocaleString()}</span>
+                    <span className="font-medium">
+                      {aiContentMetrics.totalViews.toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Total Clicks</span>
-                    <span className="font-medium">{aiContentMetrics.totalClicks.toLocaleString()}</span>
+                    <span className="font-medium">
+                      {aiContentMetrics.totalClicks.toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Avg CTR</span>
@@ -496,7 +520,9 @@ export default async function AdminDashboardPage() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Conversion Rate</span>
-                    <span className="font-medium text-green-600">{aiContentMetrics.avgConversionRate}%</span>
+                    <span className="font-medium text-green-600">
+                      {aiContentMetrics.avgConversionRate}%
+                    </span>
                   </div>
                 </div>
               </div>
@@ -556,7 +582,10 @@ export default async function AdminDashboardPage() {
             ) : (
               <div className="space-y-4">
                 {recentActivity.map((activity, i) => (
-                  <div key={i} className="flex items-center justify-between py-2 border-b last:border-0">
+                  <div
+                    key={i}
+                    className="flex items-center justify-between py-2 border-b last:border-0"
+                  >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
                         <Users className="w-4 h-4" />
@@ -567,7 +596,10 @@ export default async function AdminDashboardPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <Badge variant={activity.badge === 'success' ? 'default' : 'secondary'} className="text-xs">
+                      <Badge
+                        variant={activity.badge === 'success' ? 'default' : 'secondary'}
+                        className="text-xs"
+                      >
                         {activity.time}
                       </Badge>
                     </div>

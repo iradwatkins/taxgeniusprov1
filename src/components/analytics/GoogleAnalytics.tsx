@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 /**
  * Google Analytics 4 Script Component
@@ -9,34 +9,34 @@
  * Part of Epic 6: Lead Tracking Dashboard Enhancement - Story 7
  */
 
-import Script from 'next/script'
-import { useEffect } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
-import { GA4_MEASUREMENT_ID, initGA4, trackPageView } from '@/lib/analytics/ga4'
+import Script from 'next/script';
+import { useEffect } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { GA4_MEASUREMENT_ID, initGA4, trackPageView } from '@/lib/analytics/ga4';
 
 export function GoogleAnalytics() {
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!GA4_MEASUREMENT_ID) return
+    if (!GA4_MEASUREMENT_ID) return;
 
     // Initialize GA4 on mount
-    const referrerUsername = searchParams?.get('ref') || searchParams?.get('referrer')
-    initGA4(referrerUsername || undefined)
-  }, [searchParams])
+    const referrerUsername = searchParams?.get('ref') || searchParams?.get('referrer');
+    initGA4(referrerUsername || undefined);
+  }, [searchParams]);
 
   useEffect(() => {
-    if (!GA4_MEASUREMENT_ID || !pathname) return
+    if (!GA4_MEASUREMENT_ID || !pathname) return;
 
     // Track page views on route changes
-    const referrerUsername = searchParams?.get('ref') || searchParams?.get('referrer')
-    trackPageView(pathname, referrerUsername || undefined)
-  }, [pathname, searchParams])
+    const referrerUsername = searchParams?.get('ref') || searchParams?.get('referrer');
+    trackPageView(pathname, referrerUsername || undefined);
+  }, [pathname, searchParams]);
 
   // Don't render scripts if GA4 is not configured
   if (!GA4_MEASUREMENT_ID) {
-    return null
+    return null;
   }
 
   return (
@@ -61,5 +61,5 @@ export function GoogleAnalytics() {
         }}
       />
     </>
-  )
+  );
 }

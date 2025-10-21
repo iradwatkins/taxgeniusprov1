@@ -1,21 +1,15 @@
 import { redirect } from 'next/navigation';
 import { currentUser } from '@clerk/nextjs/server';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  ShieldCheck,
-  Users,
-  AlertCircle,
-  UserCog,
-  Settings,
-} from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ShieldCheck, Users, AlertCircle, UserCog, Settings } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { PermissionManager } from '@/components/admin/PermissionManager';
 import { PermissionPresets } from '@/components/admin/PermissionPresets';
-import { logger } from '@/lib/logger'
+import { logger } from '@/lib/logger';
 
 export default async function PermissionsPage() {
   const user = await currentUser();
@@ -29,7 +23,7 @@ export default async function PermissionsPage() {
   }
 
   // Fetch all admin users
-  let adminUsers: any[] = []
+  let adminUsers: any[] = [];
 
   try {
     adminUsers = await prisma.profile.findMany({
@@ -41,7 +35,7 @@ export default async function PermissionsPage() {
       },
     });
   } catch (error) {
-    logger.error('Error fetching admin users:', error)
+    logger.error('Error fetching admin users:', error);
     // Continue with empty array - will show "No admin users found" message
   }
 
@@ -90,7 +84,8 @@ export default async function PermissionsPage() {
                   Super Admin Privileges
                 </p>
                 <p className="text-sm text-yellow-800 dark:text-yellow-300 mt-1">
-                  You have full control over all permissions. Changes made here will immediately affect what admin users can access.
+                  You have full control over all permissions. Changes made here will immediately
+                  affect what admin users can access.
                 </p>
               </div>
             </div>
@@ -110,7 +105,8 @@ export default async function PermissionsPage() {
               <CardHeader>
                 <CardTitle>Section-Based Permissions</CardTitle>
                 <CardDescription>
-                  Enable or disable entire navigation sections for admin users. Toggle a section to control all items within it.
+                  Enable or disable entire navigation sections for admin users. Toggle a section to
+                  control all items within it.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -127,9 +123,7 @@ export default async function PermissionsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Admin Users</CardTitle>
-                <CardDescription>
-                  Manage permissions for individual admin users
-                </CardDescription>
+                <CardDescription>Manage permissions for individual admin users</CardDescription>
               </CardHeader>
               <CardContent>
                 {adminUsers.length === 0 ? (

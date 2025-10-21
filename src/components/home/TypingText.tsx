@@ -11,7 +11,7 @@ interface TypingTextProps {
 export function TypingText({ text, delay = 0 }: TypingTextProps) {
   const [displayText, setDisplayText] = useState('');
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
   const hasStarted = useRef(false);
 
   useEffect(() => {

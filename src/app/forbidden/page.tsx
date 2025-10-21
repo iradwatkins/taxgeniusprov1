@@ -1,7 +1,7 @@
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ShieldAlert, ArrowLeft } from 'lucide-react'
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ShieldAlert, ArrowLeft } from 'lucide-react';
 
 export default function ForbiddenPage() {
   return (
@@ -12,14 +12,13 @@ export default function ForbiddenPage() {
             <ShieldAlert className="h-10 w-10 text-destructive" />
           </div>
           <CardTitle className="text-2xl">Access Denied</CardTitle>
-          <CardDescription>
-            You don't have permission to access this page
-          </CardDescription>
+          <CardDescription>You don't have permission to access this page</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="rounded-lg bg-muted p-4 text-sm">
             <p className="text-muted-foreground">
-              This page requires special permissions. Your current account role does not have access to this resource.
+              This page requires special permissions. Your current account role does not have access
+              to this resource.
             </p>
           </div>
           <p className="text-sm text-muted-foreground text-center">
@@ -33,13 +32,11 @@ export default function ForbiddenPage() {
               </Link>
             </Button>
             <Button className="flex-1" asChild>
-              <Link href="/contact">
-                Contact Support
-              </Link>
+              <Link href="/contact">Contact Support</Link>
             </Button>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

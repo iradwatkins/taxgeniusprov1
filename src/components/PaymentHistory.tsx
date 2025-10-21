@@ -1,9 +1,9 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -11,7 +11,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from '@/components/ui/table';
 import {
   DollarSign,
   Download,
@@ -22,36 +22,36 @@ import {
   AlertCircle,
   TrendingUp,
   CreditCard,
-  Smartphone
-} from 'lucide-react'
+  Smartphone,
+} from 'lucide-react';
 
 interface Payment {
-  id: string
-  type: 'advance' | 'repayment' | 'fee'
-  amount: number
-  status: 'pending' | 'completed' | 'failed' | 'refunded'
-  method: 'card' | 'cash_app' | 'ach'
-  date: string
-  description: string
-  receiptUrl?: string
-  last4?: string
-  cardBrand?: string
+  id: string;
+  type: 'advance' | 'repayment' | 'fee';
+  amount: number;
+  status: 'pending' | 'completed' | 'failed' | 'refunded';
+  method: 'card' | 'cash_app' | 'ach';
+  date: string;
+  description: string;
+  receiptUrl?: string;
+  last4?: string;
+  cardBrand?: string;
 }
 
 interface PaymentHistoryProps {
-  userId?: string
-  language?: 'en' | 'es'
+  userId?: string;
+  language?: 'en' | 'es';
 }
 
 export default function PaymentHistory({ userId, language = 'en' }: PaymentHistoryProps) {
-  const [payments, setPayments] = useState<Payment[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [totals, setTotals] = useState({
     totalAdvanced: 0,
     totalRepaid: 0,
     totalFees: 0,
-    outstanding: 0
-  })
+    outstanding: 0,
+  });
 
   const content = {
     en: {
@@ -74,18 +74,18 @@ export default function PaymentHistory({ userId, language = 'en' }: PaymentHisto
         pending: 'Pending',
         completed: 'Completed',
         failed: 'Failed',
-        refunded: 'Refunded'
+        refunded: 'Refunded',
       },
       typeLabels: {
         advance: 'Cash Advance',
         repayment: 'Repayment',
-        fee: 'Service Fee'
+        fee: 'Service Fee',
       },
       methodLabels: {
         card: 'Card',
         cash_app: 'Cash App',
-        ach: 'Bank Transfer'
-      }
+        ach: 'Bank Transfer',
+      },
     },
     es: {
       title: 'Historial de Pagos',
@@ -107,29 +107,29 @@ export default function PaymentHistory({ userId, language = 'en' }: PaymentHisto
         pending: 'Pendiente',
         completed: 'Completado',
         failed: 'Fallido',
-        refunded: 'Reembolsado'
+        refunded: 'Reembolsado',
       },
       typeLabels: {
         advance: 'Adelanto en Efectivo',
         repayment: 'Reembolso',
-        fee: 'Tarifa de Servicio'
+        fee: 'Tarifa de Servicio',
       },
       methodLabels: {
         card: 'Tarjeta',
         cash_app: 'Cash App',
-        ach: 'Transferencia Bancaria'
-      }
-    }
-  }
+        ach: 'Transferencia Bancaria',
+      },
+    },
+  };
 
-  const t = content[language]
+  const t = content[language];
 
   useEffect(() => {
-    fetchPayments()
-  }, [userId])
+    fetchPayments();
+  }, [userId]);
 
   const fetchPayments = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     // Simulate API call (in production, fetch from database)
     setTimeout(() => {
@@ -137,12 +137,12 @@ export default function PaymentHistory({ userId, language = 'en' }: PaymentHisto
         {
           id: '1',
           type: 'advance',
-          amount: 2500.00,
+          amount: 2500.0,
           status: 'completed',
           method: 'cash_app',
           date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
           description: 'Tax Advance - Instant Approval',
-          receiptUrl: '/receipt/1'
+          receiptUrl: '/receipt/1',
         },
         {
           id: '2',
@@ -153,12 +153,12 @@ export default function PaymentHistory({ userId, language = 'en' }: PaymentHisto
           date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
           description: 'Processing Fee (Waived - Limited Time)',
           last4: '4242',
-          cardBrand: 'VISA'
+          cardBrand: 'VISA',
         },
         {
           id: '3',
           type: 'repayment',
-          amount: 500.00,
+          amount: 500.0,
           status: 'pending',
           method: 'ach',
           date: new Date().toISOString(),
@@ -167,101 +167,101 @@ export default function PaymentHistory({ userId, language = 'en' }: PaymentHisto
         {
           id: '4',
           type: 'advance',
-          amount: 1500.00,
+          amount: 1500.0,
           status: 'completed',
           method: 'card',
           date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
           description: 'Additional Advance',
           receiptUrl: '/receipt/4',
           last4: '5555',
-          cardBrand: 'MASTERCARD'
-        }
-      ]
+          cardBrand: 'MASTERCARD',
+        },
+      ];
 
-      setPayments(mockPayments)
+      setPayments(mockPayments);
 
       // Calculate totals
       const totalAdvanced = mockPayments
-        .filter(p => p.type === 'advance' && p.status === 'completed')
-        .reduce((sum, p) => sum + p.amount, 0)
+        .filter((p) => p.type === 'advance' && p.status === 'completed')
+        .reduce((sum, p) => sum + p.amount, 0);
 
       const totalRepaid = mockPayments
-        .filter(p => p.type === 'repayment' && p.status === 'completed')
-        .reduce((sum, p) => sum + p.amount, 0)
+        .filter((p) => p.type === 'repayment' && p.status === 'completed')
+        .reduce((sum, p) => sum + p.amount, 0);
 
       const totalFees = mockPayments
-        .filter(p => p.type === 'fee' && p.status === 'completed')
-        .reduce((sum, p) => sum + p.amount, 0)
+        .filter((p) => p.type === 'fee' && p.status === 'completed')
+        .reduce((sum, p) => sum + p.amount, 0);
 
       setTotals({
         totalAdvanced,
         totalRepaid,
         totalFees,
-        outstanding: totalAdvanced - totalRepaid
-      })
+        outstanding: totalAdvanced - totalRepaid,
+      });
 
-      setIsLoading(false)
-    }, 1000)
-  }
+      setIsLoading(false);
+    }, 1000);
+  };
 
   const getStatusIcon = (status: Payment['status']) => {
     switch (status) {
       case 'completed':
-        return <CheckCircle className="w-4 h-4 text-green-600" />
+        return <CheckCircle className="w-4 h-4 text-green-600" />;
       case 'pending':
-        return <Clock className="w-4 h-4 text-yellow-600" />
+        return <Clock className="w-4 h-4 text-yellow-600" />;
       case 'failed':
-        return <XCircle className="w-4 h-4 text-red-600" />
+        return <XCircle className="w-4 h-4 text-red-600" />;
       case 'refunded':
-        return <AlertCircle className="w-4 h-4 text-blue-600" />
+        return <AlertCircle className="w-4 h-4 text-blue-600" />;
     }
-  }
+  };
 
   const getStatusColor = (status: Payment['status']) => {
     switch (status) {
       case 'completed':
-        return 'success'
+        return 'success';
       case 'pending':
-        return 'warning'
+        return 'warning';
       case 'failed':
-        return 'destructive'
+        return 'destructive';
       case 'refunded':
-        return 'secondary'
+        return 'secondary';
       default:
-        return 'default'
+        return 'default';
     }
-  }
+  };
 
   const getMethodIcon = (method: Payment['method']) => {
     switch (method) {
       case 'card':
-        return <CreditCard className="w-4 h-4" />
+        return <CreditCard className="w-4 h-4" />;
       case 'cash_app':
-        return <Smartphone className="w-4 h-4" />
+        return <Smartphone className="w-4 h-4" />;
       case 'ach':
-        return <DollarSign className="w-4 h-4" />
+        return <DollarSign className="w-4 h-4" />;
     }
-  }
+  };
 
   const formatAmount = (amount: number, type: Payment['type']) => {
     const formatted = new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
-    }).format(amount)
+      currency: 'USD',
+    }).format(amount);
 
     if (type === 'repayment' || type === 'fee') {
-      return <span className="text-red-600">-{formatted}</span>
+      return <span className="text-red-600">-{formatted}</span>;
     }
-    return <span className="text-green-600">+{formatted}</span>
-  }
+    return <span className="text-green-600">+{formatted}</span>;
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString(language === 'es' ? 'es-ES' : 'en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric'
-    })
-  }
+      day: 'numeric',
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -283,9 +283,7 @@ export default function PaymentHistory({ userId, language = 'en' }: PaymentHisto
             <CardDescription>{t.totalRepaid}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">
-              ${totals.totalRepaid.toLocaleString()}
-            </p>
+            <p className="text-2xl font-bold">${totals.totalRepaid.toLocaleString()}</p>
           </CardContent>
         </Card>
 
@@ -294,9 +292,7 @@ export default function PaymentHistory({ userId, language = 'en' }: PaymentHisto
             <CardDescription>{t.totalFees}</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold">
-              ${totals.totalFees.toLocaleString()}
-            </p>
+            <p className="text-2xl font-bold">${totals.totalFees.toLocaleString()}</p>
           </CardContent>
         </Card>
 
@@ -328,13 +324,9 @@ export default function PaymentHistory({ userId, language = 'en' }: PaymentHisto
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">
-              Loading payments...
-            </div>
+            <div className="text-center py-8 text-muted-foreground">Loading payments...</div>
           ) : payments.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              {t.noPayments}
-            </div>
+            <div className="text-center py-8 text-muted-foreground">{t.noPayments}</div>
           ) : (
             <Table>
               <TableHeader>
@@ -350,9 +342,7 @@ export default function PaymentHistory({ userId, language = 'en' }: PaymentHisto
               <TableBody>
                 {payments.map((payment) => (
                   <TableRow key={payment.id}>
-                    <TableCell className="font-medium">
-                      {formatDate(payment.date)}
-                    </TableCell>
+                    <TableCell className="font-medium">{formatDate(payment.date)}</TableCell>
                     <TableCell>
                       <div>
                         <p className="font-medium">{payment.description}</p>
@@ -401,5 +391,5 @@ export default function PaymentHistory({ userId, language = 'en' }: PaymentHisto
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
