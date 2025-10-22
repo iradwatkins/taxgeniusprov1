@@ -9,6 +9,10 @@ import { logger } from '@/lib/logger';
  * - status: filter by status
  * - from: start date filter
  * - to: end date filter
+ *
+ * Row-level security:
+ * - tax_preparer: only see appointments assigned to them (via preparerId)
+ * - admin/super_admin: see all appointments
  */
 export async function GET(req: NextRequest) {
   try {
@@ -25,7 +29,30 @@ export async function GET(req: NextRequest) {
     const where: {
       status?: string;
       scheduledFor?: { gte?: Date; lte?: Date };
+      preparerId?: string;
     } = {};
+
+    // ROW-LEVEL SECURITY: Tax preparers only see their assigned appointments
+    const role = user.publicMetadata?.role as string;
+    if (role === 'tax_preparer') {
+      // Get the preparer's profile ID
+      const profile = await prisma.profile.findUnique({
+        where: { clerkUserId: user.id },
+        select: { id: true },
+      });
+
+      if (!profile) {
+        return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+      }
+
+      // Filter to only appointments assigned to this preparer
+      where.preparerId = profile.id;
+      logger.info('Tax preparer viewing their appointments', {
+        preparerId: profile.id,
+        userId: user.id,
+      });
+    }
+    // Admins and super_admins see all appointments (no filter)
 
     // Filter by status
     if (status) {
@@ -48,6 +75,12 @@ export async function GET(req: NextRequest) {
       orderBy: {
         scheduledFor: 'asc',
       },
+    });
+
+    logger.info('Fetched appointments', {
+      count: appointments.length,
+      role,
+      filtered: role === 'tax_preparer',
     });
 
     return NextResponse.json({ appointments });
