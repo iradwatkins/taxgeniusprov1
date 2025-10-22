@@ -321,10 +321,12 @@ export const PERMISSION_LABELS: Record<Permission, string> = {
  * Get permissions for a user based on their role and custom permissions
  */
 export function getUserPermissions(
-  role: UserRole,
+  role: UserRole | string,
   customPermissions?: Partial<UserPermissions>
 ): Partial<UserPermissions> {
-  const defaultPerms = DEFAULT_PERMISSIONS[role] || DEFAULT_PERMISSIONS.client;
+  // Normalize role to lowercase to handle database enum (SUPER_ADMIN) vs TypeScript (super_admin)
+  const normalizedRole = role?.toString().toLowerCase() as UserRole;
+  const defaultPerms = DEFAULT_PERMISSIONS[normalizedRole] || DEFAULT_PERMISSIONS.client;
 
   // If custom permissions are provided, merge with defaults
   if (customPermissions) {
@@ -339,18 +341,22 @@ export function getUserPermissions(
  * Used for admin "View As" functionality
  */
 export function getEffectivePermissions(
-  actualRole: UserRole,
-  effectiveRole: UserRole,
+  actualRole: UserRole | string,
+  effectiveRole: UserRole | string,
   customPermissions?: Partial<UserPermissions>
-): Partial<UserPermissions> & { isViewingAsOtherRole: boolean; actualRole: UserRole } {
+): Partial<UserPermissions> & { isViewingAsOtherRole: boolean; actualRole: string } {
+  // Normalize roles to lowercase
+  const normalizedActualRole = actualRole?.toString().toLowerCase();
+  const normalizedEffectiveRole = effectiveRole?.toString().toLowerCase();
+
   // Get permissions for the effective role (what user sees)
-  const permissions = getUserPermissions(effectiveRole, customPermissions);
+  const permissions = getUserPermissions(normalizedEffectiveRole, customPermissions);
 
   // Add metadata about viewing state
   return {
     ...permissions,
-    isViewingAsOtherRole: actualRole !== effectiveRole,
-    actualRole,
+    isViewingAsOtherRole: normalizedActualRole !== normalizedEffectiveRole,
+    actualRole: normalizedActualRole,
   };
 }
 
