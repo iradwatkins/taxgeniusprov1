@@ -75,7 +75,7 @@ export default async function ClientSettingsPage() {
           {/* Profile Photo */}
           <div className="flex items-center gap-6">
             <Avatar className="w-20 h-20">
-              <AvatarImage src={user?.imageUrl} />
+              {user?.imageUrl && <AvatarImage src={user.imageUrl} />}
               <AvatarFallback className="text-2xl">
                 {user?.firstName?.[0] || user?.emailAddresses[0]?.emailAddress[0] || 'U'}
               </AvatarFallback>
@@ -288,7 +288,7 @@ export default async function ClientSettingsPage() {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Active Sessions</Label>
-              <p className="text-sm text-muted-foreground">Manage devices where you're logged in</p>
+              <p className="text-sm text-muted-foreground">Manage devices where you&apos;re logged in</p>
             </div>
             <Button variant="outline" size="sm">
               View

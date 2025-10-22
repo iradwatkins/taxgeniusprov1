@@ -459,7 +459,7 @@ export default function ClientDashboard() {
                     <FileX className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
                     <h2 className="text-2xl font-bold mb-2">No Tax Return Found</h2>
                     <p className="text-muted-foreground mb-6">
-                      You haven't started your {selectedYear} tax return yet.
+                      You haven&apos;t started your {selectedYear} tax return yet.
                     </p>
                     <Button size="lg" onClick={() => (window.location.href = '/start-filing/form')}>
                       Start Filing Now
@@ -561,7 +561,7 @@ export default function ClientDashboard() {
                 <CardContent>
                   <p className="text-sm">
                     Did you know? You can deduct up to $300 in charitable donations even if you
-                    don\'t itemize your deductions. Make sure to keep receipts for all donations!
+                    don&apos;t itemize your deductions. Make sure to keep receipts for all donations!
                   </p>
                   <Button variant="link" className="mt-2 p-0 h-auto text-blue-600">
                     Learn more <ExternalLink className="ml-1 h-3 w-3" />
@@ -776,7 +776,7 @@ export default function ClientDashboard() {
                           )}
                         >
                           <Avatar className="h-8 w-8">
-                            <AvatarImage src={message.senderAvatar} />
+                            {message.senderAvatar && <AvatarImage src={message.senderAvatar} />}
                             <AvatarFallback>
                               {message.senderName
                                 .split(' ')
