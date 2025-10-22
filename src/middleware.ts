@@ -120,7 +120,7 @@ export default clerkMiddleware(async (auth, req) => {
   if (userId) {
     const pathname = req.nextUrl.pathname;
     const validRoles: string[] = [
-      'super_admin',
+      'admin',
       'admin',
       'lead',
       'client',
@@ -169,7 +169,7 @@ export default clerkMiddleware(async (auth, req) => {
     let isViewingAsOtherRole = false;
     let viewingRoleName: string | undefined;
 
-    if (isValidRole && (role === 'super_admin' || role === 'admin')) {
+    if (isValidRole && (role === 'admin' || role === 'admin')) {
       try {
         const roleInfo = await getEffectiveRole(role as UserRole, userId);
         effectiveRole = roleInfo.effectiveRole;
@@ -204,9 +204,9 @@ export default clerkMiddleware(async (auth, req) => {
 
     // Restrict /admin routes with granular permission checks
     if (pathname.startsWith('/admin') || pathname.startsWith('/dashboard/admin')) {
-      // Check ACTUAL role first - must be admin or super_admin (security check)
+      // Check ACTUAL role first - must be admin or admin (security check)
       // This prevents non-admins from accessing admin routes even if viewing cookie is manipulated
-      if (role !== 'admin' && role !== 'super_admin') {
+      if (role !== 'admin' && role !== 'admin') {
         return NextResponse.redirect(new URL('/forbidden', req.url));
       }
 
@@ -246,7 +246,7 @@ export default clerkMiddleware(async (auth, req) => {
       }
     }
 
-    // Restrict /store access to tax_preparer, affiliate, admin, and super_admin only
+    // Restrict /store access to tax_preparer, affiliate, admin, and admin only
     // Use effectiveRole so admins can preview store as other roles
     if (pathname.startsWith('/store')) {
       if (
@@ -254,20 +254,20 @@ export default clerkMiddleware(async (auth, req) => {
         (effectiveRole !== 'tax_preparer' &&
           effectiveRole !== 'affiliate' &&
           effectiveRole !== 'admin' &&
-          effectiveRole !== 'super_admin')
+          effectiveRole !== 'admin')
       ) {
         return NextResponse.redirect(new URL('/forbidden', req.url));
       }
     }
 
-    // Restrict /app/academy access to tax_preparer, admin, and super_admin only
+    // Restrict /app/academy access to tax_preparer, admin, and admin only
     // Use effectiveRole so admins can preview academy as other roles
     if (pathname.startsWith('/app/academy')) {
       if (
         !effectiveRole ||
         (effectiveRole !== 'tax_preparer' &&
           effectiveRole !== 'admin' &&
-          effectiveRole !== 'super_admin')
+          effectiveRole !== 'admin')
       ) {
         return NextResponse.redirect(new URL('/forbidden', req.url));
       }
@@ -313,7 +313,7 @@ export default clerkMiddleware(async (auth, req) => {
     // Use effectiveRole so admins viewing as another role get redirected to that role's dashboard
     if (isValidRole && pathname === '/dashboard') {
       const dashboardUrls: Record<string, string> = {
-        super_admin: '/dashboard/admin',
+        admin: '/dashboard/admin',
         admin: '/dashboard/admin',
         lead: '/dashboard/lead',
         client: '/dashboard/client',

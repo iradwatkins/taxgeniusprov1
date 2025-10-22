@@ -83,19 +83,18 @@ export const SECTION_PERMISSIONS: Record<SectionPermission, Permission[]> = {
 
 export type UserPermissions = Record<Permission, boolean>;
 
-export type UserRole = 'super_admin' | 'admin' | 'tax_preparer' | 'affiliate' | 'lead' | 'client';
+export type UserRole = 'admin' | 'tax_preparer' | 'affiliate' | 'lead' | 'client';
 
 /**
  * Default permissions for each role
- * These are the baseline permissions that can be customized by super_admin
+ * These are the baseline permissions that can be customized by admins
  *
  * ==================================================================================
  * QUICK REFERENCE: WHAT MAKES EACH ROLE UNIQUE
  * ==================================================================================
  *
- * 🛡️  SUPER ADMIN:    Database, Permissions, Google Analytics, All Client Files, Alerts
- * 👑 ADMIN:          User Management, Payouts, Content Generator, System-wide Analytics
- * 📊 TAX PREPARER:   Client Documents (their clients only), Lead Tracking, Academy
+ * 👑 ADMIN:          Full System Control - Database, Permissions, Google Analytics, All Features, Alerts
+ * 📊 TAX PREPARER:   Client Documents (their clients only), Lead Tracking, Academy, CRM
  * 🤝 AFFILIATE:      Marketing Store, Professional Marketing Materials, Conversion Tracking
  * 🔶 LEAD:           Pending Approval (no access until role changed by admin)
  * 👤 CLIENT:         Upload Documents, Conditional Referral Access (most restricted)
@@ -105,57 +104,48 @@ export type UserRole = 'super_admin' | 'admin' | 'tax_preparer' | 'affiliate' | 
  * - CLIENT can refer and see referral analytics (if they have shortLinkUsername)
  * - AFFILIATE works for Tax Genius but hasn't done taxes (can refer)
  * - TAX PREPARER sees only THEIR clients (backend filtered), not all system clients
- * - Only SUPER ADMIN can access database, manage permissions, and see all client files
+ * - ADMIN has full system access including database, permissions, and all client files
  *
  * ==================================================================================
  * ROLE HIERARCHY:
  *
- * 1. SUPER_ADMIN (Highest Level - Full System Control)
+ * 1. ADMIN (Highest Level - Full System Control)
  *    - Has ALL permissions including system-critical features
- *    - Can manage other admin permissions
+ *    - Can manage other user permissions
  *    - Can access database management
  *    - Can view Google Analytics
- *    - Can access sensitive client files
+ *    - Can access all client files (system-wide)
  *    - Has phone alerts enabled
- *    - CANNOT be assigned to regular users (security)
+ *    - Can customize permissions for other users
  *
- * 2. ADMIN (Limited Administrative Access)
- *    - Has most admin features but RESTRICTED from critical operations
- *    - CANNOT manage permissions (adminManagement: false)
- *    - CANNOT access database (database: false)
- *    - CANNOT access sensitive client files (clientFileCenter: false)
- *    - CANNOT access Google Analytics (googleAnalytics: false)
- *    - Phone alerts DISABLED by default (alerts: false)
- *    - Can be customized by super_admin to grant additional permissions
- *
- * 3. TAX_PREPARER (Independent Tax Professional)
+ * 2. TAX_PREPARER (Independent Tax Professional)
  *    - Manages THEIR OWN assigned clients only
  *    - Has client documents and file access (scoped to their clients)
  *    - Has tracking code for lead generation
  *    - CANNOT see other preparers' clients or system-wide data
  *
- * 4. AFFILIATE (External Professional Marketer)
+ * 3. AFFILIATE (External Professional Marketer)
  *    - Promotes TaxGeniusPro through professional marketing campaigns
  *    - Works for Tax Genius but hasn't done taxes yet
  *    - Has store access for marketing materials
  *    - Sophisticated tracking and analytics
  *    - CANNOT access any client data or admin features
  *
- * 5. LEAD (New Signup - Pending Approval)
+ * 4. LEAD (New Signup - Pending Approval)
  *    - Default role for all new signups
  *    - NO dashboard access (shows pending approval page)
  *    - Admin must change role to: CLIENT, AFFILIATE, or TAX_PREPARER
  *    - Tax Preparers can only change: LEAD → CLIENT
  *
- * 6. CLIENT (Tax Service Customer)
+ * 5. CLIENT (Tax Service Customer)
  *    - User who has completed tax preparation with Tax Genius
  *    - Can upload documents and view their own status
  *    - Can refer new clients (shows "My Referrals" tab if active)
  *    - Earns commissions on referrals (same as affiliates)
  */
 export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
-  super_admin: {
-    // Super admin has ALL permissions - Full system control
+  admin: {
+    // Admin has ALL permissions - Full system control
     dashboard: true,
     users: true,
     payouts: true,
@@ -172,7 +162,7 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     marketing: true,
     uploadDocuments: true,
     contest: true,
-    // New admin navigation permissions
+    // Admin navigation permissions
     clientsStatus: true,
     referralsStatus: true,
     emails: true,
@@ -185,50 +175,7 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     marketingHub: true,
     quickShareLinks: false, // Removed from all dashboards
     alerts: true,
-  },
-  admin: {
-    // Admin has limited features by default, super_admin can grant more
-    // KEY RESTRICTIONS compared to super_admin:
-    // ❌ adminManagement (cannot manage permissions)
-    // ❌ database (no database access)
-    // ❌ googleAnalytics (no GA integration)
-    // ❌ clientFileCenter (no sensitive client files)
-    // ❌ alerts (phone alerts disabled)
-    dashboard: true,
-    alerts: false, // 🔒 SUPER_ADMIN ONLY - Phone alerts restricted by default
-    users: true,
-    payouts: true,
-    contentGenerator: true,
-    analytics: true,
-    adminManagement: false, // 🔒 SUPER_ADMIN ONLY - Cannot manage permissions
-    database: false, // 🔒 SUPER_ADMIN ONLY - No database access by default
-    settings: true,
-    // Client Management - some restricted
-    clientsStatus: true,
-    clients: false, // Removed client list access
-    clientFileCenter: false, // 🔒 SUPER_ADMIN ONLY - Restricted - contains sensitive client files
-    documents: false, // Restricted - sensitive documents
-    uploadDocuments: false,
-    // Communications - available
-    emails: true,
-    calendar: true,
-    addressBook: true,
-    // Analytics - some restricted
-    googleAnalytics: false, // 🔒 SUPER_ADMIN ONLY - Restricted - requires API access
-    referralsAnalytics: true,
-    // Growth & Marketing - available
-    referralsStatus: true,
-    contest: false,
-    quickShareLinks: false, // Removed from all dashboards
-    // Content & Learning - available
-    learningCenter: false, // Removed from all dashboards
-    academy: true,
-    // Marketing Materials - available
-    marketingHub: true,
-    marketing: true,
-    // Financial - some restricted
-    earnings: false, // Removed from all dashboards
-    store: true,
+    trackingCode: true,
   },
   tax_preparer: {
     // Tax preparers are independent contractors who prepare taxes for THEIR assigned clients
@@ -324,8 +271,14 @@ export function getUserPermissions(
   role: UserRole | string,
   customPermissions?: Partial<UserPermissions>
 ): Partial<UserPermissions> {
-  // Normalize role to lowercase to handle database enum (SUPER_ADMIN) vs TypeScript (super_admin)
-  const normalizedRole = role?.toString().toLowerCase() as UserRole;
+  // Normalize role to lowercase to handle database enum (SUPER_ADMIN) vs TypeScript (admin)
+  let normalizedRole = role?.toString().toLowerCase() as UserRole;
+
+  // Map super_admin to admin (backward compatibility for existing database records)
+  if (normalizedRole === 'super_admin') {
+    normalizedRole = 'admin';
+  }
+
   const defaultPerms = DEFAULT_PERMISSIONS[normalizedRole] || DEFAULT_PERMISSIONS.client;
 
   // If custom permissions are provided, merge with defaults
@@ -372,36 +325,19 @@ export function hasPermission(
 
 /**
  * Get available permissions to edit for a specific role
- * Super admin can edit all, but lower roles have restrictions
+ * Admins can edit all permissions for other users
  */
-export function getEditablePermissions(role: UserRole): Permission[] {
-  switch (role) {
-    case 'super_admin':
-      return Object.keys(DEFAULT_PERMISSIONS.super_admin) as Permission[];
+export function getEditablePermissions(role: UserRole | string): Permission[] {
+  // Normalize role and map super_admin to admin for backward compatibility
+  let normalizedRole = role?.toString().toLowerCase();
+  if (normalizedRole === 'super_admin') {
+    normalizedRole = 'admin';
+  }
 
+  switch (normalizedRole) {
     case 'admin':
-      // Admins can be granted these permissions
-      return [
-        'dashboard',
-        'users',
-        'payouts',
-        'contentGenerator',
-        'analytics',
-        'adminManagement',
-        'database',
-        'settings',
-        // New admin permissions
-        'clientsStatus',
-        'referralsStatus',
-        'emails',
-        'calendar',
-        'addressBook',
-        'clientFileCenter',
-        'googleAnalytics',
-        'referralsAnalytics',
-        'marketingHub',
-        // Removed: learningCenter, quickShareLinks, earnings
-      ];
+      // Admins can be granted all permissions
+      return Object.keys(DEFAULT_PERMISSIONS.admin) as Permission[];
 
     case 'tax_preparer':
       // Tax preparers have these fixed features (scoped to their assigned clients)

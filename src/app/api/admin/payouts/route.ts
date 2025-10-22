@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
-    // Only admins and super_admins can access payout management
+    // Only admins and admins can access payout management
     if (profile.role !== 'ADMIN' && profile.role !== 'SUPER_ADMIN') {
       return NextResponse.json(
         { error: 'Only administrators can access payout management' },

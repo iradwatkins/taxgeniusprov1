@@ -35,7 +35,7 @@ export async function POST() {
       await clerkClient()
     ).users.updateUserMetadata(user.id, {
       publicMetadata: {
-        role: 'super_admin',
+        role: 'admin',
       },
     });
 
@@ -68,7 +68,7 @@ export async function POST() {
       success: true,
       message: `Successfully set ${userEmail} as SUPER_ADMIN`,
       userId: user.id,
-      role: 'super_admin',
+      role: 'admin',
     });
   } catch (error) {
     logger.error('Error setting super admin:', error);

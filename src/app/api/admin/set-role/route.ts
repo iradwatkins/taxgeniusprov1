@@ -17,9 +17,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized - You must be logged in' }, { status: 401 });
     }
 
-    // Authorization check - only super_admin can change roles
+    // Authorization check - only admin can change roles
     const currentUserRole = currentUserData.publicMetadata?.role as string;
-    if (currentUserRole !== 'super_admin') {
+    if (currentUserRole !== 'admin') {
       return NextResponse.json(
         { error: 'Forbidden - Only super admins can change user roles' },
         { status: 403 }
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email and role are required' }, { status: 400 });
     }
 
-    const validRoles = ['super_admin', 'admin', 'lead', 'client', 'tax_preparer', 'affiliate'];
+    const validRoles = ['admin', 'admin', 'lead', 'client', 'tax_preparer', 'affiliate'];
     if (!validRoles.includes(role)) {
       return NextResponse.json(
         { error: `Invalid role. Must be one of: ${validRoles.join(', ')}` },

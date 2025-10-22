@@ -98,7 +98,7 @@ export function DashboardSidebar({
     // Earnings is special - update href based on role
     if (item.permission === 'earnings') {
       const earningsRoutes: Record<UserRole, string> = {
-        super_admin: '/admin/earnings',
+        admin: '/admin/earnings',
         admin: '/admin/earnings',
         lead: '/dashboard/lead/earnings',
         tax_preparer: '/dashboard/tax-preparer/earnings',
@@ -111,7 +111,7 @@ export function DashboardSidebar({
     // Settings is special - update href based on role
     if (item.permission === 'settings') {
       const settingsRoutes: Record<UserRole, string> = {
-        super_admin: '/admin/settings',
+        admin: '/admin/settings',
         admin: '/admin/settings',
         lead: '/dashboard/lead/settings',
         tax_preparer: '/dashboard/tax-preparer/settings',
@@ -141,7 +141,7 @@ export function DashboardSidebar({
   // Debug: Log the role and grouped items
   logger.info('Dashboard Sidebar Debug:', {
     role,
-    isAdminOrSuperAdmin: role === 'admin' || role === 'super_admin',
+    isAdminOrSuperAdmin: role === 'admin' || role === 'admin',
     totalNavItems: navItems.length,
     sections: Object.keys(groupedItems),
     itemsPerSection: Object.entries(groupedItems).map(([section, items]) => ({
@@ -173,7 +173,7 @@ export function DashboardSidebar({
       {/* Sidebar Content */}
       <ScrollArea className="flex-1 py-4">
         <nav className="px-2">
-          {role === 'admin' || role === 'super_admin' ? (
+          {role === 'admin' || role === 'admin' ? (
             // Render with sections for admin users - ordered sections
             // Define section order for consistent display
             <div className="space-y-4">

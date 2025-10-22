@@ -36,7 +36,7 @@ async function isSuperAdmin() {
   const user = await currentUser();
   if (!user) return false;
   const role = user.publicMetadata?.role as string;
-  return role === 'super_admin';
+  return role === 'admin';
 }
 
 export default async function AdminSettingsPage() {

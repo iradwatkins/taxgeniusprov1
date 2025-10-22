@@ -17,8 +17,8 @@ export default async function PermissionsPage() {
 
   const role = user.publicMetadata?.role as UserRole | undefined;
 
-  // Only super_admin can access this page
-  if (role !== 'super_admin') {
+  // Only admin can access this page
+  if (role !== 'admin') {
     redirect('/forbidden');
   }
 

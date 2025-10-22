@@ -32,7 +32,7 @@ async function isTaxPreparer() {
   const user = await currentUser();
   if (!user) return false;
   const role = user.publicMetadata?.role as string;
-  return role === 'TAX_PREPARER' || role === 'super_admin';
+  return role === 'TAX_PREPARER' || role === 'admin';
 }
 
 export default async function PreparerOverviewDashboard() {

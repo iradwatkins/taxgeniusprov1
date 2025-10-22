@@ -3,7 +3,7 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 /**
  * User role types for Tax Genius platform
  */
-export type UserRole = 'super_admin' | 'admin' | 'lead' | 'client' | 'tax_preparer' | 'affiliate';
+export type UserRole = 'admin' | 'admin' | 'lead' | 'client' | 'tax_preparer' | 'affiliate';
 
 /**
  * Get the current user's role from Clerk metadata
@@ -28,19 +28,19 @@ export async function hasRole(role: UserRole): Promise<boolean> {
 
 /**
  * Check if current user is a super admin
- * @returns True if user is super_admin
+ * @returns True if user is admin
  */
 export async function isSuperAdmin(): Promise<boolean> {
-  return hasRole('super_admin');
+  return hasRole('admin');
 }
 
 /**
- * Check if current user is an admin (includes super_admin)
- * @returns True if user is admin or super_admin
+ * Check if current user is an admin (includes admin)
+ * @returns True if user is admin or admin
  */
 export async function isAdmin(): Promise<boolean> {
   const userRole = await getUserRole();
-  return userRole === 'admin' || userRole === 'super_admin';
+  return userRole === 'admin' || userRole === 'admin';
 }
 
 /**
@@ -94,7 +94,7 @@ export async function requireRole(requiredRole: UserRole) {
  */
 export function getDashboardUrl(role: UserRole): string {
   const dashboardUrls: Record<UserRole, string> = {
-    super_admin: '/dashboard/admin',
+    admin: '/dashboard/admin',
     admin: '/dashboard/admin',
     lead: '/dashboard/lead',
     client: '/dashboard/client',
@@ -116,7 +116,7 @@ export async function hasStoreAccess(): Promise<boolean> {
     userRole === 'tax_preparer' ||
     userRole === 'affiliate' ||
     userRole === 'admin' ||
-    userRole === 'super_admin'
+    userRole === 'admin'
   );
 }
 

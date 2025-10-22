@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const isSuperAdmin = user.publicMetadata?.role === 'super_admin';
+    const isSuperAdmin = user.publicMetadata?.role === 'admin';
 
     if (!isSuperAdmin) {
       return NextResponse.json(
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 
     // Validate role
     const validRoles: UserRole[] = [
-      'super_admin',
+      'admin',
       'admin',
       'lead',
       'tax_preparer',
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Prevent super admin from demoting themselves
-    if (userId === user.id && role !== 'super_admin') {
+    if (userId === user.id && role !== 'admin') {
       return NextResponse.json(
         { error: 'You cannot change your own role from super admin' },
         { status: 400 }
@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const isSuperAdmin = user.publicMetadata?.role === 'super_admin';
+    const isSuperAdmin = user.publicMetadata?.role === 'admin';
 
     if (!isSuperAdmin) {
       return NextResponse.json(

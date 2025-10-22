@@ -466,7 +466,7 @@ describe('CRM Contacts API - Integration Tests', () => {
         publicMetadata: { role: UserRole.TAX_PREPARER },
       };
 
-      // The DELETE route requires super_admin or admin roles
+      // The DELETE route requires admin or admin roles
       // When a tax_preparer tries to access, requireOneOfRoles throws
       vi.mocked(requireOneOfRoles).mockRejectedValue(new Error('Insufficient permissions'));
 

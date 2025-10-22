@@ -66,8 +66,8 @@ export interface RoleDisplayInfo {
  * Role switcher configuration
  */
 export const ROLE_DISPLAY_CONFIG: Record<UserRole, RoleDisplayInfo> = {
-  super_admin: {
-    value: 'super_admin',
+  admin: {
+    value: 'admin',
     label: 'Super Admin',
     description: 'Full system access',
     color: 'red',
@@ -112,7 +112,7 @@ export const ROLE_DISPLAY_CONFIG: Record<UserRole, RoleDisplayInfo> = {
 
 /**
  * Roles that admins can view as
- * - Regular admins can switch to these roles (excludes super_admin for security)
+ * - Regular admins can switch to these roles (excludes admin for security)
  * - Super admins can switch to any role including admin
  * Note: 'admin' is excluded so regular admins don't see themselves in the switcher
  */

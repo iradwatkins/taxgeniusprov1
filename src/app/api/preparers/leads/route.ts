@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     }
 
     const role = user.publicMetadata?.role as string;
-    if (role !== 'tax_preparer' && role !== 'admin' && role !== 'super_admin') {
+    if (role !== 'tax_preparer' && role !== 'admin' && role !== 'admin') {
       return NextResponse.json(
         { error: 'Forbidden: Only tax preparers and admins can access this endpoint' },
         { status: 403 }
@@ -68,7 +68,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const role = user.publicMetadata?.role as string;
-    if (role !== 'tax_preparer' && role !== 'admin' && role !== 'super_admin') {
+    if (role !== 'tax_preparer' && role !== 'admin' && role !== 'admin') {
       return NextResponse.json(
         { error: 'Forbidden: Only tax preparers and admins can change lead roles' },
         { status: 403 }

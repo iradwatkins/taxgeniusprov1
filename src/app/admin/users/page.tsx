@@ -31,7 +31,7 @@ async function isAdmin() {
   const user = await currentUser();
   if (!user) return false;
   const role = user.publicMetadata?.role as string;
-  return role === 'admin' || role === 'super_admin';
+  return role === 'admin' || role === 'admin';
 }
 
 export default async function AdminUsersPage() {
@@ -42,7 +42,7 @@ export default async function AdminUsersPage() {
   }
 
   const currentUserData = await currentUser();
-  const isSuperAdmin = currentUserData?.publicMetadata?.role === 'super_admin';
+  const isSuperAdmin = currentUserData?.publicMetadata?.role === 'admin';
 
   // Fetch all users from Clerk
   const clerk = await clerkClient();

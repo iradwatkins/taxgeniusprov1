@@ -1,7 +1,7 @@
 /**
  * Admin Role Switcher API
  *
- * Allows super_admin and admin users to switch their viewing role
+ * Allows admin and admin users to switch their viewing role
  * to preview the application from other roles' perspectives
  */
 
@@ -32,8 +32,8 @@ export async function POST(request: NextRequest) {
     // Get actual role from user metadata
     const actualRole = user.publicMetadata?.role as UserRole | undefined;
 
-    // Verify user is admin or super_admin
-    if (actualRole !== 'super_admin' && actualRole !== 'admin') {
+    // Verify user is admin or admin
+    if (actualRole !== 'admin' && actualRole !== 'admin') {
       return NextResponse.json(
         { error: 'Forbidden - Only admins can switch viewing roles' },
         { status: 403 }
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     // Validate target role
     const validRoles: UserRole[] = [
-      'super_admin',
+      'admin',
       'admin',
       'lead',
       'tax_preparer',
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     if (!canSwitchToRole(actualRole, targetRole)) {
       return NextResponse.json(
         {
-          error: 'Cannot switch to this role. Regular admins cannot view as super_admin.',
+          error: 'Cannot switch to this role. Regular admins cannot view as admin.',
         },
         { status: 403 }
       );
@@ -122,8 +122,8 @@ export async function DELETE(request: NextRequest) {
     // Get actual role from user metadata
     const actualRole = user.publicMetadata?.role as UserRole | undefined;
 
-    // Verify user is admin or super_admin
-    if (actualRole !== 'super_admin' && actualRole !== 'admin') {
+    // Verify user is admin or admin
+    if (actualRole !== 'admin' && actualRole !== 'admin') {
       return NextResponse.json(
         { error: 'Forbidden - Only admins can clear viewing roles' },
         { status: 403 }
@@ -167,8 +167,8 @@ export async function GET(request: NextRequest) {
     // Get actual role from user metadata
     const actualRole = user.publicMetadata?.role as UserRole | undefined;
 
-    // Verify user is admin or super_admin
-    if (actualRole !== 'super_admin' && actualRole !== 'admin') {
+    // Verify user is admin or admin
+    if (actualRole !== 'admin' && actualRole !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

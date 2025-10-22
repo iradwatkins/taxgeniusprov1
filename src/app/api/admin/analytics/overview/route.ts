@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     const user = await clerk.users.getUser(userId);
     const role = user.publicMetadata?.role as string;
 
-    if (role !== 'admin' && role !== 'super_admin') {
+    if (role !== 'admin' && role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 

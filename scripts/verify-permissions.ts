@@ -11,19 +11,20 @@ console.log('🔐 Testing Permissions System - Role Normalization\n');
 console.log('='.repeat(60));
 
 // Test cases with both uppercase (database) and lowercase (TypeScript) formats
+// Note: SUPER_ADMIN and super_admin are now mapped to ADMIN (backward compatibility)
 const testCases = [
-  { role: 'SUPER_ADMIN', expectedAddressBook: true, expectedCalendar: true },
-  { role: 'super_admin', expectedAddressBook: true, expectedCalendar: true },
-  { role: 'ADMIN', expectedAddressBook: true, expectedCalendar: true },
-  { role: 'admin', expectedAddressBook: true, expectedCalendar: true },
-  { role: 'TAX_PREPARER', expectedAddressBook: true, expectedCalendar: true },
-  { role: 'tax_preparer', expectedAddressBook: true, expectedCalendar: true },
-  { role: 'AFFILIATE', expectedAddressBook: false, expectedCalendar: false },
-  { role: 'affiliate', expectedAddressBook: false, expectedCalendar: false },
-  { role: 'CLIENT', expectedAddressBook: false, expectedCalendar: false },
-  { role: 'client', expectedAddressBook: false, expectedCalendar: false },
-  { role: 'LEAD', expectedAddressBook: false, expectedCalendar: false },
-  { role: 'lead', expectedAddressBook: false, expectedCalendar: false },
+  { role: 'SUPER_ADMIN', expectedAddressBook: true, expectedCalendar: true, note: '(mapped to admin)' },
+  { role: 'super_admin', expectedAddressBook: true, expectedCalendar: true, note: '(mapped to admin)' },
+  { role: 'ADMIN', expectedAddressBook: true, expectedCalendar: true, note: '' },
+  { role: 'admin', expectedAddressBook: true, expectedCalendar: true, note: '' },
+  { role: 'TAX_PREPARER', expectedAddressBook: true, expectedCalendar: true, note: '' },
+  { role: 'tax_preparer', expectedAddressBook: true, expectedCalendar: true, note: '' },
+  { role: 'AFFILIATE', expectedAddressBook: false, expectedCalendar: false, note: '' },
+  { role: 'affiliate', expectedAddressBook: false, expectedCalendar: false, note: '' },
+  { role: 'CLIENT', expectedAddressBook: false, expectedCalendar: false, note: '' },
+  { role: 'client', expectedAddressBook: false, expectedCalendar: false, note: '' },
+  { role: 'LEAD', expectedAddressBook: false, expectedCalendar: false, note: '' },
+  { role: 'lead', expectedAddressBook: false, expectedCalendar: false, note: '' },
 ];
 
 let passed = 0;
@@ -41,8 +42,9 @@ testCases.forEach((testCase) => {
   const success = addressBookMatch && calendarMatch;
 
   if (success) {
+    const noteText = testCase.note ? ` ${testCase.note}` : '';
     console.log(
-      `✅ ${testCase.role.padEnd(15)} - addressBook: ${permissions.addressBook}, calendar: ${permissions.calendar}`
+      `✅ ${testCase.role.padEnd(15)} - addressBook: ${permissions.addressBook}, calendar: ${permissions.calendar}${noteText}`
     );
     passed++;
   } else {

@@ -42,7 +42,7 @@ export function DashboardHeader({
 
   const getRoleBadgeColor = (role?: string) => {
     switch (role) {
-      case 'super_admin':
+      case 'admin':
         return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
       case 'admin':
         return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
@@ -91,7 +91,7 @@ export function DashboardHeader({
         {/* Right Side Actions */}
         <div className="flex items-center gap-2">
           {/* Role Switcher - Only for admins */}
-          {(displayRealRole === 'super_admin' || displayRealRole === 'admin') && (
+          {(displayRealRole === 'admin' || displayRealRole === 'admin') && (
             <RoleSwitcher
               actualRole={displayRealRole}
               effectiveRole={displayRole || 'client'}

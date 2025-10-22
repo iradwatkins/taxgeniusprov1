@@ -6,7 +6,7 @@ import { logger } from '@/lib/logger';
  * RESTRICTED ENDPOINT: Set current user's role
  * SUPER_ADMIN ONLY
  *
- * This endpoint is restricted to super_admin for testing purposes only.
+ * This endpoint is restricted to admin for testing purposes only.
  */
 export async function POST(request: Request) {
   try {
@@ -22,8 +22,8 @@ export async function POST(request: Request) {
     const currentUserData = await clerk.users.getUser(userId);
     const currentRole = currentUserData.publicMetadata?.role as string;
 
-    // Only super_admin can use this endpoint
-    if (currentRole !== 'super_admin') {
+    // Only admin can use this endpoint
+    if (currentRole !== 'admin') {
       return NextResponse.json(
         { error: 'Forbidden - Only super admins can use this endpoint' },
         { status: 403 }
@@ -35,12 +35,12 @@ export async function POST(request: Request) {
     const role = body.role || 'admin'; // Default to admin
 
     // Validate role
-    const validRoles = ['super_admin', 'admin', 'lead', 'client', 'tax_preparer', 'affiliate'];
+    const validRoles = ['admin', 'admin', 'lead', 'client', 'tax_preparer', 'affiliate'];
     if (!validRoles.includes(role)) {
       return NextResponse.json(
         {
           error:
-            'Invalid role. Must be: super_admin, admin, lead, client, tax_preparer, or affiliate',
+            'Invalid role. Must be: admin, admin, lead, client, tax_preparer, or affiliate',
         },
         { status: 400 }
       );

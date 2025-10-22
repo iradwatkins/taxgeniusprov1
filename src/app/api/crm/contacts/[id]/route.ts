@@ -5,7 +5,7 @@
  * PATCH /api/crm/contacts/[id] - Update contact
  * DELETE /api/crm/contacts/[id] - Delete contact (admin only)
  *
- * Auth: super_admin, admin, tax_preparer only
+ * Auth: admin, admin, tax_preparer only
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -46,7 +46,7 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     // Auth check
-    const { user, role } = await requireOneOfRoles(['super_admin', 'admin', 'tax_preparer']);
+    const { user, role } = await requireOneOfRoles(['admin', 'admin', 'tax_preparer']);
 
     logger.info('[CRM API] Getting contact', { contactId: params.id, userId: user.id, role });
 
@@ -101,7 +101,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     // Auth check
-    const { user, role } = await requireOneOfRoles(['super_admin', 'admin', 'tax_preparer']);
+    const { user, role } = await requireOneOfRoles(['admin', 'admin', 'tax_preparer']);
 
     logger.info('[CRM API] Updating contact', { contactId: params.id, userId: user.id, role });
 
@@ -176,7 +176,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     // Auth check - only admins can delete
-    const { user, role } = await requireOneOfRoles(['super_admin', 'admin']);
+    const { user, role } = await requireOneOfRoles(['admin', 'admin']);
 
     logger.info('[CRM API] Deleting contact', { contactId: params.id, userId: user.id, role });
 

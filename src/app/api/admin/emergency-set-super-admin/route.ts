@@ -1,7 +1,7 @@
 /**
- * EMERGENCY API: Set iradwatkins@gmail.com as super_admin
+ * EMERGENCY API: Set iradwatkins@gmail.com as admin
  *
- * This endpoint bypasses normal checks and directly sets super_admin role
+ * This endpoint bypasses normal checks and directly sets admin role
  * Only works for iradwatkins@gmail.com
  *
  * Visit: https://taxgeniuspro.tax/api/admin/emergency-set-super-admin
@@ -15,7 +15,7 @@ import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
-    logger.info('🚨 EMERGENCY: Setting super_admin role...');
+    logger.info('🚨 EMERGENCY: Setting admin role...');
 
     // Get current user
     const user = await currentUser();
@@ -46,10 +46,10 @@ export async function GET() {
     const clerk = await clerkClient();
     await clerk.users.updateUserMetadata(user.id, {
       publicMetadata: {
-        role: 'super_admin',
+        role: 'admin',
       },
     });
-    logger.info('✅ Clerk metadata updated to super_admin');
+    logger.info('✅ Clerk metadata updated to admin');
 
     // Update or create profile in database
     logger.info('📝 Updating database profile...');
@@ -80,23 +80,23 @@ export async function GET() {
       logger.error('⚠️  Database update failed (non-critical):', dbError);
     }
 
-    logger.info('🎉 SUCCESS! iradwatkins@gmail.com is now super_admin');
+    logger.info('🎉 SUCCESS! iradwatkins@gmail.com is now admin');
 
     return NextResponse.json({
       success: true,
-      message: 'Role set to super_admin successfully!',
+      message: 'Role set to admin successfully!',
       instructions: 'Please sign out completely and sign back in to see the changes.',
       user: {
         id: user.id,
         email: email,
-        role: 'super_admin',
+        role: 'admin',
       },
     });
   } catch (error) {
-    logger.error('❌ Error setting super_admin role:', error);
+    logger.error('❌ Error setting admin role:', error);
     return NextResponse.json(
       {
-        error: 'Failed to set super_admin role',
+        error: 'Failed to set admin role',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }

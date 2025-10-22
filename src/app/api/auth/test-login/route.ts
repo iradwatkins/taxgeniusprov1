@@ -27,7 +27,7 @@ const TEST_ACCOUNTS = [
   {
     email: 'admin@test.com',
     password: 'admin123',
-    role: 'super_admin',
+    role: 'admin',
     name: 'Test Admin',
     redirectUrl: '/dashboard/admin',
   },

@@ -92,7 +92,7 @@ export async function getEffectiveRole(
   userId: string
 ): Promise<EffectiveRoleInfo> {
   // Only admins can have a different viewing role
-  if (actualRole !== 'super_admin' && actualRole !== 'admin') {
+  if (actualRole !== 'admin' && actualRole !== 'admin') {
     return {
       actualRole,
       effectiveRole: actualRole,
@@ -133,21 +133,21 @@ export async function getEffectiveRole(
 
 /**
  * Check if user can switch to a target role
- * Admins can view as any role except super_admin (for security)
+ * Admins can view as any role except admin (for security)
  */
 export function canSwitchToRole(actualRole: UserRole, targetRole: UserRole): boolean {
   // Only admins can switch roles
-  if (actualRole !== 'super_admin' && actualRole !== 'admin') {
+  if (actualRole !== 'admin' && actualRole !== 'admin') {
     return false;
   }
 
   // Super admins can view as any role including admin
-  if (actualRole === 'super_admin') {
+  if (actualRole === 'admin') {
     return true;
   }
 
-  // Regular admins cannot view as super_admin (privilege escalation prevention)
-  if (actualRole === 'admin' && targetRole === 'super_admin') {
+  // Regular admins cannot view as admin (privilege escalation prevention)
+  if (actualRole === 'admin' && targetRole === 'admin') {
     return false;
   }
 
@@ -159,7 +159,7 @@ export function canSwitchToRole(actualRole: UserRole, targetRole: UserRole): boo
  */
 export function formatRoleName(role: UserRole): string {
   const roleNames: Record<UserRole, string> = {
-    super_admin: 'Super Admin',
+    admin: 'Super Admin',
     admin: 'Admin',
     tax_preparer: 'Tax Preparer',
     affiliate: 'Affiliate',
@@ -175,7 +175,7 @@ export function formatRoleName(role: UserRole): string {
  */
 export function getRoleColor(role: UserRole): string {
   const colors: Record<UserRole, string> = {
-    super_admin: 'red',
+    admin: 'red',
     admin: 'orange',
     tax_preparer: 'blue',
     affiliate: 'purple',
@@ -191,7 +191,7 @@ export function getRoleColor(role: UserRole): string {
  */
 export function getRoleBadgeClasses(role: UserRole): string {
   const classes: Record<UserRole, string> = {
-    super_admin: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+    admin: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
     admin: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
     tax_preparer: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
     affiliate: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',

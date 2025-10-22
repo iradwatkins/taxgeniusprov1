@@ -140,7 +140,7 @@ export default function CRMContactsPage() {
   }
 
   const roleDisplay = role === 'tax_preparer' ? 'Tax Preparer' : 'Admin';
-  const canSeeAll = role === 'admin' || role === 'super_admin';
+  const canSeeAll = role === 'admin' || role === 'admin';
 
   return (
     <div className="container mx-auto p-6 space-y-6">

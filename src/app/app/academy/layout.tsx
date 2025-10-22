@@ -12,8 +12,8 @@ async function hasAcademyAccess() {
 
   const role = user.publicMetadata?.role as string;
 
-  // Tax preparers, admins, and super_admins have academy access
-  return role === 'tax_preparer' || role === 'admin' || role === 'super_admin';
+  // Tax preparers, admins, and admins have academy access
+  return role === 'tax_preparer' || role === 'admin' || role === 'admin';
 }
 
 export default async function AcademyLayout({ children }: { children: React.ReactNode }) {

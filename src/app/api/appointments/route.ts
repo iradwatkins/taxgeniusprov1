@@ -12,7 +12,7 @@ import { logger } from '@/lib/logger';
  *
  * Row-level security:
  * - tax_preparer: only see appointments assigned to them (via preparerId)
- * - admin/super_admin: see all appointments
+ * - admin/admin: see all appointments
  */
 export async function GET(req: NextRequest) {
   try {
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
         userId: user.id,
       });
     }
-    // Admins and super_admins see all appointments (no filter)
+    // Admins and admins see all appointments (no filter)
 
     // Filter by status
     if (status) {

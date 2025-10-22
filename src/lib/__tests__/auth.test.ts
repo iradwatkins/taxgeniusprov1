@@ -61,7 +61,7 @@ describe('Auth Helpers', () => {
 
     it('should handle all valid role types', async () => {
       const roles: UserRole[] = [
-        'super_admin',
+        'admin',
         'admin',
         'lead',
         'client',
@@ -111,7 +111,7 @@ describe('Auth Helpers', () => {
   });
 
   describe('isAdmin', () => {
-    it('should return true when user is admin or super_admin', async () => {
+    it('should return true when user is admin or admin', async () => {
       mockCurrentUser.mockResolvedValue({
         id: 'user_123',
         publicMetadata: { role: 'admin' },
@@ -122,7 +122,7 @@ describe('Auth Helpers', () => {
 
       mockCurrentUser.mockResolvedValue({
         id: 'user_123',
-        publicMetadata: { role: 'super_admin' },
+        publicMetadata: { role: 'admin' },
       });
 
       result = await isAdmin();
@@ -190,7 +190,7 @@ describe('Auth Helpers', () => {
 
   describe('getDashboardUrl', () => {
     it('should return correct dashboard URL for each role', () => {
-      expect(getDashboardUrl('super_admin')).toBe('/dashboard/admin');
+      expect(getDashboardUrl('admin')).toBe('/dashboard/admin');
       expect(getDashboardUrl('admin')).toBe('/dashboard/admin');
       expect(getDashboardUrl('lead')).toBe('/dashboard/lead');
       expect(getDashboardUrl('client')).toBe('/dashboard/client');
