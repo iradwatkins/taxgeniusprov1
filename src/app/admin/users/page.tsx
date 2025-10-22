@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/select';
 import { Users, Search, Filter, Download, UserPlus, Mail, Shield } from 'lucide-react';
 import { UserManagementClient } from '@/components/UserManagementClient';
+import { prisma } from '@/lib/prisma';
 
 export const metadata = {
   title: 'User Management - Admin | Tax Genius Pro',
@@ -50,16 +51,39 @@ export default async function AdminUsersPage() {
     limit: 100,
   });
 
+  // Fetch all profiles from database to get revenue splits
+  const profiles = await prisma.profile.findMany({
+    where: {
+      clerkUserId: {
+        in: users.map((u) => u.id),
+      },
+    },
+    select: {
+      clerkUserId: true,
+      revenueSplitPercentage: true,
+      role: true,
+    },
+  });
+
+  // Create a map of userId -> profile for quick lookup
+  const profileMap = new Map(
+    profiles.map((p) => [p.clerkUserId, p])
+  );
+
   // Format users data for client component
-  const formattedUsers = users.map((user) => ({
-    id: user.id,
-    email: user.emailAddresses[0]?.emailAddress || '',
-    firstName: user.firstName || '',
-    lastName: user.lastName || '',
-    role: (user.publicMetadata?.role as string) || 'client',
-    permissions: user.publicMetadata?.permissions as Record<string, boolean> | undefined,
-    createdAt: new Date(user.createdAt).toISOString(),
-  }));
+  const formattedUsers = users.map((user) => {
+    const profile = profileMap.get(user.id);
+    return {
+      id: user.id,
+      email: user.emailAddresses[0]?.emailAddress || '',
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      role: (user.publicMetadata?.role as string) || 'client',
+      permissions: user.publicMetadata?.permissions as Record<string, boolean> | undefined,
+      createdAt: new Date(user.createdAt).toISOString(),
+      revenueSplitPercentage: profile?.revenueSplitPercentage || null,
+    };
+  });
 
   // Count users by role
   const usersByRole = users.reduce(

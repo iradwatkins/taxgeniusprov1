@@ -371,7 +371,7 @@ export default function AddressBookPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium text-orange-600 dark:text-orange-400">
-                    Today's Leads
+                    Today&apos;s Leads
                   </p>
                   <span className="text-xl font-bold text-orange-700 dark:text-orange-300">
                     {todaysLeads}

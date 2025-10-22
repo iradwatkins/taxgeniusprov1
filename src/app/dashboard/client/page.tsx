@@ -217,7 +217,7 @@ export default function ClientDashboard() {
           <TrendingUp className="h-4 w-4" />
           <AlertTitle>Get Started with Your Tax Return</AlertTitle>
           <AlertDescription>
-            You haven't started your tax filing yet. Use the sidebar to navigate and begin your tax
+            You haven&apos;t started your tax filing yet. Use the sidebar to navigate and begin your tax
             filing process, or start earning by referring friends and family.
           </AlertDescription>
         </Alert>

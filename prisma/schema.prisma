@@ -109,6 +109,9 @@ model Profile {
   // Affiliate Bonding (NEW - Epic 6)
   affiliateBondedToPreparerId String? // For affiliates: which preparer they're bonded to
 
+  // Revenue Split Configuration (NEW - Configurable per preparer)
+  revenueSplitPercentage Int? @default(30) // TaxGenius percentage: 20, 30, or 40 (Preparer gets remainder)
+
   // Encrypted sensitive data
   ssn         String? // Encrypted
   dateOfBirth String? // Encrypted
@@ -455,6 +458,29 @@ model TaxReturn {
   refundAmount Decimal?
   oweAmount    Decimal?
   formData     Json            @db.JsonB // Encrypted tax form data
+
+  // NEW: Revenue Tracking (Epic 6 - Lead Generation Business Model)
+  processingFeeCharged  Decimal? @db.Decimal(10, 2) // Total fee charged to client
+  taxGeniusRevenue      Decimal? @db.Decimal(10, 2) // Auto-calculated: fee * 0.30
+  preparerRevenue       Decimal? @db.Decimal(10, 2) // Auto-calculated: fee * 0.70
+
+  // Commission Tracking (for referrers who brought this client)
+  referrerCommissionAmount Decimal? @db.Decimal(10, 2) // Dollar amount, not percentage
+  commissionPaidAt         DateTime? // When commission was paid out
+  commissionPaidTo         String?   // Profile ID of referrer
+
+  // Multi-tier Referral Chain (NEW - Cascading Commissions)
+  referralChain         Json? @db.JsonB // Store full chain: [{id, name, rate, amount}, ...]
+  totalCommissionsPaid  Decimal? @db.Decimal(10, 2) // Sum of all tier commissions
+
+  // Reporting Workflow (Simple Toggle System)
+  markedCompleteAt      DateTime? // When preparer marked return as complete
+  markedCompleteBy      String?   // Profile ID of preparer who marked it
+  autoRevenueCalculated Boolean   @default(false) // Has 30/70 split been calculated?
+
+  // Progress Tracking (for "Awaiting Documents" stat)
+  progress              Int?      @default(0) // 0-100 percentage
+
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 
@@ -466,6 +492,8 @@ model TaxReturn {
   @@unique([profileId, taxYear])
   @@index([profileId])
   @@index([status])
+  @@index([markedCompleteAt])
+  @@index([commissionPaidAt])
   @@map("tax_returns")
 }
 

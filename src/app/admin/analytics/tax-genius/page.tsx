@@ -32,15 +32,35 @@ async function checkAdminAccess() {
   return { hasAccess, userId: user.id, role };
 }
 
+interface MarketingLink {
+  id: string;
+  code: string;
+  clicks: number;
+  uniqueClicks: number;
+  conversions: number;
+  signups: number;
+  returns: number;
+}
+
+interface Lead {
+  id: string;
+  email: string;
+  name: string | null;
+  phone: string | null;
+  createdAt: Date;
+  type: string;
+  status: string;
+}
+
 export default async function TaxGeniusAnalyticsPage() {
-  const { hasAccess, userId, role } = await checkAdminAccess();
+  const { hasAccess, userId } = await checkAdminAccess();
 
   if (!hasAccess || !userId) {
     redirect('/forbidden');
   }
 
   // Initialize with empty defaults
-  let companyLinks: any[] = [];
+  let companyLinks: MarketingLink[] = [];
   let linkIds: string[] = [];
   let linkCodes: string[] = [];
   let totalClicks = 0;
@@ -49,8 +69,8 @@ export default async function TaxGeniusAnalyticsPage() {
   let totalReturnsFiled = 0;
   let totalRevenue = 0;
   let conversionRate = 0;
-  let linkBreakdown: any[] = [];
-  let recentLeads: any[] = [];
+  let linkBreakdown: MarketingLink[] = [];
+  let recentLeads: Lead[] = [];
 
   try {
     // Get Tax Genius company marketing links

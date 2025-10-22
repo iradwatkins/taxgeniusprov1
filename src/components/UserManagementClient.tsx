@@ -26,6 +26,7 @@ import { UserRole, UserPermissions } from '@/lib/permissions';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
+import { RevenueSplitConfig } from '@/components/admin/RevenueSplitConfig';
 
 interface User {
   id: string;
@@ -35,6 +36,7 @@ interface User {
   role: string;
   permissions?: Record<string, boolean>;
   createdAt: string;
+  revenueSplitPercentage?: number | null;
 }
 
 interface UserManagementClientProps {
@@ -197,6 +199,7 @@ export function UserManagementClient({
                   <TableHead>User</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Role</TableHead>
+                  <TableHead>Revenue Split</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Joined</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -230,6 +233,18 @@ export function UserManagementClient({
                         <Badge className={getRoleBadgeColor(user.role)}>
                           {formatRole(user.role)}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {user.role === 'tax_preparer' && isSuperAdmin ? (
+                          <RevenueSplitConfig
+                            userId={user.id}
+                            currentSplit={user.revenueSplitPercentage}
+                            userName={`${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email}
+                            onUpdate={() => router.refresh()}
+                          />
+                        ) : (
+                          <span className="text-muted-foreground text-sm">-</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <Badge

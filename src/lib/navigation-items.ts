@@ -146,7 +146,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: UserCheck,
     permission: 'clientsStatus',
     section: '👥 Clients',
-    roles: ['admin', 'admin'],
+    roles: ['admin'],
   },
   {
     label: 'Referrals Status',
@@ -154,7 +154,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: Users,
     permission: 'referralsStatus',
     section: '👥 Clients',
-    roles: ['admin', 'admin'],
+    roles: ['admin'],
   },
 
   // 📋 CRM Section
@@ -167,7 +167,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
   },
   {
     label: 'CRM Contacts',
-    href: '/crm/contacts',
+    href: '/admin/address-book',
     icon: BookOpen,
     permission: 'addressBook',
     section: '📋 CRM',
@@ -194,7 +194,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: DollarSign,
     permission: 'earnings',
     section: '💰 Financials',
-    roles: ['admin', 'admin'],
+    roles: ['admin'],
   },
   {
     label: 'Payouts',
@@ -202,7 +202,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: DollarSign,
     permission: 'payouts',
     section: '💰 Financials',
-    roles: ['admin', 'admin'],
+    roles: ['admin'],
   },
 
   // 📊 Analytics Section
@@ -212,7 +212,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: BarChart3,
     permission: 'analytics',
     section: '📊 Analytics',
-    roles: ['admin', 'admin'],
+    roles: ['admin'],
   },
   {
     label: 'Tax Genius Analytics',
@@ -220,7 +220,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: Sparkles,
     permission: 'analytics',
     section: '📊 Analytics',
-    roles: ['admin', 'admin'],
+    roles: ['admin'],
   },
   {
     label: 'Tax Preparers Analytics',
@@ -228,7 +228,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: Users,
     permission: 'analytics',
     section: '📊 Analytics',
-    roles: ['admin', 'admin'],
+    roles: ['admin'],
   },
   {
     label: 'Affiliates Analytics',
@@ -236,7 +236,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: Trophy,
     permission: 'analytics',
     section: '📊 Analytics',
-    roles: ['admin', 'admin'],
+    roles: ['admin'],
   },
   {
     label: 'Clients Analytics',
@@ -244,7 +244,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: TrendingUp,
     permission: 'analytics',
     section: '📊 Analytics',
-    roles: ['admin', 'admin'],
+    roles: ['admin'],
   },
 
   // 📢 Marketing Section
@@ -254,7 +254,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: Megaphone,
     permission: 'marketingHub',
     section: '📢 Marketing',
-    roles: ['admin', 'admin'],
+    roles: ['admin'],
   },
   {
     label: 'Tracking Codes',
@@ -262,7 +262,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: QrCode,
     permission: 'marketingHub',
     section: '📢 Marketing',
-    roles: ['admin', 'admin'],
+    roles: ['admin'],
   },
   {
     label: 'Content Generator',
@@ -270,7 +270,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: Sparkles,
     permission: 'contentGenerator',
     section: '📢 Marketing',
-    roles: ['admin', 'admin'],
+    roles: ['admin'],
   },
 
   // 🎓 Learning Section
@@ -280,7 +280,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: GraduationCap,
     permission: 'learningCenter',
     section: '🎓 Learning',
-    roles: ['admin', 'admin'],
+    roles: ['admin'],
   },
   {
     label: 'Academy',
@@ -347,7 +347,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: Link2,
     permission: 'quickShareLinks',
     section: '🔗 Quick Share Tools',
-    roles: ['admin', 'admin'],
+    roles: ['admin'],
   },
 
   // ⚙️ System Controls Section
@@ -386,7 +386,6 @@ export const ALL_NAV_ITEMS: NavItem[] = [
  * Dashboard routes by role (for redirecting generic /dashboard to role-specific dashboard)
  */
 export const ROLE_DASHBOARD_ROUTES: Record<UserRole, string> = {
-  admin: '/dashboard/admin',
   admin: '/dashboard/admin',
   lead: '/dashboard/lead',
   tax_preparer: '/dashboard/tax-preparer',

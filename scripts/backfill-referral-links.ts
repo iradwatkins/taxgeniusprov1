@@ -75,13 +75,14 @@ async function backfillReferralLinks() {
           );
           stats.trackingCodesCreated++;
           console.log(`   ✅ Tracking code created and referral links auto-generated\n`);
-        } catch (error: any) {
+        } catch (error) {
           stats.errors++;
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
           stats.errorDetails.push({
             userId: profile.id,
-            error: error.message || 'Unknown error',
+            error: errorMessage,
           });
-          console.log(`   ❌ Failed: ${error.message}\n`);
+          console.log(`   ❌ Failed: ${errorMessage}\n`);
         }
       } else {
         // User has tracking code, check if they have referral links
@@ -130,13 +131,14 @@ async function backfillReferralLinks() {
 
             stats.referralLinksCreated += 2;
             console.log(`   ✅ Both referral links generated\n`);
-          } catch (error: any) {
+          } catch (error) {
             stats.errors++;
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             stats.errorDetails.push({
               userId: profile.id,
-              error: error.message || 'Unknown error',
+              error: errorMessage,
             });
-            console.log(`   ❌ Failed: ${error.message}\n`);
+            console.log(`   ❌ Failed: ${errorMessage}\n`);
           }
         } else {
           // No referral links, create them
@@ -156,13 +158,14 @@ async function backfillReferralLinks() {
 
             stats.referralLinksCreated += 2;
             console.log(`   ✅ Both referral links generated\n`);
-          } catch (error: any) {
+          } catch (error) {
             stats.errors++;
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             stats.errorDetails.push({
               userId: profile.id,
-              error: error.message || 'Unknown error',
+              error: errorMessage,
             });
-            console.log(`   ❌ Failed: ${error.message}\n`);
+            console.log(`   ❌ Failed: ${errorMessage}\n`);
           }
         }
       }

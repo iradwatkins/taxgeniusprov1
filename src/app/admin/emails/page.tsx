@@ -135,7 +135,7 @@ export default async function EmailsPage() {
                                   Tax Documents Ready for Review
                                 </p>
                                 <p className="text-sm text-muted-foreground mt-1">
-                                  Hi, I've uploaded all my tax documents for this year...
+                                  Hi, I&apos;ve uploaded all my tax documents for this year...
                                 </p>
                               </div>
                               <div className="text-right">
