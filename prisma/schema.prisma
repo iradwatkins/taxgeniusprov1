@@ -1534,3 +1534,21 @@ model AccessAttemptLog {
   @@index([wasBlocked])
   @@map("access_attempt_logs")
 }
+
+// ============ Role Permission Templates ============
+
+// Stores default permissions for each user role
+// Allows super_admin to customize what each role gets by default
+model RolePermissionTemplate {
+  id          String   @id @default(cuid())
+  role        String   @unique // 'super_admin', 'admin', 'tax_preparer', 'affiliate', 'lead', 'client'
+  permissions Json     // JSON object of Permission -> boolean mapping
+
+  // Audit trail
+  updatedBy   String?  // Clerk user ID of super_admin who last updated
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([role])
+  @@map("role_permission_templates")
+}

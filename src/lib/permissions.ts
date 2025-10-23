@@ -485,3 +485,61 @@ export const PERMISSION_TO_ROUTE: Record<Permission, string> = {
   quickShareLinks: '/admin/quick-share',
   routeAccessControl: '/admin/route-access-control',
 };
+
+/**
+ * Get role permission template from database
+ * Falls back to DEFAULT_PERMISSIONS if not found in DB
+ *
+ * @param role - The user role to get template for
+ * @returns Promise<Partial<UserPermissions>>
+ */
+export async function getRolePermissionTemplate(
+  role: UserRole
+): Promise<Partial<UserPermissions>> {
+  try {
+    // Dynamic import to avoid circular dependency
+    const { PrismaClient } = await import('@prisma/client');
+    const prisma = new PrismaClient();
+
+    const template = await prisma.rolePermissionTemplate.findUnique({
+      where: { role },
+    });
+
+    await prisma.$disconnect();
+
+    if (template && template.permissions) {
+      return template.permissions as Partial<UserPermissions>;
+    }
+
+    // Fall back to default permissions
+    return DEFAULT_PERMISSIONS[role] || DEFAULT_PERMISSIONS.client;
+  } catch (error) {
+    console.error('Error fetching role template from DB:', error);
+    // Fall back to default permissions on error
+    return DEFAULT_PERMISSIONS[role] || DEFAULT_PERMISSIONS.client;
+  }
+}
+
+/**
+ * Get role display names for UI
+ */
+export const ROLE_DISPLAY_NAMES: Record<UserRole, string> = {
+  super_admin: 'Super Admin',
+  admin: 'Admin',
+  tax_preparer: 'Tax Preparer',
+  affiliate: 'Affiliate',
+  lead: 'Lead',
+  client: 'Client',
+};
+
+/**
+ * Get role descriptions for UI
+ */
+export const ROLE_DESCRIPTIONS: Record<UserRole, string> = {
+  super_admin: 'Full system control - Database, Permissions, All Client Files',
+  admin: 'Limited admin access - User Management, Payouts, Analytics',
+  tax_preparer: 'Independent tax professional - Manages their assigned clients only',
+  affiliate: 'External professional marketer - Promotes TaxGeniusPro',
+  lead: 'New signup pending approval - No access until role changed',
+  client: 'Tax service customer - Upload documents, view status, refer clients',
+};

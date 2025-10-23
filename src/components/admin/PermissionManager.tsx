@@ -20,12 +20,20 @@ interface PermissionManagerProps {
   defaultPermissions: Partial<UserPermissions>;
   targetUserId?: string;
   targetRole?: string;
+  roleDisplayName?: string; // Display name for the role
+  roleDescription?: string; // Description of the role
+  readOnly?: boolean; // Whether this is read-only mode
+  affectedUsersCount?: number; // How many users will be affected
 }
 
 export function PermissionManager({
   defaultPermissions,
   targetUserId,
   targetRole = 'admin',
+  roleDisplayName,
+  roleDescription,
+  readOnly = false,
+  affectedUsersCount = 0,
 }: PermissionManagerProps) {
   const [permissions, setPermissions] = useState<Partial<UserPermissions>>(defaultPermissions);
   const [loading, setLoading] = useState(false);
@@ -56,6 +64,8 @@ export function PermissionManager({
   // Toggle entire section
   const toggleSection = useCallback(
     (section: SectionPermission, enabled: boolean) => {
+      if (readOnly) return; // Don't allow changes in read-only mode
+
       const sectionPerms = SECTION_PERMISSIONS[section];
       const newPermissions = { ...permissions };
 
@@ -66,40 +76,44 @@ export function PermissionManager({
       setPermissions(newPermissions);
       setHasChanges(true);
     },
-    [permissions]
+    [permissions, readOnly]
   );
 
   // Toggle individual permission
   const togglePermission = useCallback((permission: Permission, enabled: boolean) => {
+    if (readOnly) return; // Don't allow changes in read-only mode
+
     setPermissions((prev) => ({
       ...prev,
       [permission]: enabled,
     }));
     setHasChanges(true);
-  }, []);
+  }, [readOnly]);
 
   // Save permissions
   const savePermissions = async () => {
-    if (!targetUserId) {
-      // If no specific user, this is for setting default admin permissions
-      toast({
-        title: 'Saving Default Permissions',
-        description: 'Updating default permissions for all admin users...',
-      });
-    }
+    if (readOnly) return; // Don't allow saving in read-only mode
+
+    const roleName = roleDisplayName || targetRole;
+
+    toast({
+      title: 'Saving Permissions',
+      description: `Updating permissions for ${roleName}${affectedUsersCount > 0 ? ` (affects ${affectedUsersCount} users)` : ''}...`,
+    });
 
     setLoading(true);
 
     try {
-      const response = await fetch('/api/admin/update-permissions', {
-        method: 'POST',
+      // Use new role-permissions API endpoint
+      const response = await fetch('/api/admin/role-permissions', {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: targetUserId || 'default',
-          role: targetRole,
+          targetRole: targetRole,
           permissions: permissions,
+          updateExistingUsers: true, // Always update existing users
         }),
       });
 
@@ -108,10 +122,12 @@ export function PermissionManager({
         throw new Error(error.error || 'Failed to update permissions');
       }
 
+      const result = await response.json();
+
       toast({
         title: 'Success',
-        description: 'Permissions have been updated successfully.',
-        duration: 3000,
+        description: `Permissions updated for ${roleName}. ${result.usersUpdated || 0} users affected.`,
+        duration: 5000,
       });
 
       setHasChanges(false);
@@ -129,6 +145,32 @@ export function PermissionManager({
 
   return (
     <>
+      {/* Warning banner for super_admin or read-only mode */}
+      {(targetRole === 'super_admin' || readOnly) && (
+        <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
+            <div>
+              <p className="font-medium text-amber-900 dark:text-amber-200">
+                {targetRole === 'super_admin' ? 'Caution: Super Admin Permissions' : 'Read-Only Mode'}
+              </p>
+              <p className="text-sm text-amber-800 dark:text-amber-300 mt-1">
+                {targetRole === 'super_admin'
+                  ? 'Modifying super_admin permissions affects system security. Changes will apply to ALL super admin users immediately.'
+                  : 'These permissions are in read-only mode and cannot be modified.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Role description */}
+      {roleDescription && (
+        <div className="mb-4 p-3 bg-muted/50 rounded-lg">
+          <p className="text-sm text-muted-foreground">{roleDescription}</p>
+        </div>
+      )}
+
       <div className="space-y-6">
         {sections.map((section) => {
           const sectionName = SECTION_NAMES[section];
@@ -160,6 +202,7 @@ export function PermissionManager({
                   <Switch
                     checked={isEnabled}
                     onCheckedChange={(checked) => toggleSection(section, checked)}
+                    disabled={readOnly}
                     className={cn(
                       'data-[state=checked]:bg-green-600',
                       isPartial && 'data-[state=unchecked]:bg-amber-200'
@@ -184,6 +227,7 @@ export function PermissionManager({
                     <Switch
                       checked={permissions[permission] === true}
                       onCheckedChange={(checked) => togglePermission(permission, checked)}
+                      disabled={readOnly}
                       className="scale-90"
                     />
                   </div>
@@ -207,30 +251,32 @@ export function PermissionManager({
         </div>
       </div>
 
-      <div className="mt-6 flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          {hasChanges && (
-            <span className="flex items-center gap-2 text-amber-600">
-              <AlertCircle className="w-4 h-4" />
-              You have unsaved changes
-            </span>
-          )}
+      {!readOnly && (
+        <div className="mt-6 flex items-center justify-between">
+          <div className="text-sm text-muted-foreground">
+            {hasChanges && (
+              <span className="flex items-center gap-2 text-amber-600">
+                <AlertCircle className="w-4 h-4" />
+                You have unsaved changes{affectedUsersCount > 0 && ` (will affect ${affectedUsersCount} users)`}
+              </span>
+            )}
+          </div>
+          <Button
+            onClick={savePermissions}
+            disabled={!hasChanges || loading || readOnly}
+            className="min-w-[150px]"
+          >
+            {loading ? (
+              <>Saving...</>
+            ) : (
+              <>
+                <Save className="w-4 h-4 mr-2" />
+                Save Permissions
+              </>
+            )}
+          </Button>
         </div>
-        <Button
-          onClick={savePermissions}
-          disabled={!hasChanges || loading}
-          className="min-w-[150px]"
-        >
-          {loading ? (
-            <>Saving...</>
-          ) : (
-            <>
-              <Save className="w-4 h-4 mr-2" />
-              Save Permissions
-            </>
-          )}
-        </Button>
-      </div>
+      )}
 
       {/* Visual feedback when saved */}
       {!hasChanges && !loading && (

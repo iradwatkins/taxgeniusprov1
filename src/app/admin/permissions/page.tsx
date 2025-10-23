@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
-import { getUserPermissions, UserRole } from '@/lib/permissions';
+import { currentUser, clerkClient } from '@clerk/nextjs/server';
+import { getUserPermissions, UserRole, ROLE_DISPLAY_NAMES, ROLE_DESCRIPTIONS } from '@/lib/permissions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -39,30 +39,42 @@ export default async function PermissionsPage() {
     // Continue with empty array - will show "No admin users found" message
   }
 
-  // Default admin permissions (what regular admins get)
-  const defaultAdminPermissions = {
-    dashboard: true,
-    clientsStatus: true,
-    referralsStatus: true,
-    emails: true,
-    calendar: true,
-    addressBook: true,
-    clientFileCenter: false, // Restricted by default
-    analytics: true,
-    googleAnalytics: false, // Restricted by default
-    referralsAnalytics: true,
-    learningCenter: true,
-    marketingHub: true,
-    contentGenerator: true,
-    payouts: true,
-    earnings: true,
-    store: true,
-    users: true,
-    database: false, // Restricted by default
-    adminManagement: false, // Restricted by default
-    settings: true,
-    quickShareLinks: true,
+  // Fetch all role permission templates from database
+  let roleTemplates: Record<string, any> = {};
+  try {
+    const templates = await prisma.rolePermissionTemplate.findMany();
+    templates.forEach((template) => {
+      roleTemplates[template.role] = template.permissions;
+    });
+  } catch (error) {
+    logger.error('Error fetching role templates:', error);
+  }
+
+  // Count users for each role using Clerk
+  const clerk = await clerkClient();
+  let userCountsByRole: Record<string, number> = {
+    super_admin: 0,
+    admin: 0,
+    tax_preparer: 0,
+    affiliate: 0,
+    lead: 0,
+    client: 0,
   };
+
+  try {
+    const allUsers = await clerk.users.getUserList({ limit: 500 });
+    allUsers.data.forEach((clerkUser) => {
+      const userRole = clerkUser.publicMetadata?.role as string | undefined;
+      if (userRole && userCountsByRole.hasOwnProperty(userRole)) {
+        userCountsByRole[userRole]++;
+      }
+    });
+  } catch (error) {
+    logger.error('Error counting users by role:', error);
+  }
+
+  // All roles to display in tabs
+  const roles: UserRole[] = ['super_admin', 'admin', 'tax_preparer', 'affiliate', 'lead', 'client'];
 
   return (
     <div className="min-h-screen bg-background">
@@ -103,17 +115,41 @@ export default async function PermissionsPage() {
           <TabsContent value="role-permissions">
             <Card>
               <CardHeader>
-                <CardTitle>Section-Based Permissions</CardTitle>
+                <CardTitle>Role Permission Templates</CardTitle>
                 <CardDescription>
-                  Enable or disable entire navigation sections for admin users. Toggle a section to
-                  control all items within it.
+                  Configure default permissions for each user role. Changes will immediately affect all users with that role.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <PermissionManager
-                  defaultPermissions={defaultAdminPermissions}
-                  targetRole="admin"
-                />
+                {/* Nested tabs for each role */}
+                <Tabs defaultValue="super_admin" className="w-full">
+                  <TabsList className="grid w-full grid-cols-6">
+                    {roles.map((roleKey) => (
+                      <TabsTrigger key={roleKey} value={roleKey} className="text-xs">
+                        {ROLE_DISPLAY_NAMES[roleKey]}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+
+                  {roles.map((roleKey) => {
+                    const permissions = roleTemplates[roleKey] || {};
+                    const affectedCount = userCountsByRole[roleKey] || 0;
+                    const isReadOnly = roleKey === 'super_admin'; // Super admin is view-only
+
+                    return (
+                      <TabsContent key={roleKey} value={roleKey} className="mt-6">
+                        <PermissionManager
+                          defaultPermissions={permissions}
+                          targetRole={roleKey}
+                          roleDisplayName={ROLE_DISPLAY_NAMES[roleKey]}
+                          roleDescription={ROLE_DESCRIPTIONS[roleKey]}
+                          readOnly={isReadOnly}
+                          affectedUsersCount={affectedCount}
+                        />
+                      </TabsContent>
+                    );
+                  })}
+                </Tabs>
               </CardContent>
             </Card>
           </TabsContent>

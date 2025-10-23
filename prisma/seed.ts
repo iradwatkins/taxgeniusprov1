@@ -233,6 +233,225 @@ async function main() {
   console.log(`   - ${marketingMaterials.filter(m => m.materialType === 'IMAGE').length} images`)
   console.log(`   - ${marketingMaterials.filter(m => m.materialType === 'TEMPLATE').length} templates\n`)
 
+  // Seed Role Permission Templates
+  console.log('🔐 Seeding role permission templates...')
+
+  // Delete existing templates first
+  await prisma.rolePermissionTemplate.deleteMany({})
+
+  // Default permissions for each role
+  const DEFAULT_PERMISSIONS = {
+    super_admin: {
+      dashboard: true,
+      clientsStatus: true,
+      referralsStatus: true,
+      emails: true,
+      calendar: true,
+      addressBook: true,
+      clientFileCenter: true,
+      analytics: true,
+      googleAnalytics: true,
+      referralsAnalytics: true,
+      learningCenter: true,
+      marketingHub: true,
+      contentGenerator: true,
+      payouts: true,
+      earnings: true,
+      store: true,
+      users: true,
+      database: true,
+      adminManagement: true,
+      settings: true,
+      quickShareLinks: true,
+      academy: true,
+      trackingCode: true,
+      marketing: true,
+    },
+    admin: {
+      dashboard: true,
+      clientsStatus: true,
+      referralsStatus: true,
+      emails: true,
+      calendar: true,
+      addressBook: true,
+      clientFileCenter: false,
+      analytics: true,
+      googleAnalytics: false,
+      referralsAnalytics: true,
+      learningCenter: true,
+      marketingHub: true,
+      contentGenerator: true,
+      payouts: true,
+      earnings: true,
+      store: true,
+      users: true,
+      database: false,
+      adminManagement: false,
+      settings: true,
+      quickShareLinks: true,
+      academy: true,
+      trackingCode: true,
+      marketing: true,
+    },
+    tax_preparer: {
+      dashboard: true,
+      clientsStatus: true,
+      emails: true,
+      calendar: true,
+      addressBook: true,
+      clientFileCenter: false,
+      analytics: true,
+      learningCenter: true,
+      earnings: true,
+      store: true,
+      settings: true,
+      academy: true,
+      trackingCode: true,
+      referralsStatus: false,
+      googleAnalytics: false,
+      referralsAnalytics: false,
+      marketingHub: false,
+      contentGenerator: false,
+      payouts: false,
+      users: false,
+      database: false,
+      adminManagement: false,
+      quickShareLinks: false,
+      marketing: false,
+    },
+    affiliate: {
+      dashboard: true,
+      analytics: true,
+      earnings: true,
+      store: true,
+      settings: true,
+      academy: true,
+      trackingCode: true,
+      marketing: true,
+      clientsStatus: false,
+      referralsStatus: false,
+      emails: false,
+      calendar: false,
+      addressBook: false,
+      clientFileCenter: false,
+      googleAnalytics: false,
+      referralsAnalytics: false,
+      learningCenter: false,
+      marketingHub: false,
+      contentGenerator: false,
+      payouts: false,
+      users: false,
+      database: false,
+      adminManagement: false,
+      quickShareLinks: false,
+    },
+    lead: {
+      dashboard: true,
+      settings: true,
+      clientsStatus: false,
+      referralsStatus: false,
+      emails: false,
+      calendar: false,
+      addressBook: false,
+      clientFileCenter: false,
+      analytics: false,
+      googleAnalytics: false,
+      referralsAnalytics: false,
+      learningCenter: false,
+      marketingHub: false,
+      contentGenerator: false,
+      payouts: false,
+      earnings: false,
+      store: false,
+      users: false,
+      database: false,
+      adminManagement: false,
+      quickShareLinks: false,
+      academy: false,
+      trackingCode: false,
+      marketing: false,
+    },
+    client: {
+      dashboard: true,
+      settings: true,
+      clientsStatus: false,
+      referralsStatus: false,
+      emails: false,
+      calendar: false,
+      addressBook: false,
+      clientFileCenter: false,
+      analytics: false,
+      googleAnalytics: false,
+      referralsAnalytics: false,
+      learningCenter: false,
+      marketingHub: false,
+      contentGenerator: false,
+      payouts: false,
+      earnings: false,
+      store: false,
+      users: false,
+      database: false,
+      adminManagement: false,
+      quickShareLinks: false,
+      academy: false,
+      trackingCode: false,
+      marketing: false,
+    },
+  }
+
+  const roleTemplates = await Promise.all([
+    prisma.rolePermissionTemplate.create({
+      data: {
+        role: 'super_admin',
+        permissions: DEFAULT_PERMISSIONS.super_admin,
+        updatedBy: null,
+      }
+    }),
+    prisma.rolePermissionTemplate.create({
+      data: {
+        role: 'admin',
+        permissions: DEFAULT_PERMISSIONS.admin,
+        updatedBy: null,
+      }
+    }),
+    prisma.rolePermissionTemplate.create({
+      data: {
+        role: 'tax_preparer',
+        permissions: DEFAULT_PERMISSIONS.tax_preparer,
+        updatedBy: null,
+      }
+    }),
+    prisma.rolePermissionTemplate.create({
+      data: {
+        role: 'affiliate',
+        permissions: DEFAULT_PERMISSIONS.affiliate,
+        updatedBy: null,
+      }
+    }),
+    prisma.rolePermissionTemplate.create({
+      data: {
+        role: 'lead',
+        permissions: DEFAULT_PERMISSIONS.lead,
+        updatedBy: null,
+      }
+    }),
+    prisma.rolePermissionTemplate.create({
+      data: {
+        role: 'client',
+        permissions: DEFAULT_PERMISSIONS.client,
+        updatedBy: null,
+      }
+    }),
+  ])
+
+  console.log(`✅ Created ${roleTemplates.length} role permission templates`)
+  console.log('   - super_admin (full access)')
+  console.log('   - admin (limited access)')
+  console.log('   - tax_preparer (client management)')
+  console.log('   - affiliate (referral focus)')
+  console.log('   - lead (minimal access)')
+  console.log('   - client (minimal access)\n')
+
   console.log('🎉 Seeding complete!')
 }
 
