@@ -74,6 +74,7 @@ export async function POST(req: NextRequest) {
     const file = formData.get('file') as File | null;
     const category = formData.get('category') as string;
     const taxReturnId = formData.get('taxReturnId') as string | null;
+    const folderId = formData.get('folderId') as string | null; // NEW: Folder assignment
 
     // Get tax year from form data or default to previous year
     // Tax year defaults to previous year year-round (e.g., in 2026, default is 2025)
@@ -120,10 +121,28 @@ export async function POST(req: NextRequest) {
         isEncrypted: false, // TODO: Implement encryption
         taxYear: taxYear,
         status: 'REVIEWED', // Default to REVIEWED for client uploads (no pending review needed until assigned to preparer)
+        folderId: folderId || undefined, // NEW: Assign to folder if specified
         metadata: {
           category,
           uploadedAt: new Date().toISOString(),
         },
+      },
+    });
+
+    // Log upload operation
+    await prisma.fileOperation.create({
+      data: {
+        operation: 'UPLOAD',
+        performedBy: profile.id,
+        documentId: document.id,
+        details: {
+          fileName: file.name,
+          fileSize: file.size,
+          mimeType: file.type,
+          folderId: folderId || null,
+        },
+        ipAddress: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || undefined,
+        userAgent: req.headers.get('user-agent') || undefined,
       },
     });
 

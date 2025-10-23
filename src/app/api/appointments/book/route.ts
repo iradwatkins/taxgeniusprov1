@@ -142,10 +142,51 @@ export async function POST(req: NextRequest) {
       const defaultPreparer = await prisma.profile.findFirst({
         where: {
           OR: [{ role: 'SUPER_ADMIN' }, { role: 'ADMIN' }, { role: 'TAX_PREPARER' }],
+          bookingEnabled: true, // Only assign to preparers who accept bookings
         },
         orderBy: { createdAt: 'asc' },
       });
       assignedPreparerId = defaultPreparer?.id || null;
+    }
+
+    // Validate preparer booking preferences
+    if (assignedPreparerId) {
+      const preparerPreferences = await prisma.profile.findUnique({
+        where: { id: assignedPreparerId },
+        select: {
+          bookingEnabled: true,
+          allowPhoneBookings: true,
+          allowVideoBookings: true,
+          allowInPersonBookings: true,
+          requireApprovalForBookings: true,
+          firstName: true,
+          lastName: true,
+        },
+      });
+
+      if (!preparerPreferences || !preparerPreferences.bookingEnabled) {
+        return NextResponse.json(
+          { error: 'This preparer is not accepting bookings at this time' },
+          { status: 400 }
+        );
+      }
+
+      // Check if the appointment type is allowed
+      const typeAllowed =
+        (appointmentType === 'PHONE_CALL' && preparerPreferences.allowPhoneBookings) ||
+        (appointmentType === 'VIDEO_CALL' && preparerPreferences.allowVideoBookings) ||
+        (appointmentType === 'IN_PERSON' && preparerPreferences.allowInPersonBookings) ||
+        (appointmentType === 'CONSULTATION' && preparerPreferences.allowVideoBookings) ||
+        (appointmentType === 'FOLLOW_UP' && preparerPreferences.allowPhoneBookings);
+
+      if (!typeAllowed) {
+        return NextResponse.json(
+          {
+            error: `${preparerPreferences.firstName} ${preparerPreferences.lastName} does not accept ${appointmentType.replace(/_/g, ' ').toLowerCase()} appointments`,
+          },
+          { status: 400 }
+        );
+      }
     }
 
     // Find or create CRMContact
@@ -180,6 +221,16 @@ export async function POST(req: NextRequest) {
 
     const preparerId = assignedPreparerId || 'unassigned';
 
+    // Determine appointment status based on preparer preferences
+    const preparerPrefs = await prisma.profile.findUnique({
+      where: { id: preparerId },
+      select: { requireApprovalForBookings: true },
+    });
+
+    const appointmentStatus = preparerPrefs?.requireApprovalForBookings
+      ? 'PENDING_APPROVAL'
+      : 'REQUESTED';
+
     // Create appointment
     const appointment = await prisma.appointment.create({
       data: {
@@ -188,8 +239,8 @@ export async function POST(req: NextRequest) {
         clientEmail: clientEmail.toLowerCase(),
         clientPhone,
         preparerId,
-        type: appointmentType as any,
-        status: 'REQUESTED',
+        type: appointmentType as 'PHONE_CALL' | 'VIDEO_CALL' | 'IN_PERSON' | 'CONSULTATION' | 'FOLLOW_UP',
+        status: appointmentStatus,
         scheduledFor: scheduledDate,
         timezone,
         clientNotes: notes || null,
@@ -201,7 +252,30 @@ export async function POST(req: NextRequest) {
       appointmentId: appointment.id,
       clientEmail,
       type: appointmentType,
+      status: appointmentStatus,
     });
+
+    // Create CRM interaction record for this booking
+    try {
+      await prisma.cRMInteraction.create({
+        data: {
+          contactId: crmContact.id,
+          type: 'MEETING',
+          direction: 'INBOUND',
+          subject: `Appointment Requested: ${appointmentType.replace(/_/g, ' ')}`,
+          body: `Client requested a ${appointmentType.replace(/_/g, ' ').toLowerCase()} appointment${scheduledDate ? ` for ${scheduledDate.toLocaleString()}` : ''}.\n\nNotes: ${notes || 'No additional notes provided'}`,
+          occurredAt: new Date(),
+        },
+      });
+
+      logger.info('Created CRM interaction for appointment booking', {
+        appointmentId: appointment.id,
+        contactId: crmContact.id,
+      });
+    } catch (interactionError) {
+      logger.error('Failed to create CRM interaction for appointment', interactionError);
+      // Don't fail the whole request
+    }
 
     // Send confirmation email to client
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@taxgeniuspro.tax';

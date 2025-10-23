@@ -63,12 +63,12 @@ export interface UserContext {
  * Check if a route matches a pattern (supports wildcards)
  *
  * Patterns:
- * - Exact match: '/admin/users' matches only '/admin/users'
- * - Wildcard: '/admin/*' matches '/admin/anything', '/admin/users/123'
- * - Wildcard: '/dashboard/*/settings' matches '/dashboard/client/settings', '/dashboard/admin/settings'
+ * - Exact match: /admin/users matches only /admin/users
+ * - Wildcard: /admin/* matches /admin/anything, /admin/users/123
+ * - Wildcard: /dashboard/star/settings matches /dashboard/client/settings, /dashboard/admin/settings
  *
  * @param route - The actual route path to check
- * @param pattern - The pattern to match against (can contain *)
+ * @param pattern - The pattern to match against (can contain wildcards)
  * @returns true if route matches pattern
  */
 export function matchRoutePattern(route: string, pattern: string): boolean {

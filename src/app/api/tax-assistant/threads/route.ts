@@ -1,0 +1,68 @@
+/**
+ * Tax Assistant Threads API
+ *
+ * POST /api/tax-assistant/threads - Create new thread
+ * GET /api/tax-assistant/threads - List user's threads
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
+import { createThread, listThreads } from '@/lib/services/tax-assistant.service';
+
+export async function POST(request: NextRequest) {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+    const { initialMessage } = body;
+
+    const thread = await createThread({
+      clerkUserId: userId,
+      initialMessage,
+    });
+
+    return NextResponse.json({
+      success: true,
+      data: thread,
+    });
+  } catch (error) {
+    console.error('Error creating thread:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to create thread' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const threads = await listThreads(userId);
+
+    return NextResponse.json({
+      success: true,
+      data: threads,
+    });
+  } catch (error) {
+    console.error('Error listing threads:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to list threads' },
+      { status: 500 }
+    );
+  }
+}

@@ -100,9 +100,24 @@ export class CRMService {
             orderBy: { createdAt: 'desc' },
             take: 10,
           },
+          tags: {
+            include: {
+              tag: true,
+            },
+          },
+          tasks: {
+            orderBy: { dueDate: 'asc' },
+            take: 5,
+          },
+          emailActivities: {
+            orderBy: { sentAt: 'desc' },
+            take: 10,
+          },
           _count: {
             select: {
               interactions: true,
+              tasks: true,
+              emailActivities: true,
             },
           },
         },

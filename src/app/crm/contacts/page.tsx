@@ -70,11 +70,13 @@ interface Contact {
   company?: string;
   contactType: string;
   stage: string;
+  leadScore: number;
   assignedPreparerId?: string;
   createdAt: string;
   lastContactedAt?: string;
   _count?: {
     interactions: number;
+    tasks: number;
   };
 }
 
@@ -280,6 +282,8 @@ export default function CRMContactsPage() {
                 <TableHead>Phone</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Stage</TableHead>
+                <TableHead>Lead Score</TableHead>
+                <TableHead>Tasks</TableHead>
                 <TableHead>Interactions</TableHead>
                 <TableHead>Last Contact</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -288,7 +292,7 @@ export default function CRMContactsPage() {
             <TableBody>
               {contacts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground">
+                  <TableCell colSpan={10} className="text-center text-muted-foreground">
                     No contacts found
                   </TableCell>
                 </TableRow>
@@ -334,6 +338,25 @@ export default function CRMContactsPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
+                      <div className="flex items-center gap-2">
+                        <div className="w-12 h-2 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className={cn(
+                              'h-full rounded-full',
+                              contact.leadScore >= 70 && 'bg-green-500',
+                              contact.leadScore >= 40 && contact.leadScore < 70 && 'bg-yellow-500',
+                              contact.leadScore < 40 && 'bg-red-500'
+                            )}
+                            style={{ width: `${contact.leadScore}%` }}
+                          />
+                        </div>
+                        <span className="text-sm font-medium">{contact.leadScore}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">{contact._count?.tasks || 0}</Badge>
+                    </TableCell>
+                    <TableCell>
                       <Badge variant="secondary">{contact._count?.interactions || 0}</Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
@@ -342,7 +365,11 @@ export default function CRMContactsPage() {
                         : 'Never'}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => window.location.href = `/crm/contacts/${contact.id}`}
+                      >
                         View
                       </Button>
                     </TableCell>

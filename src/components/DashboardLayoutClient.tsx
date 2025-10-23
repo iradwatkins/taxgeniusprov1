@@ -5,6 +5,7 @@ import { DashboardHeader } from '@/components/DashboardHeader';
 import { DashboardSidebar } from '@/components/DashboardSidebar';
 import { MobileSidebar } from '@/components/MobileSidebar';
 import { ViewingAsBar } from '@/components/admin/ViewingAsBar';
+import { TaxAssistantWidget } from '@/components/tax-assistant/TaxAssistantWidget';
 import { UserRole, UserPermissions } from '@/lib/permissions';
 
 interface DashboardLayoutClientProps {
@@ -64,6 +65,9 @@ export function DashboardLayoutClient({
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto bg-muted/10">{children}</main>
       </div>
+
+      {/* Tax Assistant Widget - Available for all logged-in users */}
+      <TaxAssistantWidget />
     </div>
   );
 }

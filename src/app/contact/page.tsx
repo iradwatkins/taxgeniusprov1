@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { Header } from '@/components/header';
 import { ShortLinkTracker } from '@/components/tracking/ShortLinkTracker';
+import { BookingCallToAction } from '@/components/crm/BookingCallToAction';
 import { logger } from '@/lib/logger';
 
 export default function ContactPage() {
@@ -200,18 +201,30 @@ export default function ContactPage() {
                     )}
 
                     {submitSuccess ? (
-                      <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-6 py-8 rounded-lg text-center space-y-4">
-                        <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto">
-                          <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+                      <div className="space-y-6">
+                        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-6 py-8 rounded-lg text-center space-y-4">
+                          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto">
+                            <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-semibold text-green-900 dark:text-green-100 mb-2">
+                              Message Sent Successfully!
+                            </h3>
+                            <p className="text-green-700 dark:text-green-300 mb-4">
+                              Thank you for contacting us. We&apos;ve received your message and will
+                              get back to you within 24 hours.
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="text-xl font-semibold text-green-900 dark:text-green-100 mb-2">
-                            Message Sent Successfully!
-                          </h3>
-                          <p className="text-green-700 dark:text-green-300 mb-4">
-                            Thank you for contacting us. We&apos;ve received your message and will
-                            get back to you within 24 hours.
-                          </p>
+
+                        {/* Booking Call-to-Action */}
+                        <BookingCallToAction
+                          contactEmail={formData.email}
+                          contactName={formData.name}
+                          contactPhone={formData.phone}
+                        />
+
+                        <div className="text-center">
                           <Button
                             variant="outline"
                             onClick={() => {

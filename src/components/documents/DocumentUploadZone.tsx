@@ -16,6 +16,7 @@ interface DocumentUploadZoneProps {
   clientId?: string; // For tax preparers uploading on behalf of client
   onUploadComplete?: () => void;
   defaultTaxYear?: number;
+  folderId?: string | null; // NEW: Folder to upload to
 }
 
 interface UploadingFile {
@@ -41,6 +42,7 @@ export function DocumentUploadZone({
   clientId,
   onUploadComplete,
   defaultTaxYear,
+  folderId,
 }: DocumentUploadZoneProps) {
   // Default to previous year year-round (only changes on Jan 1st)
   const [taxYear, setTaxYear] = useState<number>(
@@ -76,6 +78,11 @@ export function DocumentUploadZone({
         // If uploading on behalf of client (tax preparer)
         if (clientId) {
           formData.append('clientId', clientId);
+        }
+
+        // NEW: If uploading to specific folder
+        if (folderId) {
+          formData.append('folderId', folderId);
         }
 
         try {

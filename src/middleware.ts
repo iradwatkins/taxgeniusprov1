@@ -249,6 +249,8 @@ export default clerkMiddleware(async (auth, req) => {
     // ============ Route Access Control (WordPress Pages by User Role inspired) ============
     // Check database-driven route restrictions with pattern matching support
     // This runs AFTER role-based middleware checks but provides additional fine-grained control
+    // TEMPORARILY DISABLED until database migration is complete
+    /*
     try {
       const { checkPageAccess } = await import('@/lib/content-restriction');
 
@@ -280,6 +282,7 @@ export default clerkMiddleware(async (auth, req) => {
       logger.error('Error checking route access control:', error);
       // Don't block on error - fail open for route access control to avoid breaking the site
     }
+    */
 
     // Restrict /store access to tax_preparer, affiliate, admin, and super_admin only
     // Use effectiveRole so admins can preview store as other roles

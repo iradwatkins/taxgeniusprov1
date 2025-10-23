@@ -13,10 +13,14 @@ import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { FAQSection } from '@/components/home/FAQSection';
 import { FinalCTASection } from '@/components/home/FinalCTASection';
 import { OpportunitiesSection } from '@/components/home/OpportunitiesSection';
+import { MobileHubRedirect } from '@/components/MobileHubRedirect';
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
+      {/* Auto-redirect mobile users to mobile hub if logged in */}
+      <MobileHubRedirect />
+
       <Header />
 
       <HeroSection />
