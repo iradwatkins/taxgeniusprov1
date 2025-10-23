@@ -35,7 +35,9 @@ export type Permission =
   | 'learningCenter'
   | 'marketingHub'
   | 'quickShareLinks'
-  | 'alerts';
+  | 'alerts'
+  // Route access control (WordPress Pages by User Role inspired)
+  | 'routeAccessControl';
 
 // Section permissions - control entire sections
 export type SectionPermission =
@@ -78,7 +80,7 @@ export const SECTION_PERMISSIONS: Record<SectionPermission, Permission[]> = {
   section_content_learning: ['learningCenter', 'academy', 'contentGenerator'],
   section_marketing_materials: ['marketingHub', 'marketing'],
   section_financial: ['payouts', 'earnings', 'store'],
-  section_system_admin: ['users', 'adminManagement', 'database', 'settings'],
+  section_system_admin: ['users', 'adminManagement', 'database', 'settings', 'routeAccessControl'],
 };
 
 export type UserPermissions = Record<Permission, boolean>;
@@ -185,6 +187,7 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     marketingHub: true,
     quickShareLinks: false, // Removed from all dashboards
     alerts: true,
+    routeAccessControl: true, // 🔒 SUPER_ADMIN ONLY - Manage route restrictions
   },
   admin: {
     // Admin has limited features by default, super_admin can grant more
@@ -315,6 +318,7 @@ export const PERMISSION_LABELS: Record<Permission, string> = {
   learningCenter: 'Learning Center',
   marketingHub: 'Marketing Hub',
   quickShareLinks: 'Quick Share Links',
+  routeAccessControl: 'Route Access Control',
 };
 
 /**
@@ -479,4 +483,5 @@ export const PERMISSION_TO_ROUTE: Record<Permission, string> = {
   learningCenter: '/admin/learning-center',
   marketingHub: '/admin/marketing-hub',
   quickShareLinks: '/admin/quick-share',
+  routeAccessControl: '/admin/route-access-control',
 };

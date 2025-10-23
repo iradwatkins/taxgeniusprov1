@@ -246,6 +246,41 @@ export default clerkMiddleware(async (auth, req) => {
       }
     }
 
+    // ============ Route Access Control (WordPress Pages by User Role inspired) ============
+    // Check database-driven route restrictions with pattern matching support
+    // This runs AFTER role-based middleware checks but provides additional fine-grained control
+    try {
+      const { checkPageAccess } = await import('@/lib/content-restriction');
+
+      // Build user context
+      const clerk = await clerkClient();
+      const user = await clerk.users.getUser(userId);
+      const userEmail = user.emailAddresses[0]?.emailAddress;
+
+      const userContext = {
+        userId,
+        username: userEmail,
+        role: effectiveRole,
+        isAuthenticated: true,
+      };
+
+      // Check access
+      const accessResult = await checkPageAccess(pathname, userContext);
+
+      if (!accessResult.allowed) {
+        logger.info(
+          `🚫 Route access denied: ${pathname} for ${userEmail} (${effectiveRole}) - Reason: ${accessResult.reason}`
+        );
+
+        // Redirect to custom URL if specified, otherwise to forbidden
+        const redirectUrl = accessResult.redirectUrl || '/forbidden';
+        return NextResponse.redirect(new URL(redirectUrl, req.url));
+      }
+    } catch (error) {
+      logger.error('Error checking route access control:', error);
+      // Don't block on error - fail open for route access control to avoid breaking the site
+    }
+
     // Restrict /store access to tax_preparer, affiliate, admin, and super_admin only
     // Use effectiveRole so admins can preview store as other roles
     if (pathname.startsWith('/store')) {

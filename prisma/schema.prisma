@@ -1403,3 +1403,134 @@ model CRMStageHistory {
   @@index([changedByClerk])
   @@map("crm_stage_history")
 }
+
+// ============ Content Restrictions (Role-Based Access Control) ============
+
+// Page/Route level restrictions
+model PageRestriction {
+  id                    String   @id @default(cuid())
+  routePath             String   @unique // e.g., '/admin/users', '/dashboard/client/*'
+
+  // Role-based access
+  allowedRoles          String[] // Roles that CAN access (empty = all)
+  blockedRoles          String[] // Roles that CANNOT access (takes priority)
+
+  // Username-based access (highest priority)
+  allowedUsernames      String[] // Usernames that always have access
+  blockedUsernames      String[] // Usernames that are always blocked
+
+  // Behavior settings
+  allowNonLoggedIn      Boolean  @default(false) // Allow unauthenticated users
+  redirectUrl           String?  // Custom redirect URL on block
+  hideFromNav           Boolean  @default(false) // Hide from navigation menus
+  showInNavOverride     Boolean  @default(false) // Force show in nav even if restricted
+
+  // Custom blocking content
+  customHtmlOnBlock     String?  @db.Text // Custom HTML/React to show when blocked
+
+  // Priority and Status (NEW - for pattern matching & rule ordering)
+  priority              Int      @default(0) // Higher = checked first (for wildcard patterns)
+  isActive              Boolean  @default(true) // Enable/disable rule without deleting
+
+  // Metadata
+  description           String?  @db.Text // Admin note about this restriction
+  createdBy             String?  // Clerk user ID who created this
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([routePath])
+  @@index([isActive])
+  @@index([priority])
+  @@map("page_restrictions")
+}
+
+// Content/Component level restrictions (for sections within pages)
+model ContentRestriction {
+  id                    String   @id @default(cuid())
+  contentType           String   // 'section', 'component', 'widget', 'feature'
+  contentIdentifier     String   // Unique ID for the content piece
+
+  // Role-based access
+  allowedRoles          String[]
+  blockedRoles          String[]
+
+  // Username-based access (highest priority)
+  allowedUsernames      String[]
+  blockedUsernames      String[]
+
+  // Visibility controls
+  hideFromFrontend      Boolean  @default(false) // Hide but keep in API/data
+  hideConditions        Json?    // Complex conditional hiding rules
+
+  // Metadata
+  description           String?  @db.Text
+  createdBy             String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@unique([contentType, contentIdentifier])
+  @@index([contentType])
+  @@index([contentIdentifier])
+  @@map("content_restrictions")
+}
+
+// Dynamic route configuration (database-driven route protection)
+model RouteConfig {
+  id                    String   @id @default(cuid())
+  routePattern          String   @unique // Pattern matching: '/admin/*', '/dashboard/:role/*'
+
+  // Access control
+  requiresAuth          Boolean  @default(true)
+  allowedRoles          String[] // Empty = all authenticated users
+
+  // Behavior
+  redirectOnUnauth      String?  // Redirect unauthenticated users
+  redirectOnForbidden   String?  // Redirect unauthorized (wrong role) users
+  priority              Int      @default(0) // Higher priority patterns checked first
+
+  // Settings
+  enabled               Boolean  @default(true)
+  description           String?  @db.Text
+
+  // Metadata
+  createdBy             String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([routePattern])
+  @@index([priority])
+  @@map("route_configs")
+}
+
+// Audit log for unauthorized access attempts
+model AccessAttemptLog {
+  id                    String   @id @default(cuid())
+
+  // User info
+  clerkUserId           String?  // Null if unauthenticated
+  userEmail             String?
+  userRole              String?
+  username              String?
+
+  // Attempt details
+  attemptedRoute        String
+  attemptedAction       String?  // 'view', 'edit', 'delete', etc.
+  restrictionType       String   // 'page', 'content', 'route'
+  restrictionId         String?  // ID of the restriction that blocked
+
+  // Result
+  wasBlocked            Boolean  @default(true)
+  blockReason           String?  // 'role', 'username', 'not_authenticated'
+  redirectedTo          String?
+
+  // Request metadata
+  ipAddress             String?
+  userAgent             String?  @db.Text
+  timestamp             DateTime @default(now())
+
+  @@index([clerkUserId])
+  @@index([attemptedRoute])
+  @@index([timestamp])
+  @@index([wasBlocked])
+  @@map("access_attempt_logs")
+}
