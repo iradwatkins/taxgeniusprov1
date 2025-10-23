@@ -45,6 +45,7 @@ const isPublicRoute = createRouteMatcher([
 
   // ===== Forms & Applications =====
   '/start-filing(.*)', // Customer lead generation page
+  '/book(.*)', // Direct booking page (no login required)
   '/book-appointment(.*)', // Appointment booking - NO LOGIN REQUIRED
   '/apply(.*)', // General application page
   '/preparer(.*)', // Tax preparer pages (application, info)
@@ -73,6 +74,9 @@ const isPublicRoute = createRouteMatcher([
   '/api/tax-intake/(.*)', // Tax intake lead submissions
   '/api/contact/(.*)', // Contact form submissions
   '/api/appointments/(.*)', // Appointment booking API
+  '/api/preparers/(.*)/booking-preferences', // Public booking preferences
+  '/api/preparers/default', // Default preparer for booking
+  '/api/referrals/resolve', // Resolve referral codes to preparers
   '/api/journey/(.*)', // Journey tracking (public)
   '/api/analytics/attribution(.*)', // Attribution tracking
   '/api/webhooks/(.*)', // Webhook handlers
@@ -103,6 +107,28 @@ export default clerkMiddleware(async (auth, req) => {
     const attributionResponse = await attributionTrackingMiddleware(req);
     if (attributionResponse) {
       return attributionResponse; // Returns redirect with attribution cookie
+    }
+  }
+
+  // BOOKING REDIRECT: Handle ?book=true parameter on referral links
+  // Example: taxgeniuspro.tax/username?book=true → /book?ref=username
+  if (req.nextUrl.searchParams.get('book') === 'true') {
+    const pathname = req.nextUrl.pathname;
+    // Extract username from path (e.g., /irawatkins → irawatkins)
+    const username = pathname.slice(1); // Remove leading slash
+
+    // Only redirect if it looks like a username (single path segment, no slashes)
+    if (username && !username.includes('/') && username !== '') {
+      const bookingUrl = new URL('/book', req.url);
+      bookingUrl.searchParams.set('ref', username);
+
+      logger.info('[Booking Redirect] Redirecting to booking page', {
+        username,
+        from: pathname,
+        to: bookingUrl.pathname,
+      });
+
+      return NextResponse.redirect(bookingUrl);
     }
   }
 
