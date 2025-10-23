@@ -89,7 +89,7 @@ export default function ContactPage() {
               Get In Touch
             </Badge>
             <h1 className="text-4xl lg:text-6xl font-bold text-foreground mb-6">
-              Let's Talk About Your <span className="text-primary">Tax Needs</span>
+              Let&apos;s Talk About Your <span className="text-primary">Tax Needs</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
               Ready to maximize your refund? Our tax experts are here to help. Contact us for a free
@@ -109,7 +109,7 @@ export default function ContactPage() {
                 <CardHeader>
                   <CardTitle className="text-2xl">Get Your Free Consultation</CardTitle>
                   <CardDescription>
-                    Fill out the form below and we'll get back to you within 24 hours
+                    Fill out the form below and we&apos;ll get back to you within 24 hours
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -149,6 +149,8 @@ export default function ContactPage() {
                           type="tel"
                           value={formData.phone}
                           onChange={handleInputChange}
+                          pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}|[0-9]{10}"
+                          placeholder="123-456-7890"
                           className="mt-1"
                         />
                       </div>
@@ -173,16 +175,22 @@ export default function ContactPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="message">Message</Label>
+                      <Label htmlFor="message">Message *</Label>
                       <Textarea
                         id="message"
                         name="message"
                         value={formData.message}
                         onChange={handleInputChange}
+                        required
+                        minLength={10}
+                        maxLength={1000}
                         rows={4}
                         className="mt-1"
-                        placeholder="Tell us about your specific tax situation or questions..."
+                        placeholder="Tell us about your specific tax situation or questions... (minimum 10 characters)"
                       />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {formData.message.length}/1000 characters
+                      </p>
                     </div>
 
                     {submitError && (
@@ -201,13 +209,20 @@ export default function ContactPage() {
                             Message Sent Successfully!
                           </h3>
                           <p className="text-green-700 dark:text-green-300 mb-4">
-                            Thank you for contacting us. We've received your message and will get back to you within 24 hours.
+                            Thank you for contacting us. We&apos;ve received your message and will
+                            get back to you within 24 hours.
                           </p>
                           <Button
                             variant="outline"
                             onClick={() => {
                               setSubmitSuccess(false);
-                              setFormData({ name: '', email: '', phone: '', service: '', message: '' });
+                              setFormData({
+                                name: '',
+                                email: '',
+                                phone: '',
+                                service: '',
+                                message: '',
+                              });
                             }}
                           >
                             Send Another Message
@@ -354,7 +369,7 @@ export default function ContactPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Yes! Full audit defense is included with every tax return we prepare. We'll
+                  Yes! Full audit defense is included with every tax return we prepare. We&apos;ll
                   represent you before the IRS at no additional cost.
                 </p>
               </CardContent>
@@ -375,13 +390,13 @@ export default function ContactPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">
-                  What if I'm not satisfied with your service?
+                  What if I&apos;m not satisfied with your service?
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  We offer a 100% satisfaction guarantee. If you're not completely satisfied, we'll
-                  make it right or provide a full refund.
+                  We offer a 100% satisfaction guarantee. If you&apos;re not completely satisfied,
+                  we&apos;ll make it right or provide a full refund.
                 </p>
               </CardContent>
             </Card>

@@ -3,8 +3,17 @@ import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { Resend } from 'resend';
 import { ContactFormNotification } from '../../../../../emails/contact-form-notification';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Rate limiting: 3 requests per 10 minutes per IP
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(3, '10 m'),
+  analytics: true,
+});
 
 /**
  * POST /api/contact/submit - Handle contact form submissions
@@ -17,6 +26,33 @@ const resend = new Resend(process.env.RESEND_API_KEY);
  */
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting check
+    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    const {
+      success: rateLimitSuccess,
+      limit,
+      reset,
+      remaining,
+    } = await ratelimit.limit(`contact_${ip}`);
+
+    if (!rateLimitSuccess) {
+      logger.warn('Rate limit exceeded for contact form', { ip, limit, reset, remaining });
+      return NextResponse.json(
+        {
+          error: 'Too many requests. Please try again later.',
+          retryAfter: Math.ceil((reset - Date.now()) / 1000),
+        },
+        {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': limit.toString(),
+            'X-RateLimit-Remaining': remaining.toString(),
+            'X-RateLimit-Reset': reset.toString(),
+          },
+        }
+      );
+    }
+
     const body = await req.json();
     const { name, email, phone, service, message } = body;
 
@@ -31,8 +67,13 @@ export async function POST(req: NextRequest) {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
+    }
+
+    // Validate message length
+    if (message.length < 10 || message.length > 1000) {
       return NextResponse.json(
-        { error: 'Invalid email format' },
+        { error: 'Message must be between 10 and 1000 characters' },
         { status: 400 }
       );
     }

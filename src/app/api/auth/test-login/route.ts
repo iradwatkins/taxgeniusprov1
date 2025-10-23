@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { logger } from '@/lib/logger';
-import { handleApiError } from '@/lib/api-error-handler';
+import { handleAPIError } from '@/lib/api-error-handler';
 import { clerkClient } from '@clerk/nextjs/server';
 
 /**
@@ -71,20 +71,18 @@ export async function POST(req: NextRequest) {
 
     // Find matching test account
     const account = TEST_ACCOUNTS.find(
-      (acc) =>
-        acc.email === validatedData.email &&
-        acc.password === validatedData.password
+      (acc) => acc.email === validatedData.email && acc.password === validatedData.password
     );
 
     if (!account) {
       logger.warn('Test login failed - invalid credentials', {
-        email: validatedData.email
+        email: validatedData.email,
       });
 
       return NextResponse.json(
         {
           error: 'Invalid email or password',
-          message: 'Check test accounts or use valid credentials'
+          message: 'Check test accounts or use valid credentials',
         },
         { status: 401 }
       );
@@ -102,12 +100,12 @@ export async function POST(req: NextRequest) {
         clerkUser = users.data[0];
         logger.info('Found Clerk user for test account', {
           email: validatedData.email,
-          clerkUserId: clerkUser.id
+          clerkUserId: clerkUser.id,
         });
       }
-    } catch (clerkError) {
+    } catch {
       logger.warn('Could not fetch Clerk user (expected in test)', {
-        email: validatedData.email
+        email: validatedData.email,
       });
     }
 
@@ -135,7 +133,6 @@ export async function POST(req: NextRequest) {
       redirectUrl: account.redirectUrl,
       message: `Successfully authenticated as ${account.role}`,
     });
-
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -147,7 +144,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return handleApiError(error, 'POST /api/auth/test-login');
+    return handleAPIError(error);
   }
 }
 
@@ -155,10 +152,7 @@ export async function POST(req: NextRequest) {
 export async function GET() {
   // Only expose this in development
   if (process.env.NODE_ENV === 'production') {
-    return NextResponse.json(
-      { error: 'Not available in production' },
-      { status: 404 }
-    );
+    return NextResponse.json({ error: 'Not available in production' }, { status: 404 });
   }
 
   return NextResponse.json({

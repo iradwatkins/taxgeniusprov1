@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db';
 import { cache, cacheKeys } from '@/lib/redis';
 import crypto from 'crypto';
 import { logger } from '@/lib/logger';
+import { EmailService } from '@/lib/services/email.service';
 
 // Initialize Square client
 const squareClient = new Client({
@@ -279,7 +280,36 @@ export class PaymentService {
       // Invalidate referrer stats cache
       await cache.del(cacheKeys.referrerStats(referral.referrerId));
 
-      // TODO: Send commission notification email
+      // Send commission notification email
+      try {
+        const referrerProfile = await prisma.profile.findUnique({
+          where: { id: referral.referrerId },
+          select: { email: true, firstName: true, lastName: true },
+        });
+
+        const clientProfile = await prisma.profile.findUnique({
+          where: { id: clientProfileId },
+          select: { firstName: true, lastName: true },
+        });
+
+        if (referrerProfile?.email) {
+          const referrerName = referrerProfile.firstName || 'there';
+          const clientName = clientProfile
+            ? `${clientProfile.firstName || ''} ${clientProfile.lastName || ''}`.trim() ||
+              'a client'
+            : 'a client';
+
+          await EmailService.sendCommissionEmail(
+            referrerProfile.email,
+            referrerName,
+            commissionAmount,
+            clientName
+          );
+        }
+      } catch (emailError) {
+        logger.error('Failed to send commission email:', emailError);
+        // Don't throw - email failure shouldn't block commission creation
+      }
     } catch (error) {
       logger.error('Commission calculation error:', error);
     }

@@ -51,3 +51,4 @@ next-env.d.ts
 *.flv
 *.mkv
 .aaaaaa/videos folder/
+*.bak
