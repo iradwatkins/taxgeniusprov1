@@ -29,6 +29,7 @@ import {
   QrCode,
   Package,
   BookOpen,
+  Shield,
 } from 'lucide-react';
 import { UserRole, Permission } from '@/lib/permissions';
 
@@ -365,6 +366,14 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     permission: 'users',
     section: '⚙️ System Controls',
     roles: ['super_admin'],
+  },
+  {
+    label: 'Content Restrictions',
+    href: '/admin/content-restrictions',
+    icon: Shield,
+    permission: 'users',
+    section: '⚙️ System Controls',
+    roles: ['admin', 'super_admin'],
   },
   {
     label: 'Database',
