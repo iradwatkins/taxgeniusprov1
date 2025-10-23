@@ -145,6 +145,15 @@ model Profile {
   folders             Folder[]             @relation("OwnedFolders") // File manager folders
   fileOperations      FileOperation[]      // File operation audit trail
 
+  // Support Ticket Relations
+  createdTickets      SupportTicket[]      @relation("TicketCreator") // Tickets created by this user
+  assignedTickets     SupportTicket[]      @relation("TicketAssignee") // Tickets assigned to this preparer
+  ticketMessages      TicketMessage[]      @relation("TicketMessageSender") // Messages sent in tickets
+  savedReplies        SavedReply[]         @relation("SavedReplyCreator") // Saved reply templates
+  createdWorkflows    TicketWorkflow[]     @relation("WorkflowCreator") // Workflows created by this user
+  timeEntries         TicketTimeEntry[]    @relation("TimeEntryPreparer") // Time tracking entries
+  settingsUpdates     SystemSettings[]     @relation("SettingsUpdater") // Settings updated by this user
+
   @@index([role])
   @@index([vanitySlug])
   @@index([clerkUserId])
@@ -847,6 +856,242 @@ model ChatMessage {
   @@index([roomId])
   @@index([senderId])
   @@map("chat_messages")
+}
+
+// ============ Support Ticket System ============
+
+enum TicketStatus {
+  OPEN               // Newly created ticket
+  IN_PROGRESS        // Preparer is working on it
+  WAITING_CLIENT     // Waiting for client response
+  WAITING_PREPARER   // Waiting for preparer response
+  RESOLVED           // Issue resolved, awaiting confirmation
+  CLOSED             // Ticket closed
+  ARCHIVED           // Archived for historical reference
+}
+
+enum TicketPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+model SupportTicket {
+  id             String         @id @default(cuid())
+  ticketNumber   String         @unique // Auto-generated: TGP-TICKET-12345
+  title          String
+  description    String         @db.Text
+  status         TicketStatus   @default(OPEN)
+  priority       TicketPriority @default(NORMAL)
+
+  // Relationships
+  creatorId      String // Client who created the ticket
+  creator        Profile        @relation("TicketCreator", references: [id], fields: [creatorId], onDelete: Cascade)
+
+  assignedToId   String? // Tax preparer assigned (auto-assigned via ClientPreparer)
+  assignedTo     Profile?       @relation("TicketAssignee", references: [id], fields: [assignedToId], onDelete: SetNull)
+
+  // Metadata
+  tags           String[] // Categories: tax-deduction, filing-status, deadline, etc.
+  customFields   Json? // Flexible additional data
+
+  // Tracking
+  firstResponseAt   DateTime? // When preparer first responded
+  resolvedAt        DateTime? // When ticket was resolved
+  closedAt          DateTime? // When ticket was closed
+  lastActivityAt    DateTime  @default(now()) // Last message or update
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  // Relations
+  messages       TicketMessage[]
+  timeEntries    TicketTimeEntry[]
+  workflowLogs   TicketWorkflowLog[]
+
+  @@index([creatorId])
+  @@index([assignedToId])
+  @@index([status])
+  @@index([priority])
+  @@index([ticketNumber])
+  @@index([lastActivityAt])
+  @@map("support_tickets")
+}
+
+model TicketMessage {
+  id              String        @id @default(cuid())
+  ticketId        String
+  ticket          SupportTicket @relation(references: [id], fields: [ticketId], onDelete: Cascade)
+
+  senderId        String // Who sent this message
+  senderProfile   Profile       @relation("TicketMessageSender", references: [id], fields: [senderId], onDelete: Cascade)
+
+  content         String        @db.Text
+  isInternal      Boolean       @default(false) // Internal notes (preparer-only)
+  isAIGenerated   Boolean       @default(false) // AI-suggested response
+
+  // Attachments
+  attachments     Json? // Array of file URLs and metadata
+
+  // Metadata
+  metadata        Json? // Additional data (email headers, etc.)
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  editedAt        DateTime?
+  deletedAt       DateTime?
+
+  @@index([ticketId])
+  @@index([senderId])
+  @@index([createdAt])
+  @@map("ticket_messages")
+}
+
+model SavedReply {
+  id          String   @id @default(cuid())
+  title       String
+  content     String   @db.Text // Supports variables: {{client_name}}, {{ticket_number}}, etc.
+  category    String? // tax-deduction, filing-status, deadline, general
+
+  // Ownership
+  createdById String
+  createdBy   Profile  @relation("SavedReplyCreator", references: [id], fields: [createdById], onDelete: Cascade)
+
+  isGlobal    Boolean  @default(false) // Available to all preparers or just creator
+
+  // Usage tracking
+  usageCount  Int      @default(0)
+  lastUsedAt  DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([createdById])
+  @@index([category])
+  @@index([isGlobal])
+  @@map("saved_replies")
+}
+
+enum WorkflowTrigger {
+  TICKET_CREATED           // When a new ticket is created
+  TICKET_UPDATED           // When ticket status/priority changes
+  TICKET_IDLE              // When no activity for X hours
+  CLIENT_RESPONSE          // When client sends a message
+  PREPARER_RESPONSE        // When preparer responds
+  TICKET_ASSIGNED          // When ticket is assigned
+  TICKET_UNASSIGNED        // When ticket is unassigned
+}
+
+enum WorkflowActionType {
+  ASSIGN_PREPARER          // Auto-assign to preparer
+  SEND_NOTIFICATION        // Send email/slack/sms
+  ADD_TAG                  // Add tag to ticket
+  CHANGE_STATUS            // Update ticket status
+  CHANGE_PRIORITY          // Update ticket priority
+  SEND_SAVED_REPLY         // Send pre-written response
+  AUTO_CLOSE               // Close the ticket
+  CREATE_TASK              // Create follow-up task
+}
+
+model TicketWorkflow {
+  id             String          @id @default(cuid())
+  name           String
+  description    String?         @db.Text
+
+  trigger        WorkflowTrigger
+  isActive       Boolean         @default(true)
+  priority       Int             @default(0) // Execution order
+
+  // Conditions (JSON)
+  conditions     Json? // { status: "OPEN", priority: "HIGH", tags: ["urgent"] }
+
+  // Actions (JSON array)
+  actions        Json // [{ type: "SEND_NOTIFICATION", config: {...} }]
+
+  // Tracking
+  lastTriggeredAt DateTime?
+  triggerCount    Int            @default(0)
+
+  createdById    String
+  createdBy      Profile        @relation("WorkflowCreator", references: [id], fields: [createdById], onDelete: Cascade)
+
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  // Relations
+  logs           TicketWorkflowLog[]
+
+  @@index([trigger])
+  @@index([isActive])
+  @@index([priority])
+  @@map("ticket_workflows")
+}
+
+model TicketWorkflowLog {
+  id            String        @id @default(cuid())
+  workflowId    String
+  workflow      TicketWorkflow @relation(references: [id], fields: [workflowId], onDelete: Cascade)
+
+  ticketId      String
+  ticket        SupportTicket @relation(references: [id], fields: [ticketId], onDelete: Cascade)
+
+  action        String // Action type executed
+  result        String // success, failed, skipped
+  details       Json? // Execution details
+
+  executedAt    DateTime      @default(now())
+
+  @@index([workflowId])
+  @@index([ticketId])
+  @@index([executedAt])
+  @@map("ticket_workflow_logs")
+}
+
+model TicketTimeEntry {
+  id              String        @id @default(cuid())
+  ticketId        String
+  ticket          SupportTicket @relation(references: [id], fields: [ticketId], onDelete: Cascade)
+
+  preparerId      String // Tax preparer tracking time
+  preparer        Profile       @relation("TimeEntryPreparer", references: [id], fields: [preparerId], onDelete: Cascade)
+
+  startedAt       DateTime
+  endedAt         DateTime?
+  durationMinutes Int           @default(0) // Calculated duration
+
+  isBillable      Boolean       @default(true)
+  billableMinutes Int           @default(0)
+
+  notes           String?       @db.Text
+  isManual        Boolean       @default(false) // Manual entry vs timer
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([ticketId])
+  @@index([preparerId])
+  @@index([startedAt])
+  @@map("ticket_time_entries")
+}
+
+model SystemSettings {
+  id        String   @id @default(cuid())
+  key       String   @unique // e.g., "support_system_enabled", "ai_enabled"
+  value     String   @db.Text // JSON-encoded value
+  category  String // support, notifications, integrations, security
+
+  description String? @db.Text
+
+  updatedById String?
+  updatedBy   Profile? @relation("SettingsUpdater", references: [id], fields: [updatedById], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+  @@index([category])
+  @@map("system_settings")
 }
 
 // ============ Lead Generation ============

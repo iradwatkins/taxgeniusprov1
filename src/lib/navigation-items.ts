@@ -30,6 +30,9 @@ import {
   Package,
   BookOpen,
   Shield,
+  Ticket,
+  GitBranch,
+  LifeBuoy,
 } from 'lucide-react';
 import { UserRole, Permission } from '@/lib/permissions';
 
@@ -77,6 +80,14 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     label: 'My Referrals',
     href: '/dashboard/client/referrals',
     icon: Share2,
+    permission: 'dashboard',
+    section: '📱 My Dashboard',
+    roles: ['client', 'lead'],
+  },
+  {
+    label: 'Support Tickets',
+    href: '/dashboard/client/tickets',
+    icon: Ticket,
     permission: 'dashboard',
     section: '📱 My Dashboard',
     roles: ['client', 'lead'],
@@ -142,6 +153,14 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     roles: ['tax_preparer'],
   },
   {
+    label: 'Support Tickets',
+    href: '/dashboard/tax-preparer/tickets',
+    icon: Ticket,
+    permission: 'clientsStatus',
+    section: '👥 Clients',
+    roles: ['tax_preparer'],
+  },
+  {
     label: 'Clients Status',
     href: '/admin/clients-status',
     icon: UserCheck,
@@ -186,6 +205,38 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: Mail,
     permission: 'emails',
     section: '📋 CRM',
+  },
+  {
+    label: 'Support System',
+    href: '/admin/support-settings',
+    icon: LifeBuoy,
+    permission: 'clientFileCenter',
+    section: '📋 CRM',
+    roles: ['admin', 'super_admin'],
+  },
+  {
+    label: 'Saved Replies',
+    href: '/admin/saved-replies',
+    icon: FileText,
+    permission: 'clientFileCenter',
+    section: '📋 CRM',
+    roles: ['admin', 'super_admin'],
+  },
+  {
+    label: 'Ticket Workflows',
+    href: '/admin/workflows',
+    icon: GitBranch,
+    permission: 'clientFileCenter',
+    section: '📋 CRM',
+    roles: ['admin', 'super_admin'],
+  },
+  {
+    label: 'Ticket Reports',
+    href: '/admin/ticket-reports',
+    icon: BarChart3,
+    permission: 'analytics',
+    section: '📋 CRM',
+    roles: ['admin', 'super_admin'],
   },
 
   // 💰 Financials Section (admin only)

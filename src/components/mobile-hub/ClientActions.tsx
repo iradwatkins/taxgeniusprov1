@@ -97,10 +97,10 @@ export function ClientActions({ userId }: ClientActionsProps) {
           <Button
             variant="outline"
             className="w-full justify-start h-14"
-            onClick={() => router.push('/dashboard/client/messages')}
+            onClick={() => router.push('/dashboard/client/tickets')}
           >
             <MessageSquare className="h-5 w-5 mr-3" />
-            Message Preparer
+            Support Tickets
           </Button>
           <Button
             variant="outline"
