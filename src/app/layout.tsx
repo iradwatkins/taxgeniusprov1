@@ -8,7 +8,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { Providers } from '@/lib/providers';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ClerkProvider } from '@clerk/nextjs';
-import { Footer } from '@/components/footer';
+import { ConditionalFooter } from '@/components/ConditionalFooter';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 
 const inter = Inter({
@@ -63,7 +63,7 @@ export default function RootLayout({
               <ErrorBoundary>
                 <TooltipProvider>
                   {children}
-                  <Footer />
+                  <ConditionalFooter />
                   <Toaster />
                   <Sonner />
                 </TooltipProvider>
