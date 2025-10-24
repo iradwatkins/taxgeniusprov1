@@ -57,38 +57,38 @@ interface AttributionStatsCardProps {
 const ATTRIBUTION_METHODS = [
   {
     key: 'cookie' as const,
-    label: 'Cookie Attribution',
+    label: 'Clicked Your Link',
     icon: Cookie,
     color: 'text-blue-600 dark:text-blue-400',
     bgColor: 'bg-blue-100 dark:bg-blue-900/20',
-    description: 'Same device, within 14 days',
+    description: 'Signed up on same device',
     confidence: 100,
   },
   {
     key: 'emailMatch' as const,
-    label: 'Email Match',
+    label: 'Matched by Email',
     icon: Mail,
     color: 'text-green-600 dark:text-green-400',
     bgColor: 'bg-green-100 dark:bg-green-900/20',
-    description: 'Cross-device attribution',
+    description: 'Used different device',
     confidence: 90,
   },
   {
     key: 'phoneMatch' as const,
-    label: 'Phone Match',
+    label: 'Matched by Phone',
     icon: Phone,
     color: 'text-purple-600 dark:text-purple-400',
     bgColor: 'bg-purple-100 dark:bg-purple-900/20',
-    description: 'Cross-device fallback',
+    description: 'Used different device',
     confidence: 85,
   },
   {
     key: 'direct' as const,
-    label: 'Direct Traffic',
+    label: 'Direct Visit',
     icon: Globe,
     color: 'text-gray-600 dark:text-gray-400',
     bgColor: 'bg-gray-100 dark:bg-gray-900/20',
-    description: 'No referrer tracked',
+    description: 'Typed URL directly',
     confidence: 100,
   },
 ];
@@ -128,8 +128,8 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
     return (
       <Card className={className}>
         <CardHeader>
-          <CardTitle>Attribution Analytics</CardTitle>
-          <CardDescription>Loading your referral statistics...</CardDescription>
+          <CardTitle>Referral Performance</CardTitle>
+          <CardDescription>Loading your statistics...</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
@@ -144,12 +144,12 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
     return (
       <Card className={className}>
         <CardHeader>
-          <CardTitle>Attribution Analytics</CardTitle>
-          <CardDescription>Unable to load statistics</CardDescription>
+          <CardTitle>Referral Performance</CardTitle>
+          <CardDescription>Unable to load your statistics</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8 text-muted-foreground">
-            <p className="text-sm">{error || 'No data available'}</p>
+            <p className="text-sm">{error || 'No data available yet'}</p>
             <Button variant="outline" size="sm" onClick={fetchStats} className="mt-4">
               Try Again
             </Button>
@@ -167,15 +167,15 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Attribution Analytics</CardTitle>
-            <CardDescription>Track how leads find you through different channels</CardDescription>
+            <CardTitle>Referral Performance</CardTitle>
+            <CardDescription>See how people found you and signed up</CardDescription>
           </div>
           <Tabs value={selectedPeriod} onValueChange={(v) => setSelectedPeriod(v as typeof period)}>
             <TabsList>
-              <TabsTrigger value="7d">7D</TabsTrigger>
-              <TabsTrigger value="30d">30D</TabsTrigger>
-              <TabsTrigger value="90d">90D</TabsTrigger>
-              <TabsTrigger value="all">All</TabsTrigger>
+              <TabsTrigger value="7d">Last 7 Days</TabsTrigger>
+              <TabsTrigger value="30d">Last 30 Days</TabsTrigger>
+              <TabsTrigger value="90d">Last 90 Days</TabsTrigger>
+              <TabsTrigger value="all">All Time</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -186,28 +186,28 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Users className="h-4 w-4" />
-              Total Leads
+              People Referred
             </div>
             <p className="text-2xl font-bold">{stats.totalLeads}</p>
           </div>
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Target className="h-4 w-4" />
-              Conversion Rate
+              Success Rate
             </div>
             <p className="text-2xl font-bold">{stats.conversionRate.toFixed(1)}%</p>
           </div>
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <DollarSign className="h-4 w-4" />
-              Total Commissions
+              Total Earned
             </div>
             <p className="text-2xl font-bold">${stats.totalCommissions.toLocaleString()}</p>
           </div>
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <TrendingUp className="h-4 w-4" />
-              Avg. Commission
+              Per Referral
             </div>
             <p className="text-2xl font-bold">${stats.averageCommissionRate.toFixed(2)}</p>
           </div>
@@ -216,8 +216,12 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
         {/* Attribution Methods Breakdown */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-sm">Attribution Methods</h3>
-            <Badge variant="outline">{stats.crossDeviceRate.toFixed(1)}% Cross-Device</Badge>
+            <h3 className="font-semibold text-sm">How People Found You</h3>
+            {stats.crossDeviceRate > 0 && (
+              <Badge variant="outline" className="text-xs">
+                {stats.crossDeviceRate.toFixed(0)}% switched devices
+              </Badge>
+            )}
           </div>
 
           {ATTRIBUTION_METHODS.map((method) => {
@@ -234,9 +238,7 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
                     </div>
                     <div>
                       <p className="text-sm font-medium">{method.label}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {method.description} · {method.confidence}% confidence
-                      </p>
+                      <p className="text-xs text-muted-foreground">{method.description}</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -251,7 +253,7 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
         </div>
 
         {/* Cross-Device Attribution Insight */}
-        {stats.crossDeviceRate > 0 && (
+        {stats.crossDeviceRate > 20 && (
           <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-900">
             <div className="flex items-start gap-3">
               <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
@@ -259,12 +261,12 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                  Strong Cross-Device Attribution
+                  Great News! We're Tracking Your Referrals
                 </p>
                 <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-                  {stats.crossDeviceRate.toFixed(1)}% of your leads were tracked across multiple
-                  devices using email/phone matching. This improves attribution accuracy and
-                  commission tracking.
+                  {stats.crossDeviceRate.toFixed(0)}% of your referrals clicked your link on one
+                  device (like their phone) but signed up on another (like their computer). We
+                  still matched them to you and you'll get credit!
                 </p>
               </div>
             </div>
@@ -274,7 +276,7 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
         {/* Top Sources */}
         {stats.topSources.length > 0 && (
           <div className="space-y-3">
-            <h3 className="font-semibold text-sm">Top Traffic Sources</h3>
+            <h3 className="font-semibold text-sm">Where Your Referrals Came From</h3>
             {stats.topSources.map((source, index) => (
               <div key={source.source} className="flex items-center gap-3">
                 <Badge variant="outline" className="w-8 justify-center">

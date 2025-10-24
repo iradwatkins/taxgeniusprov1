@@ -197,9 +197,9 @@ export function ReferralLinksManager() {
   const renderLinkCard = (link: ReferralLink | null, type: 'intake' | 'appointment') => {
     if (!link) {
       return (
-        <Card>
+        <Card className="border-dashed">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-muted-foreground">
               {type === 'intake' ? (
                 <FileText className="h-5 w-5" />
               ) : (
@@ -207,10 +207,21 @@ export function ReferralLinksManager() {
               )}
               {type === 'intake' ? 'Tax Filing Link' : 'Appointment Link'}
             </CardTitle>
-            <CardDescription>Your referral link is being generated...</CardDescription>
+            <CardDescription>
+              {type === 'intake'
+                ? 'Direct your referrals to start their tax filing process'
+                : 'Let referrals book an appointment with a tax preparer'}
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">Please refresh the page in a moment.</p>
+          <CardContent className="space-y-3">
+            <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/20 p-3 rounded-lg">
+              <div className="h-2 w-2 rounded-full bg-amber-600 dark:bg-amber-400 animate-pulse" />
+              <span>Setting up your referral link...</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Your link will appear here automatically. This usually takes just a few seconds.
+              If it doesn't appear, try refreshing the page.
+            </p>
           </CardContent>
         </Card>
       );
