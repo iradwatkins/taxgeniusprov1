@@ -247,7 +247,7 @@ export function PermissionManager({
                       checked={permissions[permission] === true}
                       onCheckedChange={(checked) => togglePermission(permission, checked)}
                       disabled={readOnly}
-                      className="scale-90"
+                      className="scale-90 data-[state=checked]:bg-green-600"
                     />
                   </div>
                 ))}
