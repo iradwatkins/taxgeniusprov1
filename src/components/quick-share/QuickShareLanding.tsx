@@ -49,10 +49,10 @@ export function QuickShareLanding({ userId, role, firstName }: QuickShareLanding
           <CardHeader>
             <div className="flex items-center gap-2">
               <FileText className="h-6 w-6 text-primary" />
-              <CardTitle className="text-xl">Tax Intake Form</CardTitle>
+              <CardTitle className="text-xl">Ready To Do Taxes</CardTitle>
             </div>
             <CardDescription className="text-base">
-              Share with clients to start their tax filing
+              Send to people you know are ready to do their taxes
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -71,10 +71,10 @@ export function QuickShareLanding({ userId, role, firstName }: QuickShareLanding
           <CardHeader>
             <div className="flex items-center gap-2">
               <Users className="h-6 w-6 text-primary" />
-              <CardTitle className="text-xl">Lead Generation Form</CardTitle>
+              <CardTitle className="text-xl">Preparing To Do Taxes</CardTitle>
             </div>
             <CardDescription className="text-base">
-              Capture potential client information
+              Send this to people that are preparing or need to talk to someone before doing their taxes.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -131,8 +131,15 @@ export function QuickShareLanding({ userId, role, firstName }: QuickShareLanding
           </Button>
         </div>
 
+        {/* Bottom Message */}
+        <div className="text-center mt-8 p-6 bg-muted/50 rounded-lg">
+          <p className="text-lg font-medium">
+            And then all you have to do is come back and watch your referrals grow.
+          </p>
+        </div>
+
         {/* Mobile Hub Link */}
-        <div className="text-center mt-8">
+        <div className="text-center mt-4">
           <Button
             variant="link"
             className="text-muted-foreground"
