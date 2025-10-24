@@ -77,7 +77,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     roles: ['client', 'lead'],
   },
   {
-    label: 'Support Tickets',
+    label: 'Ask Your Tax Genius',
     href: '/dashboard/client/tickets',
     icon: Ticket,
     permission: 'dashboard',

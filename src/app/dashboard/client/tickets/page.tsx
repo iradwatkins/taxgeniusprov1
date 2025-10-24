@@ -27,7 +27,7 @@ import { CreateTicketDialog } from '@/components/support/create-ticket-dialog';
 import { TicketStatsCards } from '@/components/support/ticket-stats-cards';
 
 export const metadata = {
-  title: 'Support Tickets | Tax Genius Pro',
+  title: 'Ask Your Tax Genius | Tax Genius Pro',
   description: 'Get help from your tax preparer',
 };
 
@@ -51,7 +51,7 @@ export default async function ClientTicketsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Support Tickets</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Ask Your Tax Genius</h1>
             <p className="text-sm sm:text-base text-muted-foreground mt-1">
               Get help from your tax preparer
             </p>
@@ -60,7 +60,7 @@ export default async function ClientTicketsPage() {
             trigger={
               <Button className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
-                New Ticket
+                New Question
               </Button>
             }
           />
@@ -72,7 +72,7 @@ export default async function ClientTicketsPage() {
         {/* Filters and Search */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Filter Tickets</CardTitle>
+            <CardTitle className="text-lg">Filter Questions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
