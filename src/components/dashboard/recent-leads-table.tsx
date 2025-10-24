@@ -50,6 +50,13 @@ const ATTRIBUTION_ICONS = {
   direct: Globe,
 };
 
+const ATTRIBUTION_LABELS = {
+  cookie: 'Clicked Link',
+  email_match: 'Email Match',
+  phone_match: 'Phone Match',
+  direct: 'Direct Visit',
+};
+
 const ATTRIBUTION_COLORS = {
   cookie: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
   email_match: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
@@ -146,7 +153,7 @@ export function RecentLeadsTable({ className, limit = 10 }: RecentLeadsTableProp
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Recent Leads</CardTitle>
+              <CardTitle>My Referrals</CardTitle>
               <CardDescription>Your latest referrals will appear here</CardDescription>
             </div>
             <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
@@ -174,9 +181,9 @@ export function RecentLeadsTable({ className, limit = 10 }: RecentLeadsTableProp
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Recent Leads</CardTitle>
+            <CardTitle>My Referrals</CardTitle>
             <CardDescription>
-              Your latest {leads.length} referrals with attribution tracking
+              All {leads.length} of your referrals
             </CardDescription>
           </div>
           <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
@@ -196,10 +203,9 @@ export function RecentLeadsTable({ className, limit = 10 }: RecentLeadsTableProp
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Attribution</TableHead>
-                <TableHead>Confidence</TableHead>
-                <TableHead>Commission</TableHead>
-                <TableHead>Created</TableHead>
+                <TableHead>How Found You</TableHead>
+                <TableHead>You'll Earn</TableHead>
+                <TableHead>Referred</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -224,15 +230,10 @@ export function RecentLeadsTable({ className, limit = 10 }: RecentLeadsTableProp
                         <div className={cn('p-1.5 rounded', attributionColor)}>
                           <Icon className="h-3 w-3" />
                         </div>
-                        <span className="text-xs capitalize">
-                          {lead.attributionMethod.replace('_', ' ')}
+                        <span className="text-xs">
+                          {ATTRIBUTION_LABELS[lead.attributionMethod] || 'Direct Visit'}
                         </span>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="text-xs">
-                        {lead.attributionConfidence}%
-                      </Badge>
                     </TableCell>
                     <TableCell className="font-semibold">
                       ${lead.commissionRate.toFixed(2)}

@@ -69,15 +69,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     roles: ['client', 'lead'],
   },
   {
-    label: 'Payments',
-    href: '/dashboard/client/payments',
-    icon: CreditCard,
-    permission: 'dashboard',
-    section: '📱 My Dashboard',
-    roles: ['client', 'lead'],
-  },
-  {
-    label: 'My Referrals',
+    label: 'Referral Earnings',
     href: '/dashboard/client/referrals',
     icon: Share2,
     permission: 'dashboard',
