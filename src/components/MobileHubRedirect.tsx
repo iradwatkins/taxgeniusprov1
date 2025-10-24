@@ -7,7 +7,8 @@ import { useUser } from '@clerk/nextjs';
 /**
  * Mobile Hub Redirect Component
  *
- * Redirects logged-in mobile users to /mobile-hub from homepage
+ * Redirects logged-in mobile users to /quick-share from homepage
+ * (previously redirected to /mobile-hub)
  */
 export function MobileHubRedirect() {
   const router = useRouter();
@@ -25,12 +26,12 @@ export function MobileHubRedirect() {
       navigator.userAgent
     );
 
-    // Check if user disabled mobile hub (localStorage)
-    const mobileHubDisabled = localStorage.getItem('mobile_hub_disabled') === 'true';
+    // Check if user disabled mobile redirect (localStorage)
+    const mobileRedirectDisabled = localStorage.getItem('mobile_redirect_disabled') === 'true';
 
-    // Redirect mobile users to mobile hub
-    if (isMobile && !mobileHubDisabled) {
-      router.push('/mobile-hub');
+    // Redirect mobile users to quick share page
+    if (isMobile && !mobileRedirectDisabled) {
+      router.push('/quick-share');
     }
   }, [isLoaded, isSignedIn, router]);
 

@@ -429,7 +429,15 @@ export const ALL_NAV_ITEMS: NavItem[] = [
 
   // 🔗 Quick Share Tools Section
   {
-    label: 'Quick Share Links',
+    label: 'Quick Share',
+    href: '/quick-share',
+    icon: Share2,
+    permission: 'dashboard', // All users with dashboard access can share
+    section: '🔗 Quick Share Tools',
+    // Available to all roles
+  },
+  {
+    label: 'Admin Quick Share',
     href: '/admin/quick-share',
     icon: Link2,
     permission: 'quickShareLinks',

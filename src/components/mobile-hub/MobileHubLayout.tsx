@@ -16,12 +16,15 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 
+import { UserRole } from '@/lib/permissions';
+
 interface MobileHubLayoutProps {
   children: ReactNode;
   user: {
     firstName: string;
     lastName: string;
     imageUrl?: string;
+    role?: UserRole;
   };
 }
 
@@ -122,8 +125,10 @@ export function MobileHubLayout({ children, user }: MobileHubLayoutProps) {
         </div>
       </nav>
 
-      {/* Oliver AI Chat Widget */}
-      <TaxAssistantWidget />
+      {/* Tax Assistant AI Chat Widget - Only for Tax Preparers and Admins */}
+      {user.role && (user.role === 'tax_preparer' || user.role === 'admin' || user.role === 'super_admin') && (
+        <TaxAssistantWidget />
+      )}
     </div>
   );
 }

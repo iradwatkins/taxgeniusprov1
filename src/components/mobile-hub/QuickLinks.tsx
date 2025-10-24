@@ -1,6 +1,6 @@
 'use client';
 
-import { LayoutDashboard, Settings, HelpCircle, LogOut } from 'lucide-react';
+import { LayoutDashboard, Settings, HelpCircle, LogOut, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
@@ -22,6 +22,13 @@ export function QuickLinks({ role, permissions }: QuickLinksProps) {
       icon: LayoutDashboard,
       action: () => router.push(`/dashboard/${getRolePath(role)}`),
       show: true,
+    },
+    {
+      label: 'Quick Share',
+      icon: Share2,
+      action: () => router.push('/quick-share'),
+      show: true,
+      variant: 'default' as const,
     },
     {
       label: 'Settings',

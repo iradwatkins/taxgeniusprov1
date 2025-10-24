@@ -66,8 +66,10 @@ export function DashboardLayoutClient({
         <main className="flex-1 overflow-y-auto bg-muted/10">{children}</main>
       </div>
 
-      {/* Tax Assistant Widget - Available for all logged-in users */}
-      <TaxAssistantWidget />
+      {/* Tax Assistant Widget - Only for Tax Preparers and Admins */}
+      {(actualRole === 'tax_preparer' || actualRole === 'admin' || actualRole === 'super_admin') && (
+        <TaxAssistantWidget />
+      )}
     </div>
   );
 }

@@ -31,8 +31,12 @@ interface Thread {
   lastMessageAt: Date;
 }
 
-export function TaxAssistantWidget() {
-  const [isOpen, setIsOpen] = useState(false);
+interface TaxAssistantWidgetProps {
+  defaultOpen?: boolean;
+}
+
+export function TaxAssistantWidget({ defaultOpen = false }: TaxAssistantWidgetProps = {}) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   const [currentThreadId, setCurrentThreadId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -169,19 +173,7 @@ export function TaxAssistantWidget() {
 
   return (
     <>
-      {/* Floating Button */}
-      {!isOpen && (
-        <Button
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl z-[9999] bg-primary hover:bg-primary/90 animate-pulse"
-          size="icon"
-          title="Tax Form Assistant"
-        >
-          <MessageCircle className="h-6 w-6" />
-        </Button>
-      )}
-
-      {/* Chat Window */}
+      {/* Chat Window - No floating button, opened via menu */}
       {isOpen && (
         <Card
           className={`fixed shadow-2xl z-[9999] flex flex-col ${
