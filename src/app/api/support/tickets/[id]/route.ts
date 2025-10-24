@@ -10,7 +10,7 @@ import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
 import { getTicketById, updateTicket } from '@/lib/services/support-ticket.service';
 import { executeWorkflows } from '@/lib/services/ticket-workflow.service';
-import { WorkflowTrigger } from '@prisma/client';
+import { WorkflowTrigger, UserRole } from '@prisma/client';
 import { logger } from '@/lib/logger';
 
 /**
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     }
 
     // Check authorization
-    const isAdmin = profile.role === 'SUPER_ADMIN' || profile.role === 'ADMIN';
+    const isAdmin = profile.role === UserRole.SUPER_ADMIN || profile.role === UserRole.ADMIN;
     const isCreator = ticket.creatorId === profile.id;
     const isAssigned = ticket.assignedToId === profile.id;
 
@@ -109,7 +109,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     }
 
     // Check authorization
-    const isAdmin = profile.role === 'SUPER_ADMIN' || profile.role === 'ADMIN';
+    const isAdmin = profile.role === UserRole.SUPER_ADMIN || profile.role === UserRole.ADMIN;
     const isAssigned = existingTicket.assignedToId === profile.id;
 
     if (!isAdmin && !isAssigned) {

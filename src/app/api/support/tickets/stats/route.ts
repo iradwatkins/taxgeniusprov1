@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
 import { getTicketStats } from '@/lib/services/support-ticket.service';
+import { UserRole } from '@prisma/client';
 import { logger } from '@/lib/logger';
 
 /**
@@ -33,10 +34,12 @@ export async function GET(request: NextRequest) {
 
     // Determine role for filtering
     let role: 'client' | 'preparer' | 'admin' = 'client';
-    if (profile.role === 'TAX_PREPARER') {
+    if (profile.role === UserRole.TAX_PREPARER) {
       role = 'preparer';
-    } else if (profile.role === 'SUPER_ADMIN' || profile.role === 'ADMIN') {
+    } else if (profile.role === UserRole.SUPER_ADMIN || profile.role === UserRole.ADMIN) {
       role = 'admin';
+    } else if (profile.role === UserRole.CLIENT || profile.role === UserRole.LEAD) {
+      role = 'client';
     }
 
     // Get statistics

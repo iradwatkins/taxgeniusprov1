@@ -8,7 +8,7 @@ import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
 import { addTicketMessage } from '@/lib/services/support-ticket.service';
 import { executeWorkflows } from '@/lib/services/ticket-workflow.service';
-import { WorkflowTrigger } from '@prisma/client';
+import { WorkflowTrigger, UserRole } from '@prisma/client';
 import { logger } from '@/lib/logger';
 
 /**
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
 
     // Check authorization
-    const isAdmin = profile.role === 'SUPER_ADMIN' || profile.role === 'ADMIN';
+    const isAdmin = profile.role === UserRole.SUPER_ADMIN || profile.role === UserRole.ADMIN;
     const isCreator = ticket.creatorId === profile.id;
     const isAssigned = ticket.assignedToId === profile.id;
 
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     });
 
     // Determine workflow trigger
-    const isPreparer = profile.role === 'TAX_PREPARER' || isAdmin;
+    const isPreparer = profile.role === UserRole.TAX_PREPARER || isAdmin;
     const trigger = isPreparer
       ? WorkflowTrigger.PREPARER_RESPONSE
       : WorkflowTrigger.CLIENT_RESPONSE;
