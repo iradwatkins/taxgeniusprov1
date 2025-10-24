@@ -167,40 +167,6 @@ export default async function ClientTicketsPage() {
             />
           </TabsContent>
         </Tabs>
-
-        {/* Help Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Common Questions</CardTitle>
-            <CardDescription>Quick answers to frequently asked questions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-              <Button variant="outline" className="justify-start h-auto py-3">
-                <div className="text-left">
-                  <p className="font-medium">Missing Documents?</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Learn which documents you need
-                  </p>
-                </div>
-              </Button>
-              <Button variant="outline" className="justify-start h-auto py-3">
-                <div className="text-left">
-                  <p className="font-medium">Tax Deductions</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Understand available deductions
-                  </p>
-                </div>
-              </Button>
-              <Button variant="outline" className="justify-start h-auto py-3">
-                <div className="text-left">
-                  <p className="font-medium">Filing Status</p>
-                  <p className="text-xs text-muted-foreground mt-1">Check your return status</p>
-                </div>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
