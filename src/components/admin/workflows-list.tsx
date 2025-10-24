@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Loader2, Edit, Trash2, Zap, GitBranch, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { WorkflowTrigger } from '@prisma/client';
+import { logger } from '@/lib/logger';
 
 interface Workflow {
   id: string;
@@ -42,7 +43,7 @@ export function WorkflowsList() {
         setWorkflows(data.data.workflows || []);
       }
     } catch (error) {
-      console.error('Error fetching workflows:', error);
+      logger.error('Error fetching workflows:', error);
       toast({
         title: 'Error',
         description: 'Failed to load workflows',
@@ -73,7 +74,7 @@ export function WorkflowsList() {
         throw new Error(data.error || 'Failed to update workflow');
       }
     } catch (error) {
-      console.error('Error toggling workflow:', error);
+      logger.error('Error toggling workflow:', error);
       toast({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Failed to update workflow',
@@ -102,7 +103,7 @@ export function WorkflowsList() {
         throw new Error(data.error || 'Failed to delete workflow');
       }
     } catch (error) {
-      console.error('Error deleting workflow:', error);
+      logger.error('Error deleting workflow:', error);
       toast({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Failed to delete workflow',
@@ -252,11 +253,7 @@ export function WorkflowsList() {
                   <Button variant="outline" size="sm">
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDelete(workflow.id)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => handleDelete(workflow.id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

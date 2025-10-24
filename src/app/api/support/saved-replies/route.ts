@@ -57,7 +57,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        savedReplies,
+        replies: savedReplies, // Match component expectation
+        savedReplies, // Keep for backwards compatibility
         categories,
       },
     });
@@ -96,9 +97,7 @@ export async function POST(request: NextRequest) {
 
     // Only preparers and admins can create saved replies
     const canCreate =
-      profile.role === 'TAX_PREPARER' ||
-      profile.role === 'ADMIN' ||
-      profile.role === 'SUPER_ADMIN';
+      profile.role === 'TAX_PREPARER' || profile.role === 'ADMIN' || profile.role === 'SUPER_ADMIN';
 
     if (!canCreate) {
       return NextResponse.json(

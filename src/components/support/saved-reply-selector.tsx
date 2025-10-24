@@ -109,8 +109,7 @@ export function SavedReplySelector({ onSelect, ticketId, trigger }: SavedReplySe
   };
 
   const filteredReplies = savedReplies.filter((reply) => {
-    const matchesCategory =
-      selectedCategory === 'all' || reply.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || reply.category === selectedCategory;
     const matchesSearch =
       !searchQuery ||
       reply.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -235,9 +234,7 @@ export function SavedReplySelector({ onSelect, ticketId, trigger }: SavedReplySe
                           {/* Footer */}
                           <div className="flex items-center justify-between text-xs text-muted-foreground">
                             <div className="flex items-center gap-4">
-                              {reply.usageCount > 0 && (
-                                <span>Used {reply.usageCount} times</span>
-                              )}
+                              {reply.usageCount > 0 && <span>Used {reply.usageCount} times</span>}
                               {variables.length > 0 && (
                                 <div className="flex items-center gap-1">
                                   <Sparkles className="h-3 w-3" />

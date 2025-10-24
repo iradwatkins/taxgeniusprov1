@@ -7,6 +7,12 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
   Home,
   FileText,
   Upload,
@@ -41,7 +47,12 @@ import {
 } from 'lucide-react';
 import { UserRole, UserPermissions } from '@/lib/permissions';
 import { logger } from '@/lib/logger';
-import { ALL_NAV_ITEMS, ROLE_DASHBOARD_ROUTES, type NavItem } from '@/lib/navigation-items';
+import {
+  ALL_NAV_ITEMS,
+  ROLE_DASHBOARD_ROUTES,
+  SECTION_ROLE_RESTRICTIONS,
+  type NavItem,
+} from '@/lib/navigation-items';
 
 interface DashboardSidebarProps {
   role: UserRole;
@@ -58,7 +69,15 @@ export function DashboardSidebar({
   onCollapsedChange,
   className,
 }: DashboardSidebarProps) {
-  const [internalCollapsed, setInternalCollapsed] = useState(false);
+  // Load collapsed state from localStorage on mount
+  const [internalCollapsed, setInternalCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sidebar-collapsed');
+      return saved === 'true';
+    }
+    return false;
+  });
+
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
     '⚙️ System Controls': true, // Keep System Controls collapsed by default
     // Ensure client dashboard section is NOT collapsed
@@ -74,6 +93,10 @@ export function DashboardSidebar({
       onCollapsedChange(collapsed);
     } else {
       setInternalCollapsed(collapsed);
+      // Persist to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('sidebar-collapsed', String(collapsed));
+      }
     }
   };
 
@@ -138,6 +161,15 @@ export function DashboardSidebar({
     {} as Record<string, typeof navItems>
   );
 
+  // Helper function to check if a section should be visible for this role
+  const isSectionVisibleForRole = (sectionName: string): boolean => {
+    const allowedRoles = SECTION_ROLE_RESTRICTIONS[sectionName];
+    // If no restriction defined, section is visible to all
+    if (!allowedRoles) return true;
+    // Check if current role is in the allowed list
+    return allowedRoles.includes(role);
+  };
+
   // Debug: Log the role and grouped items
   logger.info('Dashboard Sidebar Debug:', {
     role,
@@ -147,19 +179,20 @@ export function DashboardSidebar({
     itemsPerSection: Object.entries(groupedItems).map(([section, items]) => ({
       section,
       count: items.length,
-      items: items.map(i => ({ label: i.label, href: i.href })),
+      items: items.map((i) => ({ label: i.label, href: i.href })),
     })),
     permissions,
   });
 
   return (
-    <div
-      className={cn(
-        'relative flex flex-col border-r bg-background transition-all duration-300',
-        isCollapsed ? 'w-16' : 'w-64',
-        className
-      )}
-    >
+    <TooltipProvider delayDuration={0}>
+      <div
+        className={cn(
+          'relative flex flex-col border-r bg-background transition-all duration-300',
+          isCollapsed ? 'w-16' : 'w-64',
+          className
+        )}
+      >
       {/* Collapse Toggle Button */}
       <Button
         variant="ghost"
@@ -188,9 +221,13 @@ export function DashboardSidebar({
                 '💼 Business',
                 '🔗 Quick Share Tools',
                 '⚙️ System Controls',
+                '⚙️ Settings',
               ].map((sectionName, sectionIndex) => {
                 const items = groupedItems[sectionName];
                 if (!items || items.length === 0) return null;
+
+                // Check if this section should be visible for the current role
+                if (!isSectionVisibleForRole(sectionName)) return null;
 
                 const isSectionCollapsed = collapsedSections[sectionName] ?? false;
 
@@ -206,7 +243,8 @@ export function DashboardSidebar({
                           }))
                         }
                         className={cn(
-                          'w-full flex items-center justify-between mb-2 px-3 py-2 rounded-md border transition-colors hover:bg-accent/50',
+                          'w-full flex items-center justify-between mb-2 px-3 py-2 rounded-md border transition-all group cursor-pointer',
+                          'hover:bg-accent/50 hover:border-primary/50',
                           sectionIndex === 0
                             ? 'bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20'
                             : 'bg-muted/30 border-border/50'
@@ -217,7 +255,7 @@ export function DashboardSidebar({
                         </h3>
                         <ChevronDown
                           className={cn(
-                            'h-4 w-4 transition-transform duration-200',
+                            'h-4 w-4 transition-transform duration-200 group-hover:text-primary',
                             isSectionCollapsed && '-rotate-90'
                           )}
                         />
@@ -232,12 +270,13 @@ export function DashboardSidebar({
                             pathname === item.href || pathname.startsWith(`${item.href}/`);
                           const Icon = item.icon;
 
-                          return (
+                          const navItem = (
                             <Link key={item.href} href={item.href}>
                               <div
                                 className={cn(
                                   'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                                   !isCollapsed && !isSectionCollapsed && 'ml-2',
+                                  isCollapsed && 'justify-center',
                                   'hover:bg-accent hover:text-accent-foreground',
                                   isActive && 'bg-accent text-accent-foreground',
                                   !isActive && 'text-muted-foreground'
@@ -256,6 +295,17 @@ export function DashboardSidebar({
                                 )}
                               </div>
                             </Link>
+                          );
+
+                          return isCollapsed ? (
+                            <Tooltip key={item.href}>
+                              <TooltipTrigger asChild>{navItem}</TooltipTrigger>
+                              <TooltipContent side="right">
+                                <p>{item.label}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          ) : (
+                            navItem
                           );
                         })}
                       </div>
@@ -281,10 +331,13 @@ export function DashboardSidebar({
                 '📊 Analytics', // Fixed: was '📈 Analytics'
                 '🎓 Learning',
                 '💼 Business',
-                '⚙️ System Controls',
+                '⚙️ Settings',
               ].map((sectionName, sectionIndex) => {
                 const items = groupedItems[sectionName];
                 if (!items || items.length === 0) return null;
+
+                // Check if this section should be visible for the current role
+                if (!isSectionVisibleForRole(sectionName)) return null;
 
                 const isSectionCollapsed = collapsedSections[sectionName] ?? false;
 
@@ -300,7 +353,8 @@ export function DashboardSidebar({
                           }))
                         }
                         className={cn(
-                          'w-full flex items-center justify-between mb-2 px-3 py-2 rounded-md border transition-colors hover:bg-accent/50',
+                          'w-full flex items-center justify-between mb-2 px-3 py-2 rounded-md border transition-all group cursor-pointer',
+                          'hover:bg-accent/50 hover:border-primary/50',
                           sectionIndex === 0
                             ? 'bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20'
                             : 'bg-muted/30 border-border/50'
@@ -311,7 +365,7 @@ export function DashboardSidebar({
                         </h3>
                         <ChevronDown
                           className={cn(
-                            'h-4 w-4 transition-transform duration-200',
+                            'h-4 w-4 transition-transform duration-200 group-hover:text-primary',
                             isSectionCollapsed && '-rotate-90'
                           )}
                         />
@@ -326,12 +380,13 @@ export function DashboardSidebar({
                             pathname === item.href || pathname.startsWith(`${item.href}/`);
                           const Icon = item.icon;
 
-                          return (
+                          const navItem = (
                             <Link key={item.href} href={item.href}>
                               <div
                                 className={cn(
                                   'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                                   !isCollapsed && !isSectionCollapsed && 'ml-2',
+                                  isCollapsed && 'justify-center',
                                   'hover:bg-accent hover:text-accent-foreground',
                                   isActive && 'bg-accent text-accent-foreground',
                                   !isActive && 'text-muted-foreground'
@@ -351,6 +406,17 @@ export function DashboardSidebar({
                               </div>
                             </Link>
                           );
+
+                          return isCollapsed ? (
+                            <Tooltip key={item.href}>
+                              <TooltipTrigger asChild>{navItem}</TooltipTrigger>
+                              <TooltipContent side="right">
+                                <p>{item.label}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          ) : (
+                            navItem
+                          );
                         })}
                       </div>
                     )}
@@ -367,15 +433,16 @@ export function DashboardSidebar({
         </nav>
       </ScrollArea>
 
-      {/* Footer with Role Badge */}
-      {!isCollapsed && (
-        <div className="border-t p-4">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <ShieldCheck className="h-4 w-4" />
-            <span className="capitalize">{role.replace('_', ' ')} Account</span>
+        {/* Footer with Role Badge */}
+        {!isCollapsed && (
+          <div className="border-t p-4">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <ShieldCheck className="h-4 w-4" />
+              <span className="capitalize">{role.replace('_', ' ')} Account</span>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </TooltipProvider>
   );
 }

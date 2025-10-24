@@ -56,7 +56,10 @@ export async function POST(req: NextRequest) {
 
     if (existingApplication) {
       return NextResponse.json(
-        { error: 'An application with this email already exists. Please check your email for updates.' },
+        {
+          error:
+            'An application with this email already exists. Please check your email for updates.',
+        },
         { status: 409 }
       );
     }

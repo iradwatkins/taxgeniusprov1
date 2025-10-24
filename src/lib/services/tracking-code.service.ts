@@ -195,7 +195,9 @@ export async function autoGenerateReferralLinks(
         },
       });
 
-  logger.info(`✅ Auto-generated referral links for ${trackingCode}: ${intakeCode}, ${appointmentCode}`);
+  logger.info(
+    `✅ Auto-generated referral links for ${trackingCode}: ${intakeCode}, ${appointmentCode}`
+  );
 
   return { intakeLink, appointmentLink };
 }

@@ -19,16 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Send,
-  Paperclip,
-  Lock,
-  Sparkles,
-  Clock,
-  User,
-  AlertCircle,
-  Loader2,
-} from 'lucide-react';
+import { Send, Paperclip, Lock, Sparkles, Clock, User, AlertCircle, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -55,7 +46,8 @@ export function TicketDetail({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  const isPreparer = userRole === 'TAX_PREPARER' || userRole === 'ADMIN' || userRole === 'SUPER_ADMIN';
+  const isPreparer =
+    userRole === 'TAX_PREPARER' || userRole === 'ADMIN' || userRole === 'SUPER_ADMIN';
 
   // Fetch ticket details
   useEffect(() => {
@@ -236,9 +228,7 @@ export function TicketDetail({
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <CardTitle className="text-xl">{ticket.title}</CardTitle>
-              <CardDescription className="font-mono text-xs">
-                {ticket.ticketNumber}
-              </CardDescription>
+              <CardDescription className="font-mono text-xs">{ticket.ticketNumber}</CardDescription>
             </div>
             <Badge variant="outline" className="ml-4">
               {ticket.status.replace('_', ' ')}
@@ -318,8 +308,8 @@ export function TicketDetail({
                       isOwn
                         ? 'bg-primary text-primary-foreground'
                         : isInternalNote
-                        ? 'bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800'
-                        : 'bg-card border'
+                          ? 'bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800'
+                          : 'bg-card border'
                     )}
                   >
                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -377,9 +367,7 @@ export function TicketDetail({
                   Send Message
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Tip: Press Ctrl+Enter to send quickly
-              </p>
+              <p className="text-xs text-muted-foreground">Tip: Press Ctrl+Enter to send quickly</p>
             </div>
           )}
         </CardContent>
@@ -395,11 +383,7 @@ export function TicketDetail({
           {isPreparer && (
             <div className="space-y-2">
               <label className="text-sm font-medium">Status</label>
-              <Select
-                value={ticket.status}
-                onValueChange={updateStatus}
-                disabled={updatingStatus}
-              >
+              <Select value={ticket.status} onValueChange={updateStatus} disabled={updatingStatus}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

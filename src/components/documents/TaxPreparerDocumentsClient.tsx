@@ -6,9 +6,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -51,7 +64,15 @@ export function TaxPreparerDocumentsClient() {
 
   // Update document mutation
   const updateDocumentMutation = useMutation({
-    mutationFn: async ({ documentId, status, notes }: { documentId: string; status: string; notes: string }) => {
+    mutationFn: async ({
+      documentId,
+      status,
+      notes,
+    }: {
+      documentId: string;
+      status: string;
+      notes: string;
+    }) => {
       const response = await fetch(`/api/tax-preparer/documents/${documentId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -229,9 +250,7 @@ export function TaxPreparerDocumentsClient() {
           <TabsContent value="view" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>
-                  {selectedClient.clientName}'s Documents
-                </CardTitle>
+                <CardTitle>{selectedClient.clientName}'s Documents</CardTitle>
                 <CardDescription>
                   {selectedClient.totalDocuments} documents organized by tax year
                 </CardDescription>
@@ -255,10 +274,7 @@ export function TaxPreparerDocumentsClient() {
                           <div className="space-y-2">
                             {docs.map((doc: any) => {
                               return (
-                                <div
-                                  key={doc.id}
-                                  className="border rounded-lg p-4 space-y-3"
-                                >
+                                <div key={doc.id} className="border rounded-lg p-4 space-y-3">
                                   <div className="flex items-start justify-between gap-4">
                                     {/* Thumbnail Preview */}
                                     <div className="w-16 h-16 flex-shrink-0 rounded border overflow-hidden bg-muted">
@@ -290,7 +306,9 @@ export function TaxPreparerDocumentsClient() {
                                         </Badge>
                                         <span className="text-sm text-muted-foreground">•</span>
                                         <span className="text-xs text-muted-foreground">
-                                          {formatDistanceToNow(new Date(doc.createdAt), { addSuffix: true })}
+                                          {formatDistanceToNow(new Date(doc.createdAt), {
+                                            addSuffix: true,
+                                          })}
                                         </span>
                                       </div>
 
@@ -341,16 +359,23 @@ export function TaxPreparerDocumentsClient() {
                                           <div className="space-y-4">
                                             <div className="space-y-2">
                                               <Label>Status</Label>
-                                              <Select value={newStatus} onValueChange={setNewStatus}>
+                                              <Select
+                                                value={newStatus}
+                                                onValueChange={setNewStatus}
+                                              >
                                                 <SelectTrigger>
                                                   <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                  <SelectItem value="PENDING">Pending Review</SelectItem>
+                                                  <SelectItem value="PENDING">
+                                                    Pending Review
+                                                  </SelectItem>
                                                   <SelectItem value="REVIEWED">Reviewed</SelectItem>
                                                   <SelectItem value="APPROVED">Approved</SelectItem>
                                                   <SelectItem value="REJECTED">Rejected</SelectItem>
-                                                  <SelectItem value="PROCESSING">Processing</SelectItem>
+                                                  <SelectItem value="PROCESSING">
+                                                    Processing
+                                                  </SelectItem>
                                                 </SelectContent>
                                               </Select>
                                             </div>
@@ -409,14 +434,14 @@ export function TaxPreparerDocumentsClient() {
             <Card>
               <CardHeader>
                 <CardTitle>Upload Document for {selectedClient.clientName}</CardTitle>
-                <CardDescription>
-                  Upload tax documents on behalf of this client
-                </CardDescription>
+                <CardDescription>Upload tax documents on behalf of this client</CardDescription>
               </CardHeader>
               <CardContent>
                 <DocumentUploadZone
                   clientId={selectedClient.clientId}
-                  onUploadComplete={() => queryClient.invalidateQueries({ queryKey: ['tax-preparer-documents'] })}
+                  onUploadComplete={() =>
+                    queryClient.invalidateQueries({ queryKey: ['tax-preparer-documents'] })
+                  }
                 />
               </CardContent>
             </Card>

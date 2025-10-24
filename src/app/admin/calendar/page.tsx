@@ -44,7 +44,9 @@ export default async function CalendarPage() {
   if (!user) redirect('/auth/login');
 
   const role = user.publicMetadata?.role as UserRole | undefined;
-  const customPermissions = user.publicMetadata?.permissions as Partial<UserPermissions> | undefined;
+  const customPermissions = user.publicMetadata?.permissions as
+    | Partial<UserPermissions>
+    | undefined;
   const permissions = getUserPermissions(role || 'client', customPermissions);
 
   if (!permissions.calendar) redirect('/forbidden');

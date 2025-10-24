@@ -95,10 +95,7 @@ export async function createWorkflow(input: CreateWorkflowInput) {
 /**
  * Get all workflows
  */
-export async function getWorkflows(filters?: {
-  trigger?: WorkflowTrigger;
-  isActive?: boolean;
-}) {
+export async function getWorkflows(filters?: { trigger?: WorkflowTrigger; isActive?: boolean }) {
   try {
     const where: any = {};
 
@@ -120,10 +117,7 @@ export async function getWorkflows(filters?: {
           },
         },
       },
-      orderBy: [
-        { priority: 'desc' },
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
     });
 
     return workflows;
@@ -693,8 +687,7 @@ export async function getWorkflowStats(workflowId?: string) {
       totalExecutions,
       successCount,
       failedCount,
-      successRate:
-        totalExecutions > 0 ? (successCount / totalExecutions) * 100 : 0,
+      successRate: totalExecutions > 0 ? (successCount / totalExecutions) * 100 : 0,
     };
   } catch (error) {
     logger.error('Failed to get workflow stats', {

@@ -9,7 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { prisma } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     // Get user profile with username
     const profile = await prisma.profile.findUnique({
-      where: { clerkId: userId },
+      where: { clerkUserId: userId },
       select: {
         id: true,
         shortLinkUsername: true,

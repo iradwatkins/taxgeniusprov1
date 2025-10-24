@@ -291,10 +291,10 @@ Ticket Description: ${ticket.description}`;
     const sentiment = response.toLowerCase().includes('positive')
       ? 'positive'
       : response.toLowerCase().includes('negative')
-      ? 'negative'
-      : response.toLowerCase().includes('urgent')
-      ? 'urgent'
-      : 'neutral';
+        ? 'negative'
+        : response.toLowerCase().includes('urgent')
+          ? 'urgent'
+          : 'neutral';
 
     logger.info('Sentiment analyzed', {
       ticketId: input.ticketId,

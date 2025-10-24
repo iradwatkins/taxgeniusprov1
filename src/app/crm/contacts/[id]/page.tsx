@@ -81,7 +81,9 @@ export default function ContactDetailPage() {
 
   // Check permissions
   const role = user?.publicMetadata?.role as UserRole | undefined;
-  const permissions = role ? getUserPermissions(role, user?.publicMetadata?.permissions as any) : null;
+  const permissions = role
+    ? getUserPermissions(role, user?.publicMetadata?.permissions as any)
+    : null;
 
   // Fetch contact details
   useEffect(() => {
@@ -239,9 +241,7 @@ export default function ContactDetailPage() {
                       className={cn(
                         'h-full rounded-full transition-all',
                         contact.leadScore >= 70 && 'bg-green-500',
-                        contact.leadScore >= 40 &&
-                          contact.leadScore < 70 &&
-                          'bg-yellow-500',
+                        contact.leadScore >= 40 && contact.leadScore < 70 && 'bg-yellow-500',
                         contact.leadScore < 40 && 'bg-red-500'
                       )}
                       style={{ width: `${contact.leadScore}%` }}
@@ -342,9 +342,7 @@ export default function ContactDetailPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Activity Timeline</CardTitle>
-                  <CardDescription>
-                    Complete history of all interactions and events
-                  </CardDescription>
+                  <CardDescription>Complete history of all interactions and events</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {contact.interactions && contact.interactions.length > 0 ? (
@@ -381,9 +379,7 @@ export default function ContactDetailPage() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-center text-muted-foreground py-8">
-                      No interactions yet
-                    </p>
+                    <p className="text-center text-muted-foreground py-8">No interactions yet</p>
                   )}
                 </CardContent>
               </Card>

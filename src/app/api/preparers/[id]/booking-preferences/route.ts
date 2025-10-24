@@ -10,10 +10,7 @@ import { getUserPermissions, UserRole } from '@/lib/permissions';
  * Get booking preferences for a specific preparer
  * Public endpoint - used by booking forms to show available options
  */
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: preparerId } = await params;
 
@@ -70,10 +67,7 @@ export async function GET(
     });
   } catch (error) {
     logger.error('[Booking Preferences API] Error fetching preparer booking preferences', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch booking preferences' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch booking preferences' }, { status: 500 });
   }
 }
 
@@ -83,10 +77,7 @@ export async function GET(
  * Update booking preferences for a preparer
  * Admin-only or self-update
  */
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const user = await currentUser();
     if (!user) {
@@ -107,7 +98,7 @@ export async function PUT(
 
     if (!isAdmin && !isSelf) {
       return NextResponse.json(
-        { error: 'You do not have permission to update this preparer\'s preferences' },
+        { error: "You do not have permission to update this preparer's preferences" },
         { status: 403 }
       );
     }
@@ -127,18 +118,14 @@ export async function PUT(
       where: { id: preparerId },
       data: {
         bookingEnabled: bookingEnabled !== undefined ? bookingEnabled : undefined,
-        allowPhoneBookings:
-          allowPhoneBookings !== undefined ? allowPhoneBookings : undefined,
-        allowVideoBookings:
-          allowVideoBookings !== undefined ? allowVideoBookings : undefined,
+        allowPhoneBookings: allowPhoneBookings !== undefined ? allowPhoneBookings : undefined,
+        allowVideoBookings: allowVideoBookings !== undefined ? allowVideoBookings : undefined,
         allowInPersonBookings:
           allowInPersonBookings !== undefined ? allowInPersonBookings : undefined,
         requireApprovalForBookings:
           requireApprovalForBookings !== undefined ? requireApprovalForBookings : undefined,
-        customBookingMessage:
-          customBookingMessage !== undefined ? customBookingMessage : undefined,
-        bookingCalendarColor:
-          bookingCalendarColor !== undefined ? bookingCalendarColor : undefined,
+        customBookingMessage: customBookingMessage !== undefined ? customBookingMessage : undefined,
+        bookingCalendarColor: bookingCalendarColor !== undefined ? bookingCalendarColor : undefined,
       },
       select: {
         id: true,
@@ -164,9 +151,6 @@ export async function PUT(
     });
   } catch (error) {
     logger.error('[Booking Preferences API] Error updating booking preferences', error);
-    return NextResponse.json(
-      { error: 'Failed to update booking preferences' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to update booking preferences' }, { status: 500 });
   }
 }

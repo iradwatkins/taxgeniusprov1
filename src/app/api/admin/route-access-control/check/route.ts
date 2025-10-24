@@ -7,10 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { logger } from '@/lib/logger';
-import {
-  CheckRouteAccessRequest,
-  CheckRouteAccessResponse,
-} from '@/types/route-access-control';
+import { CheckRouteAccessRequest, CheckRouteAccessResponse } from '@/types/route-access-control';
 import { checkPageAccess, matchRoutePattern } from '@/lib/content-restriction';
 import { prisma } from '@/lib/prisma';
 
@@ -31,10 +28,7 @@ export async function POST(req: NextRequest) {
 
     // Validate required fields
     if (!body.routePath) {
-      return NextResponse.json(
-        { error: 'routePath is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'routePath is required' }, { status: 400 });
     }
 
     // Build user context for access check

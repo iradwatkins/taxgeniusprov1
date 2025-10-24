@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { PrismaClient } from '@prisma/client';
 import { UserRole, UserPermissions, DEFAULT_PERMISSIONS } from '@/lib/permissions';
+import { logger } from '@/lib/logger';
 
 const prisma = new PrismaClient();
 
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(templates);
   } catch (error) {
-    console.error('Error fetching role templates:', error);
+    logger.error('Error fetching role templates:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -144,15 +145,31 @@ export async function PUT(request: NextRequest) {
           success: true,
           template,
           usersUpdated: usersWithRole.length,
+          message: `Successfully updated permissions for ${usersWithRole.length} ${targetRole} users`,
         });
-      } catch (clerkError) {
-        console.error('Error updating users in Clerk:', clerkError);
+      } catch (clerkError: any) {
+        // Handle Clerk rate limiting gracefully
+        if (clerkError?.status === 429 || clerkError?.errors?.[0]?.code === 'rate_limit_exceeded') {
+          logger.warn('⚠️  Clerk rate limit hit - template saved but user updates skipped');
+          return NextResponse.json(
+            {
+              success: true,
+              template,
+              usersUpdated: 0,
+              warning: 'Template saved successfully. User updates will be applied when they next log in.',
+            },
+            { status: 200 }
+          );
+        }
+
+        logger.error('Error updating users in Clerk:', clerkError);
         // Template updated but user update failed
         return NextResponse.json(
           {
             success: true,
             template,
-            warning: 'Template updated but failed to update some users',
+            usersUpdated: 0,
+            warning: 'Template updated but failed to update some users. Changes will apply on next login.',
           },
           { status: 200 }
         );
@@ -165,7 +182,7 @@ export async function PUT(request: NextRequest) {
       usersUpdated: 0,
     });
   } catch (error) {
-    console.error('Error updating role template:', error);
+    logger.error('Error updating role template:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

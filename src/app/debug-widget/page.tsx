@@ -13,18 +13,20 @@ export default function DebugWidgetPage() {
 
       <div className="bg-muted p-6 rounded-lg mb-6">
         <h2 className="text-xl font-semibold mb-4">Your Current Role:</h2>
-        <p className="text-2xl font-mono bg-background p-4 rounded">
-          {role || 'Not logged in'}
-        </p>
+        <p className="text-2xl font-mono bg-background p-4 rounded">{role || 'Not logged in'}</p>
       </div>
 
       <div className="bg-muted p-6 rounded-lg mb-6">
         <h2 className="text-xl font-semibold mb-4">Widget Status:</h2>
         <p className="text-lg">
           {role === 'tax_preparer' ? (
-            <span className="text-green-600 font-semibold">✅ Widget SHOULD be visible (you are a tax_preparer)</span>
+            <span className="text-green-600 font-semibold">
+              ✅ Widget SHOULD be visible (you are a tax_preparer)
+            </span>
           ) : (
-            <span className="text-red-600 font-semibold">❌ Widget will NOT be visible (role is "{role}", needs to be "tax_preparer")</span>
+            <span className="text-red-600 font-semibold">
+              ❌ Widget will NOT be visible (role is "{role}", needs to be "tax_preparer")
+            </span>
           )}
         </p>
       </div>

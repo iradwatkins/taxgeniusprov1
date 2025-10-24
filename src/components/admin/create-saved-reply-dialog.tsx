@@ -17,6 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/lib/logger';
 
 interface CreateSavedReplyDialogProps {
   trigger?: React.ReactNode;
@@ -76,7 +77,7 @@ export function CreateSavedReplyDialog({ trigger, onSuccess }: CreateSavedReplyD
         onSuccess();
       }
     } catch (err) {
-      console.error('Error creating template:', err);
+      logger.error('Error creating template:', err);
       toast({
         title: 'Error',
         description: err instanceof Error ? err.message : 'Failed to create template',
@@ -98,9 +99,7 @@ export function CreateSavedReplyDialog({ trigger, onSuccess }: CreateSavedReplyD
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || <Button>Create Template</Button>}
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger || <Button>Create Template</Button>}</DialogTrigger>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
@@ -120,7 +119,7 @@ export function CreateSavedReplyDialog({ trigger, onSuccess }: CreateSavedReplyD
                 id="title"
                 placeholder="e.g., Welcome - New Client"
                 value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
                 disabled={loading}
                 required
               />
@@ -133,7 +132,7 @@ export function CreateSavedReplyDialog({ trigger, onSuccess }: CreateSavedReplyD
                 id="category"
                 placeholder="e.g., onboarding, tax-deductions, document-requests"
                 value={formData.category}
-                onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
                 disabled={loading}
               />
               <p className="text-xs text-muted-foreground">
@@ -151,13 +150,14 @@ export function CreateSavedReplyDialog({ trigger, onSuccess }: CreateSavedReplyD
                 placeholder="Hi {{client_name}},&#10;&#10;Thank you for reaching out. Your ticket {{ticket_number}} has been received...&#10;&#10;Best regards,&#10;{{preparer_name}}"
                 rows={10}
                 value={formData.content}
-                onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, content: e.target.value }))}
                 disabled={loading}
                 required
                 className="resize-none font-mono text-sm"
               />
               <p className="text-xs text-muted-foreground">
-                Use variables like {`{{client_name}}`}, {`{{ticket_number}}`}, {`{{preparer_name}}`}, {`{{today}}`}
+                Use variables like {`{{client_name}}`}, {`{{ticket_number}}`}, {`{{preparer_name}}`}
+                , {`{{today}}`}
               </p>
             </div>
 
@@ -173,7 +173,7 @@ export function CreateSavedReplyDialog({ trigger, onSuccess }: CreateSavedReplyD
                 id="isGlobal"
                 checked={formData.isGlobal}
                 onCheckedChange={(checked) =>
-                  setFormData(prev => ({ ...prev, isGlobal: checked }))
+                  setFormData((prev) => ({ ...prev, isGlobal: checked }))
                 }
                 disabled={loading}
               />

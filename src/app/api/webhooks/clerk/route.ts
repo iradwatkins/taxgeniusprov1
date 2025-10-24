@@ -109,9 +109,7 @@ async function handleUserCreated(evt: WebhookEvent) {
         const result = await convertLeadToClient(lead.id, clerkUserId);
 
         if (result.success) {
-          logger.info(
-            `✅ Successfully auto-converted lead to CLIENT profile: ${result.profileId}`
-          );
+          logger.info(`✅ Successfully auto-converted lead to CLIENT profile: ${result.profileId}`);
           return; // Exit early - conversion handled everything
         } else {
           logger.error(`❌ Failed to convert lead: ${result.error}`);

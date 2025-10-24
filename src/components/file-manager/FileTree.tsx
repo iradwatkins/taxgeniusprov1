@@ -17,12 +17,12 @@ export function FileTree({ folders, currentFolderId, onFolderSelect }: FileTreeP
   // Build tree structure
   const buildTree = (parentId: string | null = null): FileManagerFolder[] => {
     return folders
-      .filter(f => f.parentId === parentId)
+      .filter((f) => f.parentId === parentId)
       .sort((a, b) => a.name.localeCompare(b.name));
   };
 
   const toggleExpanded = (folderId: string) => {
-    setExpandedFolders(prev => {
+    setExpandedFolders((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(folderId)) {
         newSet.delete(folderId);
@@ -36,7 +36,7 @@ export function FileTree({ folders, currentFolderId, onFolderSelect }: FileTreeP
   const FolderNode = ({ folder, level = 0 }: { folder: FileManagerFolder; level?: number }) => {
     const isExpanded = expandedFolders.has(folder.id);
     const isSelected = currentFolderId === folder.id;
-    const hasChildren = folders.some(f => f.parentId === folder.id);
+    const hasChildren = folders.some((f) => f.parentId === folder.id);
 
     return (
       <div>
@@ -75,15 +75,13 @@ export function FileTree({ folders, currentFolderId, onFolderSelect }: FileTreeP
           <span className="text-sm truncate flex-1">{folder.name}</span>
 
           {folder.documentCount !== undefined && (
-            <span className="text-xs text-muted-foreground">
-              {folder.documentCount}
-            </span>
+            <span className="text-xs text-muted-foreground">{folder.documentCount}</span>
           )}
         </div>
 
         {isExpanded && hasChildren && (
           <div>
-            {buildTree(folder.id).map(child => (
+            {buildTree(folder.id).map((child) => (
               <FolderNode key={child.id} folder={child} level={level + 1} />
             ))}
           </div>
@@ -96,11 +94,7 @@ export function FileTree({ folders, currentFolderId, onFolderSelect }: FileTreeP
   const rootFolders = buildTree(null);
 
   if (rootFolders.length === 0) {
-    return (
-      <div className="p-4 text-center text-sm text-muted-foreground">
-        No folders yet
-      </div>
-    );
+    return <div className="p-4 text-center text-sm text-muted-foreground">No folders yet</div>;
   }
 
   return (
@@ -117,7 +111,7 @@ export function FileTree({ folders, currentFolderId, onFolderSelect }: FileTreeP
         <span className="text-sm font-medium">All Files</span>
       </div>
 
-      {rootFolders.map(folder => (
+      {rootFolders.map((folder) => (
         <FolderNode key={folder.id} folder={folder} />
       ))}
     </div>

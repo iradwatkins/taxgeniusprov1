@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { currentUser } from '@clerk/nextjs/server';
-import { TaxPreparerDocumentsClient } from '@/components/documents/TaxPreparerDocumentsClient';
+import { TaxPreparerFileCenter } from '@/components/documents/TaxPreparerFileCenter';
 
 export const metadata = {
   title: 'Documents | Tax Genius Pro',
@@ -22,13 +22,19 @@ export default async function TaxPreparerDocumentsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Document Library</h1>
-        <p className="text-muted-foreground mt-1">View and manage all client documents</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold">Client File Center</h1>
+          <p className="text-muted-foreground mt-1">
+            Browse and manage documents for all your clients with visual folder navigation
+          </p>
+        </div>
 
-      <TaxPreparerDocumentsClient />
+        {/* File Manager with Client Selector */}
+        <TaxPreparerFileCenter />
+      </div>
     </div>
   );
 }

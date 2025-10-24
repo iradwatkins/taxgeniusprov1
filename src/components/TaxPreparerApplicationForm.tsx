@@ -285,7 +285,8 @@ export default function TaxPreparerApplicationForm({
               </Select>
             </div>
 
-            {(formData.experienceLevel === 'INTERMEDIATE' || formData.experienceLevel === 'SEASONED') && (
+            {(formData.experienceLevel === 'INTERMEDIATE' ||
+              formData.experienceLevel === 'SEASONED') && (
               <div className="space-y-3 p-4 border-2 border-primary/30 rounded-lg bg-primary/5">
                 <Label className="text-base font-semibold">Tax Software Experience</Label>
                 <p className="text-sm text-muted-foreground mb-3">

@@ -25,11 +25,7 @@ async function getUserProfile() {
   };
 }
 
-export default async function ClientTicketDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function ClientTicketDetailPage({ params }: { params: { id: string } }) {
   const userProfile = await getUserProfile();
 
   if (!userProfile) {

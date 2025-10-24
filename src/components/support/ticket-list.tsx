@@ -6,6 +6,7 @@ import { TicketCard } from './ticket-card';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, Inbox } from 'lucide-react';
 import { TicketPriority, TicketStatus } from '@prisma/client';
+import { logger } from '@/lib/logger';
 
 interface Ticket {
   id: string;
@@ -67,11 +68,11 @@ export function TicketList({
       const params = new URLSearchParams();
 
       if (statusFilter && statusFilter.length > 0) {
-        statusFilter.forEach(status => params.append('status', status));
+        statusFilter.forEach((status) => params.append('status', status));
       }
 
       if (priorityFilter && priorityFilter.length > 0) {
-        priorityFilter.forEach(priority => params.append('priority', priority));
+        priorityFilter.forEach((priority) => params.append('priority', priority));
       }
 
       if (searchQuery) {
@@ -93,7 +94,7 @@ export function TicketList({
         if (page === 1) {
           setTickets(data.data.tickets);
         } else {
-          setTickets(prev => [...prev, ...data.data.tickets]);
+          setTickets((prev) => [...prev, ...data.data.tickets]);
         }
         setHasMore(data.data.hasMore);
       } else {
@@ -101,7 +102,7 @@ export function TicketList({
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-      console.error('Error fetching tickets:', err);
+      logger.error('Error fetching tickets:', err);
     } finally {
       setLoading(false);
     }
@@ -119,7 +120,7 @@ export function TicketList({
 
   const loadMore = () => {
     if (!loading && hasMore) {
-      setPage(prev => prev + 1);
+      setPage((prev) => prev + 1);
     }
   };
 

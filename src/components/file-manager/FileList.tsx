@@ -62,7 +62,7 @@ export function FileList({
         </thead>
         <tbody>
           {/* Folders First */}
-          {folders.map(folder => {
+          {folders.map((folder) => {
             const isSelected = selectedFolders.has(folder.id);
 
             return (
@@ -99,7 +99,7 @@ export function FileList({
           })}
 
           {/* Files */}
-          {files.map(file => {
+          {files.map((file) => {
             const isSelected = selectedFiles.has(file.id);
 
             return (
@@ -127,9 +127,7 @@ export function FileList({
                 <td className="p-4 text-sm text-muted-foreground">
                   {formatDistanceToNow(new Date(file.createdAt), { addSuffix: true })}
                 </td>
-                <td className="p-4 text-sm text-muted-foreground">
-                  {file.type}
-                </td>
+                <td className="p-4 text-sm text-muted-foreground">{file.type}</td>
                 <td className="p-4">
                   <Button
                     variant="ghost"

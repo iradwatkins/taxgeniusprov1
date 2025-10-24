@@ -3,12 +3,19 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, Search, Edit, Trash2, TrendingUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { EditSavedReplyDialog } from './edit-saved-reply-dialog';
+import { logger } from '@/lib/logger';
 
 interface SavedReply {
   id: string;
@@ -48,11 +55,14 @@ export function SavedRepliesList() {
       const response = await fetch(`/api/support/saved-replies?${params.toString()}`);
       const data = await response.json();
 
-      if (data.success) {
+      if (data.success && data.data && data.data.replies) {
         setReplies(data.data.replies);
+      } else {
+        setReplies([]);
       }
     } catch (error) {
-      console.error('Error fetching saved replies:', error);
+      logger.error('Error fetching saved replies:', error);
+      setReplies([]); // Set to empty array on error
       toast({
         title: 'Error',
         description: 'Failed to load saved replies',
@@ -83,7 +93,7 @@ export function SavedRepliesList() {
         throw new Error(data.error || 'Failed to delete template');
       }
     } catch (error) {
-      console.error('Error deleting template:', error);
+      logger.error('Error deleting template:', error);
       toast({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Failed to delete template',
@@ -95,10 +105,13 @@ export function SavedRepliesList() {
   const extractVariables = (content: string): string[] => {
     const regex = /\{\{(\w+)\}\}/g;
     const matches = content.matchAll(regex);
-    return Array.from(matches, m => m[1]);
+    return Array.from(matches, (m) => m[1]);
   };
 
-  const categories = Array.from(new Set(replies.map(r => r.category).filter(Boolean)));
+  // Safely extract categories with null checks
+  const categories = Array.isArray(replies)
+    ? Array.from(new Set(replies.map((r) => r.category).filter(Boolean)))
+    : [];
 
   if (loading) {
     return (
@@ -128,8 +141,10 @@ export function SavedRepliesList() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
-            {categories.map(cat => (
-              <SelectItem key={cat} value={cat!}>{cat}</SelectItem>
+            {categories.map((cat) => (
+              <SelectItem key={cat} value={cat!}>
+                {cat}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -146,7 +161,8 @@ export function SavedRepliesList() {
         <div className="grid gap-4">
           {replies.map((reply) => {
             const variables = extractVariables(reply.content);
-            const creatorName = `${reply.createdBy.firstName || ''} ${reply.createdBy.lastName || ''}`.trim();
+            const creatorName =
+              `${reply.createdBy.firstName || ''} ${reply.createdBy.lastName || ''}`.trim();
 
             return (
               <Card key={reply.id} className="hover:shadow-md transition-shadow">
@@ -181,9 +197,7 @@ export function SavedRepliesList() {
                       </div>
 
                       {/* Content Preview */}
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {reply.content}
-                      </p>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{reply.content}</p>
 
                       {/* Variables */}
                       {variables.length > 0 && (
@@ -198,34 +212,20 @@ export function SavedRepliesList() {
 
                       {/* Metadata */}
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        {creatorName && (
-                          <span>Created by: {creatorName}</span>
-                        )}
-                        <span>
-                          Created: {new Date(reply.createdAt).toLocaleDateString()}
-                        </span>
+                        {creatorName && <span>Created by: {creatorName}</span>}
+                        <span>Created: {new Date(reply.createdAt).toLocaleDateString()}</span>
                         {reply.lastUsedAt && (
-                          <span>
-                            Last used: {new Date(reply.lastUsedAt).toLocaleDateString()}
-                          </span>
+                          <span>Last used: {new Date(reply.lastUsedAt).toLocaleDateString()}</span>
                         )}
                       </div>
                     </div>
 
                     {/* Actions */}
                     <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setEditingReply(reply)}
-                      >
+                      <Button variant="outline" size="sm" onClick={() => setEditingReply(reply)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(reply.id)}
-                      >
+                      <Button variant="outline" size="sm" onClick={() => handleDelete(reply.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>

@@ -292,10 +292,7 @@ export async function applySavedReply(input: ApplySavedReplyInput) {
  * Substitute variables in template content
  * Supports: {{variable_name}} format
  */
-function substituteVariables(
-  content: string,
-  variables: Record<string, string>
-): string {
+function substituteVariables(content: string, variables: Record<string, string>): string {
   let result = content;
 
   for (const [key, value] of Object.entries(variables)) {

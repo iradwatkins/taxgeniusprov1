@@ -26,6 +26,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, X, Plus } from 'lucide-react';
 import { TicketPriority } from '@prisma/client';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/lib/logger';
 
 interface CreateTicketDialogProps {
   trigger?: React.ReactNode;
@@ -92,7 +93,7 @@ export function CreateTicketDialog({ trigger, onSuccess }: CreateTicketDialogPro
         router.refresh();
       }
     } catch (err) {
-      console.error('Error creating ticket:', err);
+      logger.error('Error creating ticket:', err);
       toast({
         title: 'Error',
         description: err instanceof Error ? err.message : 'Failed to create ticket',
@@ -116,7 +117,7 @@ export function CreateTicketDialog({ trigger, onSuccess }: CreateTicketDialogPro
   const addTag = () => {
     const tag = tagInput.trim().toLowerCase();
     if (tag && !formData.tags.includes(tag)) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         tags: [...prev.tags, tag],
       }));
@@ -125,9 +126,9 @@ export function CreateTicketDialog({ trigger, onSuccess }: CreateTicketDialogPro
   };
 
   const removeTag = (tagToRemove: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove),
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
     }));
   };
 
@@ -140,9 +141,7 @@ export function CreateTicketDialog({ trigger, onSuccess }: CreateTicketDialogPro
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || <Button>Create Ticket</Button>}
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger || <Button>Create Ticket</Button>}</DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
@@ -162,7 +161,7 @@ export function CreateTicketDialog({ trigger, onSuccess }: CreateTicketDialogPro
                 id="title"
                 placeholder="Brief summary of your question or issue"
                 value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
                 disabled={loading}
                 required
               />
@@ -178,7 +177,7 @@ export function CreateTicketDialog({ trigger, onSuccess }: CreateTicketDialogPro
                 placeholder="Provide detailed information about your question or issue..."
                 rows={6}
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                 disabled={loading}
                 required
                 className="resize-none"
@@ -191,7 +190,7 @@ export function CreateTicketDialog({ trigger, onSuccess }: CreateTicketDialogPro
               <Select
                 value={formData.priority}
                 onValueChange={(value: TicketPriority) =>
-                  setFormData(prev => ({ ...prev, priority: value }))
+                  setFormData((prev) => ({ ...prev, priority: value }))
                 }
                 disabled={loading}
               >

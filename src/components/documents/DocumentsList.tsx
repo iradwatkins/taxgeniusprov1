@@ -4,14 +4,13 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import {
-  Download,
-  FileText,
-  Calendar,
-  CheckCircle,
-  Loader2,
-} from 'lucide-react';
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Download, FileText, Calendar, CheckCircle, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
@@ -89,9 +88,7 @@ export function DocumentsList({ documentsByYear, stats, onRefresh }: DocumentsLi
         <CardContent className="p-8 text-center">
           <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
           <p className="text-lg font-medium mb-2">No documents yet</p>
-          <p className="text-sm text-muted-foreground">
-            Upload your tax documents to get started
-          </p>
+          <p className="text-sm text-muted-foreground">Upload your tax documents to get started</p>
         </CardContent>
       </Card>
     );
@@ -173,7 +170,10 @@ export function DocumentsList({ documentsByYear, stats, onRefresh }: DocumentsLi
                                     </Badge>
                                     <span className="text-sm text-muted-foreground">•</span>
                                     <span className="text-xs text-muted-foreground">
-                                      Uploaded {formatDistanceToNow(new Date(doc.createdAt), { addSuffix: true })}
+                                      Uploaded{' '}
+                                      {formatDistanceToNow(new Date(doc.createdAt), {
+                                        addSuffix: true,
+                                      })}
                                     </span>
                                   </div>
 

@@ -28,7 +28,7 @@ export default function ClientDocumentsPage() {
 
         {/* File Manager */}
         <FileManager
-          viewMode="grid"
+          viewMode="list"
           showTree={true}
           allowUpload={true}
           allowFolderCreate={true}

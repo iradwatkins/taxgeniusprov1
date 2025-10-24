@@ -116,7 +116,8 @@ export function TicketCard({
   unreadCount = 0,
 }: TicketCardProps) {
   const status = statusConfig[ticket.status as keyof typeof statusConfig] || statusConfig.OPEN;
-  const priority = priorityConfig[ticket.priority as keyof typeof priorityConfig] || priorityConfig.NORMAL;
+  const priority =
+    priorityConfig[ticket.priority as keyof typeof priorityConfig] || priorityConfig.NORMAL;
   const StatusIcon = status.icon;
 
   const getInitials = (firstName?: string | null, lastName?: string | null) => {
@@ -174,9 +175,7 @@ export function TicketCard({
             {/* Priority Indicator */}
             <div className="flex items-center gap-1.5 flex-shrink-0">
               <div className={cn('h-2 w-2 rounded-full', priority.dotColor)} />
-              <span className={cn('text-xs font-medium', priority.color)}>
-                {priority.label}
-              </span>
+              <span className={cn('text-xs font-medium', priority.color)}>{priority.label}</span>
             </div>
           </div>
 

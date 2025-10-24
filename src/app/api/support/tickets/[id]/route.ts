@@ -8,10 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
-import {
-  getTicketById,
-  updateTicket,
-} from '@/lib/services/support-ticket.service';
+import { getTicketById, updateTicket } from '@/lib/services/support-ticket.service';
 import { executeWorkflows } from '@/lib/services/ticket-workflow.service';
 import { WorkflowTrigger } from '@prisma/client';
 import { logger } from '@/lib/logger';
@@ -20,10 +17,7 @@ import { logger } from '@/lib/logger';
  * GET /api/support/tickets/[id]
  * Get ticket details with messages
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { userId: clerkUserId } = await auth();
 
@@ -80,10 +74,7 @@ export async function GET(
  * PATCH /api/support/tickets/[id]
  * Update ticket (status, priority, assignment, etc.)
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { userId: clerkUserId } = await auth();
 
@@ -127,8 +118,7 @@ export async function PATCH(
 
     // Parse request body
     const body = await request.json();
-    const { status, priority, title, description, tags, customFields, assignedToId } =
-      body;
+    const { status, priority, title, description, tags, customFields, assignedToId } = body;
 
     // Update ticket
     const updatedTicket = await updateTicket(ticketId, {
@@ -178,10 +168,7 @@ export async function PATCH(
  * DELETE /api/support/tickets/[id]
  * Delete a ticket (admin only)
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { userId: clerkUserId } = await auth();
 

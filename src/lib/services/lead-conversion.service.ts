@@ -126,10 +126,7 @@ export async function convertLeadToClient(
 /**
  * Create CLIENT profile from TaxIntakeLead
  */
-async function createProfileFromLead(
-  lead: TaxIntakeLead,
-  clerkUserId: string
-): Promise<Profile> {
+async function createProfileFromLead(lead: TaxIntakeLead, clerkUserId: string): Promise<Profile> {
   // Check if profile already exists for this Clerk user
   const existingProfile = await prisma.profile.findUnique({
     where: { clerkUserId },
@@ -166,10 +163,7 @@ async function createProfileFromLead(
 /**
  * Create TaxReturn from TaxIntakeLead form data
  */
-async function createTaxReturnFromLead(
-  lead: TaxIntakeLead,
-  profileId: string
-): Promise<TaxReturn> {
+async function createTaxReturnFromLead(lead: TaxIntakeLead, profileId: string): Promise<TaxReturn> {
   const currentYear = new Date().getFullYear();
   const taxYear = currentYear - 1; // Previous year's taxes
 

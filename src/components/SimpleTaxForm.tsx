@@ -5,7 +5,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowRight, ArrowLeft, Upload, FileUp, Share2, Sparkles, CheckCircle, Loader2 } from 'lucide-react';
+import {
+  ArrowRight,
+  ArrowLeft,
+  Upload,
+  FileUp,
+  Share2,
+  Sparkles,
+  CheckCircle,
+  Loader2,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { logger } from '@/lib/logger';
 import {
@@ -151,9 +160,9 @@ export default function SimpleTaxForm() {
   useEffect(() => {
     if (isLoaded && user && user.emailAddresses && user.emailAddresses.length > 0) {
       const userEmail = user.emailAddresses[0].emailAddress;
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        email: userEmail
+        email: userEmail,
       }));
       logger.info('Email auto-filled from authenticated user', { email: userEmail });
     }
@@ -485,9 +494,7 @@ export default function SimpleTaxForm() {
   return (
     <div className="space-y-6">
       {/* Preparer Card - Show on all pages if preparer is assigned */}
-      {preparer && page > 1 && (
-        <PreparerCard preparer={preparer} />
-      )}
+      {preparer && page > 1 && <PreparerCard preparer={preparer} />}
 
       <Card className="w-full max-w-3xl mx-auto shadow-xl">
         {/* Progress Header */}

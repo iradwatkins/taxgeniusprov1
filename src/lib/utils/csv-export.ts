@@ -33,7 +33,10 @@ export interface MaterialPerformance {
 /**
  * Generate CSV string from data array
  */
-export function generateCSV<T = Record<string, unknown>>(data: T[], columns: ExportColumn[]): string {
+export function generateCSV<T = Record<string, unknown>>(
+  data: T[],
+  columns: ExportColumn[]
+): string {
   if (!data || data.length === 0) {
     return columns.map((col) => escapeCSV(col.label)).join(',') + '\n';
   }

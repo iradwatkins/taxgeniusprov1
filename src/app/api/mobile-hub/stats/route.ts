@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/db';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -33,8 +34,7 @@ export async function GET(request: NextRequest) {
 
     // Calculate real-time stats if needed
     const shouldRecalculate =
-      new Date().getTime() - new Date(stats.lastCalculated).getTime() >
-      5 * 60 * 1000; // 5 minutes
+      new Date().getTime() - new Date(stats.lastCalculated).getTime() > 5 * 60 * 1000; // 5 minutes
 
     if (shouldRecalculate) {
       await recalculateStats(userId);
@@ -58,11 +58,8 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error fetching mobile hub stats:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch stats' },
-      { status: 500 }
-    );
+    logger.error('Error fetching mobile hub stats', { error });
+    return NextResponse.json({ error: 'Failed to fetch stats' }, { status: 500 });
   }
 }
 
@@ -97,6 +94,6 @@ async function recalculateStats(userId: string) {
       },
     });
   } catch (error) {
-    console.error('Error recalculating stats:', error);
+    logger.error('Error recalculating stats', { error });
   }
 }

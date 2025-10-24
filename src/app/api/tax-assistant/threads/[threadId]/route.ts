@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getThread, deleteThread } from '@/lib/services/tax-assistant.service';
+import { logger } from '@/lib/logger';
 
 export async function GET(
   request: NextRequest,
@@ -17,10 +18,7 @@ export async function GET(
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { threadId } = await params;
@@ -32,7 +30,7 @@ export async function GET(
       data: thread,
     });
   } catch (error) {
-    console.error('Error getting thread:', error);
+    logger.error('Error getting thread:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to get thread' },
       { status: 500 }
@@ -48,10 +46,7 @@ export async function DELETE(
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { threadId } = await params;
@@ -63,7 +58,7 @@ export async function DELETE(
       message: 'Thread deleted successfully',
     });
   } catch (error) {
-    console.error('Error deleting thread:', error);
+    logger.error('Error deleting thread:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to delete thread' },
       { status: 500 }

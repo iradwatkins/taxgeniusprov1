@@ -919,6 +919,111 @@ export class EmailService {
   }
 
   /**
+   * Send tax forms via email with shareable links
+   */
+  static async sendTaxFormsEmail(
+    recipientEmail: string,
+    recipientName: string | undefined,
+    senderName: string,
+    forms: Array<{
+      formNumber: string;
+      title: string;
+      description?: string;
+      shareUrl: string;
+    }>,
+    message?: string,
+    expiresAt?: Date
+  ): Promise<boolean> {
+    try {
+      const formsList = forms
+        .map(
+          (form) =>
+            `<li style="margin-bottom: 15px;">
+              <strong style="color: #333; font-size: 16px;">${form.formNumber}: ${form.title}</strong><br/>
+              ${form.description ? `<span style="color: #666; font-size: 14px;">${form.description}</span><br/>` : ''}
+              <a href="${form.shareUrl}" style="display: inline-block; margin-top: 8px; padding: 8px 16px; background: #408851; color: white; text-decoration: none; border-radius: 6px; font-size: 14px;">Download ${form.formNumber}</a>
+            </li>`
+        )
+        .join('');
+
+      const expirationNote = expiresAt
+        ? `<p style="color: #666; font-size: 14px; background: #fff3cd; padding: 12px; border-left: 4px solid #f9d938; margin: 20px 0;">
+            <strong>Note:</strong> These links will expire on ${new Date(expiresAt).toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}.
+          </p>`
+        : '';
+
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Tax Forms from ${senderName}</title>
+          </head>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background: #f5f5f5;">
+            <div style="max-width: 600px; margin: 40px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+              <div style="background: linear-gradient(135deg, #f9d938 0%, #408851 100%); padding: 40px 30px; text-align: center;">
+                <h1 style="color: white; margin: 0; font-size: 32px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Tax Genius Pro</h1>
+                <p style="color: rgba(255,255,255,0.95); margin: 10px 0 0 0; font-size: 16px;">Professional Tax Services</p>
+              </div>
+              <div style="padding: 40px 30px;">
+                <p style="font-size: 18px; color: #333; margin: 0 0 20px 0;">Hello ${recipientName || 'there'},</p>
+                <p style="font-size: 16px; color: #555; margin: 0 0 25px 0;">${senderName} has shared <strong>${forms.length} tax form${forms.length > 1 ? 's' : ''}</strong> with you:</p>
+                ${message ? `<div style="background: #f2f7ff; padding: 20px; border-left: 4px solid #408851; margin: 25px 0; border-radius: 4px;"><p style="margin: 0; font-style: italic; color: #555; font-size: 15px;">"${message}"</p></div>` : ''}
+                <ul style="list-style: none; padding: 0; margin: 30px 0;">${formsList}</ul>
+                ${expirationNote}
+                <div style="margin-top: 35px; padding-top: 25px; border-top: 2px solid #e0e0e0;">
+                  <p style="font-size: 15px; color: #666; margin: 0 0 10px 0;"><strong>Need help?</strong> Contact ${senderName} with any questions.</p>
+                </div>
+              </div>
+              <div style="background: #f9f9f9; padding: 30px; text-align: center; border-top: 1px solid #e0e0e0;">
+                <p style="margin: 0 0 10px 0; color: #666; font-size: 14px;"><strong>Tax Genius Pro</strong></p>
+                <p style="margin: 0 0 5px 0; color: #999; font-size: 13px;">1632 Jonesboro Rd SE, Atlanta, GA 30315</p>
+                <p style="margin: 0 0 15px 0; color: #999; font-size: 13px;">📞 +1 404-627-1015</p>
+                <p style="margin: 0; color: #bbb; font-size: 12px;">© ${new Date().getFullYear()} Tax Genius Pro. All rights reserved.</p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `;
+
+      if (process.env.NODE_ENV === 'development') {
+        logger.info('Tax Forms Email (Dev Mode):', {
+          recipientEmail,
+          recipientName,
+          senderName,
+          formsCount: forms.length,
+        });
+        return true;
+      }
+
+      const { data, error } = await resend.emails.send({
+        from: this.fromEmail,
+        to: recipientEmail,
+        subject: `Tax Forms from ${senderName} - ${forms.length} Form${forms.length > 1 ? 's' : ''}`,
+        html: htmlContent,
+        replyTo: 'support@taxgeniuspro.tax',
+      });
+
+      if (error) {
+        logger.error('Error sending tax forms email:', error);
+        return false;
+      }
+
+      logger.info(`Tax forms email sent to ${recipientEmail}. Email ID: ${data?.id}`);
+      return true;
+    } catch (error) {
+      logger.error('Error sending tax forms email:', error);
+      return false;
+    }
+  }
+
+  /**
    * Queue email for sending (using Redis)
    */
   static async queueEmail(type: string, to: string, data: Record<string, unknown>): Promise<void> {

@@ -5,25 +5,25 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
         default:
-          'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm hover:shadow-md rounded-md',
+          'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm hover:shadow-md rounded-md focus-visible:ring-primary',
         professional:
-          'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm hover:shadow-md hover:translate-y-[-1px] rounded-md font-semibold',
+          'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm hover:shadow-md hover:translate-y-[-1px] rounded-md font-semibold focus-visible:ring-primary',
         destructive:
-          'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm rounded-md',
+          'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm rounded-md focus-visible:ring-destructive',
         outline:
-          'border-2 border-border bg-background hover:bg-accent hover:text-accent-foreground hover:border-primary/50 rounded-md',
+          'border-2 border-border bg-background hover:bg-accent hover:text-accent-foreground hover:border-primary/50 rounded-md focus-visible:ring-primary',
         secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-sm rounded-md',
-        ghost: 'hover:bg-accent hover:text-accent-foreground rounded-md',
-        link: 'text-primary underline-offset-4 hover:underline',
+          'bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-sm rounded-md focus-visible:ring-secondary',
+        ghost: 'hover:bg-accent hover:text-accent-foreground rounded-md focus-visible:ring-ring',
+        link: 'text-primary underline-offset-4 hover:underline focus-visible:ring-primary',
         success:
-          'bg-success text-success-foreground hover:bg-success/90 shadow-sm hover:shadow-md rounded-md',
-        google: 'bg-white text-foreground border border-border hover:bg-muted shadow-sm rounded-md',
+          'bg-success text-success-foreground hover:bg-success/90 shadow-sm hover:shadow-md rounded-md focus-visible:ring-success',
+        google: 'bg-white text-foreground border border-border hover:bg-muted shadow-sm rounded-md focus-visible:ring-ring',
       },
       size: {
         default: 'h-10 px-4 py-2',

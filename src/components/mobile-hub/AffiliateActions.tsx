@@ -5,6 +5,7 @@ import { ShareButton } from './ShareButton';
 import { Link2, TrendingUp } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { logger } from '@/lib/logger';
 
 interface AffiliateActionsProps {
   userId: string;
@@ -26,7 +27,7 @@ export function AffiliateActions({ userId }: AffiliateActionsProps) {
         setLinks(data.data);
       }
     } catch (error) {
-      console.error('Error loading links:', error);
+      logger.error('Error loading links:', error);
     } finally {
       setLoading(false);
     }
@@ -50,9 +51,7 @@ export function AffiliateActions({ userId }: AffiliateActionsProps) {
             <Link2 className="h-5 w-5 text-primary" />
             <CardTitle className="text-lg">Your Referral Link</CardTitle>
           </div>
-          <CardDescription>
-            Share and earn commissions on every referral
-          </CardDescription>
+          <CardDescription>Share and earn commissions on every referral</CardDescription>
         </CardHeader>
         <CardContent>
           <ShareButton
@@ -72,9 +71,7 @@ export function AffiliateActions({ userId }: AffiliateActionsProps) {
             <TrendingUp className="h-5 w-5 text-primary" />
             <CardTitle className="text-lg">Custom Tracking Link</CardTitle>
           </div>
-          <CardDescription>
-            Track your marketing campaigns
-          </CardDescription>
+          <CardDescription>Track your marketing campaigns</CardDescription>
         </CardHeader>
         <CardContent>
           <ShareButton

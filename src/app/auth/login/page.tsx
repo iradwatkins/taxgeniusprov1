@@ -175,9 +175,7 @@ function LoginContent() {
           {/* Test Login Link (Development Only) */}
           {process.env.NODE_ENV === 'development' && (
             <div className="mt-6 pt-6 border-t text-center">
-              <p className="text-xs text-muted-foreground mb-2">
-                🧪 Development Mode
-              </p>
+              <p className="text-xs text-muted-foreground mb-2">🧪 Development Mode</p>
               <a
                 href="/auth/test-login"
                 className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline font-medium"

@@ -53,7 +53,7 @@ export default async function AdminClientsAnalyticsPage({
   const filterClientId = searchParams.clientId || undefined;
 
   // Fetch clients referral analytics (filtered or all)
-  const clientsData = await getClientsReferralAnalytics(userId, role as any, filterClientId);
+  const clientsData = await getClientsReferralAnalytics(userId, role as UserRole, filterClientId);
 
   // Calculate aggregate metrics
   const totalClicks = clientsData.reduce((sum, c) => sum + c.clicks, 0);

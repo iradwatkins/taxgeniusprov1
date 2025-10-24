@@ -25,10 +25,7 @@ export async function GET(request: NextRequest, { params }: { params: { code: st
     // Look up user by tracking code (could be TGP-XXXXXX or custom vanity name)
     const profile = await prisma.profile.findFirst({
       where: {
-        OR: [
-          { trackingCode: code },
-          { customTrackingCode: code },
-        ],
+        OR: [{ trackingCode: code }, { customTrackingCode: code }],
       },
       select: {
         id: true,

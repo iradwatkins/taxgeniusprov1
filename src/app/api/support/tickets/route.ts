@@ -43,9 +43,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     const statusFilter = searchParams.get('status')?.split(',') as TicketStatus[] | undefined;
-    const priorityFilter = searchParams.get('priority')?.split(',') as
-      | TicketPriority[]
-      | undefined;
+    const priorityFilter = searchParams.get('priority')?.split(',') as TicketPriority[] | undefined;
     const search = searchParams.get('search') || undefined;
     const includeStats = searchParams.get('includeStats') === 'true';
 

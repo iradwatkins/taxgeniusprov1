@@ -174,7 +174,11 @@ function BookingPageContent() {
       setBookingSuccess(true);
     } catch (error) {
       logger.error('[BookingPage] Error booking appointment:', error);
-      alert(error instanceof Error ? error.message : 'Failed to book appointment. Please call us at +1 404-627-1015');
+      alert(
+        error instanceof Error
+          ? error.message
+          : 'Failed to book appointment. Please call us at +1 404-627-1015'
+      );
     } finally {
       setBookingInProgress(false);
     }
@@ -289,7 +293,9 @@ function BookingPageContent() {
                         <Input
                           id="name"
                           value={formData.name}
-                          onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, name: e.target.value }))
+                          }
                           placeholder="John Doe"
                           className="pl-10"
                           required
@@ -307,7 +313,9 @@ function BookingPageContent() {
                           id="email"
                           type="email"
                           value={formData.email}
-                          onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, email: e.target.value }))
+                          }
                           placeholder="john@example.com"
                           className="pl-10"
                           required
@@ -325,7 +333,9 @@ function BookingPageContent() {
                           id="phone"
                           type="tel"
                           value={formData.phone}
-                          onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, phone: e.target.value }))
+                          }
                           placeholder="555-123-4567"
                           className="pl-10"
                           required
@@ -340,7 +350,9 @@ function BookingPageContent() {
                         <Textarea
                           id="notes"
                           value={formData.notes}
-                          onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, notes: e.target.value }))
+                          }
                           placeholder="Tell us about your tax situation..."
                           className="pl-10 min-h-[100px]"
                         />
@@ -446,7 +458,13 @@ function BookingPageContent() {
 
 export default function BookingPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin" /></div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin" />
+        </div>
+      }
+    >
       <BookingPageContent />
     </Suspense>
   );

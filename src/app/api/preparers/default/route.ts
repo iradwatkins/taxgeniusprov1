@@ -32,10 +32,7 @@ export async function GET() {
     });
 
     if (!defaultPreparer) {
-      return NextResponse.json(
-        { error: 'No preparers available for booking' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'No preparers available for booking' }, { status: 404 });
     }
 
     return NextResponse.json({

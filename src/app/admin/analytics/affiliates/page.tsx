@@ -53,7 +53,7 @@ export default async function AdminAffiliatesAnalyticsPage({
   const filterAffiliateId = searchParams.affiliateId || undefined;
 
   // Fetch affiliates analytics (filtered or all)
-  const affiliatesData = await getAffiliatesAnalytics(userId, role as any, filterAffiliateId);
+  const affiliatesData = await getAffiliatesAnalytics(userId, role as UserRole, filterAffiliateId);
 
   // Calculate aggregate metrics
   const totalClicks = affiliatesData.reduce((sum, a) => sum + a.clicks, 0);

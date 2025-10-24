@@ -14,19 +14,13 @@ import {
 } from '@/components/ui/table';
 import {
   Users,
-  Search,
-  Filter,
-  Download,
   Mail,
   Phone,
-  Calendar,
   FileText,
   CheckCircle,
   Clock,
-  AlertCircle,
   TrendingUp,
   UserCheck,
-  DollarSign,
 } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { ClientsManagement } from '@/components/admin/ClientsManagement';

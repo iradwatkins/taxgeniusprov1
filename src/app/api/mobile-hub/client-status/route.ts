@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/db';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -38,10 +39,7 @@ export async function GET(request: NextRequest) {
       data: status,
     });
   } catch (error) {
-    console.error('Error fetching client status:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch status' },
-      { status: 500 }
-    );
+    logger.error('Error fetching client status', { error });
+    return NextResponse.json({ error: 'Failed to fetch status' }, { status: 500 });
   }
 }

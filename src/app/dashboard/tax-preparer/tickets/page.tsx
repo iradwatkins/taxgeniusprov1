@@ -4,7 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Ticket as TicketIcon,
   Clock,
@@ -43,7 +49,9 @@ export default async function TaxPreparerTicketsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Client Support Tickets</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              Client Support Tickets
+            </h1>
             <p className="text-sm sm:text-base text-muted-foreground mt-1">
               Manage and respond to client inquiries
             </p>
@@ -124,11 +132,7 @@ export default async function TaxPreparerTicketsPage() {
               {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search tickets..."
-                  className="pl-9"
-                  id="ticket-search"
-                />
+                <Input placeholder="Search tickets..." className="pl-9" id="ticket-search" />
               </div>
 
               {/* Priority Filter */}
@@ -164,11 +168,7 @@ export default async function TaxPreparerTicketsPage() {
               {/* Client Filter */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Filter by client..."
-                  className="pl-9"
-                  id="client-filter"
-                />
+                <Input placeholder="Filter by client..." className="pl-9" id="client-filter" />
               </div>
             </div>
           </CardContent>
@@ -228,10 +228,7 @@ export default async function TaxPreparerTicketsPage() {
           </TabsContent>
 
           <TabsContent value="all" className="mt-6">
-            <TicketList
-              role="preparer"
-              emptyMessage="No tickets found."
-            />
+            <TicketList role="preparer" emptyMessage="No tickets found." />
           </TabsContent>
         </Tabs>
 

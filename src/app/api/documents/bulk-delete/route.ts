@@ -49,8 +49,13 @@ export async function POST(req: NextRequest) {
 
       // Check permissions
       const authorizedFileIds = files
-        .filter(file => {
-          // Owner can delete
+        .filter((file) => {
+          // ❌ CLIENTS CANNOT DELETE DOCUMENTS (security requirement)
+          if (profile.role === 'CLIENT' || profile.role === 'LEAD') {
+            return false;
+          }
+
+          // Owner can delete (if not client)
           if (file.profileId === profile.id) return true;
 
           // Admins can delete
@@ -59,7 +64,7 @@ export async function POST(req: NextRequest) {
           // Tax preparers can delete if assigned (checked below)
           return profile.role === 'TAX_PREPARER';
         })
-        .map(f => f.id);
+        .map((f) => f.id);
 
       if (authorizedFileIds.length > 0) {
         await prisma.document.updateMany({
@@ -83,7 +88,8 @@ export async function POST(req: NextRequest) {
               details: {
                 deletedAt: now.toISOString(),
               },
-              ipAddress: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || undefined,
+              ipAddress:
+                req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || undefined,
               userAgent: req.headers.get('user-agent') || undefined,
             },
           });
@@ -106,8 +112,13 @@ export async function POST(req: NextRequest) {
       });
 
       const authorizedFolderIds = folders
-        .filter(folder => {
-          // Owner can delete
+        .filter((folder) => {
+          // ❌ CLIENTS CANNOT DELETE FOLDERS (security requirement)
+          if (profile.role === 'CLIENT' || profile.role === 'LEAD') {
+            return false;
+          }
+
+          // Owner can delete (if not client)
           if (folder.ownerId === profile.id) return true;
 
           // Admins can delete
@@ -115,7 +126,7 @@ export async function POST(req: NextRequest) {
 
           return false;
         })
-        .map(f => f.id);
+        .map((f) => f.id);
 
       if (authorizedFolderIds.length > 0) {
         // Soft delete folders
@@ -153,7 +164,8 @@ export async function POST(req: NextRequest) {
               details: {
                 deletedAt: now.toISOString(),
               },
-              ipAddress: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || undefined,
+              ipAddress:
+                req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || undefined,
               userAgent: req.headers.get('user-agent') || undefined,
             },
           });
@@ -167,9 +179,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     logger.error('Error bulk deleting items:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete items' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to delete items' }, { status: 500 });
   }
 }

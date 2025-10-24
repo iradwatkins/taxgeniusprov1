@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/lib/logger';
 
 interface SupportSettingsFormProps {
   section: 'general' | 'features' | 'ai' | 'notifications' | 'email' | 'integrations';
@@ -33,7 +34,7 @@ export function SupportSettingsForm({ section }: SupportSettingsFormProps) {
         setSettings(data.data.settings || getDefaultSettings());
       }
     } catch (error) {
-      console.error('Error fetching settings:', error);
+      logger.error('Error fetching settings:', error);
       setSettings(getDefaultSettings());
     } finally {
       setLoading(false);
@@ -123,7 +124,7 @@ export function SupportSettingsForm({ section }: SupportSettingsFormProps) {
         throw new Error(data.error || 'Failed to save settings');
       }
     } catch (error) {
-      console.error('Error saving settings:', error);
+      logger.error('Error saving settings:', error);
       toast({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Failed to save settings',
@@ -135,7 +136,7 @@ export function SupportSettingsForm({ section }: SupportSettingsFormProps) {
   };
 
   const updateSetting = (key: string, value: any) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
+    setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
   if (loading) {
@@ -209,9 +210,7 @@ export function SupportSettingsForm({ section }: SupportSettingsFormProps) {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Enable Workflows</Label>
-              <p className="text-sm text-muted-foreground">
-                Allow automated workflows and actions
-              </p>
+              <p className="text-sm text-muted-foreground">Allow automated workflows and actions</p>
             </div>
             <Switch
               checked={settings.enableWorkflows}
@@ -222,9 +221,7 @@ export function SupportSettingsForm({ section }: SupportSettingsFormProps) {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Enable Time Tracking</Label>
-              <p className="text-sm text-muted-foreground">
-                Track time spent on tickets
-              </p>
+              <p className="text-sm text-muted-foreground">Track time spent on tickets</p>
             </div>
             <Switch
               checked={settings.enableTimeTracking}
@@ -265,9 +262,7 @@ export function SupportSettingsForm({ section }: SupportSettingsFormProps) {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Enable AI Features</Label>
-              <p className="text-sm text-muted-foreground">
-                Turn on AI-powered support features
-              </p>
+              <p className="text-sm text-muted-foreground">Turn on AI-powered support features</p>
             </div>
             <Switch
               checked={settings.enableAI}
@@ -306,9 +301,7 @@ export function SupportSettingsForm({ section }: SupportSettingsFormProps) {
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label>Response Suggestions</Label>
-                  <p className="text-sm text-muted-foreground">
-                    AI generates response suggestions
-                  </p>
+                  <p className="text-sm text-muted-foreground">AI generates response suggestions</p>
                 </div>
                 <Switch
                   checked={settings.enableResponseSuggestions}
@@ -338,9 +331,7 @@ export function SupportSettingsForm({ section }: SupportSettingsFormProps) {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Email Notifications</Label>
-              <p className="text-sm text-muted-foreground">
-                Send notifications via email
-              </p>
+              <p className="text-sm text-muted-foreground">Send notifications via email</p>
             </div>
             <Switch
               checked={settings.enableEmailNotifications}
@@ -351,9 +342,7 @@ export function SupportSettingsForm({ section }: SupportSettingsFormProps) {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>In-App Notifications</Label>
-              <p className="text-sm text-muted-foreground">
-                Show notifications in the dashboard
-              </p>
+              <p className="text-sm text-muted-foreground">Show notifications in the dashboard</p>
             </div>
             <Switch
               checked={settings.enableInAppNotifications}
@@ -377,9 +366,7 @@ export function SupportSettingsForm({ section }: SupportSettingsFormProps) {
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label>Notify on New Message</Label>
-              <p className="text-sm text-muted-foreground">
-                Send notification for new messages
-              </p>
+              <p className="text-sm text-muted-foreground">Send notification for new messages</p>
             </div>
             <Switch
               checked={settings.notifyOnNewMessage}

@@ -159,7 +159,12 @@ export default function ContentRestrictionsPage() {
         toast.success(editingId ? 'Restriction updated!' : 'Restriction created!');
         setShowDialog(false);
         resetForm();
-        fetchRestrictions();
+        await fetchRestrictions();
+
+        // Refresh the page after a short delay to ensure changes are visible
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       } else {
         const error = await res.json();
         toast.error(error.error || 'Failed to save restriction');
@@ -180,7 +185,12 @@ export default function ContentRestrictionsPage() {
 
       if (res.ok) {
         toast.success('Restriction deleted!');
-        fetchRestrictions();
+        await fetchRestrictions();
+
+        // Refresh the page after a short delay to ensure changes are visible
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       } else {
         toast.error('Failed to delete restriction');
       }
@@ -258,9 +268,7 @@ export default function ContentRestrictionsPage() {
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>
-                {editingId ? 'Edit Restriction' : 'Create New Restriction'}
-              </DialogTitle>
+              <DialogTitle>{editingId ? 'Edit Restriction' : 'Create New Restriction'}</DialogTitle>
               <DialogDescription>
                 Control access to routes based on user roles and usernames
               </DialogDescription>
@@ -274,9 +282,7 @@ export default function ContentRestrictionsPage() {
                 <Input
                   id="routePath"
                   value={formData.routePath}
-                  onChange={(e) =>
-                    setFormData({ ...formData, routePath: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, routePath: e.target.value })}
                   placeholder="/admin/users or /admin/*"
                   required
                 />
@@ -291,9 +297,7 @@ export default function ContentRestrictionsPage() {
                 <Input
                   id="allowedRoles"
                   value={formData.allowedRoles}
-                  onChange={(e) =>
-                    setFormData({ ...formData, allowedRoles: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, allowedRoles: e.target.value })}
                   placeholder="admin, super_admin, tax_preparer"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
@@ -307,9 +311,7 @@ export default function ContentRestrictionsPage() {
                 <Input
                   id="blockedRoles"
                   value={formData.blockedRoles}
-                  onChange={(e) =>
-                    setFormData({ ...formData, blockedRoles: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, blockedRoles: e.target.value })}
                   placeholder="client, lead"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
@@ -323,9 +325,7 @@ export default function ContentRestrictionsPage() {
                 <Input
                   id="allowedUsernames"
                   value={formData.allowedUsernames}
-                  onChange={(e) =>
-                    setFormData({ ...formData, allowedUsernames: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, allowedUsernames: e.target.value })}
                   placeholder="admin_user, special_access"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
@@ -339,9 +339,7 @@ export default function ContentRestrictionsPage() {
                 <Input
                   id="blockedUsernames"
                   value={formData.blockedUsernames}
-                  onChange={(e) =>
-                    setFormData({ ...formData, blockedUsernames: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, blockedUsernames: e.target.value })}
                   placeholder="suspended_user, banned_admin"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
@@ -355,9 +353,7 @@ export default function ContentRestrictionsPage() {
                 <Input
                   id="redirectUrl"
                   value={formData.redirectUrl}
-                  onChange={(e) =>
-                    setFormData({ ...formData, redirectUrl: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, redirectUrl: e.target.value })}
                   placeholder="/forbidden or /upgrade"
                 />
                 <p className="text-xs text-muted-foreground mt-1">
@@ -388,9 +384,7 @@ export default function ContentRestrictionsPage() {
                   <Switch
                     id="isActive"
                     checked={formData.isActive}
-                    onCheckedChange={(checked) =>
-                      setFormData({ ...formData, isActive: checked })
-                    }
+                    onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
                   />
                 </div>
 
@@ -434,9 +428,7 @@ export default function ContentRestrictionsPage() {
                 <Textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Internal note about this restriction"
                   rows={3}
                 />
@@ -465,12 +457,8 @@ export default function ContentRestrictionsPage() {
       {/* Tabs */}
       <Tabs defaultValue="restrictions" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="restrictions">
-            Restrictions ({restrictions.length})
-          </TabsTrigger>
-          <TabsTrigger value="logs">
-            Access Logs ({logs.length})
-          </TabsTrigger>
+          <TabsTrigger value="restrictions">Restrictions ({restrictions.length})</TabsTrigger>
+          <TabsTrigger value="logs">Access Logs ({logs.length})</TabsTrigger>
         </TabsList>
 
         {/* Restrictions Tab */}
@@ -550,11 +538,7 @@ export default function ContentRestrictionsPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleEdit(restriction)}
-                          >
+                          <Button size="sm" variant="ghost" onClick={() => handleEdit(restriction)}>
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button
@@ -579,9 +563,7 @@ export default function ContentRestrictionsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Recent Blocked Access Attempts</CardTitle>
-              <CardDescription>
-                Shows the last 50 unauthorized access attempts
-              </CardDescription>
+              <CardDescription>Shows the last 50 unauthorized access attempts</CardDescription>
             </CardHeader>
             <CardContent>
               {logs.length === 0 ? (
@@ -618,9 +600,7 @@ export default function ContentRestrictionsPage() {
                             <span className="text-muted-foreground text-sm">N/A</span>
                           )}
                         </TableCell>
-                        <TableCell className="font-mono text-sm">
-                          {log.attemptedRoute}
-                        </TableCell>
+                        <TableCell className="font-mono text-sm">{log.attemptedRoute}</TableCell>
                         <TableCell>
                           <Badge variant="destructive">{log.blockReason}</Badge>
                         </TableCell>

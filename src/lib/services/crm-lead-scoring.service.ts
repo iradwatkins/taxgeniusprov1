@@ -81,8 +81,7 @@ export class CRMLeadScoringService {
 
     const totalEmails = emailActivities.length;
     const openedEmails = emailActivities.filter(
-      (e) =>
-        e.status === EmailActivityStatus.OPENED || e.status === EmailActivityStatus.CLICKED
+      (e) => e.status === EmailActivityStatus.OPENED || e.status === EmailActivityStatus.CLICKED
     ).length;
     const clickedEmails = emailActivities.filter(
       (e) => e.status === EmailActivityStatus.CLICKED

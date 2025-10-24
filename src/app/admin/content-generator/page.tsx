@@ -372,7 +372,7 @@ export default function ContentGeneratorPage() {
               <CardContent className="text-center text-muted-foreground">
                 <Sparkles className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>Generated content will appear here</p>
-                <p className="text-sm mt-2">Fill out the form and click "Generate Content"</p>
+                <p className="text-sm mt-2">Fill out the form and click &quot;Generate Content&quot;</p>
               </CardContent>
             </Card>
           )}

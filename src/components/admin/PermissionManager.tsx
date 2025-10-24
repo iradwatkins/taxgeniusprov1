@@ -80,15 +80,18 @@ export function PermissionManager({
   );
 
   // Toggle individual permission
-  const togglePermission = useCallback((permission: Permission, enabled: boolean) => {
-    if (readOnly) return; // Don't allow changes in read-only mode
+  const togglePermission = useCallback(
+    (permission: Permission, enabled: boolean) => {
+      if (readOnly) return; // Don't allow changes in read-only mode
 
-    setPermissions((prev) => ({
-      ...prev,
-      [permission]: enabled,
-    }));
-    setHasChanges(true);
-  }, [readOnly]);
+      setPermissions((prev) => ({
+        ...prev,
+        [permission]: enabled,
+      }));
+      setHasChanges(true);
+    },
+    [readOnly]
+  );
 
   // Save permissions
   const savePermissions = async () => {
@@ -124,13 +127,27 @@ export function PermissionManager({
 
       const result = await response.json();
 
-      toast({
-        title: 'Success',
-        description: `Permissions updated for ${roleName}. ${result.usersUpdated || 0} users affected.`,
-        duration: 5000,
-      });
+      // Show success or warning message
+      if (result.warning) {
+        toast({
+          title: 'Template Saved',
+          description: result.warning,
+          duration: 7000,
+        });
+      } else {
+        toast({
+          title: 'Success',
+          description: result.message || `Permissions updated for ${roleName}. ${result.usersUpdated || 0} users affected.`,
+          duration: 5000,
+        });
+      }
 
       setHasChanges(false);
+
+      // Refresh the page after a short delay to show updated permissions
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       logger.error('Error saving permissions:', error);
       toast({
@@ -152,7 +169,9 @@ export function PermissionManager({
             <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
             <div>
               <p className="font-medium text-amber-900 dark:text-amber-200">
-                {targetRole === 'super_admin' ? 'Caution: Super Admin Permissions' : 'Read-Only Mode'}
+                {targetRole === 'super_admin'
+                  ? 'Caution: Super Admin Permissions'
+                  : 'Read-Only Mode'}
               </p>
               <p className="text-sm text-amber-800 dark:text-amber-300 mt-1">
                 {targetRole === 'super_admin'
@@ -257,7 +276,8 @@ export function PermissionManager({
             {hasChanges && (
               <span className="flex items-center gap-2 text-amber-600">
                 <AlertCircle className="w-4 h-4" />
-                You have unsaved changes{affectedUsersCount > 0 && ` (will affect ${affectedUsersCount} users)`}
+                You have unsaved changes
+                {affectedUsersCount > 0 && ` (will affect ${affectedUsersCount} users)`}
               </span>
             )}
           </div>

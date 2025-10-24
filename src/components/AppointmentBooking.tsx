@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Calendar, Clock, CheckCircle, ArrowRight, Phone, Mail, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
+import { logger } from '@/lib/logger';
 
 interface TimeSlot {
   time: string;
@@ -61,7 +62,9 @@ export default function AppointmentBooking() {
 
     try {
       // Combine date and time into a scheduledFor timestamp
-      const scheduledFor = new Date(`${selectedDate}T${convertTo24Hour(selectedTime)}`).toISOString();
+      const scheduledFor = new Date(
+        `${selectedDate}T${convertTo24Hour(selectedTime)}`
+      ).toISOString();
 
       const response = await fetch('/api/appointments/book', {
         method: 'POST',
@@ -87,7 +90,7 @@ export default function AppointmentBooking() {
 
       setIsSuccess(true);
     } catch (error) {
-      console.error('Error booking appointment:', error);
+      logger.error('Error booking appointment:', error);
       setSubmitError(error instanceof Error ? error.message : 'Failed to book appointment');
     } finally {
       setIsSubmitting(false);
@@ -177,9 +180,7 @@ export default function AppointmentBooking() {
               <CheckCircle className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
               <div>
                 <p className="font-medium">Free 30-Minute Consultation</p>
-                <p className="text-sm text-muted-foreground">
-                  Video call or phone - your choice
-                </p>
+                <p className="text-sm text-muted-foreground">Video call or phone - your choice</p>
               </div>
             </div>
             <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">

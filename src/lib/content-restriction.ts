@@ -475,9 +475,7 @@ export async function filterAccessibleContent<T extends { id: string }>(
       },
     });
 
-    const restrictionMap = new Map(
-      restrictions.map((r) => [r.contentIdentifier, r])
-    );
+    const restrictionMap = new Map(restrictions.map((r) => [r.contentIdentifier, r]));
 
     const results: T[] = [];
 
@@ -565,18 +563,13 @@ export async function logAccessAttempt(
  * Simple in-memory cache for restrictions (5 minute TTL)
  * In production, consider using Redis or similar
  */
-const restrictionCache = new Map<
-  string,
-  { data: PageRestrictionData | null; expiry: number }
->();
+const restrictionCache = new Map<string, { data: PageRestrictionData | null; expiry: number }>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 /**
  * Get restriction with caching
  */
-async function getCachedRestriction(
-  routePath: string
-): Promise<PageRestrictionData | null> {
+async function getCachedRestriction(routePath: string): Promise<PageRestrictionData | null> {
   const cached = restrictionCache.get(routePath);
 
   if (cached && cached.expiry > Date.now()) {

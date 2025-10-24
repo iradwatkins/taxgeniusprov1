@@ -136,7 +136,10 @@ async function findLinkClickByTrackingCode(trackingCode: string): Promise<LinkCl
 /**
  * Validate stage progression (cannot skip stages)
  */
-function validateStageProgression(linkClick: LinkClickWithJourney, stage: JourneyStage): string | null {
+function validateStageProgression(
+  linkClick: LinkClickWithJourney,
+  stage: JourneyStage
+): string | null {
   const clicked = linkClick.clickedAt;
   const intakeStarted = linkClick.intakeStartedAt;
   const intakeCompleted = linkClick.intakeCompletedAt;

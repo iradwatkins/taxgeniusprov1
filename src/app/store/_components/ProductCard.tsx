@@ -14,13 +14,24 @@ import { Button } from '@/components/ui/button';
 import { useShoppingCart } from '@/lib/hooks/useShoppingCart';
 import { toast } from 'sonner';
 
+interface ProductImage {
+  url: string;
+  altText: string;
+  isPrimary: boolean;
+  isClientUpload: boolean;
+}
+
 interface Product {
   id: string;
   name: string;
   description: string | null;
   price: number;
-  imageUrl: string;
+  imageUrl: string | null;
+  images?: ProductImage[];
   category: string | null;
+  printable?: boolean | null;
+  digitalDownload?: boolean | null;
+  stock?: number | null;
 }
 
 interface ProductCardProps {
@@ -30,12 +41,26 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const addItem = useShoppingCart((state) => state.addItem);
 
+  // Get primary image or fallback to imageUrl
+  const images = Array.isArray(product.images) ? product.images : [];
+  const primaryImage = images.find((img) => img.isPrimary) || images[0];
+  const displayImage = primaryImage?.url || product.imageUrl || '/placeholder-product.png';
+  const imageAlt = primaryImage?.altText || product.name;
+
   const handleAddToCart = () => {
+    // Check stock availability
+    if (product.stock !== null && product.stock !== undefined && product.stock <= 0) {
+      toast.error('Out of stock', {
+        description: `${product.name} is currently out of stock.`,
+      });
+      return;
+    }
+
     addItem({
       productId: product.id,
       name: product.name,
       price: product.price,
-      imageUrl: product.imageUrl,
+      imageUrl: displayImage,
     });
 
     toast.success('Added to cart!', {
@@ -43,17 +68,34 @@ export function ProductCard({ product }: ProductCardProps) {
     });
   };
 
+  const isOutOfStock = product.stock !== null && product.stock !== undefined && product.stock <= 0;
+
   return (
     <Card className="flex flex-col h-full overflow-hidden hover:shadow-lg transition-shadow">
       <div className="relative aspect-square bg-gray-100 overflow-hidden">
         <Image
-          src={product.imageUrl}
-          alt={product.name}
+          src={displayImage}
+          alt={imageAlt}
           fill
           className="object-cover"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
           priority={false}
         />
+        {isOutOfStock && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <span className="text-white font-bold text-lg">OUT OF STOCK</span>
+          </div>
+        )}
+        {product.printable && (
+          <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
+            Customizable
+          </div>
+        )}
+        {product.digitalDownload && (
+          <div className="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+            Digital
+          </div>
+        )}
       </div>
 
       <CardHeader className="flex-1">
@@ -75,9 +117,14 @@ export function ProductCard({ product }: ProductCardProps) {
       </CardContent>
 
       <CardFooter>
-        <Button onClick={handleAddToCart} className="w-full" size="lg">
+        <Button
+          onClick={handleAddToCart}
+          className="w-full"
+          size="lg"
+          disabled={isOutOfStock}
+        >
           <ShoppingCart className="mr-2 h-4 w-4" />
-          Add to Cart
+          {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
         </Button>
       </CardFooter>
     </Card>

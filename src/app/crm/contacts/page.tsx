@@ -91,7 +91,9 @@ export default function CRMContactsPage() {
 
   // Check permissions
   const role = user?.publicMetadata?.role as UserRole | undefined;
-  const permissions = role ? getUserPermissions(role, user?.publicMetadata?.permissions as any) : null;
+  const permissions = role
+    ? getUserPermissions(role, user?.publicMetadata?.permissions as any)
+    : null;
 
   // Redirect if no access
   useEffect(() => {
@@ -151,9 +153,7 @@ export default function CRMContactsPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">CRM Contacts</h1>
           <p className="text-muted-foreground">
-            {canSeeAll
-              ? 'Manage all contacts in your system'
-              : 'Manage your assigned contacts'}
+            {canSeeAll ? 'Manage all contacts in your system' : 'Manage your assigned contacts'}
           </p>
         </div>
         <Button>
@@ -191,7 +191,10 @@ export default function CRMContactsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {contacts.filter((c) => ['CONTACTED', 'QUALIFIED', 'DOCUMENTS'].includes(c.stage)).length}
+              {
+                contacts.filter((c) => ['CONTACTED', 'QUALIFIED', 'DOCUMENTS'].includes(c.stage))
+                  .length
+              }
             </div>
           </CardContent>
         </Card>
@@ -259,9 +262,7 @@ export default function CRMContactsPage() {
       {/* Contacts Table */}
       <Card>
         <CardHeader>
-          <CardTitle>
-            {canSeeAll ? 'All Contacts' : 'My Assigned Contacts'}
-          </CardTitle>
+          <CardTitle>{canSeeAll ? 'All Contacts' : 'My Assigned Contacts'}</CardTitle>
           <CardDescription>
             {contacts.length} contact{contacts.length !== 1 ? 's' : ''} found
           </CardDescription>
@@ -368,7 +369,7 @@ export default function CRMContactsPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => window.location.href = `/crm/contacts/${contact.id}`}
+                        onClick={() => (window.location.href = `/crm/contacts/${contact.id}`)}
                       >
                         View
                       </Button>

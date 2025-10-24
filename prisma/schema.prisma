@@ -154,6 +154,11 @@ model Profile {
   timeEntries         TicketTimeEntry[]    @relation("TimeEntryPreparer") // Time tracking entries
   settingsUpdates     SystemSettings[]     @relation("SettingsUpdater") // Settings updated by this user
 
+  // Tax Form Relations
+  assignedTaxForms    ClientTaxForm[]      @relation("ClientTaxForms")
+  formsAssignedByMe   ClientTaxForm[]      @relation("AssignedForms")
+  taxFormEdits        TaxFormEdit[]        @relation("FormEdits")
+
   @@index([role])
   @@index([vanitySlug])
   @@index([clerkUserId])
@@ -493,7 +498,7 @@ model TaxReturn {
 
 model Product {
   id           String   @id @default(cuid())
-  type         String   // "LANDING_PAGE", "MARKETING_MATERIAL", "EMAIL_ADDRESS", "DIGITAL_ASSET"
+  type         String   // "LANDING_PAGE", "MARKETING_MATERIAL", "EMAIL_ADDRESS", "DIGITAL_ASSET", "PRINT_PRODUCT"
   name         String
   description  String?  @db.Text
   category     String?  // Product category for organization
@@ -506,7 +511,20 @@ model Product {
   // Access control
   availableFor String[] // ["TAX_PREPARER", "AFFILIATE"]
 
-  imageUrl     String?
+  // Images (NEW - supports multiple images with client uploads)
+  imageUrl     String?  // Legacy single image
+  images       Json?    @default("[]") // Array of {url, altText, isPrimary, isClientUpload}
+
+  // Product attributes (NEW)
+  printable        Boolean? @default(false) // Can customer upload custom image for printing?
+  digitalDownload  Boolean? @default(false) // Is this a digital download?
+  stock            Int?     // Inventory count (null = unlimited)
+  sku              String?  @unique // Product SKU
+
+  // Square/CashApp Integration (NEW)
+  squareItemId String? @unique // Square Catalog Item ID
+  metadata     Json?   @default("{}") // Additional product metadata
+
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -517,6 +535,7 @@ model Product {
   @@index([type])
   @@index([isActive])
   @@index([category])
+  @@index([squareItemId])
   @@map("products")
 }
 
@@ -1187,16 +1206,21 @@ enum OrderStatus {
 }
 
 model Order {
-  id              String      @id @default(cuid())
-  userId          String
-  profile         Profile     @relation(fields: [userId], references: [clerkUserId], onDelete: Cascade)
-  stripeSessionId String      @unique
-  items           Json // Array of { productId, name, quantity, price }
-  total           Decimal     @db.Decimal(10, 2)
-  status          OrderStatus @default(PENDING)
-  email           String
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id                String      @id @default(cuid())
+  userId            String
+  profile           Profile     @relation(fields: [userId], references: [clerkUserId], onDelete: Cascade)
+  paymentSessionId  String      @unique // Stripe or Square session ID
+  paymentMethod     String      @default("STRIPE") // "STRIPE", "SQUARE", "CASHAPP"
+  squareOrderId     String?     @unique // Square Order ID
+  items             Json // Array of { productId, name, quantity, price, customerImageUrl? }
+  total             Decimal     @db.Decimal(10, 2)
+  status            OrderStatus @default(PENDING)
+  email             String
+  shippingAddress   Json? // {name, street, city, state, zip, country}
+  shippingMethod    String? // "STANDARD", "EXPRESS", "DIGITAL"
+  trackingNumber    String? // Shipment tracking
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
 
   @@index([userId])
   @@index([status])
@@ -2400,4 +2424,374 @@ model MobileHubStats {
 
   @@index([clerkUserId])
   @@map("mobile_hub_stats")
+}
+
+// ============================================================================
+// SEO LLM SYSTEM - AI-Powered Landing Page & Content Generation
+// ============================================================================
+
+// City data for location-based landing pages (200 US cities)
+model City {
+  id         String @id @default(cuid())
+  name       String // "New York"
+  state      String // "New York"
+  stateCode  String // "NY"
+  population Int
+  rank       Int // 1-200 (by population)
+  slug       String @unique // "new-york-ny"
+
+  // Geographic data
+  latitude  Float?
+  longitude Float?
+  timezone  String? // "America/New_York"
+
+  // Status and priority
+  isActive Boolean @default(true)
+  priority Int     @default(0) // Higher = more important for SEO
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  seoLandingPages   SeoLandingPage[]
+
+  @@unique([name, state])
+  @@index([rank])
+  @@index([isActive])
+  @@index([priority])
+  @@index([slug])
+  @@map("cities")
+}
+
+// AI-generated SEO landing pages for city + service combinations
+model SeoLandingPage {
+  id String @id @default(cuid())
+
+  // Service & Location
+  cityId      String
+  serviceType String // "personal-tax", "business-tax", "irs-resolution", "tax-planning"
+  slug        String @unique // "personal-tax-new-york-ny"
+
+  // SEO Content
+  title       String // "Personal Tax Filing in New York, NY | TaxGeniusPro"
+  metaDesc    String
+  h1          String
+  keywords    String[] // SEO keywords
+
+  // AI-Generated Content (500+ words unique per city)
+  aiIntro     String  @db.Text // AI-generated introduction (200-300 words)
+  aiBenefits  String? @db.Text // AI-generated benefits section
+  aiCaseStudy String? @db.Text // Optional case study
+
+  // Structured Content
+  faqSchema    Json // FAQ structured data: [{question, answer}]
+  schemaMarkup Json // Complete schema.org markup (LocalBusiness, Service, FAQ)
+
+  // Manual Override Protection
+  isManuallyEdited Boolean @default(false)
+  manualEdits      Json? // Track manual changes
+
+  // Status
+  status      String    @default("draft") // draft, published, needs_review
+  published   Boolean   @default(false)
+  publishedAt DateTime?
+  approved    Boolean   @default(false)
+  approvedBy  String? // clerkUserId
+  approvedAt  DateTime?
+
+  // SEO Performance Tracking
+  views         Int      @default(0)
+  clicks        Int      @default(0)
+  conversions   Int      @default(0)
+  revenue       Float    @default(0)
+  conversionRate Float?
+  bounceRate    Float?
+  avgTimeOnPage Int? // seconds
+
+  // Google Search Console Metrics
+  googleRanking Int?
+  organicViews  Int       @default(0)
+  impressions   Int       @default(0)
+  avgPosition   Float?
+  lastCrawled   DateTime?
+
+  // AI Generation Metadata
+  generatedBy     String? // clerkUserId
+  generationModel String? // "qwen2.5:32b"
+  generatedAt     DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  city City @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@index([cityId])
+  @@index([serviceType])
+  @@index([published])
+  @@index([slug])
+  @@index([status])
+  @@map("seo_landing_pages")
+}
+
+// Cached AI-generated SEO content (reduce LLM API calls)
+model ProductSEOContent {
+  id        String @id @default(cuid())
+  productId String? // Optional: for tax service products
+  city      String?
+  state     String?
+  serviceType String // "personal-tax", "business-tax", etc.
+
+  // Generated Content
+  content   String @db.Text
+  wordCount Int
+
+  // Metadata
+  generatedAt     DateTime @default(now())
+  generationModel String // "qwen2.5:32b"
+  approved        Boolean  @default(false)
+  publishedAt     DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([serviceType])
+  @@index([approved])
+  @@index([city, state])
+  @@map("product_seo_content")
+}
+
+// Campaign queue for generating 200-city landing pages
+model ProductCampaignQueue {
+  id String @id @default(cuid())
+
+  // Campaign Details
+  campaignName String
+  serviceType  String // "personal-tax", "business-tax", etc.
+  productSpec  Json // {price, description, features, etc.}
+
+  // Status
+  status                 String    @default("PENDING") // PENDING, GENERATING, OPTIMIZING, COMPLETE, FAILED
+  priority               Int       @default(5) // 1-10, higher = higher priority
+  citiesGenerated        Int       @default(0)
+  citiesIndexed          Int       @default(0)
+  generationStartedAt    DateTime?
+  generationCompletedAt  DateTime?
+
+  // Creator
+  createdBy String? // clerkUserId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([priority])
+  @@index([createdBy])
+  @@map("product_campaign_queue")
+}
+
+// Multi-language translations for landing pages
+model Translation {
+  id        String @id @default(cuid())
+  key       String
+  namespace String @default("common")
+  locale    String // "en", "es", "fr", "de", etc.
+  value     String @db.Text
+
+  // Translation Metadata
+  context          String? // Context for translators
+  isApproved       Boolean           @default(false)
+  source           TranslationSource @default(MANUAL)
+  autoTranslated   Boolean           @default(false)
+  translationModel String? // "gpt-4o-mini"
+  confidence       Float? // 0-1 confidence score
+  translatedBy     String? // clerkUserId
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([key, namespace, locale])
+  @@index([locale])
+  @@index([namespace])
+  @@index([isApproved])
+  @@index([source])
+  @@map("translations")
+}
+
+enum TranslationSource {
+  MANUAL
+  AUTO
+  IMPORTED
+  SYSTEM
+}
+
+// Content snapshot for A/B testing
+model ContentSnapshot {
+  id              String @id @default(cuid())
+  seoLandingPageId String?
+  landingPageId    String?
+
+  // Snapshot Details
+  version         Int
+  contentType     String // "headline", "body", "cta", "full_page"
+  content         Json // Snapshot of content at this version
+
+  // A/B Test Metrics
+  views         Int      @default(0)
+  conversions   Int      @default(0)
+  conversionRate Float?
+  isWinner      Boolean  @default(false)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@index([seoLandingPageId])
+  @@index([landingPageId])
+  @@index([isWinner])
+  @@map("content_snapshots")
+}
+
+// ============ Tax Forms Library ============
+
+enum TaxFormCategory {
+  MAIN_FORMS      // 1040-SR, W-2
+  SCHEDULES_1040  // Schedule 1, 2, 3, A, B, C, D, E, SE
+  FORMS_1099      // 1099-B, 1099-DIV, 1099-INT, etc.
+  TAX_CREDITS     // 2441, 5695, 8812, 8863, 8962
+  BUSINESS_FORMS  // 4562, 8995
+  OTHER_FORMS     // 8889, 8949, etc.
+  INSTRUCTIONS    // Instructions and guides
+}
+
+model TaxForm {
+  id             String            @id @default(cuid())
+  formNumber     String            @unique  // "1040-SR", "W-2", "Schedule A"
+  title          String                     // "U.S. Income Tax Return for Seniors"
+  description    String?           @db.Text
+  category       TaxFormCategory
+  taxYear        Int                        // 2024
+  fileUrl        String                     // Public URL to PDF
+  fileName       String                     // "Form_1040-SR.pdf"
+  fileSize       Int
+  downloadCount  Int               @default(0)
+  isActive       Boolean           @default(true)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  // Relations
+  shares         TaxFormShare[]
+  clientForms    ClientTaxForm[]   // Forms assigned to clients
+
+  @@index([category])
+  @@index([taxYear])
+  @@index([isActive])
+  @@index([formNumber])
+  @@map("tax_forms")
+}
+
+model TaxFormShare {
+  id           String    @id @default(cuid())
+  taxFormId    String
+  taxForm      TaxForm   @relation(fields: [taxFormId], references: [id], onDelete: Cascade)
+  sharedBy     String    // Profile ID of tax preparer
+  sharedWith   String    // Profile ID of client or email address
+  shareToken   String    @unique
+  expiresAt    DateTime?
+  accessCount  Int       @default(0)
+  createdAt    DateTime  @default(now())
+  lastAccessAt DateTime?
+
+  @@index([shareToken])
+  @@index([sharedBy])
+  @@index([sharedWith])
+  @@index([taxFormId])
+  @@map("tax_form_shares")
+}
+
+// Tax Form Assignment Status
+enum ClientTaxFormStatus {
+  ASSIGNED      // Preparer assigned, client hasn't started
+  IN_PROGRESS   // Client is filling out the form
+  COMPLETED     // Client marked as complete
+  REVIEWED      // Preparer reviewed and approved
+}
+
+// Client Tax Form Assignment & Data
+model ClientTaxForm {
+  id             String               @id @default(cuid())
+
+  // Relationships
+  clientId       String
+  client         Profile              @relation("ClientTaxForms", fields: [clientId], references: [id], onDelete: Cascade)
+
+  taxFormId      String
+  taxForm        TaxForm              @relation(fields: [taxFormId], references: [id], onDelete: Cascade)
+
+  assignedBy     String               // Tax preparer who assigned
+  assignedByProfile Profile           @relation("AssignedForms", fields: [assignedBy], references: [id], onDelete: Cascade)
+
+  // Status & Workflow
+  status         ClientTaxFormStatus  @default(ASSIGNED)
+
+  // Form Data (filled field values)
+  formData       Json?                @db.JsonB // {fieldName: value, fieldName2: value2}
+
+  // Notes & Instructions
+  notes          String?              @db.Text // Preparer notes for client (e.g., "Please complete Section 1 only")
+
+  // Tracking
+  assignedAt     DateTime             @default(now())
+  startedAt      DateTime?            // When client first opened form
+  completedAt    DateTime?            // When client marked complete
+  reviewedBy     String?              // Profile ID of reviewer
+  reviewedAt     DateTime?            // When reviewed
+
+  // Metadata
+  progress       Int                  @default(0) // Percentage 0-100
+  lastEditedBy   String?              // Last person to edit
+  lastEditedAt   DateTime?            // Last edit timestamp
+
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  // Relations
+  edits          TaxFormEdit[]        // Edit history
+
+  @@index([clientId])
+  @@index([taxFormId])
+  @@index([assignedBy])
+  @@index([status])
+  @@index([assignedAt])
+  @@unique([clientId, taxFormId])  // Each client can only have one instance of each form
+  @@map("client_tax_forms")
+}
+
+// Tax Form Edit History (Audit Trail & Version Control)
+model TaxFormEdit {
+  id                 String          @id @default(cuid())
+
+  clientTaxFormId    String
+  clientTaxForm      ClientTaxForm   @relation(fields: [clientTaxFormId], references: [id], onDelete: Cascade)
+
+  // Who made the edit
+  editedBy           String
+  editedByProfile    Profile         @relation("FormEdits", fields: [editedBy], references: [id], onDelete: Cascade)
+  editedByRole       UserRole        // CLIENT or TAX_PREPARER
+
+  // What changed
+  fieldChanges       Json            @db.JsonB // {fieldName: {old: oldValue, new: newValue}}
+  formDataSnapshot   Json            @db.JsonB // Complete form state after this edit
+
+  // Optional note explaining the change
+  editNote           String?         @db.Text
+
+  editedAt           DateTime        @default(now())
+
+  @@index([clientTaxFormId])
+  @@index([editedBy])
+  @@index([editedAt])
+  @@map("tax_form_edits")
 }

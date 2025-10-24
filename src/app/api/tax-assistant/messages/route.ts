@@ -7,16 +7,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { sendMessage } from '@/lib/services/tax-assistant.service';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -40,7 +38,7 @@ export async function POST(request: NextRequest) {
       data: response,
     });
   } catch (error) {
-    console.error('Error sending message:', error);
+    logger.error('Error sending message:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to send message' },
       { status: 500 }

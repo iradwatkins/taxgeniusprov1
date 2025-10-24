@@ -35,6 +35,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { toast } from 'sonner';
 import { Loader2, Plus, Edit, Trash2, ShieldAlert, TestTube2, Info } from 'lucide-react';
 import { PageRestrictionResponse } from '@/types/route-access-control';
+import { logger } from '@/lib/logger';
 
 export default function RouteAccessControlPage() {
   const router = useRouter();
@@ -82,7 +83,7 @@ export default function RouteAccessControlPage() {
       setRestrictions(data.data || []);
     } catch (error) {
       toast.error('Failed to load route restrictions');
-      console.error(error);
+      logger.error(error);
     } finally {
       setLoading(false);
     }
@@ -340,7 +341,8 @@ export default function RouteAccessControlPage() {
               <code className="bg-muted px-2 py-1 rounded">/admin/users</code> - Exact match only
             </div>
             <div>
-              <code className="bg-muted px-2 py-1 rounded">/admin/*</code> - Matches all admin routes
+              <code className="bg-muted px-2 py-1 rounded">/admin/*</code> - Matches all admin
+              routes
             </div>
             <div>
               <code className="bg-muted px-2 py-1 rounded">/dashboard/*/settings</code> - Matches
@@ -413,7 +415,8 @@ export default function RouteAccessControlPage() {
               {restrictions.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
-                    No route restrictions configured. Click &quot;Add Restriction&quot; to get started.
+                    No route restrictions configured. Click &quot;Add Restriction&quot; to get
+                    started.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -455,7 +458,9 @@ export default function RouteAccessControlPage() {
                           </div>
                         )}
                       </TableCell>
-                      <TableCell className="text-center font-medium">{restriction.priority}</TableCell>
+                      <TableCell className="text-center font-medium">
+                        {restriction.priority}
+                      </TableCell>
                       <TableCell className="text-center">
                         {restriction.isActive ? (
                           <Badge variant="default" className="bg-green-600">
@@ -618,7 +623,9 @@ export default function RouteAccessControlPage() {
                   <Switch
                     id="hideFromNav"
                     checked={formData.hideFromNav}
-                    onCheckedChange={(checked) => setFormData({ ...formData, hideFromNav: checked })}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, hideFromNav: checked })
+                    }
                   />
                   <Label htmlFor="hideFromNav" className="cursor-pointer">
                     Hide from navigation
@@ -655,9 +662,7 @@ export default function RouteAccessControlPage() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Route Restriction</DialogTitle>
-            <DialogDescription>
-              Modify the route access control rule
-            </DialogDescription>
+            <DialogDescription>Modify the route access control rule</DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
@@ -766,7 +771,9 @@ export default function RouteAccessControlPage() {
                   <Switch
                     id="editHideFromNav"
                     checked={formData.hideFromNav}
-                    onCheckedChange={(checked) => setFormData({ ...formData, hideFromNav: checked })}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, hideFromNav: checked })
+                    }
                   />
                   <Label htmlFor="editHideFromNav" className="cursor-pointer">
                     Hide from navigation
@@ -905,7 +912,9 @@ export default function RouteAccessControlPage() {
                   {testResult.matchedPattern && (
                     <div>
                       <span className="font-medium">Matched Pattern:</span>{' '}
-                      <code className="bg-white px-2 py-0.5 rounded">{testResult.matchedPattern}</code>
+                      <code className="bg-white px-2 py-0.5 rounded">
+                        {testResult.matchedPattern}
+                      </code>
                     </div>
                   )}
                   {testResult.redirectUrl && (

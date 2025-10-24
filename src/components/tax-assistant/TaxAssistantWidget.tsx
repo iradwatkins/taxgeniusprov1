@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { logger } from '@/lib/logger';
 
 interface Message {
   id: string;
@@ -80,7 +81,7 @@ export function TaxAssistantWidget() {
         setThreads(data.data);
       }
     } catch (error) {
-      console.error('Error loading threads:', error);
+      logger.error('Error loading threads:', error);
     }
   };
 
@@ -101,7 +102,7 @@ export function TaxAssistantWidget() {
         await loadThreads();
       }
     } catch (error) {
-      console.error('Error creating thread:', error);
+      logger.error('Error creating thread:', error);
     } finally {
       setIsLoading(false);
     }
@@ -118,7 +119,7 @@ export function TaxAssistantWidget() {
         setShowThreadList(false);
       }
     } catch (error) {
-      console.error('Error loading thread:', error);
+      logger.error('Error loading thread:', error);
     } finally {
       setIsLoading(false);
     }
@@ -153,7 +154,7 @@ export function TaxAssistantWidget() {
         setMessages(data.data.messages);
       }
     } catch (error) {
-      console.error('Error sending message:', error);
+      logger.error('Error sending message:', error);
     } finally {
       setIsLoading(false);
     }
@@ -184,9 +185,7 @@ export function TaxAssistantWidget() {
       {isOpen && (
         <Card
           className={`fixed shadow-2xl z-[9999] flex flex-col ${
-            isMobile
-              ? 'inset-0 w-full h-full rounded-none'
-              : 'bottom-6 right-6 w-96 h-[600px]'
+            isMobile ? 'inset-0 w-full h-full rounded-none' : 'bottom-6 right-6 w-96 h-[600px]'
           }`}
         >
           {/* Header */}
@@ -220,11 +219,7 @@ export function TaxAssistantWidget() {
           {showThreadList ? (
             <div className="flex-1 overflow-hidden flex flex-col">
               <div className="p-4 border-b">
-                <Button
-                  onClick={() => createNewThread()}
-                  className="w-full"
-                  disabled={isLoading}
-                >
+                <Button onClick={() => createNewThread()} className="w-full" disabled={isLoading}>
                   <Plus className="h-4 w-4 mr-2" />
                   New Conversation
                 </Button>
@@ -237,9 +232,7 @@ export function TaxAssistantWidget() {
                       onClick={() => loadThread(thread.id)}
                       className="w-full text-left p-3 rounded-lg border hover:bg-accent transition-colors"
                     >
-                      <div className="font-medium text-sm truncate">
-                        {thread.title}
-                      </div>
+                      <div className="font-medium text-sm truncate">{thread.title}</div>
                       <div className="text-xs text-muted-foreground truncate mt-1">
                         {thread.lastMessage || 'No messages yet'}
                       </div>
@@ -263,12 +256,10 @@ export function TaxAssistantWidget() {
                 {messages.length === 0 && !isLoading && (
                   <div className="text-center py-12 text-muted-foreground">
                     <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p className="text-sm font-medium mb-2">
-                      Welcome to Tax Form Assistant!
-                    </p>
+                    <p className="text-sm font-medium mb-2">Welcome to Tax Form Assistant!</p>
                     <p className="text-xs">
-                      Ask me anything about IRS forms, where to enter deductions,
-                      credits, or income.
+                      Ask me anything about IRS forms, where to enter deductions, credits, or
+                      income.
                     </p>
                   </div>
                 )}
@@ -288,17 +279,11 @@ export function TaxAssistantWidget() {
                             : 'bg-muted'
                         }`}
                       >
-                        <div className="text-sm whitespace-pre-wrap">
-                          {message.content}
-                        </div>
+                        <div className="text-sm whitespace-pre-wrap">{message.content}</div>
                         {message.formReferences.length > 0 && (
                           <div className="flex flex-wrap gap-1 mt-2">
                             {message.formReferences.map((form, idx) => (
-                              <Badge
-                                key={idx}
-                                variant="secondary"
-                                className="text-xs"
-                              >
+                              <Badge key={idx} variant="secondary" className="text-xs">
                                 {form}
                               </Badge>
                             ))}

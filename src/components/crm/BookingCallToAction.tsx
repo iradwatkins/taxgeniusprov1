@@ -173,7 +173,7 @@ export function BookingCallToAction({
           <h3 className="text-2xl font-bold mb-2">Appointment Requested!</h3>
           <p className="text-muted-foreground max-w-md">
             {preferences.requiresApproval
-              ? 'Your appointment request has been sent. We\'ll confirm the details within 24 hours.'
+              ? "Your appointment request has been sent. We'll confirm the details within 24 hours."
               : 'Your appointment is confirmed! Check your email for details and calendar invite.'}
           </p>
         </CardContent>

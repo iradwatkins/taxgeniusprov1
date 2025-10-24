@@ -93,9 +93,11 @@ const isPublicRoute = createRouteMatcher([
 
 export default clerkMiddleware(async (auth, req) => {
   // Skip Clerk auth for test endpoints in development
-  if (process.env.NODE_ENV === 'development' &&
-      (req.nextUrl.pathname.startsWith('/api/auth/test-login') ||
-       req.nextUrl.pathname === '/auth/test-login')) {
+  if (
+    process.env.NODE_ENV === 'development' &&
+    (req.nextUrl.pathname.startsWith('/api/auth/test-login') ||
+      req.nextUrl.pathname === '/auth/test-login')
+  ) {
     return NextResponse.next();
   }
 
@@ -178,9 +180,15 @@ export default clerkMiddleware(async (auth, req) => {
           `🔄 Role mismatch - Session: "${sessionRole}", Database: "${role}" - Using database role`
         );
       }
-    } catch (error) {
-      logger.error('Error fetching user from database:', error);
-      // Fallback to session if database fails
+    } catch (error: any) {
+      // Handle Clerk rate limiting gracefully
+      if (error?.status === 429 || error?.errors?.[0]?.code === 'rate_limit_exceeded') {
+        logger.warn('⚠️  Clerk rate limit hit - using session claims as fallback');
+      } else {
+        logger.error('Error fetching user from database:', error);
+      }
+
+      // Fallback to session if database fails (including rate limits)
       role = sessionClaims?.metadata?.role as string | undefined;
       // Normalize fallback role too
       if (role) {
@@ -222,8 +230,12 @@ export default clerkMiddleware(async (auth, req) => {
         if (userEmail === 'iradwatkins@gmail.com') {
           return NextResponse.next(); // Allow access
         }
-      } catch (error) {
-        logger.error('Error checking user email:', error);
+      } catch (error: any) {
+        if (error?.status === 429 || error?.errors?.[0]?.code === 'rate_limit_exceeded') {
+          logger.warn('⚠️  Clerk rate limit hit - denying /setup-admin access');
+        } else {
+          logger.error('Error checking user email:', error);
+        }
       }
       return NextResponse.redirect(new URL('/forbidden', req.url));
     }
@@ -234,6 +246,14 @@ export default clerkMiddleware(async (auth, req) => {
       // This prevents non-admins from accessing admin routes even if viewing cookie is manipulated
       if (role !== 'admin' && role !== 'super_admin') {
         return NextResponse.redirect(new URL('/forbidden', req.url));
+      }
+
+      // SUPER ADMIN ONLY routes - extra protection for sensitive pages
+      const superAdminOnlyRoutes = ['/admin/permissions', '/admin/database'];
+      if (superAdminOnlyRoutes.some((route) => pathname.startsWith(route))) {
+        if (role !== 'super_admin') {
+          return NextResponse.redirect(new URL('/forbidden', req.url));
+        }
       }
 
       // Get user permissions for granular checks using EFFECTIVE role
@@ -267,8 +287,13 @@ export default clerkMiddleware(async (auth, req) => {
             break;
           }
         }
-      } catch (error) {
-        logger.error('Error checking permissions in middleware:', error);
+      } catch (error: any) {
+        // Handle Clerk rate limiting gracefully
+        if (error?.status === 429 || error?.errors?.[0]?.code === 'rate_limit_exceeded') {
+          logger.warn('⚠️  Clerk rate limit hit - skipping custom permission checks');
+        } else {
+          logger.error('Error checking permissions in middleware:', error);
+        }
       }
     }
 

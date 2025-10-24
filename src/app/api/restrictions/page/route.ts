@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { PrismaClient } from '@prisma/client';
 import { clearRestrictionCache } from '@/lib/content-restriction';
+import { logger } from '@/lib/logger';
 
 const prisma = new PrismaClient();
 
@@ -28,11 +29,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(restrictions);
   } catch (error) {
-    console.error('Error fetching restrictions:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    logger.error('Error fetching restrictions:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -63,10 +61,7 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!routePath) {
-      return NextResponse.json(
-        { error: 'routePath is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'routePath is required' }, { status: 400 });
     }
 
     // Check if route already exists
@@ -105,11 +100,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(restriction, { status: 201 });
   } catch (error) {
-    console.error('Error creating restriction:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    logger.error('Error creating restriction:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -138,11 +130,8 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(restriction);
   } catch (error) {
-    console.error('Error updating restriction:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    logger.error('Error updating restriction:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -170,10 +159,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error deleting restriction:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    logger.error('Error deleting restriction:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

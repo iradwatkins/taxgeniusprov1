@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Ticket, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface TicketStats {
   total: number;
@@ -49,7 +50,7 @@ export function TicketStatsCards({ role }: TicketStatsCardsProps) {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-      console.error('Error fetching ticket stats:', err);
+      logger.error('Error fetching ticket stats:', err);
     } finally {
       setLoading(false);
     }

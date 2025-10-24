@@ -92,6 +92,15 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     section: '📱 My Dashboard',
     roles: ['client', 'lead'],
   },
+  // Tax Forms hidden from navigation - clients will access assigned forms through direct links
+  // {
+  //   label: 'Tax Forms',
+  //   href: '/dashboard/client/tax-forms',
+  //   icon: FileText,
+  //   permission: 'dashboard',
+  //   section: '📱 My Dashboard',
+  //   roles: ['client', 'lead'],
+  // },
 
   // 🎯 Affiliate Section (for affiliates only)
   {
@@ -156,6 +165,14 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     label: 'Support Tickets',
     href: '/dashboard/tax-preparer/tickets',
     icon: Ticket,
+    permission: 'clientsStatus',
+    section: '👥 Clients',
+    roles: ['tax_preparer'],
+  },
+  {
+    label: 'Tax Forms Library',
+    href: '/dashboard/tax-preparer/tax-forms',
+    icon: FileText,
     permission: 'clientsStatus',
     section: '👥 Clients',
     roles: ['tax_preparer'],
@@ -235,6 +252,14 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     href: '/admin/ticket-reports',
     icon: BarChart3,
     permission: 'analytics',
+    section: '📋 CRM',
+    roles: ['admin', 'super_admin'],
+  },
+  {
+    label: 'Tax Forms Management',
+    href: '/admin/tax-forms',
+    icon: FileText,
+    permission: 'clientFileCenter',
     section: '📋 CRM',
     roles: ['admin', 'super_admin'],
   },
@@ -322,6 +347,24 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: Sparkles,
     permission: 'contentGenerator',
     section: '📢 Marketing',
+    roles: ['admin', 'super_admin'],
+  },
+
+  // 🛒 Store Management Section
+  {
+    label: 'Product Management',
+    href: '/admin/products',
+    icon: Package,
+    permission: 'database',
+    section: '🛒 Store Management',
+    roles: ['admin', 'super_admin'],
+  },
+  {
+    label: 'Order Management',
+    href: '/admin/orders',
+    icon: Package,
+    permission: 'database',
+    section: '🛒 Store Management',
     roles: ['admin', 'super_admin'],
   },
 
@@ -438,7 +481,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     href: '/dashboard/settings',
     icon: Settings,
     permission: 'settings',
-    section: '⚙️ System Controls',
+    section: '⚙️ Settings', // Separate section so it's not hidden when System Controls is restricted
   },
 ];
 
@@ -452,4 +495,17 @@ export const ROLE_DASHBOARD_ROUTES: Record<UserRole, string> = {
   tax_preparer: '/dashboard/tax-preparer',
   affiliate: '/dashboard/affiliate',
   client: '/dashboard/client',
+};
+
+/**
+ * Section visibility by role
+ * Defines which sections should be visible to which roles
+ * If a section is not listed, it's visible to all roles (with proper permissions)
+ */
+export const SECTION_ROLE_RESTRICTIONS: Record<string, UserRole[]> = {
+  '⚙️ System Controls': ['super_admin', 'admin'], // Only admins and super_admins can see system controls
+  '💰 Financials': ['super_admin', 'admin'], // Only admins can see financials
+  '📊 Analytics': ['super_admin', 'admin', 'tax_preparer'], // Analytics section for admins and preparers
+  '📢 Marketing': ['super_admin', 'admin'], // Marketing hub for admins
+  '🛒 Store Management': ['super_admin', 'admin'], // Store management for admins
 };

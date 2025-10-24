@@ -27,6 +27,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Lock, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
+import { logger } from '@/lib/logger';
 
 interface RestrictedSectionProps {
   children: ReactNode;
@@ -152,9 +153,7 @@ export function RestrictedSection({
         <Lock className="h-4 w-4" />
         <AlertTitle>{title || 'Access Restricted'}</AlertTitle>
         <AlertDescription>
-          {upgradeMessage ||
-            description ||
-            'You do not have permission to view this content.'}
+          {upgradeMessage || description || 'You do not have permission to view this content.'}
         </AlertDescription>
         {upgradeUrl && (
           <div className="mt-4">
@@ -255,6 +254,6 @@ async function trackAccessAttempt(params: {
     });
   } catch (error) {
     // Silently fail - don't block UI on tracking errors
-    console.error('Failed to track access attempt:', error);
+    logger.error('Failed to track access attempt:', error);
   }
 }

@@ -1,6 +1,11 @@
 import { redirect } from 'next/navigation';
 import { currentUser, clerkClient } from '@clerk/nextjs/server';
-import { getUserPermissions, UserRole, ROLE_DISPLAY_NAMES, ROLE_DESCRIPTIONS } from '@/lib/permissions';
+import {
+  getUserPermissions,
+  UserRole,
+  ROLE_DISPLAY_NAMES,
+  ROLE_DESCRIPTIONS,
+} from '@/lib/permissions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -40,7 +45,7 @@ export default async function PermissionsPage() {
   }
 
   // Fetch all role permission templates from database
-  let roleTemplates: Record<string, any> = {};
+  const roleTemplates: Record<string, any> = {};
   try {
     const templates = await prisma.rolePermissionTemplate.findMany();
     templates.forEach((template) => {
@@ -52,7 +57,7 @@ export default async function PermissionsPage() {
 
   // Count users for each role using Clerk
   const clerk = await clerkClient();
-  let userCountsByRole: Record<string, number> = {
+  const userCountsByRole: Record<string, number> = {
     super_admin: 0,
     admin: 0,
     tax_preparer: 0,
@@ -117,7 +122,8 @@ export default async function PermissionsPage() {
               <CardHeader>
                 <CardTitle>Role Permission Templates</CardTitle>
                 <CardDescription>
-                  Configure default permissions for each user role. Changes will immediately affect all users with that role.
+                  Configure default permissions for each user role. Changes will immediately affect
+                  all users with that role.
                 </CardDescription>
               </CardHeader>
               <CardContent>

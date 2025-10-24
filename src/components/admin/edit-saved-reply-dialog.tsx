@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/lib/logger';
 
 interface SavedReply {
   id: string;
@@ -97,7 +98,7 @@ export function EditSavedReplyDialog({
         onSuccess();
       }
     } catch (err) {
-      console.error('Error updating template:', err);
+      logger.error('Error updating template:', err);
       toast({
         title: 'Error',
         description: err instanceof Error ? err.message : 'Failed to update template',
@@ -114,9 +115,7 @@ export function EditSavedReplyDialog({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Edit Saved Reply Template</DialogTitle>
-            <DialogDescription>
-              Update the template content and settings.
-            </DialogDescription>
+            <DialogDescription>Update the template content and settings.</DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
@@ -128,7 +127,7 @@ export function EditSavedReplyDialog({
               <Input
                 id="edit-title"
                 value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
                 disabled={loading}
                 required
               />
@@ -141,7 +140,7 @@ export function EditSavedReplyDialog({
                 id="edit-category"
                 placeholder="e.g., onboarding, tax-deductions"
                 value={formData.category}
-                onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, category: e.target.value }))}
                 disabled={loading}
               />
             </div>
@@ -155,7 +154,7 @@ export function EditSavedReplyDialog({
                 id="edit-content"
                 rows={10}
                 value={formData.content}
-                onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, content: e.target.value }))}
                 disabled={loading}
                 required
                 className="resize-none font-mono text-sm"
@@ -177,7 +176,7 @@ export function EditSavedReplyDialog({
                 id="edit-isGlobal"
                 checked={formData.isGlobal}
                 onCheckedChange={(checked) =>
-                  setFormData(prev => ({ ...prev, isGlobal: checked }))
+                  setFormData((prev) => ({ ...prev, isGlobal: checked }))
                 }
                 disabled={loading}
               />

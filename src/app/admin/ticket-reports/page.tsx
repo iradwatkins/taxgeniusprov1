@@ -126,9 +126,7 @@ export default async function TicketReportsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Response Time Distribution</CardTitle>
-                <CardDescription>
-                  How quickly tickets receive their first response
-                </CardDescription>
+                <CardDescription>How quickly tickets receive their first response</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -198,7 +196,10 @@ export default async function TicketReportsPage() {
                       { name: 'Michael Chen', resolved: 143, rate: 96.6 },
                       { name: 'Emily Davis', resolved: 128, rate: 95.5 },
                     ].map((preparer, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                      >
                         <div>
                           <p className="font-medium">{preparer.name}</p>
                           <p className="text-sm text-muted-foreground">
@@ -227,7 +228,10 @@ export default async function TicketReportsPage() {
                       { name: 'Sarah Johnson', avgTime: '1.8h' },
                       { name: 'Robert Williams', avgTime: '2.1h' },
                     ].map((preparer, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                      >
                         <div>
                           <p className="font-medium">{preparer.name}</p>
                           <p className="text-sm text-muted-foreground">Average response time</p>
@@ -300,7 +304,9 @@ export default async function TicketReportsPage() {
                               style={{ width: `${item.percentage}%` }}
                             />
                           </div>
-                          <span className="text-sm font-medium w-8 text-right">{item.percentage}%</span>
+                          <span className="text-sm font-medium w-8 text-right">
+                            {item.percentage}%
+                          </span>
                         </div>
                       </div>
                     ))}

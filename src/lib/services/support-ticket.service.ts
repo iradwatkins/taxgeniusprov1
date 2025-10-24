@@ -484,10 +484,7 @@ export async function getTicketsByUser(
 /**
  * Get ticket statistics for a user
  */
-export async function getTicketStats(
-  userId: string,
-  role: 'client' | 'preparer' | 'admin'
-) {
+export async function getTicketStats(userId: string, role: 'client' | 'preparer' | 'admin') {
   try {
     const where: Prisma.SupportTicketWhereInput = {};
 
@@ -497,29 +494,22 @@ export async function getTicketStats(
       where.assignedToId = userId;
     }
 
-    const [
-      total,
-      open,
-      inProgress,
-      waitingClient,
-      waitingPreparer,
-      resolved,
-      closed,
-    ] = await Promise.all([
-      prisma.supportTicket.count({ where }),
-      prisma.supportTicket.count({ where: { ...where, status: TicketStatus.OPEN } }),
-      prisma.supportTicket.count({
-        where: { ...where, status: TicketStatus.IN_PROGRESS },
-      }),
-      prisma.supportTicket.count({
-        where: { ...where, status: TicketStatus.WAITING_CLIENT },
-      }),
-      prisma.supportTicket.count({
-        where: { ...where, status: TicketStatus.WAITING_PREPARER },
-      }),
-      prisma.supportTicket.count({ where: { ...where, status: TicketStatus.RESOLVED } }),
-      prisma.supportTicket.count({ where: { ...where, status: TicketStatus.CLOSED } }),
-    ]);
+    const [total, open, inProgress, waitingClient, waitingPreparer, resolved, closed] =
+      await Promise.all([
+        prisma.supportTicket.count({ where }),
+        prisma.supportTicket.count({ where: { ...where, status: TicketStatus.OPEN } }),
+        prisma.supportTicket.count({
+          where: { ...where, status: TicketStatus.IN_PROGRESS },
+        }),
+        prisma.supportTicket.count({
+          where: { ...where, status: TicketStatus.WAITING_CLIENT },
+        }),
+        prisma.supportTicket.count({
+          where: { ...where, status: TicketStatus.WAITING_PREPARER },
+        }),
+        prisma.supportTicket.count({ where: { ...where, status: TicketStatus.RESOLVED } }),
+        prisma.supportTicket.count({ where: { ...where, status: TicketStatus.CLOSED } }),
+      ]);
 
     return {
       total,
@@ -602,10 +592,7 @@ export async function getUnreadMessageCount(ticketId: string, userId: string) {
  * Get last read timestamp for a user on a ticket
  * This is a placeholder - implement based on your read tracking strategy
  */
-async function getLastReadTimestamp(
-  ticketId: string,
-  userId: string
-): Promise<Date | null> {
+async function getLastReadTimestamp(ticketId: string, userId: string): Promise<Date | null> {
   // TODO: Implement read tracking
   // You might want to create a separate TicketReadStatus table
   return null;

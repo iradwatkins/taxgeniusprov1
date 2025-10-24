@@ -107,9 +107,7 @@ export default async function SupportSettingsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>AI Feature Settings</CardTitle>
-                <CardDescription>
-                  Fine-tune AI behavior and availability
-                </CardDescription>
+                <CardDescription>Fine-tune AI behavior and availability</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -164,9 +162,7 @@ export default async function SupportSettingsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Email Configuration</CardTitle>
-                <CardDescription>
-                  Configure email notifications for ticket updates
-                </CardDescription>
+                <CardDescription>Configure email notifications for ticket updates</CardDescription>
               </CardHeader>
               <CardContent>
                 <SupportSettingsForm section="email" />
@@ -228,9 +224,7 @@ export default async function SupportSettingsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Available Integrations</CardTitle>
-                <CardDescription>
-                  Extend support system with these integrations
-                </CardDescription>
+                <CardDescription>Extend support system with these integrations</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 md:grid-cols-2">

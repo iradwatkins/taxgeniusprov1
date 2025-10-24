@@ -7,6 +7,7 @@
 
 import OpenAI from 'openai';
 import { prisma } from '@/lib/db';
+import { logger } from '@/lib/logger';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -78,7 +79,7 @@ export async function createThread(params: CreateThreadParams): Promise<ThreadRe
       messages,
     };
   } catch (error) {
-    console.error('Error creating thread:', error);
+    logger.error('Error creating thread:', error);
     throw new Error('Failed to create conversation thread');
   }
 }
@@ -117,23 +118,21 @@ export async function sendMessage(params: SendMessageParams): Promise<ThreadResp
     });
 
     // Wait for completion
-    let runStatus = await openai.beta.threads.runs.retrieve(
-      dbThread.openaiThreadId,
-      run.id
-    );
+    let runStatus = await openai.beta.threads.runs.retrieve(dbThread.openaiThreadId, run.id);
 
     // Poll until complete (with timeout)
     const maxAttempts = 30; // 30 seconds max
     let attempts = 0;
     while (runStatus.status !== 'completed' && attempts < maxAttempts) {
-      if (runStatus.status === 'failed' || runStatus.status === 'cancelled' || runStatus.status === 'expired') {
+      if (
+        runStatus.status === 'failed' ||
+        runStatus.status === 'cancelled' ||
+        runStatus.status === 'expired'
+      ) {
         throw new Error(`Assistant run ${runStatus.status}`);
       }
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      runStatus = await openai.beta.threads.runs.retrieve(
-        dbThread.openaiThreadId,
-        run.id
-      );
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      runStatus = await openai.beta.threads.runs.retrieve(dbThread.openaiThreadId, run.id);
       attempts++;
     }
 
@@ -142,9 +141,7 @@ export async function sendMessage(params: SendMessageParams): Promise<ThreadResp
     }
 
     // Get messages from OpenAI
-    const messagesResponse = await openai.beta.threads.messages.list(
-      dbThread.openaiThreadId
-    );
+    const messagesResponse = await openai.beta.threads.messages.list(dbThread.openaiThreadId);
 
     // Get the latest messages (user + assistant response)
     const latestMessages = messagesResponse.data.slice(0, 2).reverse();
@@ -209,7 +206,7 @@ export async function sendMessage(params: SendMessageParams): Promise<ThreadResp
       })),
     };
   } catch (error) {
-    console.error('Error sending message:', error);
+    logger.error('Error sending message:', error);
     throw error;
   }
 }
@@ -217,10 +214,7 @@ export async function sendMessage(params: SendMessageParams): Promise<ThreadResp
 /**
  * Get thread history
  */
-export async function getThread(
-  threadId: string,
-  clerkUserId: string
-): Promise<ThreadResponse> {
+export async function getThread(threadId: string, clerkUserId: string): Promise<ThreadResponse> {
   const dbThread = await prisma.taxAssistantThread.findUnique({
     where: { id: threadId },
     include: { messages: { orderBy: { createdAt: 'asc' } } },

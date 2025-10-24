@@ -132,7 +132,12 @@ export class NotificationService {
         );
       } catch (error) {
         // Remove invalid subscriptions
-        if (error && typeof error === 'object' && 'statusCode' in error && error.statusCode === 410) {
+        if (
+          error &&
+          typeof error === 'object' &&
+          'statusCode' in error &&
+          error.statusCode === 410
+        ) {
           await db.pushSubscription.delete({
             where: { id: sub.id },
           });

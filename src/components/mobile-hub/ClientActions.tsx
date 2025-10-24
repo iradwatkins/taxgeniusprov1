@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
+import { logger } from '@/lib/logger';
 
 interface ClientActionsProps {
   userId: string;
@@ -29,7 +30,7 @@ export function ClientActions({ userId }: ClientActionsProps) {
         setStatus(data.data);
       }
     } catch (error) {
-      console.error('Error loading status:', error);
+      logger.error('Error loading status:', error);
     } finally {
       setLoading(false);
     }
@@ -58,9 +59,7 @@ export function ClientActions({ userId }: ClientActionsProps) {
               {status?.returnStatus || 'Not Started'}
             </Badge>
           </div>
-          <CardDescription>
-            {getStatusMessage(status?.returnStatus)}
-          </CardDescription>
+          <CardDescription>{getStatusMessage(status?.returnStatus)}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
@@ -71,9 +70,7 @@ export function ClientActions({ userId }: ClientActionsProps) {
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Last updated:</span>
               <span className="font-medium">
-                {status?.lastUpdated
-                  ? new Date(status.lastUpdated).toLocaleDateString()
-                  : 'Never'}
+                {status?.lastUpdated ? new Date(status.lastUpdated).toLocaleDateString() : 'Never'}
               </span>
             </div>
           </div>
@@ -116,9 +113,7 @@ export function ClientActions({ userId }: ClientActionsProps) {
   );
 }
 
-function getStatusVariant(
-  status: string
-): 'default' | 'secondary' | 'destructive' | 'outline' {
+function getStatusVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' {
   switch (status?.toLowerCase()) {
     case 'completed':
       return 'default';

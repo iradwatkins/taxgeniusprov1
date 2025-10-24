@@ -476,8 +476,8 @@ export default function AboutPage() {
               Ready to Experience the Tax Genius Difference?
             </h2>
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Join over 100,000 satisfied clients who trust us with their tax needs. Let&apos;s write the
-              next chapter of your financial success together.
+              Join over 100,000 satisfied clients who trust us with their tax needs. Let&apos;s
+              write the next chapter of your financial success together.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg" asChild>

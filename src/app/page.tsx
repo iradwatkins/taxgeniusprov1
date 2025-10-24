@@ -35,14 +35,15 @@ export default function LandingPage() {
       <OpportunitiesSection />
 
       {/* Floating Chat Widget */}
-      <div className="fixed bottom-6 right-6 z-50 group">
+      <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 group">
         <Button
           size="lg"
-          className="rounded-full w-14 h-14 shadow-xl bg-primary hover:bg-primary/90 group-hover:scale-110 transition-transform"
+          className="rounded-full w-12 h-12 md:w-14 md:h-14 shadow-xl bg-primary hover:bg-primary/90 group-hover:scale-110 transition-transform"
+          aria-label="Open live chat support"
         >
-          <MessageCircle className="w-6 h-6" />
+          <MessageCircle className="w-5 h-5 md:w-6 md:h-6" />
         </Button>
-        <span className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-card text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+        <span className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-card text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
           Need help? Chat with us!
         </span>
       </div>

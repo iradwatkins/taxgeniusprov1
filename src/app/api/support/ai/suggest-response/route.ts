@@ -32,9 +32,7 @@ export async function POST(request: NextRequest) {
 
     // Only preparers and admins can use AI features
     const canUseAI =
-      profile.role === 'TAX_PREPARER' ||
-      profile.role === 'ADMIN' ||
-      profile.role === 'SUPER_ADMIN';
+      profile.role === 'TAX_PREPARER' || profile.role === 'ADMIN' || profile.role === 'SUPER_ADMIN';
 
     if (!canUseAI) {
       return NextResponse.json(
@@ -48,10 +46,7 @@ export async function POST(request: NextRequest) {
     const { ticketId, context } = body;
 
     if (!ticketId) {
-      return NextResponse.json(
-        { error: 'Missing required field: ticketId' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required field: ticketId' }, { status: 400 });
     }
 
     // Verify ticket access

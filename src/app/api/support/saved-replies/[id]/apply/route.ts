@@ -13,10 +13,7 @@ import { logger } from '@/lib/logger';
  * POST /api/support/saved-replies/[id]/apply
  * Apply saved reply to a ticket with variable substitution
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { userId: clerkUserId } = await auth();
 
@@ -38,10 +35,7 @@ export async function POST(
     const { ticketId, variables } = body;
 
     if (!ticketId) {
-      return NextResponse.json(
-        { error: 'Missing required field: ticketId' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required field: ticketId' }, { status: 400 });
     }
 
     // Apply saved reply with variable substitution

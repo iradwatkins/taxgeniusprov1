@@ -5,7 +5,13 @@ import { useDropzone } from 'react-dropzone';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Upload, FileText, CheckCircle, XCircle, Loader2 } from 'lucide-react';
@@ -45,9 +51,7 @@ export function DocumentUploadZone({
   folderId,
 }: DocumentUploadZoneProps) {
   // Default to previous year year-round (only changes on Jan 1st)
-  const [taxYear, setTaxYear] = useState<number>(
-    defaultTaxYear || currentYear - 1
-  );
+  const [taxYear, setTaxYear] = useState<number>(defaultTaxYear || currentYear - 1);
   const [category, setCategory] = useState<string>('other');
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
 
@@ -104,11 +108,7 @@ export function DocumentUploadZone({
 
           // Update file status to success
           setUploadingFiles((prev) =>
-            prev.map((uf) =>
-              uf.file === file
-                ? { ...uf, progress: 100, status: 'success' }
-                : uf
-            )
+            prev.map((uf) => (uf.file === file ? { ...uf, progress: 100, status: 'success' } : uf))
           );
 
           toast.success(`${file.name} uploaded successfully`);
@@ -134,9 +134,7 @@ export function DocumentUploadZone({
 
       // Clear completed uploads after 3 seconds
       setTimeout(() => {
-        setUploadingFiles((prev) =>
-          prev.filter((uf) => uf.status === 'uploading')
-        );
+        setUploadingFiles((prev) => prev.filter((uf) => uf.status === 'uploading'));
         onUploadComplete?.();
       }, 3000);
     },
@@ -215,9 +213,7 @@ export function DocumentUploadZone({
               <p className="text-lg font-medium">Drop the files here...</p>
             ) : (
               <div className="space-y-2">
-                <p className="text-lg font-medium">
-                  Drag & drop files here, or click to select
-                </p>
+                <p className="text-lg font-medium">Drag & drop files here, or click to select</p>
                 <p className="text-sm text-muted-foreground">
                   Supports PDF, images, Word docs, and Excel files (max 10MB)
                 </p>
@@ -249,18 +245,12 @@ export function DocumentUploadZone({
                     {uf.status === 'uploading' && (
                       <Loader2 className="w-5 h-5 animate-spin text-primary" />
                     )}
-                    {uf.status === 'success' && (
-                      <CheckCircle className="w-5 h-5 text-green-600" />
-                    )}
-                    {uf.status === 'error' && (
-                      <XCircle className="w-5 h-5 text-red-600" />
-                    )}
+                    {uf.status === 'success' && <CheckCircle className="w-5 h-5 text-green-600" />}
+                    {uf.status === 'error' && <XCircle className="w-5 h-5 text-red-600" />}
                   </div>
                 </div>
 
-                {uf.status === 'uploading' && (
-                  <Progress value={uf.progress} className="h-1" />
-                )}
+                {uf.status === 'uploading' && <Progress value={uf.progress} className="h-1" />}
 
                 {uf.status === 'error' && uf.error && (
                   <p className="text-sm text-red-600 mt-2">{uf.error}</p>

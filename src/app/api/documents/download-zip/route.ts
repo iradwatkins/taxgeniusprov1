@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify permissions
-    const authorizedDocs = documents.filter(doc => {
+    const authorizedDocs = documents.filter((doc) => {
       // Owner can download
       if (doc.profileId === profile.id) return true;
 
@@ -129,7 +129,8 @@ export async function POST(req: NextRequest) {
             bulkDownload: true,
             fileCount: authorizedDocs.length,
           },
-          ipAddress: req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || undefined,
+          ipAddress:
+            req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || undefined,
           userAgent: req.headers.get('user-agent') || undefined,
         },
       });
@@ -138,9 +139,6 @@ export async function POST(req: NextRequest) {
     return new NextResponse(stream, { headers });
   } catch (error) {
     logger.error('Error creating zip file:', error);
-    return NextResponse.json(
-      { error: 'Failed to create zip file' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to create zip file' }, { status: 500 });
   }
 }

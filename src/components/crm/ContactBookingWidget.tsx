@@ -208,10 +208,7 @@ export function ContactBookingWidget({
                     )}
                   </div>
                 </div>
-                <Badge
-                  variant="outline"
-                  className={cn('text-xs', statusColors[apt.status] || '')}
-                >
+                <Badge variant="outline" className={cn('text-xs', statusColors[apt.status] || '')}>
                   {apt.status}
                 </Badge>
               </div>

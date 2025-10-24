@@ -37,7 +37,11 @@ export async function GET(req: NextRequest) {
 
     if (clientId) {
       // Only admins and tax preparers can view other users' files
-      if (profile.role !== 'ADMIN' && profile.role !== 'SUPER_ADMIN' && profile.role !== 'TAX_PREPARER') {
+      if (
+        profile.role !== 'ADMIN' &&
+        profile.role !== 'SUPER_ADMIN' &&
+        profile.role !== 'TAX_PREPARER'
+      ) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
 
@@ -93,9 +97,7 @@ export async function GET(req: NextRequest) {
     // Fetch files
     const files = await prisma.document.findMany({
       where,
-      orderBy: [
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ createdAt: 'desc' }],
       select: {
         id: true,
         fileName: true,
@@ -115,7 +117,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Transform to match FileManagerFile interface
-    const transformedFiles = files.map(file => ({
+    const transformedFiles = files.map((file) => ({
       id: file.id,
       fileName: file.fileName,
       fileUrl: file.fileUrl,
@@ -133,9 +135,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ files: transformedFiles });
   } catch (error) {
     logger.error('Error fetching folder contents:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch folder contents' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch folder contents' }, { status: 500 });
   }
 }

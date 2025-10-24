@@ -59,7 +59,8 @@ export function FinalCTASection() {
             <div className="space-y-4">
               <h2 className="text-3xl lg:text-4xl font-bold">Ready to Get Started?</h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                File your taxes online in minutes, or schedule a free consultation with a licensed CPA.
+                File your taxes online in minutes, or schedule a free consultation with a licensed
+                CPA.
               </p>
             </div>
 

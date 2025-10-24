@@ -4,7 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import {
   Ticket as TicketIcon,
@@ -14,7 +20,7 @@ import {
   TrendingUp,
   Clock,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react';
 import { TicketList } from '@/components/support/ticket-list';
 import { CreateTicketDialog } from '@/components/support/create-ticket-dialog';
@@ -73,11 +79,7 @@ export default async function ClientTicketsPage() {
               {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search tickets..."
-                  className="pl-9"
-                  id="ticket-search"
-                />
+                <Input placeholder="Search tickets..." className="pl-9" id="ticket-search" />
               </div>
 
               {/* Priority Filter */}
@@ -193,9 +195,7 @@ export default async function ClientTicketsPage() {
               <Button variant="outline" className="justify-start h-auto py-3">
                 <div className="text-left">
                   <p className="font-medium">Filing Status</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Check your return status
-                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">Check your return status</p>
                 </div>
               </Button>
             </div>

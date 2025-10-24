@@ -9,7 +9,7 @@
  *
  * Usage:
  * ```typescript
- * import { logger } from '@/lib/logger'
+ * import { logger } from '@/lib/logger';
  *
  * logger.debug('Debugging information', { userId: 123 })
  * logger.info('User logged in', { email: 'user@example.com' })
@@ -66,7 +66,7 @@ class Logger {
    */
   info(message: string, metadata?: LogMetadata) {
     if (this.shouldLog('info')) {
-      console.log(`[INFO] ${message}${this.formatMetadata(metadata)}`);
+      console.info(`[INFO] ${message}${this.formatMetadata(metadata)}`);
     }
   }
 

@@ -32,7 +32,11 @@ export async function GET(req: NextRequest) {
 
     if (clientId) {
       // Only admins and tax preparers can view other users' folders
-      if (profile.role !== 'ADMIN' && profile.role !== 'SUPER_ADMIN' && profile.role !== 'TAX_PREPARER') {
+      if (
+        profile.role !== 'ADMIN' &&
+        profile.role !== 'SUPER_ADMIN' &&
+        profile.role !== 'TAX_PREPARER'
+      ) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
 
@@ -70,14 +74,11 @@ export async function GET(req: NextRequest) {
           },
         },
       },
-      orderBy: [
-        { level: 'asc' },
-        { name: 'asc' },
-      ],
+      orderBy: [{ level: 'asc' }, { name: 'asc' }],
     });
 
     // Transform to include document count
-    const foldersWithCount = folders.map(folder => ({
+    const foldersWithCount = folders.map((folder) => ({
       id: folder.id,
       name: folder.name,
       description: folder.description,
@@ -92,10 +93,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ folders: foldersWithCount });
   } catch (error) {
     logger.error('Error fetching folders:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch folders' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch folders' }, { status: 500 });
   }
 }
 
@@ -132,7 +130,11 @@ export async function POST(req: NextRequest) {
 
     if (clientId) {
       // Only admins and tax preparers can create folders for other users
-      if (profile.role !== 'ADMIN' && profile.role !== 'SUPER_ADMIN' && profile.role !== 'TAX_PREPARER') {
+      if (
+        profile.role !== 'ADMIN' &&
+        profile.role !== 'SUPER_ADMIN' &&
+        profile.role !== 'TAX_PREPARER'
+      ) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
 
@@ -167,7 +169,10 @@ export async function POST(req: NextRequest) {
       }
 
       if (parentFolder.ownerId !== ownerId) {
-        return NextResponse.json({ error: 'Parent folder belongs to different user' }, { status: 403 });
+        return NextResponse.json(
+          { error: 'Parent folder belongs to different user' },
+          { status: 403 }
+        );
       }
 
       path = `${parentFolder.path}/${name.trim()}`;
@@ -218,22 +223,22 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({
-      folder: {
-        id: folder.id,
-        name: folder.name,
-        description: folder.description,
-        path: folder.path,
-        parentId: folder.parentId,
-        level: folder.level,
-        createdAt: folder.createdAt.toISOString(),
+    return NextResponse.json(
+      {
+        folder: {
+          id: folder.id,
+          name: folder.name,
+          description: folder.description,
+          path: folder.path,
+          parentId: folder.parentId,
+          level: folder.level,
+          createdAt: folder.createdAt.toISOString(),
+        },
       },
-    }, { status: 201 });
+      { status: 201 }
+    );
   } catch (error) {
     logger.error('Error creating folder:', error);
-    return NextResponse.json(
-      { error: 'Failed to create folder' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to create folder' }, { status: 500 });
   }
 }

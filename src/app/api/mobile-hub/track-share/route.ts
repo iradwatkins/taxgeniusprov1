@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/db';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,10 +21,7 @@ export async function POST(request: NextRequest) {
     const { trackingId, method, url } = body;
 
     if (!trackingId || !method || !url) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     // Get user role from Clerk or default to client
@@ -62,10 +60,7 @@ export async function POST(request: NextRequest) {
       message: 'Share tracked successfully',
     });
   } catch (error) {
-    console.error('Error tracking share:', error);
-    return NextResponse.json(
-      { error: 'Failed to track share' },
-      { status: 500 }
-    );
+    logger.error('Error tracking share:', error);
+    return NextResponse.json({ error: 'Failed to track share' }, { status: 500 });
   }
 }

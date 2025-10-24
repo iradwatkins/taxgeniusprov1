@@ -14,10 +14,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { WorkflowTrigger } from '@prisma/client';
+import { logger } from '@/lib/logger';
 
 interface CreateWorkflowDialogProps {
   trigger?: React.ReactNode;
@@ -82,7 +89,7 @@ export function CreateWorkflowDialog({ trigger, onSuccess }: CreateWorkflowDialo
         onSuccess();
       }
     } catch (err) {
-      console.error('Error creating workflow:', err);
+      logger.error('Error creating workflow:', err);
       toast({
         title: 'Error',
         description: err instanceof Error ? err.message : 'Failed to create workflow',
@@ -104,15 +111,14 @@ export function CreateWorkflowDialog({ trigger, onSuccess }: CreateWorkflowDialo
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || <Button>Create Workflow</Button>}
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger || <Button>Create Workflow</Button>}</DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Create Workflow</DialogTitle>
             <DialogDescription>
-              Set up an automated workflow for ticket management. You can add conditions and actions after creation.
+              Set up an automated workflow for ticket management. You can add conditions and actions
+              after creation.
             </DialogDescription>
           </DialogHeader>
 
@@ -126,7 +132,7 @@ export function CreateWorkflowDialog({ trigger, onSuccess }: CreateWorkflowDialo
                 id="workflow-name"
                 placeholder="e.g., Auto-Welcome New Clients"
                 value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                 disabled={loading}
                 required
               />
@@ -140,7 +146,7 @@ export function CreateWorkflowDialog({ trigger, onSuccess }: CreateWorkflowDialo
                 placeholder="Describe what this workflow does..."
                 rows={3}
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                 disabled={loading}
                 className="resize-none"
               />
@@ -154,7 +160,7 @@ export function CreateWorkflowDialog({ trigger, onSuccess }: CreateWorkflowDialo
               <Select
                 value={formData.trigger}
                 onValueChange={(value: WorkflowTrigger) =>
-                  setFormData(prev => ({ ...prev, trigger: value }))
+                  setFormData((prev) => ({ ...prev, trigger: value }))
                 }
                 disabled={loading}
               >
@@ -171,9 +177,7 @@ export function CreateWorkflowDialog({ trigger, onSuccess }: CreateWorkflowDialo
                   <SelectItem value="TICKET_UNASSIGNED">Ticket Unassigned</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">
-                When should this workflow execute?
-              </p>
+              <p className="text-xs text-muted-foreground">When should this workflow execute?</p>
             </div>
 
             {/* Priority */}
@@ -185,7 +189,9 @@ export function CreateWorkflowDialog({ trigger, onSuccess }: CreateWorkflowDialo
                 min="0"
                 max="100"
                 value={formData.priority}
-                onChange={(e) => setFormData(prev => ({ ...prev, priority: parseInt(e.target.value) || 0 }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, priority: parseInt(e.target.value) || 0 }))
+                }
                 disabled={loading}
               />
               <p className="text-xs text-muted-foreground">

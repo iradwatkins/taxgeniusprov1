@@ -239,7 +239,12 @@ export async function POST(req: NextRequest) {
         clientEmail: clientEmail.toLowerCase(),
         clientPhone,
         preparerId,
-        type: appointmentType as 'PHONE_CALL' | 'VIDEO_CALL' | 'IN_PERSON' | 'CONSULTATION' | 'FOLLOW_UP',
+        type: appointmentType as
+          | 'PHONE_CALL'
+          | 'VIDEO_CALL'
+          | 'IN_PERSON'
+          | 'CONSULTATION'
+          | 'FOLLOW_UP',
         status: appointmentStatus,
         scheduledFor: scheduledDate,
         timezone,

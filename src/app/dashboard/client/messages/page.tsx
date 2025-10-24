@@ -105,7 +105,9 @@ export default async function ClientMessagesPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Messages</h1>
-            <p className="text-sm sm:text-base text-muted-foreground mt-1">Communicate with your tax preparer</p>
+            <p className="text-sm sm:text-base text-muted-foreground mt-1">
+              Communicate with your tax preparer
+            </p>
           </div>
           <Button className="w-full sm:w-auto">
             <MessageSquare className="w-4 h-4 mr-2" />
@@ -114,152 +116,154 @@ export default async function ClientMessagesPage() {
         </div>
 
         <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
-        {/* Conversations List */}
-        <Card className="md:col-span-1">
-          <CardHeader>
-            <CardTitle>Conversations</CardTitle>
-            <CardDescription>Your recent message threads</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input placeholder="Search conversations..." className="pl-9" />
-            </div>
+          {/* Conversations List */}
+          <Card className="md:col-span-1">
+            <CardHeader>
+              <CardTitle>Conversations</CardTitle>
+              <CardDescription>Your recent message threads</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input placeholder="Search conversations..." className="pl-9" />
+              </div>
 
-            {/* Conversation List */}
-            <div className="space-y-2">
-              {conversations.map((conversation) => (
-                <div
-                  key={conversation.id}
-                  className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                    conversation.id === '1' ? 'bg-primary/5 border-primary' : 'hover:bg-accent/50'
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <Avatar>
-                      <AvatarFallback>{conversation.preparer.initials}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="font-medium text-sm truncate">{conversation.preparer.name}</p>
-                        {conversation.unread > 0 && (
-                          <Badge className="bg-primary text-primary-foreground">
-                            {conversation.unread}
-                          </Badge>
-                        )}
+              {/* Conversation List */}
+              <div className="space-y-2">
+                {conversations.map((conversation) => (
+                  <div
+                    key={conversation.id}
+                    className={`p-4 rounded-lg border cursor-pointer transition-colors ${
+                      conversation.id === '1' ? 'bg-primary/5 border-primary' : 'hover:bg-accent/50'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <Avatar>
+                        <AvatarFallback>{conversation.preparer.initials}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="font-medium text-sm truncate">
+                            {conversation.preparer.name}
+                          </p>
+                          {conversation.unread > 0 && (
+                            <Badge className="bg-primary text-primary-foreground">
+                              {conversation.unread}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground line-clamp-2">
+                          {conversation.lastMessage}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(conversation.timestamp).toLocaleDateString()}
+                        </p>
                       </div>
-                      <p className="text-xs text-muted-foreground line-clamp-2">
-                        {conversation.lastMessage}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(conversation.timestamp).toLocaleDateString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Message Thread */}
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Avatar>
+                    <AvatarFallback>SJ</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <CardTitle className="text-base">Sarah Johnson, CPA</CardTitle>
+                    <CardDescription>Your Tax Preparer</CardDescription>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm">
+                    <Filter className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Messages */}
+              <div className="h-[400px] overflow-y-auto space-y-4 p-4 bg-muted/20 rounded-lg">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex ${
+                      message.sender === 'client' ? 'justify-end' : 'justify-start'
+                    }`}
+                  >
+                    <div
+                      className={`max-w-[70%] rounded-lg p-4 ${
+                        message.sender === 'client'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-card border'
+                      }`}
+                    >
+                      <p className="text-sm font-medium mb-1">{message.senderName}</p>
+                      <p className="text-sm">{message.message}</p>
+                      <p
+                        className={`text-xs mt-2 ${
+                          message.sender === 'client'
+                            ? 'text-primary-foreground/70'
+                            : 'text-muted-foreground'
+                        }`}
+                      >
+                        {new Date(message.timestamp).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
                       </p>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+              </div>
 
-        {/* Message Thread */}
-        <Card className="md:col-span-2">
+              {/* Message Input */}
+              <div className="space-y-2">
+                <Textarea placeholder="Type your message..." rows={3} className="resize-none" />
+                <div className="flex items-center justify-between">
+                  <Button variant="outline" size="sm">
+                    <Paperclip className="w-4 h-4 mr-2" />
+                    Attach File
+                  </Button>
+                  <Button>
+                    <Send className="w-4 h-4 mr-2" />
+                    Send Message
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Actions */}
+        <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Avatar>
-                  <AvatarFallback>SJ</AvatarFallback>
-                </Avatar>
-                <div>
-                  <CardTitle className="text-base">Sarah Johnson, CPA</CardTitle>
-                  <CardDescription>Your Tax Preparer</CardDescription>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm">
-                  <Filter className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>Common message templates</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Messages */}
-            <div className="h-[400px] overflow-y-auto space-y-4 p-4 bg-muted/20 rounded-lg">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${
-                    message.sender === 'client' ? 'justify-end' : 'justify-start'
-                  }`}
-                >
-                  <div
-                    className={`max-w-[70%] rounded-lg p-4 ${
-                      message.sender === 'client'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-card border'
-                    }`}
-                  >
-                    <p className="text-sm font-medium mb-1">{message.senderName}</p>
-                    <p className="text-sm">{message.message}</p>
-                    <p
-                      className={`text-xs mt-2 ${
-                        message.sender === 'client'
-                          ? 'text-primary-foreground/70'
-                          : 'text-muted-foreground'
-                      }`}
-                    >
-                      {new Date(message.timestamp).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Message Input */}
-            <div className="space-y-2">
-              <Textarea placeholder="Type your message..." rows={3} className="resize-none" />
-              <div className="flex items-center justify-between">
-                <Button variant="outline" size="sm">
-                  <Paperclip className="w-4 h-4 mr-2" />
-                  Attach File
-                </Button>
-                <Button>
-                  <Send className="w-4 h-4 mr-2" />
-                  Send Message
-                </Button>
-              </div>
+          <CardContent>
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+              <Button variant="outline" className="justify-start">
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Request Status Update
+              </Button>
+              <Button variant="outline" className="justify-start">
+                <Paperclip className="w-4 h-4 mr-2" />
+                Upload Additional Documents
+              </Button>
+              <Button variant="outline" className="justify-start">
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Ask a Question
+              </Button>
             </div>
           </CardContent>
         </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common message templates</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-            <Button variant="outline" className="justify-start">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Request Status Update
-            </Button>
-            <Button variant="outline" className="justify-start">
-              <Paperclip className="w-4 h-4 mr-2" />
-              Upload Additional Documents
-            </Button>
-            <Button variant="outline" className="justify-start">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Ask a Question
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
       </div>
     </div>
   );

@@ -15,10 +15,7 @@ import { logger } from '@/lib/logger';
  * POST /api/support/tickets/[id]/messages
  * Add a message to a ticket
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { userId: clerkUserId } = await auth();
 
@@ -67,10 +64,7 @@ export async function POST(
 
     // Validate required fields
     if (!content) {
-      return NextResponse.json(
-        { error: 'Missing required field: content' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required field: content' }, { status: 400 });
     }
 
     // Only preparers/admins can add internal notes

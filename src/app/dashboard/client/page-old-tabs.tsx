@@ -127,7 +127,8 @@ export default function ClientDashboard() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Check URL for tab parameter
-  const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const urlParams =
+    typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const initialTab = urlParams?.get('tab') || 'overview';
 
   const [selectedTab, setSelectedTab] = useState(initialTab);
@@ -187,42 +188,44 @@ export default function ClientDashboard() {
     );
   }
 
-  const stats = currentReturn ? [
-    {
-      title: 'Estimated Refund',
-      value: currentReturn.refundAmount
-        ? `$${currentReturn.refundAmount.toLocaleString()}`
-        : 'Pending',
-      change: currentReturn.refundAmount ? 'Estimated' : 'Calculating',
-      changeType: 'neutral' as const,
-      icon: DollarSign,
-      color: 'from-green-500 to-emerald-500',
-    },
-    {
-      title: 'Documents',
-      value: `${currentReturn.documents?.length || 0}`,
-      change: `${currentReturn.progress}% complete`,
-      changeType: 'neutral' as const,
-      icon: FileText,
-      color: 'from-blue-500 to-cyan-500',
-    },
-    {
-      title: 'Days Until Deadline',
-      value: dashboardData?.stats?.daysUntilDeadline || '0',
-      change: currentReturn.status === 'FILED' ? 'Filed' : 'On track',
-      changeType: 'neutral' as const,
-      icon: CalendarIcon,
-      color: 'from-purple-500 to-pink-500',
-    },
-    {
-      title: 'Status',
-      value: currentReturn.status.replace('_', ' '),
-      change: 'Updated',
-      changeType: 'neutral' as const,
-      icon: Activity,
-      color: 'from-orange-500 to-red-500',
-    },
-  ] : [];
+  const stats = currentReturn
+    ? [
+        {
+          title: 'Estimated Refund',
+          value: currentReturn.refundAmount
+            ? `$${currentReturn.refundAmount.toLocaleString()}`
+            : 'Pending',
+          change: currentReturn.refundAmount ? 'Estimated' : 'Calculating',
+          changeType: 'neutral' as const,
+          icon: DollarSign,
+          color: 'from-green-500 to-emerald-500',
+        },
+        {
+          title: 'Documents',
+          value: `${currentReturn.documents?.length || 0}`,
+          change: `${currentReturn.progress}% complete`,
+          changeType: 'neutral' as const,
+          icon: FileText,
+          color: 'from-blue-500 to-cyan-500',
+        },
+        {
+          title: 'Days Until Deadline',
+          value: dashboardData?.stats?.daysUntilDeadline || '0',
+          change: currentReturn.status === 'FILED' ? 'Filed' : 'On track',
+          changeType: 'neutral' as const,
+          icon: CalendarIcon,
+          color: 'from-purple-500 to-pink-500',
+        },
+        {
+          title: 'Status',
+          value: currentReturn.status.replace('_', ' '),
+          change: 'Updated',
+          changeType: 'neutral' as const,
+          icon: Activity,
+          color: 'from-orange-500 to-red-500',
+        },
+      ]
+    : [];
 
   const getStatusIcon = (status: TaxReturn['status']) => {
     const icons = {
@@ -358,33 +361,35 @@ export default function ClientDashboard() {
                     getStatusColor(currentReturn.status)
                   )}
                 >
-                  {React.createElement(getStatusIcon(currentReturn.status), { className: 'h-3 w-3' })}
+                  {React.createElement(getStatusIcon(currentReturn.status), {
+                    className: 'h-3 w-3',
+                  })}
                   <span className="font-medium">{currentReturn.status.replace('_', ' ')}</span>
                 </Badge>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <Download className="mr-2 h-4 w-4" />
-                    Download Return
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Share2 className="mr-2 h-4 w-4" />
-                    Share with Spouse
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Archive className="mr-2 h-4 w-4" />
-                    Archive
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download Return
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Share2 className="mr-2 h-4 w-4" />
+                      Share with Spouse
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Archive className="mr-2 h-4 w-4" />
+                      Archive
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             )}
           </motion.div>
@@ -467,108 +472,114 @@ export default function ClientDashboard() {
                   </CardContent>
                 </Card>
               ) : (
-              <>
-              <div className="grid gap-4 lg:grid-cols-3">
-                {/* Recent Activity */}
-                <Card className="lg:col-span-2">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Activity className="h-5 w-5" />
-                      Recent Activity
-                    </CardTitle>
-                    <CardDescription>Your latest tax return updates</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ScrollArea className="h-[300px] pr-4">
-                      <div className="space-y-4">
-                        {recentActivity.map((activity, index) => (
-                          <motion.div
-                            key={activity.id}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            className="flex gap-3"
-                          >
-                            <div
-                              className={cn('p-2 rounded-full', `${activity.color} bg-opacity-10`)}
-                            >
-                              <activity.icon className={cn('h-4 w-4', activity.color)} />
-                            </div>
-                            <div className="flex-1 space-y-1">
-                              <p className="text-sm font-medium">{activity.title}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {activity.description}
-                              </p>
-                              <p className="text-xs text-muted-foreground">{activity.timestamp}</p>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  </CardContent>
-                </Card>
+                <>
+                  <div className="grid gap-4 lg:grid-cols-3">
+                    {/* Recent Activity */}
+                    <Card className="lg:col-span-2">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Activity className="h-5 w-5" />
+                          Recent Activity
+                        </CardTitle>
+                        <CardDescription>Your latest tax return updates</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ScrollArea className="h-[300px] pr-4">
+                          <div className="space-y-4">
+                            {recentActivity.map((activity, index) => (
+                              <motion.div
+                                key={activity.id}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                className="flex gap-3"
+                              >
+                                <div
+                                  className={cn(
+                                    'p-2 rounded-full',
+                                    `${activity.color} bg-opacity-10`
+                                  )}
+                                >
+                                  <activity.icon className={cn('h-4 w-4', activity.color)} />
+                                </div>
+                                <div className="flex-1 space-y-1">
+                                  <p className="text-sm font-medium">{activity.title}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {activity.description}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {activity.timestamp}
+                                  </p>
+                                </div>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </ScrollArea>
+                      </CardContent>
+                    </Card>
 
-                {/* Quick Actions */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Zap className="h-5 w-5" />
-                      Quick Actions
-                    </CardTitle>
-                    <CardDescription>Common tasks</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      <Upload className="mr-2 h-4 w-4" />
-                      Upload Document
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => setSelectedTab('messages')}
-                    >
-                      <MessageSquare className="mr-2 h-4 w-4" />
-                      Message Preparer
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <Calculator className="mr-2 h-4 w-4" />
-                      Refund Calculator
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <Download className="mr-2 h-4 w-4" />
-                      Download Forms
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start">
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      Schedule Call
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
+                    {/* Quick Actions */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Zap className="h-5 w-5" />
+                          Quick Actions
+                        </CardTitle>
+                        <CardDescription>Common tasks</CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Upload className="mr-2 h-4 w-4" />
+                          Upload Document
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start"
+                          onClick={() => setSelectedTab('messages')}
+                        >
+                          <MessageSquare className="mr-2 h-4 w-4" />
+                          Message Preparer
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start">
+                          <Calculator className="mr-2 h-4 w-4" />
+                          Refund Calculator
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start">
+                          <Download className="mr-2 h-4 w-4" />
+                          Download Forms
+                        </Button>
+                        <Button variant="outline" className="w-full justify-start">
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          Schedule Call
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
 
-              {/* Tax Tips */}
-              <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-blue-200 dark:border-blue-800">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Lightbulb className="h-5 w-5 text-blue-600" />
-                    Tax Tip of the Day
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm">
-                    Did you know? You can deduct up to $300 in charitable donations even if you
-                    don\'t itemize your deductions. Make sure to keep receipts for all donations!
-                  </p>
-                  <Button variant="link" className="mt-2 p-0 h-auto text-blue-600">
-                    Learn more <ExternalLink className="ml-1 h-3 w-3" />
-                  </Button>
-                </CardContent>
-              </Card>
-              </>
+                  {/* Tax Tips */}
+                  <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-blue-200 dark:border-blue-800">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Lightbulb className="h-5 w-5 text-blue-600" />
+                        Tax Tip of the Day
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm">
+                        Did you know? You can deduct up to $300 in charitable donations even if you
+                        don\'t itemize your deductions. Make sure to keep receipts for all
+                        donations!
+                      </p>
+                      <Button variant="link" className="mt-2 p-0 h-auto text-blue-600">
+                        Learn more <ExternalLink className="ml-1 h-3 w-3" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </>
               )}
             </TabsContent>
 

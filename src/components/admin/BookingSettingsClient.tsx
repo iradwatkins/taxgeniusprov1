@@ -289,8 +289,8 @@ export function BookingSettingsClient() {
         <CardHeader>
           <CardTitle>Preparer Booking Preferences</CardTitle>
           <CardDescription>
-            Click the toggles to quickly enable/disable booking methods, or click Edit for
-            advanced settings
+            Click the toggles to quickly enable/disable booking methods, or click Edit for advanced
+            settings
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -450,7 +450,9 @@ export function BookingSettingsClient() {
                     <Phone className="w-5 h-5 text-muted-foreground" />
                     <div>
                       <p className="font-medium">Phone Call Appointments</p>
-                      <p className="text-sm text-muted-foreground">Traditional phone consultations</p>
+                      <p className="text-sm text-muted-foreground">
+                        Traditional phone consultations
+                      </p>
                     </div>
                   </div>
                   <Switch
@@ -467,7 +469,9 @@ export function BookingSettingsClient() {
                     <Video className="w-5 h-5 text-muted-foreground" />
                     <div>
                       <p className="font-medium">Video Call Appointments</p>
-                      <p className="text-sm text-muted-foreground">Virtual meetings via Zoom/Meet</p>
+                      <p className="text-sm text-muted-foreground">
+                        Virtual meetings via Zoom/Meet
+                      </p>
                     </div>
                   </div>
                   <Switch

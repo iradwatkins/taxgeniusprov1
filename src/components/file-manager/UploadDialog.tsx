@@ -2,12 +2,7 @@
 
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DocumentUploadZone } from '@/components/documents/DocumentUploadZone';
 
 interface UploadDialogProps {
@@ -17,12 +12,7 @@ interface UploadDialogProps {
   clientId?: string;
 }
 
-export function UploadDialog({
-  open,
-  onOpenChange,
-  folderId,
-  clientId,
-}: UploadDialogProps) {
+export function UploadDialog({ open, onOpenChange, folderId, clientId }: UploadDialogProps) {
   const queryClient = useQueryClient();
 
   const handleUploadComplete = () => {

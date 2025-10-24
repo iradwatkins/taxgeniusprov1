@@ -60,40 +60,8 @@ export default function CartPage() {
       return;
     }
 
-    setIsLoading(true);
-
-    try {
-      // Call checkout API
-      const response = await fetch('/api/checkout/create-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          cartItems: items,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create checkout session');
-      }
-
-      const data = await response.json();
-
-      // Redirect to Stripe Checkout
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error('No checkout URL returned');
-      }
-    } catch (error) {
-      logger.error('Checkout error:', error);
-      toast.error('Checkout failed', {
-        description: error instanceof Error ? error.message : 'Please try again later.',
-      });
-      setIsLoading(false);
-    }
+    // Redirect to checkout page
+    router.push('/store/checkout');
   };
 
   // Show loading state during SSR/hydration

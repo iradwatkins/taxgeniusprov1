@@ -294,13 +294,8 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
           </div>
         )}
 
-        {/* Action Button */}
-        <Button variant="outline" className="w-full" asChild>
-          <a href="/dashboard/analytics" className="flex items-center justify-center gap-2">
-            <ExternalLink className="h-4 w-4" />
-            View Detailed Analytics
-          </a>
-        </Button>
+        {/* Action Button - Removed as clients don't have a dedicated analytics page */}
+        {/* Analytics data is shown inline on the referrals page */}
       </CardContent>
     </Card>
   );

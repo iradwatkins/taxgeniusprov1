@@ -5,6 +5,7 @@ import { ShareButton } from './ShareButton';
 import { FileText, Users } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { logger } from '@/lib/logger';
 
 interface TaxPreparerActionsProps {
   userId: string;
@@ -26,7 +27,7 @@ export function TaxPreparerActions({ userId }: TaxPreparerActionsProps) {
         setLinks(data.data);
       }
     } catch (error) {
-      console.error('Error loading links:', error);
+      logger.error('Error loading links:', error);
     } finally {
       setLoading(false);
     }
@@ -50,15 +51,15 @@ export function TaxPreparerActions({ userId }: TaxPreparerActionsProps) {
             <FileText className="h-5 w-5 text-primary" />
             <CardTitle className="text-lg">Tax Intake Form</CardTitle>
           </div>
-          <CardDescription>
-            Share with clients to start their tax filing
-          </CardDescription>
+          <CardDescription>Share with clients to start their tax filing</CardDescription>
         </CardHeader>
         <CardContent>
           <ShareButton
             title="Share Intake Form"
             description="Start your tax filing with TaxGeniusPro! Click here to begin:"
-            url={links?.intakeUrl || `${process.env.NEXT_PUBLIC_BASE_URL}/start-filing?ref=${userId}`}
+            url={
+              links?.intakeUrl || `${process.env.NEXT_PUBLIC_BASE_URL}/start-filing?ref=${userId}`
+            }
             icon={<FileText className="h-5 w-5 mr-2" />}
             trackingId={`intake-${userId}`}
           />
@@ -72,9 +73,7 @@ export function TaxPreparerActions({ userId }: TaxPreparerActionsProps) {
             <Users className="h-5 w-5 text-primary" />
             <CardTitle className="text-lg">Lead Generation Form</CardTitle>
           </div>
-          <CardDescription>
-            Capture potential client information
-          </CardDescription>
+          <CardDescription>Capture potential client information</CardDescription>
         </CardHeader>
         <CardContent>
           <ShareButton

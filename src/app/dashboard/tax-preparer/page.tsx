@@ -3,13 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  BarChart3,
-  FileCheck,
-  Sparkles,
-  ShoppingCart,
-  Palette,
-} from 'lucide-react';
+import { BarChart3, FileCheck, Sparkles, ShoppingCart, Palette } from 'lucide-react';
 import { AttributionStatsCard } from '@/components/dashboard/attribution-stats-card';
 import { RecentLeadsTable } from '@/components/dashboard/recent-leads-table';
 import { StatsGrid } from '@/components/dashboard/preparer/StatsGrid';

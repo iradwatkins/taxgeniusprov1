@@ -97,53 +97,37 @@ export default async function WorkflowsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Available Triggers</CardTitle>
-            <CardDescription>
-              Workflows can be triggered by these events
-            </CardDescription>
+            <CardDescription>Workflows can be triggered by these events</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-4">
               <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
                 <h4 className="font-semibold text-sm mb-1">Ticket Created</h4>
-                <p className="text-xs text-muted-foreground">
-                  When a new ticket is submitted
-                </p>
+                <p className="text-xs text-muted-foreground">When a new ticket is submitted</p>
               </div>
               <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
                 <h4 className="font-semibold text-sm mb-1">Ticket Updated</h4>
-                <p className="text-xs text-muted-foreground">
-                  When ticket details change
-                </p>
+                <p className="text-xs text-muted-foreground">When ticket details change</p>
               </div>
               <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
                 <h4 className="font-semibold text-sm mb-1">Ticket Idle</h4>
-                <p className="text-xs text-muted-foreground">
-                  When no activity for X hours
-                </p>
+                <p className="text-xs text-muted-foreground">When no activity for X hours</p>
               </div>
               <div className="p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
                 <h4 className="font-semibold text-sm mb-1">Client Response</h4>
-                <p className="text-xs text-muted-foreground">
-                  When client adds a message
-                </p>
+                <p className="text-xs text-muted-foreground">When client adds a message</p>
               </div>
               <div className="p-4 bg-indigo-50 dark:bg-indigo-950/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
                 <h4 className="font-semibold text-sm mb-1">Preparer Response</h4>
-                <p className="text-xs text-muted-foreground">
-                  When preparer replies
-                </p>
+                <p className="text-xs text-muted-foreground">When preparer replies</p>
               </div>
               <div className="p-4 bg-pink-50 dark:bg-pink-950/20 rounded-lg border border-pink-200 dark:border-pink-800">
                 <h4 className="font-semibold text-sm mb-1">Ticket Assigned</h4>
-                <p className="text-xs text-muted-foreground">
-                  When preparer is assigned
-                </p>
+                <p className="text-xs text-muted-foreground">When preparer is assigned</p>
               </div>
               <div className="p-4 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-800">
                 <h4 className="font-semibold text-sm mb-1">Ticket Unassigned</h4>
-                <p className="text-xs text-muted-foreground">
-                  When preparer is removed
-                </p>
+                <p className="text-xs text-muted-foreground">When preparer is removed</p>
               </div>
             </div>
           </CardContent>
@@ -153,59 +137,41 @@ export default async function WorkflowsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Available Actions</CardTitle>
-            <CardDescription>
-              Workflows can perform these automated actions
-            </CardDescription>
+            <CardDescription>Workflows can perform these automated actions</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
               <div className="p-3 border rounded-lg">
                 <h4 className="font-semibold text-sm mb-1">Assign Preparer</h4>
-                <p className="text-xs text-muted-foreground">
-                  Auto-assign to specific preparer
-                </p>
+                <p className="text-xs text-muted-foreground">Auto-assign to specific preparer</p>
               </div>
               <div className="p-3 border rounded-lg">
                 <h4 className="font-semibold text-sm mb-1">Send Notification</h4>
-                <p className="text-xs text-muted-foreground">
-                  Email, Slack, or SMS alerts
-                </p>
+                <p className="text-xs text-muted-foreground">Email, Slack, or SMS alerts</p>
               </div>
               <div className="p-3 border rounded-lg">
                 <h4 className="font-semibold text-sm mb-1">Add Tag</h4>
-                <p className="text-xs text-muted-foreground">
-                  Auto-tag tickets by criteria
-                </p>
+                <p className="text-xs text-muted-foreground">Auto-tag tickets by criteria</p>
               </div>
               <div className="p-3 border rounded-lg">
                 <h4 className="font-semibold text-sm mb-1">Change Status</h4>
-                <p className="text-xs text-muted-foreground">
-                  Update ticket status automatically
-                </p>
+                <p className="text-xs text-muted-foreground">Update ticket status automatically</p>
               </div>
               <div className="p-3 border rounded-lg">
                 <h4 className="font-semibold text-sm mb-1">Change Priority</h4>
-                <p className="text-xs text-muted-foreground">
-                  Adjust priority based on rules
-                </p>
+                <p className="text-xs text-muted-foreground">Adjust priority based on rules</p>
               </div>
               <div className="p-3 border rounded-lg">
                 <h4 className="font-semibold text-sm mb-1">Send Saved Reply</h4>
-                <p className="text-xs text-muted-foreground">
-                  Auto-respond with templates
-                </p>
+                <p className="text-xs text-muted-foreground">Auto-respond with templates</p>
               </div>
               <div className="p-3 border rounded-lg">
                 <h4 className="font-semibold text-sm mb-1">Auto Close</h4>
-                <p className="text-xs text-muted-foreground">
-                  Close idle or resolved tickets
-                </p>
+                <p className="text-xs text-muted-foreground">Close idle or resolved tickets</p>
               </div>
               <div className="p-3 border rounded-lg">
                 <h4 className="font-semibold text-sm mb-1">Create Task</h4>
-                <p className="text-xs text-muted-foreground">
-                  Generate follow-up tasks
-                </p>
+                <p className="text-xs text-muted-foreground">Generate follow-up tasks</p>
               </div>
             </div>
           </CardContent>
@@ -215,9 +181,7 @@ export default async function WorkflowsPage() {
         <Card>
           <CardHeader>
             <CardTitle>All Workflows</CardTitle>
-            <CardDescription>
-              Manage your automated ticket workflows
-            </CardDescription>
+            <CardDescription>Manage your automated ticket workflows</CardDescription>
           </CardHeader>
           <CardContent>
             <WorkflowsList />

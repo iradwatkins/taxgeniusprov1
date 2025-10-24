@@ -17,11 +17,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs/server';
-import {
-  checkPageAccess,
-  checkContentAccess,
-  UserContext,
-} from '@/lib/content-restriction';
+import { checkPageAccess, checkContentAccess, UserContext } from '@/lib/content-restriction';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -60,18 +57,12 @@ export async function GET(request: NextRequest) {
     } else if (contentType && contentId) {
       result = await checkContentAccess(contentType, contentId, userContext);
     } else {
-      return NextResponse.json(
-        { error: 'Invalid parameters' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 });
     }
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Error checking access:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    logger.error('Error checking access:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

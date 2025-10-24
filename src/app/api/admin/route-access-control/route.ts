@@ -116,10 +116,7 @@ export async function POST(req: NextRequest) {
 
     // Validate required fields
     if (!body.routePath) {
-      return NextResponse.json(
-        { error: 'routePath is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'routePath is required' }, { status: 400 });
     }
 
     // Check for duplicate route pattern

@@ -55,7 +55,7 @@ export function FileGrid({
     <div className="p-6 overflow-y-auto h-full">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
         {/* Folders First */}
-        {folders.map(folder => {
+        {folders.map((folder) => {
           const isSelected = selectedFolders.has(folder.id);
 
           return (
@@ -97,9 +97,13 @@ export function FileGrid({
         })}
 
         {/* Files */}
-        {files.map(file => {
+        {files.map((file) => {
           const isSelected = selectedFiles.has(file.id);
           const FileIcon = getFileIcon(file.mimeType);
+          // Ensure fileUrl uses /api/uploads prefix
+          const fileUrl = file.fileUrl.startsWith('/api/uploads')
+            ? file.fileUrl
+            : file.fileUrl.replace('/uploads', '/api/uploads');
 
           return (
             <div
@@ -117,15 +121,12 @@ export function FileGrid({
                 />
               </div>
 
-              <div
-                onClick={() => onFilePreview(file)}
-                className="flex flex-col items-center gap-2"
-              >
+              <div onClick={() => onFilePreview(file)} className="flex flex-col items-center gap-2">
                 {/* Thumbnail */}
                 <div className="w-16 h-16 flex items-center justify-center rounded border overflow-hidden bg-muted">
                   {file.mimeType.startsWith('image/') ? (
                     <img
-                      src={file.fileUrl}
+                      src={fileUrl}
                       alt={file.fileName}
                       className="w-full h-full object-cover"
                     />
@@ -143,9 +144,7 @@ export function FileGrid({
                   <p className="text-sm font-medium truncate" title={file.fileName}>
                     {file.fileName}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatFileSize(file.fileSize)}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{formatFileSize(file.fileSize)}</p>
                   <p className="text-xs text-muted-foreground">
                     {formatDistanceToNow(new Date(file.createdAt), { addSuffix: true })}
                   </p>

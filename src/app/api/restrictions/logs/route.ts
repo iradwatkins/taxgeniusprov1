@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { PrismaClient } from '@prisma/client';
+import { logger } from '@/lib/logger';
 
 const prisma = new PrismaClient();
 
@@ -29,10 +30,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(logs);
   } catch (error) {
-    console.error('Error fetching logs:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    logger.error('Error fetching logs:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -52,7 +52,7 @@ export default async function AdminPreparersAnalyticsPage({
   const filterPreparerId = searchParams.preparerId || undefined;
 
   // Fetch preparers analytics (filtered or all)
-  const preparersData = await getPreparersAnalytics(userId, role as any, filterPreparerId);
+  const preparersData = await getPreparersAnalytics(userId, role as UserRole, filterPreparerId);
 
   // Calculate aggregate metrics
   const totalClicks = preparersData.reduce((sum, p) => sum + p.clicks, 0);

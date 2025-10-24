@@ -8,6 +8,7 @@ import { AffiliateActions } from './AffiliateActions';
 import { ClientActions } from './ClientActions';
 import { StatsOverview } from './StatsOverview';
 import { QuickLinks } from './QuickLinks';
+import { logger } from '@/lib/logger';
 
 interface UserProfile {
   id: string;
@@ -40,7 +41,7 @@ export function MobileHubClient({ user, permissions }: MobileHubClientProps) {
         setStats(data.data);
       }
     } catch (error) {
-      console.error('Error loading stats:', error);
+      logger.error('Error loading stats:', error);
     } finally {
       setLoading(false);
     }
@@ -68,21 +69,15 @@ export function MobileHubClient({ user, permissions }: MobileHubClientProps) {
       <div className="space-y-6">
         {/* Welcome Header */}
         <div className="text-center px-4 pt-6">
-          <h1 className="text-2xl font-bold">
-            Welcome back, {user.firstName}!
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            {getRoleDisplayName(user.role)} Dashboard
-          </p>
+          <h1 className="text-2xl font-bold">Welcome back, {user.firstName}!</h1>
+          <p className="text-muted-foreground mt-1">{getRoleDisplayName(user.role)} Dashboard</p>
         </div>
 
         {/* Quick Stats */}
         <StatsOverview stats={stats} loading={loading} role={user.role} />
 
         {/* Role-Based Actions */}
-        <div className="px-4">
-          {renderRoleActions()}
-        </div>
+        <div className="px-4">{renderRoleActions()}</div>
 
         {/* Quick Links */}
         <QuickLinks role={user.role} permissions={permissions} />

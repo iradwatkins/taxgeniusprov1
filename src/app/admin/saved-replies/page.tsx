@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { currentUser } from '@clerk/nextjs/server';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { SavedRepliesList } from '@/components/admin/saved-replies-list';
 import { CreateSavedReplyDialog } from '@/components/admin/create-saved-reply-dialog';
 import { Plus, FileText, TrendingUp, Clock } from 'lucide-react';
@@ -54,7 +55,7 @@ export default async function SavedRepliesPage() {
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">Loading...</div>
+              <Skeleton className="h-8 w-16 mb-1" />
               <p className="text-xs text-muted-foreground">All saved replies</p>
             </CardContent>
           </Card>
@@ -65,7 +66,7 @@ export default async function SavedRepliesPage() {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">Loading...</div>
+              <Skeleton className="h-8 w-24 mb-1" />
               <p className="text-xs text-muted-foreground">Top template this month</p>
             </CardContent>
           </Card>
@@ -76,7 +77,7 @@ export default async function SavedRepliesPage() {
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">Loading...</div>
+              <Skeleton className="h-8 w-20 mb-1" />
               <p className="text-xs text-muted-foreground">Est. hours saved</p>
             </CardContent>
           </Card>

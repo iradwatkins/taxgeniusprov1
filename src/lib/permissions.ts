@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 /**
  * Permission System
  *
@@ -244,7 +245,7 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     calendar: true, // ✅ Calendar for managing client appointments
     store: true, // Can purchase marketing materials
     academy: true, // Access training and certification
-    settings: true,
+    // settings: false - REMOVED to prevent System Controls visibility
     analytics: true, // Can view their own lead analytics
     trackingCode: true, // Can manage their personal tracking code
     // ❌ REMOVED: System-wide management tools (these are for admins only)
@@ -260,7 +261,7 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     dashboard: true,
     store: true, // ✅ Access to marketing materials store
     marketing: true, // ✅ Professional marketing materials and assets
-    settings: true,
+    // settings: false - REMOVED to prevent System Controls visibility
     analytics: true, // ✅ Detailed conversion analytics for their campaigns
     trackingCode: true, // ✅ Sophisticated tracking codes for attribution
     earnings: false, // Removed from all dashboards
@@ -276,7 +277,7 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, Partial<UserPermissions>> = {
     // Clients have completed tax preparation and can refer new clients
     dashboard: true,
     uploadDocuments: true,
-    settings: true,
+    // settings: false - REMOVED to prevent System Controls visibility
     // Referral features (conditional - shown if shortLinkUsername exists)
     analytics: true, // View referral analytics
     trackingCode: true, // Personal referral link
@@ -412,7 +413,7 @@ export function getEditablePermissions(role: UserRole): Permission[] {
         'calendar', // Calendar for managing client appointments
         'store', // Can purchase marketing materials
         'academy', // Access training
-        'settings',
+        // 'settings' - REMOVED to prevent System Controls section visibility
         'analytics', // Their own performance analytics
         'trackingCode', // Their personal tracking link
         // REMOVED: clientsStatus, referralsStatus, emails
@@ -425,7 +426,7 @@ export function getEditablePermissions(role: UserRole): Permission[] {
         'dashboard',
         'store', // ✅ Access to marketing materials store
         'marketing', // Professional marketing assets
-        'settings',
+        // 'settings' - REMOVED to prevent System Controls section visibility
         'analytics', // Detailed conversion tracking
         'trackingCode', // Sophisticated tracking codes
       ];
@@ -438,7 +439,7 @@ export function getEditablePermissions(role: UserRole): Permission[] {
       return [
         'dashboard',
         'uploadDocuments',
-        'settings',
+        // 'settings' - REMOVED to prevent System Controls section visibility
         'analytics', // View referral analytics (conditional)
         'trackingCode', // Personal referral link (conditional)
         'marketing', // Sharing tools (conditional)
@@ -493,9 +494,7 @@ export const PERMISSION_TO_ROUTE: Record<Permission, string> = {
  * @param role - The user role to get template for
  * @returns Promise<Partial<UserPermissions>>
  */
-export async function getRolePermissionTemplate(
-  role: UserRole
-): Promise<Partial<UserPermissions>> {
+export async function getRolePermissionTemplate(role: UserRole): Promise<Partial<UserPermissions>> {
   try {
     // Dynamic import to avoid circular dependency
     const { PrismaClient } = await import('@prisma/client');
@@ -514,7 +513,7 @@ export async function getRolePermissionTemplate(
     // Fall back to default permissions
     return DEFAULT_PERMISSIONS[role] || DEFAULT_PERMISSIONS.client;
   } catch (error) {
-    console.error('Error fetching role template from DB:', error);
+    logger.error('Error fetching role template from DB:', error);
     // Fall back to default permissions on error
     return DEFAULT_PERMISSIONS[role] || DEFAULT_PERMISSIONS.client;
   }

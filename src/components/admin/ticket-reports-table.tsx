@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { logger } from '@/lib/logger';
 
 interface TicketReportsTableProps {
   view: 'recent' | 'preparers';
@@ -27,7 +28,7 @@ export function TicketReportsTable({ view }: TicketReportsTableProps) {
         setData(result.data || []);
       }
     } catch (error) {
-      console.error('Error fetching report data:', error);
+      logger.error('Error fetching report data:', error);
     } finally {
       setLoading(false);
     }

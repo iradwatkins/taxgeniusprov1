@@ -5,7 +5,14 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Mail, Lock, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
@@ -59,7 +66,6 @@ export default function TestLoginPage() {
       setTimeout(() => {
         router.push(redirectUrl);
       }, 1000);
-
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -104,9 +110,7 @@ export default function TestLoginPage() {
         <CardContent className="space-y-6">
           {/* Test Accounts Quick Access */}
           <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-            <p className="text-sm font-semibold text-muted-foreground mb-2">
-              Quick Test Accounts:
-            </p>
+            <p className="text-sm font-semibold text-muted-foreground mb-2">Quick Test Accounts:</p>
             <div className="space-y-1">
               {testAccounts.map((account) => (
                 <button
@@ -195,9 +199,7 @@ export default function TestLoginPage() {
 
           <div className="space-y-2">
             <Button variant="outline" asChild className="w-full">
-              <Link href="/auth/login">
-                Login with Clerk (Production)
-              </Link>
+              <Link href="/auth/login">Login with Clerk (Production)</Link>
             </Button>
           </div>
         </CardContent>

@@ -12,6 +12,11 @@ interface FilePreviewProps {
 }
 
 export function FilePreview({ file, onClose }: FilePreviewProps) {
+  // Ensure fileUrl uses /api/uploads prefix
+  const fileUrl = file.fileUrl.startsWith('/api/uploads')
+    ? file.fileUrl
+    : file.fileUrl.replace('/uploads', '/api/uploads');
+
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
@@ -20,7 +25,11 @@ export function FilePreview({ file, onClose }: FilePreviewProps) {
 
   const handleDownload = () => {
     const a = document.createElement('a');
-    a.href = file.fileUrl;
+    // Ensure fileUrl uses /api/uploads prefix
+    const fileUrl = file.fileUrl.startsWith('/api/uploads')
+      ? file.fileUrl
+      : file.fileUrl.replace('/uploads', '/api/uploads');
+    a.href = fileUrl;
     a.download = file.fileName;
     document.body.appendChild(a);
     a.click();
@@ -39,16 +48,12 @@ export function FilePreview({ file, onClose }: FilePreviewProps) {
           <div className="border rounded-lg overflow-hidden bg-muted min-h-[400px] flex items-center justify-center">
             {file.mimeType.startsWith('image/') ? (
               <img
-                src={file.fileUrl}
+                src={fileUrl}
                 alt={file.fileName}
                 className="max-w-full max-h-[600px] object-contain"
               />
             ) : file.mimeType === 'application/pdf' ? (
-              <iframe
-                src={file.fileUrl}
-                className="w-full h-[600px]"
-                title={file.fileName}
-              />
+              <iframe src={fileUrl} className="w-full h-[600px]" title={file.fileName} />
             ) : (
               <div className="text-center text-muted-foreground p-8">
                 <p className="mb-4">Preview not available for this file type</p>

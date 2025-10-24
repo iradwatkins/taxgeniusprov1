@@ -42,6 +42,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Image from 'next/image';
+import { logger } from '@/lib/logger';
 
 interface ReferralLink {
   id: string;
@@ -100,7 +101,7 @@ export function ReferralLinksManager() {
       setIntakeLink(intake || null);
       setAppointmentLink(appointment || null);
     } catch (error) {
-      console.error('Error loading referral links:', error);
+      logger.error('Error loading referral links:', error);
       toast.error('Failed to load referral links');
     } finally {
       setLoading(false);
@@ -117,7 +118,7 @@ export function ReferralLinksManager() {
       const data = await response.json();
       setTrackingCode(data.data);
     } catch (error) {
-      console.error('Error loading tracking code:', error);
+      logger.error('Error loading tracking code:', error);
     }
   };
 
@@ -138,7 +139,7 @@ export function ReferralLinksManager() {
       const data = await response.json();
       setAvailabilityStatus(data);
     } catch (error) {
-      console.error('Error checking availability:', error);
+      logger.error('Error checking availability:', error);
       setAvailabilityStatus({ available: false, reason: 'Error checking availability' });
     } finally {
       setCheckingAvailability(false);
@@ -171,7 +172,7 @@ export function ReferralLinksManager() {
       // Reload data
       await Promise.all([loadTrackingCode(), loadReferralLinks()]);
     } catch (error: any) {
-      console.error('Error customizing tracking code:', error);
+      logger.error('Error customizing tracking code:', error);
       toast.error(error.message || 'Failed to customize vanity name');
     } finally {
       setCustomizing(false);
@@ -199,7 +200,11 @@ export function ReferralLinksManager() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              {type === 'intake' ? <FileText className="h-5 w-5" /> : <Calendar className="h-5 w-5" />}
+              {type === 'intake' ? (
+                <FileText className="h-5 w-5" />
+              ) : (
+                <Calendar className="h-5 w-5" />
+              )}
               {type === 'intake' ? 'Tax Filing Link' : 'Appointment Link'}
             </CardTitle>
             <CardDescription>Your referral link is being generated...</CardDescription>
@@ -217,7 +222,11 @@ export function ReferralLinksManager() {
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <CardTitle className="flex items-center gap-2">
-                {type === 'intake' ? <FileText className="h-5 w-5" /> : <Calendar className="h-5 w-5" />}
+                {type === 'intake' ? (
+                  <FileText className="h-5 w-5" />
+                ) : (
+                  <Calendar className="h-5 w-5" />
+                )}
                 {link.title}
               </CardTitle>
               <CardDescription>{link.description || link.targetPage}</CardDescription>
@@ -259,8 +268,8 @@ export function ReferralLinksManager() {
                 </div>
                 <div className="flex-1 space-y-2">
                   <p className="text-sm text-muted-foreground">
-                    Share this QR code on flyers, business cards, or social media. Anyone who scans it
-                    will be tracked as your referral.
+                    Share this QR code on flyers, business cards, or social media. Anyone who scans
+                    it will be tracked as your referral.
                   </p>
                   <Button
                     size="sm"
@@ -338,7 +347,8 @@ export function ReferralLinksManager() {
                   <DialogHeader>
                     <DialogTitle>Customize Your Vanity Name</DialogTitle>
                     <DialogDescription>
-                      Choose a memorable vanity name for your referral links. This can only be done once.
+                      Choose a memorable vanity name for your referral links. This can only be done
+                      once.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
@@ -410,9 +420,7 @@ export function ReferralLinksManager() {
                 <Label>Your Tracking Code:</Label>
                 <Badge variant="secondary" className="font-mono">
                   {trackingCode.code}
-                  {trackingCode.isCustom && (
-                    <span className="ml-2 text-xs">(Custom)</span>
-                  )}
+                  {trackingCode.isCustom && <span className="ml-2 text-xs">(Custom)</span>}
                 </Badge>
                 {!trackingCode.canCustomize && (
                   <span className="text-xs text-muted-foreground">(Cannot be changed)</span>

@@ -18,10 +18,7 @@ import { clearRestrictionCache } from '@/lib/content-restriction';
 /**
  * PUT - Update existing route restriction
  */
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { userId } = await auth();
 
@@ -40,10 +37,7 @@ export async function PUT(
     });
 
     if (!existing) {
-      return NextResponse.json(
-        { error: 'Route restriction not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Route restriction not found' }, { status: 404 });
     }
 
     // If changing routePath, check for conflicts
@@ -134,10 +128,7 @@ export async function PUT(
 /**
  * DELETE - Delete route restriction
  */
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { userId } = await auth();
 
@@ -155,10 +146,7 @@ export async function DELETE(
     });
 
     if (!existing) {
-      return NextResponse.json(
-        { error: 'Route restriction not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Route restriction not found' }, { status: 404 });
     }
 
     // Delete restriction
@@ -169,9 +157,7 @@ export async function DELETE(
     // Clear cache
     clearRestrictionCache(existing.routePath);
 
-    logger.info(
-      `Route restriction deleted: ${existing.routePath} by ${userId}`
-    );
+    logger.info(`Route restriction deleted: ${existing.routePath} by ${userId}`);
 
     return NextResponse.json({
       success: true,

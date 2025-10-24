@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Ticket, Clock, CheckCircle, TrendingUp } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 export function TicketReportsOverview() {
   const [stats, setStats] = useState<any>(null);
@@ -21,7 +22,7 @@ export function TicketReportsOverview() {
         setStats(data.data);
       }
     } catch (error) {
-      console.error('Error fetching overview stats:', error);
+      logger.error('Error fetching overview stats:', error);
     } finally {
       setLoading(false);
     }
@@ -68,9 +69,7 @@ export function TicketReportsOverview() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats?.openTickets || 0}</div>
-          <p className="text-xs text-muted-foreground">
-            Awaiting response or action
-          </p>
+          <p className="text-xs text-muted-foreground">Awaiting response or action</p>
         </CardContent>
       </Card>
 
@@ -94,9 +93,7 @@ export function TicketReportsOverview() {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats?.avgResponseTime || 'N/A'}</div>
-          <p className="text-xs text-muted-foreground">
-            First response to tickets
-          </p>
+          <p className="text-xs text-muted-foreground">First response to tickets</p>
         </CardContent>
       </Card>
     </div>

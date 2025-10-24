@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,10 +29,7 @@ export async function GET(request: NextRequest) {
       data: links,
     });
   } catch (error) {
-    console.error('Error fetching preparer links:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch links' },
-      { status: 500 }
-    );
+    logger.error('Error fetching preparer links:', error);
+    return NextResponse.json({ error: 'Failed to fetch links' }, { status: 500 });
   }
 }

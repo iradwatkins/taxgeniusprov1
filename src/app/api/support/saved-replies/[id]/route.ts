@@ -18,10 +18,7 @@ import { logger } from '@/lib/logger';
 /**
  * GET /api/support/saved-replies/[id]
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { userId: clerkUserId } = await auth();
 
@@ -69,10 +66,7 @@ export async function GET(
 /**
  * PATCH /api/support/saved-replies/[id]
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { userId: clerkUserId } = await auth();
 
@@ -136,10 +130,7 @@ export async function PATCH(
 /**
  * DELETE /api/support/saved-replies/[id]
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { userId: clerkUserId } = await auth();
 

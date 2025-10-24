@@ -97,9 +97,7 @@ export function FileManager({
   const { data: foldersData, isLoading: foldersLoading } = useQuery({
     queryKey: ['file-manager-folders', clientId],
     queryFn: async () => {
-      const url = clientId
-        ? `/api/folders?clientId=${clientId}`
-        : '/api/folders';
+      const url = clientId ? `/api/folders?clientId=${clientId}` : '/api/folders';
       const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch folders');
       return response.json();
@@ -123,7 +121,7 @@ export function FileManager({
 
   const folders: FileManagerFolder[] = foldersData?.folders || [];
   const files: FileManagerFile[] = filesData?.files || [];
-  const currentFolder = folders.find(f => f.id === currentFolderId);
+  const currentFolder = folders.find((f) => f.id === currentFolderId);
 
   // Breadcrumb navigation
   const getBreadcrumbs = useCallback(() => {
@@ -135,7 +133,7 @@ export function FileManager({
 
     parts.forEach((part, index) => {
       accumulatedPath += `/${part}`;
-      const folder = folders.find(f => f.path === accumulatedPath);
+      const folder = folders.find((f) => f.path === accumulatedPath);
       if (folder) {
         breadcrumbs.push({
           id: folder.id,
@@ -150,7 +148,7 @@ export function FileManager({
 
   // Selection handlers
   const handleFileSelect = (fileId: string, selected: boolean) => {
-    setSelectedFiles(prev => {
+    setSelectedFiles((prev) => {
       const newSet = new Set(prev);
       if (selected) {
         newSet.add(fileId);
@@ -162,7 +160,7 @@ export function FileManager({
   };
 
   const handleFolderSelect = (folderId: string, selected: boolean) => {
-    setSelectedFolders(prev => {
+    setSelectedFolders((prev) => {
       const newSet = new Set(prev);
       if (selected) {
         newSet.add(folderId);
@@ -178,7 +176,7 @@ export function FileManager({
       setSelectedFiles(new Set());
       setSelectedFolders(new Set());
     } else {
-      setSelectedFiles(new Set(files.map(f => f.id)));
+      setSelectedFiles(new Set(files.map((f) => f.id)));
       setSelectedFolders(new Set());
     }
   };
@@ -299,15 +297,9 @@ export function FileManager({
                   onClick={() => setCurrentFolderId(crumb.id)}
                   className="flex items-center gap-1 hover:text-foreground transition-colors"
                 >
-                  {index === 0 ? (
-                    <Home className="w-4 h-4" />
-                  ) : (
-                    <span>{crumb.name}</span>
-                  )}
+                  {index === 0 ? <Home className="w-4 h-4" /> : <span>{crumb.name}</span>}
                 </button>
-                {index < array.length - 1 && (
-                  <ChevronRight className="w-4 h-4" />
-                )}
+                {index < array.length - 1 && <ChevronRight className="w-4 h-4" />}
               </div>
             ))}
           </div>
@@ -384,7 +376,7 @@ export function FileManager({
           ) : viewMode === 'grid' ? (
             <FileGrid
               files={files}
-              folders={folders.filter(f => f.parentId === currentFolderId)}
+              folders={folders.filter((f) => f.parentId === currentFolderId)}
               selectedFiles={selectedFiles}
               selectedFolders={selectedFolders}
               onFileSelect={handleFileSelect}
@@ -395,7 +387,7 @@ export function FileManager({
           ) : (
             <FileList
               files={files}
-              folders={folders.filter(f => f.parentId === currentFolderId)}
+              folders={folders.filter((f) => f.parentId === currentFolderId)}
               selectedFiles={selectedFiles}
               selectedFolders={selectedFolders}
               onFileSelect={handleFileSelect}
@@ -422,12 +414,7 @@ export function FileManager({
         clientId={clientId}
       />
 
-      {previewFile && (
-        <FilePreview
-          file={previewFile}
-          onClose={() => setPreviewFile(null)}
-        />
-      )}
+      {previewFile && <FilePreview file={previewFile} onClose={() => setPreviewFile(null)} />}
     </div>
   );
 }

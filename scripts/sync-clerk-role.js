@@ -1,4 +1,4 @@
-const { clerkClient } = require('@clerk/nextjs/server');
+import { clerkClient } from '@clerk/nextjs/server';
 
 async function syncUserRole() {
   const clerkUserId = 'user_340giQLv6tlxCRWeepOYqVErO2O';
