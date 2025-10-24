@@ -33,7 +33,7 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      data: links,
+      links: links,
       count: links.length,
     });
   } catch (error) {
