@@ -247,14 +247,6 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     section: '📋 CRM',
     roles: ['admin', 'super_admin'],
   },
-  {
-    label: 'Tax Forms Management',
-    href: '/admin/tax-forms',
-    icon: FileText,
-    permission: 'clientFileCenter',
-    section: '📋 CRM',
-    roles: ['admin', 'super_admin'],
-  },
 
   // 💰 Financials Section (admin only)
   {
@@ -333,22 +325,30 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     section: '📢 Marketing',
     roles: ['admin', 'super_admin'],
   },
+
+  // 🛒 Marketing Materials Section (Paid Features: Store, Content Generator, Products)
   {
     label: 'Content Generator',
     href: '/admin/content-generator',
     icon: Sparkles,
     permission: 'contentGenerator',
-    section: '📢 Marketing',
+    section: '🛒 Marketing Materials',
     roles: ['admin', 'super_admin'],
   },
-
-  // 🛒 Store Management Section
+  {
+    label: 'Store',
+    href: '/store',
+    icon: Package,
+    permission: 'store',
+    section: '🛒 Marketing Materials',
+    roles: ['admin', 'super_admin'],
+  },
   {
     label: 'Product Management',
     href: '/admin/products',
     icon: Package,
     permission: 'database',
-    section: '🛒 Store Management',
+    section: '🛒 Marketing Materials',
     roles: ['admin', 'super_admin'],
   },
   {
@@ -356,7 +356,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     href: '/admin/orders',
     icon: Package,
     permission: 'database',
-    section: '🛒 Store Management',
+    section: '🛒 Marketing Materials',
     roles: ['admin', 'super_admin'],
   },
 
@@ -375,6 +375,14 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: GraduationCap,
     permission: 'academy',
     section: '🎓 Learning',
+  },
+  {
+    label: 'Tax Forms Library',
+    href: '/admin/tax-forms',
+    icon: FileText,
+    permission: 'clientFileCenter',
+    section: '🎓 Learning',
+    roles: ['admin', 'super_admin'],
   },
 
   // 💼 Business Section (for tax preparers and affiliates)
@@ -507,5 +515,5 @@ export const SECTION_ROLE_RESTRICTIONS: Record<string, UserRole[]> = {
   '💰 Financials': ['super_admin', 'admin'], // Only admins can see financials
   '📊 Analytics': ['super_admin', 'admin', 'tax_preparer'], // Analytics section for admins and preparers
   '📢 Marketing': ['super_admin', 'admin'], // Marketing hub for admins
-  '🛒 Store Management': ['super_admin', 'admin'], // Store management for admins
+  '🛒 Marketing Materials': ['super_admin', 'admin'], // Marketing materials (paid features) for admins
 };

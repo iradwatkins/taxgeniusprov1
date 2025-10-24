@@ -78,9 +78,9 @@ export const SECTION_PERMISSIONS: Record<SectionPermission, Permission[]> = {
   section_communications: ['emails', 'calendar', 'addressBook'],
   section_analytics: ['analytics', 'googleAnalytics', 'referralsAnalytics'],
   section_growth_marketing: ['referralsStatus', 'contest', 'quickShareLinks'],
-  section_content_learning: ['learningCenter', 'academy', 'contentGenerator'],
-  section_marketing_materials: ['marketingHub', 'marketing'],
-  section_financial: ['payouts', 'earnings', 'store'],
+  section_content_learning: ['learningCenter', 'academy'],
+  section_marketing_materials: ['marketingHub', 'marketing', 'contentGenerator', 'store'],
+  section_financial: ['payouts', 'earnings'],
   section_system_admin: ['users', 'adminManagement', 'database', 'settings', 'routeAccessControl'],
 };
 

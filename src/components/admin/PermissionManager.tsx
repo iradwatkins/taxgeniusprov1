@@ -15,6 +15,7 @@ import {
 import { Layers, Key, Save, ToggleLeft, AlertCircle, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { logger } from '@/lib/logger';
+import { cn } from '@/lib/utils';
 
 interface PermissionManagerProps {
   defaultPermissions: Partial<UserPermissions>;
@@ -311,9 +312,4 @@ export function PermissionManager({
       )}
     </>
   );
-}
-
-// Helper function for className
-function cn(...classes: (string | false | undefined)[]): string {
-  return classes.filter(Boolean).join(' ');
 }
