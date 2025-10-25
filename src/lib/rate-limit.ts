@@ -1,65 +1,141 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from 'ioredis';
+import { logger } from '@/lib/logger';
 
-// Create Redis client for rate limiting
-// Using local Redis instance with ioredis
-const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
+// In-memory store for rate limiting when Redis is unavailable
+class InMemoryRateLimitStore {
+  private store: Map<string, { count: number; resetTime: number }> = new Map();
+
+  async limit(key: string, maxRequests: number, windowMs: number) {
+    const now = Date.now();
+    const entry = this.store.get(key);
+
+    // Cleanup expired entries periodically
+    if (Math.random() < 0.1) {
+      this.cleanup(now);
+    }
+
+    if (!entry || entry.resetTime < now) {
+      this.store.set(key, { count: 1, resetTime: now + windowMs });
+      return {
+        success: true,
+        limit: maxRequests,
+        reset: now + windowMs,
+        remaining: maxRequests - 1,
+      };
+    }
+
+    entry.count++;
+    const remaining = Math.max(0, maxRequests - entry.count);
+    const success = entry.count <= maxRequests;
+
+    return { success, limit: maxRequests, reset: entry.resetTime, remaining };
+  }
+
+  private cleanup(now: number) {
+    for (const [key, value] of this.store.entries()) {
+      if (value.resetTime < now) {
+        this.store.delete(key);
+      }
+    }
+  }
+}
+
+// Try to create Redis client, fall back to in-memory if unavailable
+let redis: Redis | null = null;
+let usingInMemory = false;
+const inMemoryStore = new InMemoryRateLimitStore();
+
+try {
+  const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+  redis = new Redis(redisUrl, {
+    connectTimeout: 2000,
+    maxRetriesPerRequest: 1,
+    enableOfflineQueue: false,
+    lazyConnect: true,
+  });
+
+  // Test connection
+  redis.on('error', (err) => {
+    if (!usingInMemory) {
+      logger.warn('[RateLimit] Redis connection failed, using in-memory store', {
+        error: err.message,
+      });
+      usingInMemory = true;
+    }
+  });
+} catch (error) {
+  logger.warn('[RateLimit] Redis initialization failed, using in-memory store');
+  usingInMemory = true;
+}
 
 // ============ Rate Limiters for Different Endpoints ============
 
+// Helper to create rate limiter with fallback
+function createRateLimiter(config: { max: number; windowMs: number; prefix: string }) {
+  if (redis && !usingInMemory) {
+    return new Ratelimit({
+      redis: redis as any,
+      limiter: Ratelimit.slidingWindow(config.max, `${config.windowMs / 60000} m`),
+      analytics: true,
+      prefix: config.prefix,
+    });
+  }
+
+  // Return in-memory limiter
+  return {
+    limit: async (key: string) => {
+      return inMemoryStore.limit(`${config.prefix}:${key}`, config.max, config.windowMs);
+    },
+  };
+}
+
 // AI Content Generation: 10 requests per minute per user (AC17)
-export const aiContentRateLimit = new Ratelimit({
-  redis: redis as any,
-  limiter: Ratelimit.slidingWindow(10, '1 m'),
-  analytics: true,
+export const aiContentRateLimit = createRateLimiter({
+  max: 10,
+  windowMs: 60000,
   prefix: 'ratelimit:ai-content',
 });
 
 // General API: 100 requests per minute per IP
-export const apiRateLimit = new Ratelimit({
-  redis: redis as any,
-  limiter: Ratelimit.slidingWindow(100, '1 m'),
-  analytics: true,
+export const apiRateLimit = createRateLimiter({
+  max: 100,
+  windowMs: 60000,
   prefix: 'ratelimit:api',
 });
 
 // Authentication endpoints: 10 requests per minute per IP (prevent brute force)
-export const authRateLimit = new Ratelimit({
-  redis: redis as any,
-  limiter: Ratelimit.slidingWindow(10, '1 m'),
-  analytics: true,
+export const authRateLimit = createRateLimiter({
+  max: 10,
+  windowMs: 60000,
   prefix: 'ratelimit:auth',
 });
 
 // Document operations: 30 requests per minute per user
-export const documentRateLimit = new Ratelimit({
-  redis: redis as any,
-  limiter: Ratelimit.slidingWindow(30, '1 m'),
-  analytics: true,
+export const documentRateLimit = createRateLimiter({
+  max: 30,
+  windowMs: 60000,
   prefix: 'ratelimit:document',
 });
 
 // Upload endpoints: 20 uploads per hour per user (prevent abuse)
-export const uploadRateLimit = new Ratelimit({
-  redis: redis as any,
-  limiter: Ratelimit.slidingWindow(20, '60 m'),
-  analytics: true,
+export const uploadRateLimit = createRateLimiter({
+  max: 20,
+  windowMs: 3600000,
   prefix: 'ratelimit:upload',
 });
 
 // Payment webhooks: 1000 requests per minute (high throughput for Square)
-export const webhookRateLimit = new Ratelimit({
-  redis: redis as any,
-  limiter: Ratelimit.slidingWindow(1000, '1 m'),
-  analytics: true,
+export const webhookRateLimit = createRateLimiter({
+  max: 1000,
+  windowMs: 60000,
   prefix: 'ratelimit:webhook',
 });
 
 // Referral tracking: 200 events per minute per IP
-export const trackingRateLimit = new Ratelimit({
-  redis: redis as any,
-  limiter: Ratelimit.slidingWindow(200, '1 m'),
-  analytics: true,
+export const trackingRateLimit = createRateLimiter({
+  max: 200,
+  windowMs: 60000,
   prefix: 'ratelimit:tracking',
 });
 
