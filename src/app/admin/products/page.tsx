@@ -314,12 +314,7 @@ export default function AdminProductsPage() {
               )}
               {!primaryImage && product.imageUrl && (
                 <div className="relative h-48 bg-muted">
-                  <Image
-                    src={product.imageUrl}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                  />
+                  <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />
                 </div>
               )}
               <CardHeader>
@@ -400,9 +395,7 @@ export default function AdminProductsPage() {
           <CardContent className="text-center">
             <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No products yet</h3>
-            <p className="text-muted-foreground mb-4">
-              Get started by creating your first product
-            </p>
+            <p className="text-muted-foreground mb-4">Get started by creating your first product</p>
             <Button onClick={() => setShowDialog(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Add Product
@@ -411,17 +404,19 @@ export default function AdminProductsPage() {
         </Card>
       )}
 
-      <Dialog open={showDialog} onOpenChange={(open) => {
-        if (!open) resetForm();
-        setShowDialog(open);
-      }}>
+      <Dialog
+        open={showDialog}
+        onOpenChange={(open) => {
+          if (!open) resetForm();
+          setShowDialog(open);
+        }}
+      >
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              {editingProduct ? 'Edit Product' : 'Create Product'}
-            </DialogTitle>
+            <DialogTitle>{editingProduct ? 'Edit Product' : 'Create Product'}</DialogTitle>
             <DialogDescription>
-              Add product details and upload images. Mark printable products to allow customer uploads.
+              Add product details and upload images. Mark printable products to allow customer
+              uploads.
             </DialogDescription>
           </DialogHeader>
 
@@ -498,10 +493,7 @@ export default function AdminProductsPage() {
                   onChange={handleFileSelect}
                   className="hidden"
                 />
-                <label
-                  htmlFor="image-upload"
-                  className="cursor-pointer flex flex-col items-center"
-                >
+                <label htmlFor="image-upload" className="cursor-pointer flex flex-col items-center">
                   <Upload className="h-8 w-8 text-muted-foreground mb-2" />
                   <span className="text-sm font-medium">Click to upload images</span>
                   <span className="text-xs text-muted-foreground mt-1">
@@ -596,9 +588,7 @@ export default function AdminProductsPage() {
                   <input
                     type="checkbox"
                     checked={formData.printable}
-                    onChange={(e) =>
-                      setFormData({ ...formData, printable: e.target.checked })
-                    }
+                    onChange={(e) => setFormData({ ...formData, printable: e.target.checked })}
                     className="rounded"
                   />
                   <span className="text-sm">Printable (allows customer image upload)</span>
@@ -620,9 +610,7 @@ export default function AdminProductsPage() {
                   <input
                     type="checkbox"
                     checked={formData.isActive}
-                    onChange={(e) =>
-                      setFormData({ ...formData, isActive: e.target.checked })
-                    }
+                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
                     className="rounded"
                   />
                   <span className="text-sm">Active</span>

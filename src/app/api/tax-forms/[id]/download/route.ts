@@ -9,10 +9,7 @@ import * as path from 'path';
  * GET /api/tax-forms/[id]/download
  * Download tax form PDF and track download count
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { userId } = await auth();
 
@@ -32,10 +29,7 @@ export async function GET(
     }
 
     if (!taxForm.isActive) {
-      return NextResponse.json(
-        { error: 'Tax form is not active' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Tax form is not active' }, { status: 403 });
     }
 
     // Increment download count
@@ -70,9 +64,6 @@ export async function GET(
     });
   } catch (error) {
     logger.error('Error downloading tax form:', error);
-    return NextResponse.json(
-      { error: 'Failed to download tax form' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to download tax form' }, { status: 500 });
   }
 }

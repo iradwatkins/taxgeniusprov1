@@ -7,10 +7,7 @@ import { logger } from '@/lib/logger';
  * PUT /api/admin/products/[id]
  * Update a product (admin only)
  */
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { userId } = await auth();
 
@@ -90,10 +87,7 @@ export async function PUT(
     });
   } catch (error) {
     logger.error('Failed to update product', error);
-    return NextResponse.json(
-      { error: 'Failed to update product' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to update product' }, { status: 500 });
   }
 }
 
@@ -101,10 +95,7 @@ export async function PUT(
  * DELETE /api/admin/products/[id]
  * Delete a product (admin only)
  */
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { userId } = await auth();
 
@@ -164,9 +155,6 @@ export async function DELETE(
     return NextResponse.json({ success: true, message: 'Product deleted successfully' });
   } catch (error) {
     logger.error('Failed to delete product', error);
-    return NextResponse.json(
-      { error: 'Failed to delete product' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 });
   }
 }

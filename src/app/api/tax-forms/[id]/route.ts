@@ -7,10 +7,7 @@ import { logger } from '@/lib/logger';
  * GET /api/tax-forms/[id]
  * Get single tax form details
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { userId } = await auth();
 
@@ -44,10 +41,7 @@ export async function GET(
     return NextResponse.json(taxForm);
   } catch (error) {
     logger.error('Error fetching tax form:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch tax form' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch tax form' }, { status: 500 });
   }
 }
 
@@ -55,10 +49,7 @@ export async function GET(
  * PATCH /api/tax-forms/[id]
  * Update tax form (Admin only)
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { userId } = await auth();
 
@@ -73,10 +64,7 @@ export async function PATCH(
     });
 
     if (!profile || (profile.role !== 'ADMIN' && profile.role !== 'SUPER_ADMIN')) {
-      return NextResponse.json(
-        { error: 'Forbidden: Admin access required' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
     const { id } = await params;
@@ -92,10 +80,7 @@ export async function PATCH(
     return NextResponse.json(taxForm);
   } catch (error) {
     logger.error('Error updating tax form:', error);
-    return NextResponse.json(
-      { error: 'Failed to update tax form' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to update tax form' }, { status: 500 });
   }
 }
 
@@ -121,10 +106,7 @@ export async function DELETE(
     });
 
     if (!profile || (profile.role !== 'ADMIN' && profile.role !== 'SUPER_ADMIN')) {
-      return NextResponse.json(
-        { error: 'Forbidden: Admin access required' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
     const { id } = await params;
@@ -138,9 +120,6 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     logger.error('Error deleting tax form:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete tax form' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to delete tax form' }, { status: 500 });
   }
 }

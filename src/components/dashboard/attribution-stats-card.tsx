@@ -265,8 +265,8 @@ export function AttributionStatsCard({ className, period = '30d' }: AttributionS
                 </p>
                 <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
                   {stats.crossDeviceRate.toFixed(0)}% of your referrals clicked your link on one
-                  device (like their phone) but signed up on another (like their computer). We
-                  still matched them to you and you'll get credit!
+                  device (like their phone) but signed up on another (like their computer). We still
+                  matched them to you and you'll get credit!
                 </p>
               </div>
             </div>

@@ -114,9 +114,7 @@ export default function CheckoutPage() {
           <CardContent className="pt-6">
             <CheckCircle className="h-16 w-16 mx-auto text-green-500 mb-4" />
             <h1 className="text-3xl font-bold mb-2">Payment Successful!</h1>
-            <p className="text-muted-foreground mb-2">
-              Your order has been confirmed.
-            </p>
+            <p className="text-muted-foreground mb-2">Your order has been confirmed.</p>
             {orderId && (
               <p className="text-sm text-muted-foreground mb-6">
                 Order ID: <span className="font-mono">{orderId}</span>
@@ -165,13 +163,9 @@ export default function CheckoutPage() {
                   <div key={item.productId} className="flex gap-4">
                     <div className="flex-1">
                       <div className="font-medium">{item.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        Quantity: {item.quantity}
-                      </div>
+                      <div className="text-sm text-muted-foreground">Quantity: {item.quantity}</div>
                     </div>
-                    <div className="font-medium">
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </div>
+                    <div className="font-medium">${(item.price * item.quantity).toFixed(2)}</div>
                   </div>
                 ))}
               </div>

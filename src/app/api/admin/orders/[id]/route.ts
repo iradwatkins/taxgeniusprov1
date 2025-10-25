@@ -7,10 +7,7 @@ import { logger } from '@/lib/logger';
  * PATCH /api/admin/orders/[id]
  * Update order status and tracking (admin only)
  */
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { userId } = await auth();
 
@@ -48,9 +45,6 @@ export async function PATCH(
     });
   } catch (error) {
     logger.error('Failed to update order', error);
-    return NextResponse.json(
-      { error: 'Failed to update order' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to update order' }, { status: 500 });
   }
 }

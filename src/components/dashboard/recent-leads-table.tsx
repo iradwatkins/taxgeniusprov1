@@ -182,9 +182,7 @@ export function RecentLeadsTable({ className, limit = 10 }: RecentLeadsTableProp
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>My Referrals</CardTitle>
-            <CardDescription>
-              All {leads.length} of your referrals
-            </CardDescription>
+            <CardDescription>All {leads.length} of your referrals</CardDescription>
           </div>
           <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
             {refreshing ? (

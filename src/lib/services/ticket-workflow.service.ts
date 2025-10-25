@@ -6,7 +6,13 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { WorkflowTrigger, WorkflowActionType, TicketStatus, TicketPriority } from '@prisma/client';
+import {
+  WorkflowTrigger,
+  WorkflowActionType,
+  TicketStatus,
+  TicketPriority,
+  Prisma,
+} from '@prisma/client';
 import { logger } from '@/lib/logger';
 
 // ==================== Types ====================
@@ -29,13 +35,24 @@ export interface WorkflowConditions {
   idleHours?: number;
   customField?: {
     key: string;
-    value: any;
+    value: string | number | boolean;
   };
+}
+
+export interface WorkflowActionConfig {
+  preparerId?: string;
+  tag?: string;
+  status?: TicketStatus;
+  priority?: TicketPriority;
+  savedReplyId?: string;
+  senderId?: string;
+  message?: string;
+  [key: string]: string | number | boolean | undefined;
 }
 
 export interface WorkflowAction {
   type: WorkflowActionType;
-  config: Record<string, any>;
+  config: WorkflowActionConfig;
 }
 
 export interface UpdateWorkflowInput {
@@ -46,6 +63,29 @@ export interface UpdateWorkflowInput {
   conditions?: WorkflowConditions;
   actions?: WorkflowAction[];
 }
+
+export type TicketWithRelations = Prisma.SupportTicketGetPayload<{
+  include: {
+    creator: true;
+    assignedTo: true;
+    messages: {
+      orderBy: { createdAt: 'desc' };
+      take: 1;
+    };
+  };
+}>;
+
+export type WorkflowWithCreator = Prisma.TicketWorkflowGetPayload<{
+  include: {
+    createdBy: {
+      select: {
+        id: true;
+        firstName: true;
+        lastName: true;
+      };
+    };
+  };
+}>;
 
 // ==================== Workflow Management ====================
 
@@ -97,7 +137,7 @@ export async function createWorkflow(input: CreateWorkflowInput) {
  */
 export async function getWorkflows(filters?: { trigger?: WorkflowTrigger; isActive?: boolean }) {
   try {
-    const where: any = {};
+    const where: Prisma.TicketWorkflowWhereInput = {};
 
     if (filters?.trigger) {
       where.trigger = filters.trigger;
@@ -232,7 +272,7 @@ export async function toggleWorkflowStatus(workflowId: string, isActive: boolean
 export async function executeWorkflows(
   trigger: WorkflowTrigger,
   ticketId: string,
-  context?: Record<string, any>
+  context?: Record<string, string | number | boolean>
 ) {
   try {
     // Get active workflows for this trigger
@@ -295,7 +335,7 @@ export async function executeWorkflows(
         });
 
         await logWorkflowExecution(workflow.id, ticketId, 'success', {
-          actionsExecuted: (workflow.actions as any[]).length,
+          actionsExecuted: Array.isArray(workflow.actions) ? workflow.actions.length : 0,
         });
       } catch (error) {
         logger.error('Failed to execute workflow', {
@@ -322,9 +362,9 @@ export async function executeWorkflows(
  * Check if workflow conditions are met
  */
 function checkWorkflowConditions(
-  workflow: any,
-  ticket: any,
-  context?: Record<string, any>
+  workflow: WorkflowWithCreator,
+  ticket: TicketWithRelations,
+  context?: Record<string, string | number | boolean>
 ): boolean {
   const conditions = workflow.conditions as WorkflowConditions;
 
@@ -361,7 +401,7 @@ function checkWorkflowConditions(
 
   // Check custom field condition
   if (conditions.customField) {
-    const customFields = ticket.customFields as Record<string, any>;
+    const customFields = ticket.customFields as Prisma.JsonObject;
     if (
       !customFields ||
       customFields[conditions.customField.key] !== conditions.customField.value
@@ -376,7 +416,7 @@ function checkWorkflowConditions(
 /**
  * Execute workflow actions
  */
-async function executeWorkflowActions(workflow: any, ticket: any) {
+async function executeWorkflowActions(workflow: WorkflowWithCreator, ticket: TicketWithRelations) {
   const actions = workflow.actions as WorkflowAction[];
 
   for (const action of actions) {
@@ -396,7 +436,7 @@ async function executeWorkflowActions(workflow: any, ticket: any) {
 /**
  * Execute a single workflow action
  */
-async function executeAction(action: WorkflowAction, ticket: any) {
+async function executeAction(action: WorkflowAction, ticket: TicketWithRelations) {
   switch (action.type) {
     case WorkflowActionType.ASSIGN_PREPARER:
       await handleAssignPreparer(action.config, ticket);
@@ -439,7 +479,7 @@ async function executeAction(action: WorkflowAction, ticket: any) {
 
 // ==================== Action Handlers ====================
 
-async function handleAssignPreparer(config: any, ticket: any) {
+async function handleAssignPreparer(config: WorkflowActionConfig, ticket: TicketWithRelations) {
   if (!config.preparerId) return;
 
   await prisma.supportTicket.update({
@@ -453,7 +493,7 @@ async function handleAssignPreparer(config: any, ticket: any) {
   });
 }
 
-async function handleSendNotification(config: any, ticket: any) {
+async function handleSendNotification(config: WorkflowActionConfig, ticket: TicketWithRelations) {
   // TODO: Integrate with notification service
   // This will be implemented when we enhance notification.service.ts
   logger.info('Workflow: Send notification', {
@@ -462,7 +502,7 @@ async function handleSendNotification(config: any, ticket: any) {
   });
 }
 
-async function handleAddTag(config: any, ticket: any) {
+async function handleAddTag(config: WorkflowActionConfig, ticket: TicketWithRelations) {
   if (!config.tag) return;
 
   const currentTags = ticket.tags || [];
@@ -481,10 +521,10 @@ async function handleAddTag(config: any, ticket: any) {
   });
 }
 
-async function handleChangeStatus(config: any, ticket: any) {
+async function handleChangeStatus(config: WorkflowActionConfig, ticket: TicketWithRelations) {
   if (!config.status) return;
 
-  const updateData: any = { status: config.status };
+  const updateData: Prisma.SupportTicketUpdateInput = { status: config.status };
 
   if (config.status === TicketStatus.RESOLVED) {
     updateData.resolvedAt = new Date();
@@ -504,7 +544,7 @@ async function handleChangeStatus(config: any, ticket: any) {
   });
 }
 
-async function handleChangePriority(config: any, ticket: any) {
+async function handleChangePriority(config: WorkflowActionConfig, ticket: TicketWithRelations) {
   if (!config.priority) return;
 
   await prisma.supportTicket.update({
@@ -518,7 +558,7 @@ async function handleChangePriority(config: any, ticket: any) {
   });
 }
 
-async function handleSendSavedReply(config: any, ticket: any) {
+async function handleSendSavedReply(config: WorkflowActionConfig, ticket: TicketWithRelations) {
   if (!config.savedReplyId || !config.senderId) return;
 
   // TODO: Integrate with saved-reply service
@@ -528,7 +568,7 @@ async function handleSendSavedReply(config: any, ticket: any) {
   });
 }
 
-async function handleAutoClose(config: any, ticket: any) {
+async function handleAutoClose(config: WorkflowActionConfig, ticket: TicketWithRelations) {
   await prisma.supportTicket.update({
     where: { id: ticket.id },
     data: {
@@ -542,7 +582,7 @@ async function handleAutoClose(config: any, ticket: any) {
   });
 }
 
-async function handleCreateTask(config: any, ticket: any) {
+async function handleCreateTask(config: WorkflowActionConfig, ticket: TicketWithRelations) {
   // TODO: Integrate with CRM task system if needed
   logger.info('Workflow: Create task', {
     ticketId: ticket.id,
@@ -557,7 +597,7 @@ async function logWorkflowExecution(
   workflowId: string,
   ticketId: string,
   result: string,
-  details?: any
+  details?: Record<string, string | number | boolean>
 ) {
   try {
     await prisma.ticketWorkflowLog.create({
@@ -593,7 +633,7 @@ export async function autoCloseIdleTickets(settings: {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - settings.inactiveDays);
 
-    const where: any = {
+    const where: Prisma.SupportTicketWhereInput = {
       lastActivityAt: { lt: cutoffDate },
       status: {
         notIn: [TicketStatus.CLOSED, TicketStatus.ARCHIVED],
@@ -668,7 +708,7 @@ export async function autoCloseIdleTickets(settings: {
  */
 export async function getWorkflowStats(workflowId?: string) {
   try {
-    const where: any = {};
+    const where: Prisma.TicketWorkflowLogWhereInput = {};
     if (workflowId) {
       where.workflowId = workflowId;
     }

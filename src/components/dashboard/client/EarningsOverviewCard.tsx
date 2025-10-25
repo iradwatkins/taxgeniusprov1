@@ -90,7 +90,11 @@ export function EarningsOverviewCard({
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-muted-foreground mb-1">{config.label}</p>
                   <p className="text-2xl font-bold tracking-tight">
-                    ${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    $
+                    {value.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">{config.description}</p>
                 </div>

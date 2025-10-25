@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
@@ -16,6 +16,13 @@ const inter = Inter({
   variable: '--font-sans',
 });
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#ff6b35',
+};
+
 export const metadata: Metadata = {
   title: 'Tax Genius Pro - Professional Tax Management Platform',
   description:
@@ -32,8 +39,6 @@ export const metadata: Metadata = {
     apple: '/apple-touch-icon.png',
     shortcut: '/favicon-32x32.png',
   },
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
-  themeColor: '#ff6b35',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

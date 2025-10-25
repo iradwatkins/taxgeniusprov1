@@ -6,8 +6,23 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Download, Search, Share2, FileText, Filter, Package, Calendar, UserPlus } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Download,
+  Search,
+  Share2,
+  FileText,
+  Filter,
+  Package,
+  Calendar,
+  UserPlus,
+} from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { AssignFormDialog } from '@/components/tax-forms/AssignFormDialog';
 import { logger } from '@/lib/logger';
 import { useToast } from '@/hooks/use-toast';
@@ -56,7 +71,11 @@ export default function TaxPreparerFormsPage() {
 
   // Assignment dialog state
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
-  const [formToAssign, setFormToAssign] = useState<{ id: string; formNumber: string; title: string } | null>(null);
+  const [formToAssign, setFormToAssign] = useState<{
+    id: string;
+    formNumber: string;
+    title: string;
+  } | null>(null);
 
   const { toast } = useToast();
 
@@ -67,9 +86,7 @@ export default function TaxPreparerFormsPage() {
   const fetchForms = async () => {
     try {
       setLoading(true);
-      const url = selectedYear
-        ? `/api/tax-forms?taxYear=${selectedYear}`
-        : '/api/tax-forms';
+      const url = selectedYear ? `/api/tax-forms?taxYear=${selectedYear}` : '/api/tax-forms';
       const response = await fetch(url);
       const data = await response.json();
 
@@ -79,7 +96,9 @@ export default function TaxPreparerFormsPage() {
 
         // Extract unique years from all forms (only on initial load)
         if (!selectedYear && data.forms.length > 0) {
-          const years = Array.from(new Set(data.forms.map((f: TaxForm) => f.taxYear))).sort((a, b) => (b as number) - (a as number));
+          const years = Array.from(new Set(data.forms.map((f: TaxForm) => f.taxYear))).sort(
+            (a, b) => (b as number) - (a as number)
+          );
           setAvailableYears(years as number[]);
         }
       } else {
@@ -410,12 +429,17 @@ export default function TaxPreparerFormsPage() {
       <Tabs defaultValue="all" className="w-full">
         <TabsList className="w-full flex-wrap h-auto gap-2">
           <TabsTrigger value="all">
-            All Forms <Badge variant="secondary" className="ml-2">{forms.length}</Badge>
+            All Forms{' '}
+            <Badge variant="secondary" className="ml-2">
+              {forms.length}
+            </Badge>
           </TabsTrigger>
           {Object.entries(groupedForms).map(([category, categoryForms]) => (
             <TabsTrigger key={category} value={category}>
               {categoryLabels[category]}
-              <Badge variant="secondary" className="ml-2">{categoryForms?.length || 0}</Badge>
+              <Badge variant="secondary" className="ml-2">
+                {categoryForms?.length || 0}
+              </Badge>
             </TabsTrigger>
           ))}
         </TabsList>

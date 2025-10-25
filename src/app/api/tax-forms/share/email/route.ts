@@ -49,17 +49,11 @@ export async function POST(request: NextRequest) {
     const { formIds, recipientEmail, recipientName, message, expiresAt } = body;
 
     if (!formIds || !Array.isArray(formIds) || formIds.length === 0) {
-      return NextResponse.json(
-        { error: 'formIds must be a non-empty array' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'formIds must be a non-empty array' }, { status: 400 });
     }
 
     if (!recipientEmail) {
-      return NextResponse.json(
-        { error: 'recipientEmail is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'recipientEmail is required' }, { status: 400 });
     }
 
     // Verify all forms exist
@@ -68,10 +62,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (forms.length !== formIds.length) {
-      return NextResponse.json(
-        { error: 'One or more forms not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'One or more forms not found' }, { status: 404 });
     }
 
     // Create shares for each form
@@ -109,14 +100,15 @@ export async function POST(request: NextRequest) {
     );
 
     // Send email using Resend email service
-    const senderName = `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || 'Your Tax Preparer';
+    const senderName =
+      `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || 'Your Tax Preparer';
 
     try {
       const emailSent = await EmailService.sendTaxFormsEmail(
         recipientEmail,
         recipientName,
         senderName,
-        shares.map(s => ({
+        shares.map((s) => ({
           formNumber: s.formNumber,
           title: s.title,
           description: s.description,
@@ -147,9 +139,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     logger.error('Error emailing tax forms:', error);
-    return NextResponse.json(
-      { error: 'Failed to email tax forms' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to email tax forms' }, { status: 500 });
   }
 }

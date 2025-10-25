@@ -46,10 +46,7 @@ export async function POST(request: NextRequest) {
     const { formIds, recipientEmail, expiresAt } = body;
 
     if (!formIds || !Array.isArray(formIds) || formIds.length === 0) {
-      return NextResponse.json(
-        { error: 'formIds must be a non-empty array' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'formIds must be a non-empty array' }, { status: 400 });
     }
 
     // Verify all forms exist
@@ -58,10 +55,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (forms.length !== formIds.length) {
-      return NextResponse.json(
-        { error: 'One or more forms not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'One or more forms not found' }, { status: 404 });
     }
 
     // Create shares for each form
@@ -105,9 +99,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     logger.error('Error creating tax form shares:', error);
-    return NextResponse.json(
-      { error: 'Failed to create shares' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to create shares' }, { status: 500 });
   }
 }

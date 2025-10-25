@@ -9,9 +9,8 @@ import { logger } from '@/lib/logger';
 // Initialize Square client
 const getSquareClient = () => {
   const accessToken = process.env.SQUARE_ACCESS_TOKEN;
-  const environment = process.env.SQUARE_ENVIRONMENT === 'production'
-    ? Environment.Production
-    : Environment.Sandbox;
+  const environment =
+    process.env.SQUARE_ENVIRONMENT === 'production' ? Environment.Production : Environment.Sandbox;
 
   if (!accessToken) {
     throw new Error('Square access token not configured');
@@ -255,12 +254,16 @@ export async function getOrCreateSquareCustomer(params: {
       const searchResponse = await customersApi.searchCustomers({
         query: {
           filter: {
-            emailAddress: params.emailAddress ? {
-              exact: params.emailAddress,
-            } : undefined,
-            referenceId: params.referenceId ? {
-              exact: params.referenceId,
-            } : undefined,
+            emailAddress: params.emailAddress
+              ? {
+                  exact: params.emailAddress,
+                }
+              : undefined,
+            referenceId: params.referenceId
+              ? {
+                  exact: params.referenceId,
+                }
+              : undefined,
           },
         },
       });

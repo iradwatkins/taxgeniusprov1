@@ -44,10 +44,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!paymentMethod || !paymentToken) {
-      return NextResponse.json(
-        { error: 'Payment method and token required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Payment method and token required' }, { status: 400 });
     }
 
     // Fetch products to validate and calculate total
@@ -60,10 +57,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (products.length !== productIds.length) {
-      return NextResponse.json(
-        { error: 'Some products are not available' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Some products are not available' }, { status: 400 });
     }
 
     // Calculate total and build order items
@@ -117,10 +111,7 @@ export async function POST(req: NextRequest) {
       });
 
       if (!customerResult.success) {
-        return NextResponse.json(
-          { error: 'Failed to create customer record' },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: 'Failed to create customer record' }, { status: 500 });
       }
 
       // Create Square order
@@ -175,21 +166,12 @@ export async function POST(req: NextRequest) {
       paymentSessionId = paymentResult.payment?.id || '';
     } else if (paymentMethod === 'STRIPE') {
       // TODO: Implement Stripe payment
-      return NextResponse.json(
-        { error: 'Stripe payment not yet implemented' },
-        { status: 501 }
-      );
+      return NextResponse.json({ error: 'Stripe payment not yet implemented' }, { status: 501 });
     } else if (paymentMethod === 'CASHAPP') {
       // TODO: Implement CashApp payment
-      return NextResponse.json(
-        { error: 'CashApp payment not yet implemented' },
-        { status: 501 }
-      );
+      return NextResponse.json({ error: 'CashApp payment not yet implemented' }, { status: 501 });
     } else {
-      return NextResponse.json(
-        { error: 'Invalid payment method' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid payment method' }, { status: 400 });
     }
 
     // Create order in database
@@ -239,9 +221,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     logger.error('Checkout error', error);
-    return NextResponse.json(
-      { error: 'An error occurred during checkout' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'An error occurred during checkout' }, { status: 500 });
   }
 }

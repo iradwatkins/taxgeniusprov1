@@ -13,10 +13,7 @@ import { logger } from '@/lib/logger';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { userId } = await auth();
 
@@ -113,9 +110,6 @@ export async function GET(
     });
   } catch (error) {
     logger.error('Error generating filled PDF', { error });
-    return NextResponse.json(
-      { error: 'Failed to generate filled PDF' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to generate filled PDF' }, { status: 500 });
   }
 }

@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Star, Quote, CheckCircle, Shield, Award } from 'lucide-react';
 import Link from 'next/link';
 import { Metadata } from 'next';
+import { generateAggregateRatingSchema } from '@/lib/seo-llm/1-core-seo/schema/tax-genius-schemas';
 
 export const metadata: Metadata = {
   title: 'Client Testimonials | TaxGeniusPro',
@@ -142,8 +143,16 @@ const stats = [
 ];
 
 export default function TestimonialsPage() {
+  const aggregateRatingSchema = generateAggregateRatingSchema();
+
   return (
     <div className="min-h-screen bg-background">
+      {/* AggregateRating Schema for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(aggregateRatingSchema) }}
+      />
+
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-muted/50 to-background py-20 border-b">
         <div className="container mx-auto px-4 lg:px-8">

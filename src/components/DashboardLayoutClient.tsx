@@ -67,9 +67,9 @@ export function DashboardLayoutClient({
       </div>
 
       {/* Tax Assistant Widget - Only for Tax Preparers and Admins */}
-      {(actualRole === 'tax_preparer' || actualRole === 'admin' || actualRole === 'super_admin') && (
-        <TaxAssistantWidget />
-      )}
+      {(actualRole === 'tax_preparer' ||
+        actualRole === 'admin' ||
+        actualRole === 'super_admin') && <TaxAssistantWidget />}
     </div>
   );
 }

@@ -23,7 +23,8 @@ const buttonVariants = cva(
         link: 'text-primary underline-offset-4 hover:underline focus-visible:ring-primary',
         success:
           'bg-success text-success-foreground hover:bg-success/90 shadow-sm hover:shadow-md rounded-md focus-visible:ring-success',
-        google: 'bg-white text-foreground border border-border hover:bg-muted shadow-sm rounded-md focus-visible:ring-ring',
+        google:
+          'bg-white text-foreground border border-border hover:bg-muted shadow-sm rounded-md focus-visible:ring-ring',
       },
       size: {
         default: 'h-10 px-4 py-2',

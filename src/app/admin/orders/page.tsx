@@ -153,9 +153,7 @@ export default function AdminOrdersPage() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold">Order Management</h1>
-          <p className="text-muted-foreground mt-2">
-            View and manage customer orders
-          </p>
+          <p className="text-muted-foreground mt-2">View and manage customer orders</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="text-sm text-muted-foreground">
@@ -218,11 +216,7 @@ export default function AdminOrdersPage() {
                         {format(new Date(order.createdAt), 'MMM d, yyyy')}
                       </TableCell>
                       <TableCell>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleViewDetails(order)}
-                        >
+                        <Button size="sm" variant="ghost" onClick={() => handleViewDetails(order)}>
                           <Eye className="h-4 w-4" />
                         </Button>
                       </TableCell>
@@ -240,9 +234,7 @@ export default function AdminOrdersPage() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Order Details</DialogTitle>
-            <DialogDescription>
-              Order ID: {selectedOrder?.id}
-            </DialogDescription>
+            <DialogDescription>Order ID: {selectedOrder?.id}</DialogDescription>
           </DialogHeader>
 
           {selectedOrder && (

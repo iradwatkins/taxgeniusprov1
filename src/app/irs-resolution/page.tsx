@@ -25,6 +25,8 @@ import {
 import Link from 'next/link';
 import { Header } from '@/components/header';
 import Image from 'next/image';
+import { ServiceFAQSection } from '@/components/services/ServiceFAQSection';
+import { irsResolutionFAQs } from '@/lib/seo-llm/1-core-seo/data/service-faqs';
 
 export default function IRSResolutionPage() {
   return (
@@ -534,6 +536,9 @@ export default function IRSResolutionPage() {
           </div>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <ServiceFAQSection faqs={irsResolutionFAQs} />
     </div>
   );
 }

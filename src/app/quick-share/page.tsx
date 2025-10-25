@@ -20,11 +20,5 @@ export default async function QuickSharePage() {
   // Get user's role
   const role = (user.publicMetadata?.role as UserRole) || 'client';
 
-  return (
-    <QuickShareLanding
-      userId={user.id}
-      role={role}
-      firstName={user.firstName || undefined}
-    />
-  );
+  return <QuickShareLanding userId={user.id} role={role} firstName={user.firstName || undefined} />;
 }

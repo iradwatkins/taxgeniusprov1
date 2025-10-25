@@ -70,13 +70,16 @@ export async function GET(request: NextRequest) {
     });
 
     // Group by category for easier UI rendering
-    const groupedForms = forms.reduce((acc, form) => {
-      if (!acc[form.category]) {
-        acc[form.category] = [];
-      }
-      acc[form.category].push(form);
-      return acc;
-    }, {} as Record<TaxFormCategory, typeof forms>);
+    const groupedForms = forms.reduce(
+      (acc, form) => {
+        if (!acc[form.category]) {
+          acc[form.category] = [];
+        }
+        acc[form.category].push(form);
+        return acc;
+      },
+      {} as Record<TaxFormCategory, typeof forms>
+    );
 
     return NextResponse.json({
       forms,
@@ -85,10 +88,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     logger.error('Error fetching tax forms:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch tax forms' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch tax forms' }, { status: 500 });
   }
 }
 
@@ -120,30 +120,15 @@ export async function POST(request: NextRequest) {
     });
 
     if (!profile || (profile.role !== 'ADMIN' && profile.role !== 'SUPER_ADMIN')) {
-      return NextResponse.json(
-        { error: 'Forbidden: Admin access required' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
     const body = await request.json();
-    const {
-      formNumber,
-      title,
-      description,
-      category,
-      taxYear,
-      fileUrl,
-      fileName,
-      fileSize,
-    } = body;
+    const { formNumber, title, description, category, taxYear, fileUrl, fileName, fileSize } = body;
 
     // Validate required fields
     if (!formNumber || !title || !category || !taxYear || !fileUrl || !fileName || !fileSize) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     // Check if form number already exists
@@ -152,10 +137,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (existing) {
-      return NextResponse.json(
-        { error: 'Form number already exists' },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: 'Form number already exists' }, { status: 409 });
     }
 
     const taxForm = await prisma.taxForm.create({
@@ -176,9 +158,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(taxForm, { status: 201 });
   } catch (error) {
     logger.error('Error creating tax form:', error);
-    return NextResponse.json(
-      { error: 'Failed to create tax form' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to create tax form' }, { status: 500 });
   }
 }

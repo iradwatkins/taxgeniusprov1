@@ -25,6 +25,8 @@ import {
 import Link from 'next/link';
 import { Header } from '@/components/header';
 import Image from 'next/image';
+import { ServiceFAQSection } from '@/components/services/ServiceFAQSection';
+import { taxPlanningFAQs } from '@/lib/seo-llm/1-core-seo/data/service-faqs';
 
 export default function TaxPlanningPage() {
   return (
@@ -471,6 +473,9 @@ export default function TaxPlanningPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <ServiceFAQSection faqs={taxPlanningFAQs} />
 
       {/* CTA */}
       <section className="py-24 bg-background">

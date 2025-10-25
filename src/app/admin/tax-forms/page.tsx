@@ -14,7 +14,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Search, Download, Eye, BarChart3, Calendar } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { logger } from '@/lib/logger';
 import { useToast } from '@/hooks/use-toast';
 
@@ -46,9 +52,7 @@ export default function AdminTaxFormsPage() {
   const fetchForms = async () => {
     try {
       setLoading(true);
-      const url = selectedYear
-        ? `/api/tax-forms?taxYear=${selectedYear}`
-        : '/api/tax-forms';
+      const url = selectedYear ? `/api/tax-forms?taxYear=${selectedYear}` : '/api/tax-forms';
       const response = await fetch(url);
       const data = await response.json();
 
@@ -57,7 +61,9 @@ export default function AdminTaxFormsPage() {
 
         // Extract unique years from all forms (only on initial load)
         if (!selectedYear && data.forms.length > 0) {
-          const years = Array.from(new Set(data.forms.map((f: TaxForm) => f.taxYear))).sort((a, b) => (b as number) - (a as number));
+          const years = Array.from(new Set(data.forms.map((f: TaxForm) => f.taxYear))).sort(
+            (a, b) => (b as number) - (a as number)
+          );
           setAvailableYears(years as number[]);
         }
       } else {
@@ -143,9 +149,7 @@ export default function AdminTaxFormsPage() {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {(totalSize / 1024 / 1024).toFixed(1)} MB
-            </div>
+            <div className="text-2xl font-bold">{(totalSize / 1024 / 1024).toFixed(1)} MB</div>
             <p className="text-xs text-muted-foreground">
               Avg: {(totalSize / forms.length / 1024).toFixed(0)} KB per form
             </p>
@@ -206,9 +210,7 @@ export default function AdminTaxFormsPage() {
                   <TableCell className="font-medium">{form.formNumber}</TableCell>
                   <TableCell>{form.title}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">
-                      {form.category.replace('_', ' ')}
-                    </Badge>
+                    <Badge variant="outline">{form.category.replace('_', ' ')}</Badge>
                   </TableCell>
                   <TableCell>{form.taxYear}</TableCell>
                   <TableCell>{(form.fileSize / 1024).toFixed(0)} KB</TableCell>

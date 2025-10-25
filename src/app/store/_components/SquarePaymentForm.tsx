@@ -136,9 +136,7 @@ export function SquarePaymentForm({ amount, onSuccess, onError }: SquarePaymentF
     <Card>
       <CardHeader>
         <CardTitle>Payment Information</CardTitle>
-        <CardDescription>
-          Enter your card details to complete the purchase
-        </CardDescription>
+        <CardDescription>Enter your card details to complete the purchase</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {error && (

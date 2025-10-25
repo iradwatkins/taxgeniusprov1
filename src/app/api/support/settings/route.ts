@@ -20,10 +20,7 @@ export async function GET(req: NextRequest) {
       where: { clerkUserId: userId },
     });
 
-    if (
-      !profile ||
-      !['ADMIN', 'SUPER_ADMIN', 'TAX_PREPARER'].includes(profile.role)
-    ) {
+    if (!profile || !['ADMIN', 'SUPER_ADMIN', 'TAX_PREPARER'].includes(profile.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -42,10 +39,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     logger.error('Failed to get support settings', error);
-    return NextResponse.json(
-      { error: 'Failed to get support settings' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to get support settings' }, { status: 500 });
   }
 }
 
@@ -91,10 +85,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     logger.error('Failed to update support settings', error);
-    return NextResponse.json(
-      { error: 'Failed to update support settings' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to update support settings' }, { status: 500 });
   }
 }
 

@@ -9,7 +9,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -186,9 +193,7 @@ export default function ClientFormsPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">My Tax Forms</h1>
-        <p className="text-muted-foreground mt-2">
-          Tax forms assigned to you by your tax preparer
-        </p>
+        <p className="text-muted-foreground mt-2">Tax forms assigned to you by your tax preparer</p>
       </div>
 
       {/* Info Alert */}
@@ -196,9 +201,9 @@ export default function ClientFormsPage() {
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            No tax forms have been assigned to you yet. Your tax preparer will assign the forms
-            you need to complete. If you believe you should have forms assigned, please contact
-            your tax preparer.
+            No tax forms have been assigned to you yet. Your tax preparer will assign the forms you
+            need to complete. If you believe you should have forms assigned, please contact your tax
+            preparer.
           </AlertDescription>
         </Alert>
       )}
@@ -222,9 +227,7 @@ export default function ClientFormsPage() {
                         <FileText className="h-5 w-5 text-primary flex-shrink-0" />
                         <span className="truncate">{assignment.taxForm.formNumber}</span>
                       </CardTitle>
-                      <CardDescription className="mt-1">
-                        {assignment.taxForm.title}
-                      </CardDescription>
+                      <CardDescription className="mt-1">{assignment.taxForm.title}</CardDescription>
                     </div>
                     <div className="flex flex-col items-end gap-2 flex-shrink-0">
                       <Badge variant="outline">{assignment.taxForm.taxYear}</Badge>
@@ -298,7 +301,9 @@ export default function ClientFormsPage() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleDownload(assignment.taxForm.id, assignment.taxForm.fileName)}
+                    onClick={() =>
+                      handleDownload(assignment.taxForm.id, assignment.taxForm.fileName)
+                    }
                   >
                     <Download className="h-4 w-4 mr-1.5" />
                     Download PDF

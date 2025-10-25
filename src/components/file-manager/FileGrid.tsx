@@ -125,11 +125,7 @@ export function FileGrid({
                 {/* Thumbnail */}
                 <div className="w-16 h-16 flex items-center justify-center rounded border overflow-hidden bg-muted">
                   {file.mimeType.startsWith('image/') ? (
-                    <img
-                      src={fileUrl}
-                      alt={file.fileName}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={fileUrl} alt={file.fileName} className="w-full h-full object-cover" />
                   ) : file.mimeType === 'application/pdf' ? (
                     <div className="w-full h-full flex items-center justify-center bg-red-50">
                       <FileText className="w-8 h-8 text-red-600" />

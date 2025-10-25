@@ -33,7 +33,10 @@ export async function GET(request: NextRequest) {
 
     // Only clients and leads can access this endpoint
     if (!['CLIENT', 'LEAD'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Forbidden - This endpoint is for clients only' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Forbidden - This endpoint is for clients only' },
+        { status: 403 }
+      );
     }
 
     // Get all forms assigned to this client

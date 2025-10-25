@@ -6,6 +6,8 @@
     "dev": "PORT=3005 next dev -p 3005",
     "build": "next build",
     "start": "NODE_ENV=production PORT=3005 next start -p 3005 -H 0.0.0.0",
+    "start:prod": "node .next/standalone/server.js",
+    "deploy": "./scripts/deploy.sh",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
@@ -15,7 +17,15 @@
     "test:coverage": "vitest --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "db:migrate": "npx prisma migrate deploy",
+    "db:generate": "npx prisma generate",
+    "db:studio": "npx prisma studio",
+    "logs": "pm2 logs taxgeniuspro",
+    "status": "pm2 status taxgeniuspro",
+    "restart": "pm2 restart taxgeniuspro",
+    "stop": "pm2 stop taxgeniuspro",
+    "monit": "pm2 monit"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
@@ -73,6 +83,7 @@
     "@upstash/ratelimit": "^2.0.6",
     "@upstash/redis": "^1.35.5",
     "archiver": "^7.0.1",
+    "axios-retry": "^4.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -95,7 +106,6 @@
     "next-themes": "^0.4.6",
     "openai": "^6.6.0",
     "pdf-lib": "^1.17.1",
-    "pdfjs-dist": "^5.4.296",
     "playwright": "^1.55.0",
     "qrcode": "^1.5.4",
     "qrcode.react": "^4.2.0",
@@ -105,7 +115,6 @@
     "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.62.0",
     "react-i18next": "^15.7.3",
-    "react-pdf": "^10.2.0",
     "react-resizable-panels": "^3.0.6",
     "react-router-dom": "^7.9.1",
     "react-share": "^5.2.2",
@@ -138,6 +147,9 @@
     "@vitejs/plugin-react": "^5.0.4",
     "eslint": "^9",
     "eslint-config-next": "^16.0.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "globals": "^16.4.0",
     "husky": "^9.1.7",
     "jsdom": "^27.0.0",
     "lint-staged": "^16.2.4",
@@ -145,6 +157,7 @@
     "prisma": "^6.18.0",
     "tailwindcss": "^4.1.13",
     "typescript": "^5",
+    "typescript-eslint": "^8.46.2",
     "vitest": "^3.2.4"
   }
 }

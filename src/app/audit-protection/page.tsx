@@ -24,6 +24,8 @@ import Link from 'next/link';
 import { Header } from '@/components/header';
 import Image from 'next/image';
 import { useRef, useState, useEffect } from 'react';
+import { ServiceFAQSection } from '@/components/services/ServiceFAQSection';
+import { auditProtectionFAQs } from '@/lib/seo-llm/1-core-seo/data/service-faqs';
 
 // Animated counter component
 function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
@@ -448,61 +450,7 @@ export default function AuditProtectionPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-24 bg-muted/30">
-        <div className="container mx-auto px-4 lg:px-8">
-          <div className="max-w-3xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-12"
-            >
-              <h2 className="text-3xl lg:text-4xl font-bold mb-4">Common Questions</h2>
-            </motion.div>
-
-            <div className="space-y-6">
-              {[
-                {
-                  q: 'Is audit protection really free?',
-                  a: 'Yes! Full audit representation is included with every tax return we prepare at no additional cost.',
-                },
-                {
-                  q: 'What if I prepared my own return?',
-                  a: 'We offer standalone audit defense services for returns prepared elsewhere. Contact us for pricing.',
-                },
-                {
-                  q: 'How likely is an audit?',
-                  a: "Less than 1% of returns are audited. But if selected, you'll be fully protected with our service.",
-                },
-                {
-                  q: 'Will I have to talk to the IRS?',
-                  a: 'No. Once you engage us, we handle 100% of communication with the IRS on your behalf.',
-                },
-              ].map((faq, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: i * 0.1 }}
-                >
-                  <Card className="hover:shadow-lg transition-all">
-                    <CardHeader>
-                      <CardTitle className="text-lg flex items-start gap-3">
-                        <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
-                        {faq.q}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground pl-8">{faq.a}</p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      <ServiceFAQSection faqs={auditProtectionFAQs} />
 
       {/* CTA */}
       <section className="py-24 bg-background">

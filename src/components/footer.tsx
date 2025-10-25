@@ -3,7 +3,17 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Award, Phone, Clock, Globe, MessageCircle, ChevronUp, ChevronDown, MapPin } from 'lucide-react';
+import {
+  Shield,
+  Award,
+  Phone,
+  Clock,
+  Globe,
+  MessageCircle,
+  ChevronUp,
+  ChevronDown,
+  MapPin,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -106,236 +116,236 @@ export function Footer() {
       {/* Full Footer Content - Visible When Expanded */}
       <div className={`${isCollapsed ? 'hidden' : 'block'}`}>
         <div className="container mx-auto px-4 lg:px-8">
-        {/* Top Section - 5 Columns */}
-        <div className="py-12 grid md:grid-cols-2 lg:grid-cols-5 gap-8">
-          {/* Column 1 - About */}
-          <div className="space-y-4">
-            <Image
-              src="/images/wordpress-assets/taxgenius-logo.png"
-              alt="Tax Genius Pro"
-              width={160}
-              height={40}
-              className="h-10 w-auto"
-            />
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Professional tax preparation services with licensed CPAs. Serving individuals and
-              businesses since 1999.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="secondary" className="text-xs">
-                <Shield className="w-3 h-3 mr-1" />
-                IRS Authorized
-              </Badge>
-              <Badge variant="secondary" className="text-xs">
-                <Award className="w-3 h-3 mr-1" />
-                BBB A+
-              </Badge>
-            </div>
-          </div>
-
-          {/* Column 2 - Services */}
-          <div>
-            <h4 className="font-semibold mb-4 text-foreground">Services</h4>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link
-                  href="/services/personal"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Personal Tax Filing
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/services/business"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Business Tax Services
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/services/planning"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Tax Planning & Advisory
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/services/audit"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Audit Protection
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/services/resolution"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  IRS Resolution Services
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 3 - Resources */}
-          <div>
-            <h4 className="font-semibold mb-4 text-foreground">Resources</h4>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link
-                  href="/calculator"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Tax Calculator
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/guide"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  2024 Tax Guide
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/blog"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Tax Blog & Tips
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/about"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/support"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Help Center
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 4 - Join Us */}
-          <div>
-            <h4 className="font-semibold mb-4 text-foreground">Join Our Team</h4>
-            <ul className="space-y-3 text-sm">
-              <li>
-                <Link
-                  href="/preparer/start"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Become a Tax Preparer
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/affiliate/apply"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Affiliate Program
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/referral"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Referral Program
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 4 - Contact */}
-          <div>
-            <h4 className="font-semibold mb-4 text-foreground">Contact Us</h4>
-            <ul className="space-y-3 text-sm text-muted-foreground">
-              <li className="flex items-start gap-2">
-                <Phone className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <div>
-                  <Link
-                    href="tel:+14046271015"
-                    className="hover:text-primary transition-colors font-medium"
-                  >
-                    +1 404-627-1015
-                  </Link>
-                </div>
-              </li>
-              <li className="flex items-start gap-2">
-                <Globe className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="leading-relaxed">
-                    1632 Jonesboro Rd SE
-                    <br />
-                    Atlanta, GA 30315
-                  </p>
-                </div>
-              </li>
-              <li className="flex items-start gap-2">
-                <Clock className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p>Mon-Fri: 9AM-7PM</p>
-                  <p>Sat: 10AM-5PM</p>
-                  <p>Sun: Closed</p>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Bottom Section - Legal & Compliance */}
-        <div className="border-t py-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-              <Link href="/privacy" className="hover:text-primary transition-colors">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="hover:text-primary transition-colors">
-                Terms of Service
-              </Link>
-              <Link href="/security" className="hover:text-primary transition-colors">
-                Security
-              </Link>
-              <Link href="/accessibility" className="hover:text-primary transition-colors">
-                Accessibility
-              </Link>
-              <div className="flex items-center gap-2">
-                <span>Theme:</span>
-                <ThemeToggle />
+          {/* Top Section - 5 Columns */}
+          <div className="py-12 grid md:grid-cols-2 lg:grid-cols-5 gap-8">
+            {/* Column 1 - About */}
+            <div className="space-y-4">
+              <Image
+                src="/images/wordpress-assets/taxgenius-logo.png"
+                alt="Tax Genius Pro"
+                width={160}
+                height={40}
+                className="h-10 w-auto"
+              />
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Professional tax preparation services with licensed CPAs. Serving individuals and
+                businesses since 1999.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary" className="text-xs">
+                  <Shield className="w-3 h-3 mr-1" />
+                  IRS Authorized
+                </Badge>
+                <Badge variant="secondary" className="text-xs">
+                  <Award className="w-3 h-3 mr-1" />
+                  BBB A+
+                </Badge>
               </div>
             </div>
-            <div className="text-center md:text-right">
-              <p>EFIN: 12-3456789 | IRS Registered</p>
-              <p className="mt-1">© 2024 TaxGeniusPro. All rights reserved.</p>
+
+            {/* Column 2 - Services */}
+            <div>
+              <h4 className="font-semibold mb-4 text-foreground">Services</h4>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <Link
+                    href="/services/personal"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Personal Tax Filing
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/services/business"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Business Tax Services
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/services/planning"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Tax Planning & Advisory
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/services/audit"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Audit Protection
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/services/resolution"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    IRS Resolution Services
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 3 - Resources */}
+            <div>
+              <h4 className="font-semibold mb-4 text-foreground">Resources</h4>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <Link
+                    href="/calculator"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Tax Calculator
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/guide"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    2024 Tax Guide
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/blog"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Tax Blog & Tips
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/about"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/support"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Help Center
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 4 - Join Us */}
+            <div>
+              <h4 className="font-semibold mb-4 text-foreground">Join Our Team</h4>
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <Link
+                    href="/preparer/start"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Become a Tax Preparer
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/affiliate/apply"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Affiliate Program
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/referral"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Referral Program
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 4 - Contact */}
+            <div>
+              <h4 className="font-semibold mb-4 text-foreground">Contact Us</h4>
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <Phone className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <Link
+                      href="tel:+14046271015"
+                      className="hover:text-primary transition-colors font-medium"
+                    >
+                      +1 404-627-1015
+                    </Link>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Globe className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="leading-relaxed">
+                      1632 Jonesboro Rd SE
+                      <br />
+                      Atlanta, GA 30315
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Clock className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p>Mon-Fri: 9AM-7PM</p>
+                    <p>Sat: 10AM-5PM</p>
+                    <p>Sun: Closed</p>
+                  </div>
+                </li>
+              </ul>
             </div>
           </div>
-        </div>
 
-        {/* Collapse Button - When Expanded */}
-        <div className="border-t py-4">
-          <div className="flex justify-center">
-            <button
-              onClick={toggleCollapsed}
-              className="flex items-center gap-2 px-6 py-3 bg-muted hover:bg-muted/80 transition-colors rounded-full text-sm font-medium"
-              aria-label="Collapse footer"
-            >
-              <span>Collapse Footer</span>
-              <ChevronDown className="w-4 h-4" />
-            </button>
+          {/* Bottom Section - Legal & Compliance */}
+          <div className="border-t py-6">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                <Link href="/privacy" className="hover:text-primary transition-colors">
+                  Privacy Policy
+                </Link>
+                <Link href="/terms" className="hover:text-primary transition-colors">
+                  Terms of Service
+                </Link>
+                <Link href="/security" className="hover:text-primary transition-colors">
+                  Security
+                </Link>
+                <Link href="/accessibility" className="hover:text-primary transition-colors">
+                  Accessibility
+                </Link>
+                <div className="flex items-center gap-2">
+                  <span>Theme:</span>
+                  <ThemeToggle />
+                </div>
+              </div>
+              <div className="text-center md:text-right">
+                <p>EFIN: 12-3456789 | IRS Registered</p>
+                <p className="mt-1">© 2024 TaxGeniusPro. All rights reserved.</p>
+              </div>
+            </div>
           </div>
-        </div>
+
+          {/* Collapse Button - When Expanded */}
+          <div className="border-t py-4">
+            <div className="flex justify-center">
+              <button
+                onClick={toggleCollapsed}
+                className="flex items-center gap-2 px-6 py-3 bg-muted hover:bg-muted/80 transition-colors rounded-full text-sm font-medium"
+                aria-label="Collapse footer"
+              >
+                <span>Collapse Footer</span>
+                <ChevronDown className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

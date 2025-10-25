@@ -6,7 +6,12 @@ import sharp from 'sharp';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
-import { uploadRateLimit, getUserIdentifier, getClientIdentifier, getRateLimitHeaders } from '@/lib/rate-limit';
+import {
+  uploadRateLimit,
+  getUserIdentifier,
+  getClientIdentifier,
+  getRateLimitHeaders,
+} from '@/lib/rate-limit';
 
 /**
  * POST /api/admin/products/upload

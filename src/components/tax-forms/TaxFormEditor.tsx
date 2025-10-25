@@ -14,7 +14,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -110,7 +116,8 @@ export function TaxFormEditor({
         if (!data.hasFormFields) {
           toast({
             title: 'No Fillable Fields',
-            description: 'This PDF does not contain fillable form fields. You can download and fill it manually.',
+            description:
+              'This PDF does not contain fillable form fields. You can download and fill it manually.',
             variant: 'destructive',
           });
           return;
@@ -134,14 +141,14 @@ export function TaxFormEditor({
   };
 
   const calculateProgress = () => {
-    const fillableFields = formFields.filter(f => !f.readOnly);
+    const fillableFields = formFields.filter((f) => !f.readOnly);
 
     if (fillableFields.length === 0) {
       setProgress(0);
       return;
     }
 
-    const filledFields = fillableFields.filter(field => {
+    const filledFields = fillableFields.filter((field) => {
       const value = formData[field.name];
 
       if (value === undefined || value === null) return false;
@@ -156,7 +163,7 @@ export function TaxFormEditor({
   };
 
   const handleFieldChange = (fieldName: string, value: string | boolean) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [fieldName]: value,
     }));
@@ -488,7 +495,7 @@ export function TaxFormEditor({
         <CardHeader>
           <CardTitle>Form Fields</CardTitle>
           <CardDescription>
-            {formFields.filter(f => !f.readOnly).length} fillable fields
+            {formFields.filter((f) => !f.readOnly).length} fillable fields
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -510,14 +517,14 @@ export function TaxFormEditor({
             })}
 
             {/* Checkboxes Section */}
-            {formFields.some(f => f.type === 'checkbox' && !f.readOnly) && (
+            {formFields.some((f) => f.type === 'checkbox' && !f.readOnly) && (
               <>
                 <Separator className="my-6" />
                 <div className="space-y-4">
                   <h3 className="font-medium">Additional Options</h3>
                   {formFields
-                    .filter(f => f.type === 'checkbox' && !f.readOnly)
-                    .map(field => (
+                    .filter((f) => f.type === 'checkbox' && !f.readOnly)
+                    .map((field) => (
                       <div key={field.name}>{renderFormField(field)}</div>
                     ))}
                 </div>
@@ -540,6 +547,6 @@ function formatFieldName(name: string): string {
     .replace(/_/g, ' ')
     .trim()
     .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 }

@@ -4,12 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ShareButton } from '@/components/mobile-hub/ShareButton';
-import {
-  Home,
-  LayoutDashboard,
-  FileText,
-  Users
-} from 'lucide-react';
+import { Home, LayoutDashboard, FileText, Users } from 'lucide-react';
 import { UserRole } from '@/lib/permissions';
 
 interface QuickShareLandingProps {
@@ -74,7 +69,8 @@ export function QuickShareLanding({ userId, role, firstName }: QuickShareLanding
               <CardTitle className="text-xl">Preparing To Do Taxes</CardTitle>
             </div>
             <CardDescription className="text-base">
-              Send this to people that are preparing or need to talk to someone before doing their taxes.
+              Send this to people that are preparing or need to talk to someone before doing their
+              taxes.
             </CardDescription>
           </CardHeader>
           <CardContent>

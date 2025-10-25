@@ -85,10 +85,7 @@ export async function POST(req: NextRequest) {
 
     // Validate required fields
     if (!name || price === undefined) {
-      return NextResponse.json(
-        { error: 'Name and price are required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Name and price are required' }, { status: 400 });
     }
 
     // Create product
@@ -125,9 +122,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     logger.error('Failed to create product', error);
-    return NextResponse.json(
-      { error: 'Failed to create product' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
   }
 }

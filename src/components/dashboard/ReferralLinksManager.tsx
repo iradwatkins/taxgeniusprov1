@@ -219,8 +219,8 @@ export function ReferralLinksManager() {
               <span>Setting up your referral link...</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Your link will appear here automatically. This usually takes just a few seconds.
-              If it doesn't appear, try refreshing the page.
+              Your link will appear here automatically. This usually takes just a few seconds. If it
+              doesn't appear, try refreshing the page.
             </p>
           </CardContent>
         </Card>

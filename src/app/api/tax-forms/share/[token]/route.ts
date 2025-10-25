@@ -54,9 +54,7 @@ export async function GET(
     const filePath = path.join(
       process.cwd(),
       'public',
-      share.taxForm.fileUrl.startsWith('/')
-        ? share.taxForm.fileUrl.slice(1)
-        : share.taxForm.fileUrl
+      share.taxForm.fileUrl.startsWith('/') ? share.taxForm.fileUrl.slice(1) : share.taxForm.fileUrl
     );
 
     if (!fs.existsSync(filePath)) {
@@ -76,9 +74,6 @@ export async function GET(
     });
   } catch (error) {
     logger.error('Error accessing shared tax form:', error);
-    return NextResponse.json(
-      { error: 'Failed to access shared form' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to access shared form' }, { status: 500 });
   }
 }

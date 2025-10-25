@@ -948,7 +948,9 @@ export class EmailService {
 
       const expirationNote = expiresAt
         ? `<p style="color: #666; font-size: 14px; background: #fff3cd; padding: 12px; border-left: 4px solid #f9d938; margin: 20px 0;">
-            <strong>Note:</strong> These links will expire on ${new Date(expiresAt).toLocaleDateString('en-US', {
+            <strong>Note:</strong> These links will expire on ${new Date(
+              expiresAt
+            ).toLocaleDateString('en-US', {
               weekday: 'long',
               year: 'numeric',
               month: 'long',

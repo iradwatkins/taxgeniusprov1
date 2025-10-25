@@ -121,9 +121,7 @@ export function EditHistoryDialog({
             <History className="h-5 w-5 text-primary" />
             Edit History - {formNumber}
           </DialogTitle>
-          <DialogDescription>
-            Complete history of all changes made to this form
-          </DialogDescription>
+          <DialogDescription>Complete history of all changes made to this form</DialogDescription>
         </DialogHeader>
 
         {loading && (
@@ -252,6 +250,6 @@ function formatFieldName(name: string): string {
     .replace(/_/g, ' ')
     .trim()
     .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 }

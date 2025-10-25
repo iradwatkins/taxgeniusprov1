@@ -6,12 +6,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   Home,
   FileText,
@@ -193,245 +188,245 @@ export function DashboardSidebar({
           className
         )}
       >
-      {/* Collapse Toggle Button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute -right-3 top-20 z-50 h-6 w-6 rounded-full border bg-background shadow-md"
-        onClick={() => handleCollapsedChange(!isCollapsed)}
-      >
-        {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-      </Button>
+        {/* Collapse Toggle Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute -right-3 top-20 z-50 h-6 w-6 rounded-full border bg-background shadow-md"
+          onClick={() => handleCollapsedChange(!isCollapsed)}
+        >
+          {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </Button>
 
-      {/* Sidebar Content */}
-      <ScrollArea className="flex-1 py-4">
-        <nav className="px-2">
-          {role === 'admin' || role === 'super_admin' ? (
-            // Render with sections for admin users - ordered sections
-            // Define section order for consistent display
-            <div className="space-y-4">
-              {[
-                '📊 Overview',
-                '👥 Clients',
-                '📋 CRM',
-                '💰 Financials',
-                '📊 Analytics',
-                '📢 Marketing',
-                '🎓 Learning',
-                '💼 Business',
-                '🔗 Quick Share Tools',
-                '⚙️ System Controls',
-                '⚙️ Settings',
-              ].map((sectionName, sectionIndex) => {
-                const items = groupedItems[sectionName];
-                if (!items || items.length === 0) return null;
+        {/* Sidebar Content */}
+        <ScrollArea className="flex-1 py-4">
+          <nav className="px-2">
+            {role === 'admin' || role === 'super_admin' ? (
+              // Render with sections for admin users - ordered sections
+              // Define section order for consistent display
+              <div className="space-y-4">
+                {[
+                  '📊 Overview',
+                  '👥 Clients',
+                  '📋 CRM',
+                  '💰 Financials',
+                  '📊 Analytics',
+                  '📢 Marketing',
+                  '🎓 Learning',
+                  '💼 Business',
+                  '🔗 Quick Share Tools',
+                  '⚙️ System Controls',
+                  '⚙️ Settings',
+                ].map((sectionName, sectionIndex) => {
+                  const items = groupedItems[sectionName];
+                  if (!items || items.length === 0) return null;
 
-                // Check if this section should be visible for the current role
-                if (!isSectionVisibleForRole(sectionName)) return null;
+                  // Check if this section should be visible for the current role
+                  if (!isSectionVisibleForRole(sectionName)) return null;
 
-                const isSectionCollapsed = collapsedSections[sectionName] ?? false;
+                  const isSectionCollapsed = collapsedSections[sectionName] ?? false;
 
-                return (
-                  <div key={sectionName} className="space-y-1">
-                    {/* Section header with collapsible button */}
-                    {!isCollapsed && (
-                      <button
-                        onClick={() =>
-                          setCollapsedSections((prev) => ({
-                            ...prev,
-                            [sectionName]: !prev[sectionName],
-                          }))
-                        }
-                        className={cn(
-                          'w-full flex items-center justify-between mb-2 px-3 py-2 rounded-md border transition-all group cursor-pointer',
-                          'hover:bg-accent/50 hover:border-primary/50',
-                          sectionIndex === 0
-                            ? 'bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20'
-                            : 'bg-muted/30 border-border/50'
-                        )}
-                      >
-                        <h3 className="text-xs font-bold tracking-wide text-foreground/90">
-                          {sectionName}
-                        </h3>
-                        <ChevronDown
+                  return (
+                    <div key={sectionName} className="space-y-1">
+                      {/* Section header with collapsible button */}
+                      {!isCollapsed && (
+                        <button
+                          onClick={() =>
+                            setCollapsedSections((prev) => ({
+                              ...prev,
+                              [sectionName]: !prev[sectionName],
+                            }))
+                          }
                           className={cn(
-                            'h-4 w-4 transition-transform duration-200 group-hover:text-primary',
-                            isSectionCollapsed && '-rotate-90'
+                            'w-full flex items-center justify-between mb-2 px-3 py-2 rounded-md border transition-all group cursor-pointer',
+                            'hover:bg-accent/50 hover:border-primary/50',
+                            sectionIndex === 0
+                              ? 'bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20'
+                              : 'bg-muted/30 border-border/50'
                           )}
-                        />
-                      </button>
-                    )}
+                        >
+                          <h3 className="text-xs font-bold tracking-wide text-foreground/90">
+                            {sectionName}
+                          </h3>
+                          <ChevronDown
+                            className={cn(
+                              'h-4 w-4 transition-transform duration-200 group-hover:text-primary',
+                              isSectionCollapsed && '-rotate-90'
+                            )}
+                          />
+                        </button>
+                      )}
 
-                    {/* Section Items - only show if not collapsed */}
-                    {(!isSectionCollapsed || isCollapsed) && (
-                      <div className="space-y-0.5">
-                        {items.map((item) => {
-                          const isActive =
-                            pathname === item.href || pathname.startsWith(`${item.href}/`);
-                          const Icon = item.icon;
+                      {/* Section Items - only show if not collapsed */}
+                      {(!isSectionCollapsed || isCollapsed) && (
+                        <div className="space-y-0.5">
+                          {items.map((item) => {
+                            const isActive =
+                              pathname === item.href || pathname.startsWith(`${item.href}/`);
+                            const Icon = item.icon;
 
-                          const navItem = (
-                            <Link key={item.href} href={item.href}>
-                              <div
-                                className={cn(
-                                  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                                  !isCollapsed && !isSectionCollapsed && 'ml-2',
-                                  isCollapsed && 'justify-center',
-                                  'hover:bg-accent hover:text-accent-foreground',
-                                  isActive && 'bg-accent text-accent-foreground',
-                                  !isActive && 'text-muted-foreground'
-                                )}
-                              >
-                                <Icon className="h-5 w-5 flex-shrink-0" />
-                                {!isCollapsed && (
-                                  <>
-                                    <span className="flex-1">{item.label}</span>
-                                    {item.badge && (
-                                      <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-                                        {item.badge}
-                                      </span>
-                                    )}
-                                  </>
-                                )}
-                              </div>
-                            </Link>
-                          );
+                            const navItem = (
+                              <Link key={item.href} href={item.href}>
+                                <div
+                                  className={cn(
+                                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                                    !isCollapsed && !isSectionCollapsed && 'ml-2',
+                                    isCollapsed && 'justify-center',
+                                    'hover:bg-accent hover:text-accent-foreground',
+                                    isActive && 'bg-accent text-accent-foreground',
+                                    !isActive && 'text-muted-foreground'
+                                  )}
+                                >
+                                  <Icon className="h-5 w-5 flex-shrink-0" />
+                                  {!isCollapsed && (
+                                    <>
+                                      <span className="flex-1">{item.label}</span>
+                                      {item.badge && (
+                                        <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                                          {item.badge}
+                                        </span>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
+                              </Link>
+                            );
 
-                          return isCollapsed ? (
-                            <Tooltip key={item.href}>
-                              <TooltipTrigger asChild>{navItem}</TooltipTrigger>
-                              <TooltipContent side="right">
-                                <p>{item.label}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          ) : (
-                            navItem
-                          );
-                        })}
-                      </div>
-                    )}
+                            return isCollapsed ? (
+                              <Tooltip key={item.href}>
+                                <TooltipTrigger asChild>{navItem}</TooltipTrigger>
+                                <TooltipContent side="right">
+                                  <p>{item.label}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            ) : (
+                              navItem
+                            );
+                          })}
+                        </div>
+                      )}
 
-                    {/* Add separator between sections (except last) */}
-                    {sectionIndex < 6 && !isCollapsed && (
-                      <div className="mt-2 border-b border-border/30" />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            // Render with sections for non-admin users (tax_preparer, affiliate, client, lead, etc.)
-            <div className="space-y-4">
-              {[
-                '📱 My Dashboard', // Client/Lead only section
-                '🎯 Affiliate Dashboard', // Affiliate only section
-                '📊 Overview',
-                '👥 Clients',
-                '📋 CRM',
-                '📊 Analytics', // Fixed: was '📈 Analytics'
-                '🎓 Learning',
-                '💼 Business',
-                '⚙️ Settings',
-              ].map((sectionName, sectionIndex) => {
-                const items = groupedItems[sectionName];
-                if (!items || items.length === 0) return null;
+                      {/* Add separator between sections (except last) */}
+                      {sectionIndex < 6 && !isCollapsed && (
+                        <div className="mt-2 border-b border-border/30" />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              // Render with sections for non-admin users (tax_preparer, affiliate, client, lead, etc.)
+              <div className="space-y-4">
+                {[
+                  '📱 My Dashboard', // Client/Lead only section
+                  '🎯 Affiliate Dashboard', // Affiliate only section
+                  '📊 Overview',
+                  '👥 Clients',
+                  '📋 CRM',
+                  '📊 Analytics', // Fixed: was '📈 Analytics'
+                  '🎓 Learning',
+                  '💼 Business',
+                  '⚙️ Settings',
+                ].map((sectionName, sectionIndex) => {
+                  const items = groupedItems[sectionName];
+                  if (!items || items.length === 0) return null;
 
-                // Check if this section should be visible for the current role
-                if (!isSectionVisibleForRole(sectionName)) return null;
+                  // Check if this section should be visible for the current role
+                  if (!isSectionVisibleForRole(sectionName)) return null;
 
-                const isSectionCollapsed = collapsedSections[sectionName] ?? false;
+                  const isSectionCollapsed = collapsedSections[sectionName] ?? false;
 
-                return (
-                  <div key={sectionName} className="space-y-1">
-                    {/* Section header with collapsible button */}
-                    {!isCollapsed && (
-                      <button
-                        onClick={() =>
-                          setCollapsedSections((prev) => ({
-                            ...prev,
-                            [sectionName]: !prev[sectionName],
-                          }))
-                        }
-                        className={cn(
-                          'w-full flex items-center justify-between mb-2 px-3 py-2 rounded-md border transition-all group cursor-pointer',
-                          'hover:bg-accent/50 hover:border-primary/50',
-                          sectionIndex === 0
-                            ? 'bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20'
-                            : 'bg-muted/30 border-border/50'
-                        )}
-                      >
-                        <h3 className="text-xs font-bold tracking-wide text-foreground/90">
-                          {sectionName}
-                        </h3>
-                        <ChevronDown
+                  return (
+                    <div key={sectionName} className="space-y-1">
+                      {/* Section header with collapsible button */}
+                      {!isCollapsed && (
+                        <button
+                          onClick={() =>
+                            setCollapsedSections((prev) => ({
+                              ...prev,
+                              [sectionName]: !prev[sectionName],
+                            }))
+                          }
                           className={cn(
-                            'h-4 w-4 transition-transform duration-200 group-hover:text-primary',
-                            isSectionCollapsed && '-rotate-90'
+                            'w-full flex items-center justify-between mb-2 px-3 py-2 rounded-md border transition-all group cursor-pointer',
+                            'hover:bg-accent/50 hover:border-primary/50',
+                            sectionIndex === 0
+                              ? 'bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20'
+                              : 'bg-muted/30 border-border/50'
                           )}
-                        />
-                      </button>
-                    )}
+                        >
+                          <h3 className="text-xs font-bold tracking-wide text-foreground/90">
+                            {sectionName}
+                          </h3>
+                          <ChevronDown
+                            className={cn(
+                              'h-4 w-4 transition-transform duration-200 group-hover:text-primary',
+                              isSectionCollapsed && '-rotate-90'
+                            )}
+                          />
+                        </button>
+                      )}
 
-                    {/* Section Items - only show if not collapsed */}
-                    {(!isSectionCollapsed || isCollapsed) && (
-                      <div className="space-y-0.5">
-                        {items.map((item) => {
-                          const isActive =
-                            pathname === item.href || pathname.startsWith(`${item.href}/`);
-                          const Icon = item.icon;
+                      {/* Section Items - only show if not collapsed */}
+                      {(!isSectionCollapsed || isCollapsed) && (
+                        <div className="space-y-0.5">
+                          {items.map((item) => {
+                            const isActive =
+                              pathname === item.href || pathname.startsWith(`${item.href}/`);
+                            const Icon = item.icon;
 
-                          const navItem = (
-                            <Link key={item.href} href={item.href}>
-                              <div
-                                className={cn(
-                                  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                                  !isCollapsed && !isSectionCollapsed && 'ml-2',
-                                  isCollapsed && 'justify-center',
-                                  'hover:bg-accent hover:text-accent-foreground',
-                                  isActive && 'bg-accent text-accent-foreground',
-                                  !isActive && 'text-muted-foreground'
-                                )}
-                              >
-                                <Icon className="h-5 w-5 flex-shrink-0" />
-                                {!isCollapsed && (
-                                  <>
-                                    <span className="flex-1">{item.label}</span>
-                                    {item.badge && (
-                                      <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-                                        {item.badge}
-                                      </span>
-                                    )}
-                                  </>
-                                )}
-                              </div>
-                            </Link>
-                          );
+                            const navItem = (
+                              <Link key={item.href} href={item.href}>
+                                <div
+                                  className={cn(
+                                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                                    !isCollapsed && !isSectionCollapsed && 'ml-2',
+                                    isCollapsed && 'justify-center',
+                                    'hover:bg-accent hover:text-accent-foreground',
+                                    isActive && 'bg-accent text-accent-foreground',
+                                    !isActive && 'text-muted-foreground'
+                                  )}
+                                >
+                                  <Icon className="h-5 w-5 flex-shrink-0" />
+                                  {!isCollapsed && (
+                                    <>
+                                      <span className="flex-1">{item.label}</span>
+                                      {item.badge && (
+                                        <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                                          {item.badge}
+                                        </span>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
+                              </Link>
+                            );
 
-                          return isCollapsed ? (
-                            <Tooltip key={item.href}>
-                              <TooltipTrigger asChild>{navItem}</TooltipTrigger>
-                              <TooltipContent side="right">
-                                <p>{item.label}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          ) : (
-                            navItem
-                          );
-                        })}
-                      </div>
-                    )}
+                            return isCollapsed ? (
+                              <Tooltip key={item.href}>
+                                <TooltipTrigger asChild>{navItem}</TooltipTrigger>
+                                <TooltipContent side="right">
+                                  <p>{item.label}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            ) : (
+                              navItem
+                            );
+                          })}
+                        </div>
+                      )}
 
-                    {/* Add separator between sections (except last) */}
-                    {sectionIndex < 6 && !isCollapsed && (
-                      <div className="mt-2 border-b border-border/30" />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </nav>
-      </ScrollArea>
+                      {/* Add separator between sections (except last) */}
+                      {sectionIndex < 6 && !isCollapsed && (
+                        <div className="mt-2 border-b border-border/30" />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </nav>
+        </ScrollArea>
 
         {/* Footer with Role Badge */}
         {!isCollapsed && (

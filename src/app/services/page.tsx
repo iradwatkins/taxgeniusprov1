@@ -22,6 +22,8 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { Header } from '@/components/header';
+import { ServiceFAQSection } from '@/components/services/ServiceFAQSection';
+import { servicesOverviewFAQs } from '@/lib/seo-llm/1-core-seo/data/service-faqs';
 
 export default function ServicesPage() {
   return (
@@ -333,6 +335,9 @@ export default function ServicesPage() {
           </div>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <ServiceFAQSection faqs={servicesOverviewFAQs} />
 
       {/* CTA Section */}
       <section className="py-20">

@@ -36,14 +36,20 @@ export async function POST(request: NextRequest) {
 
     // Only tax preparers and admins can assign forms
     if (!['TAX_PREPARER', 'ADMIN', 'SUPER_ADMIN'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Forbidden - Only tax preparers and admins can assign forms' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Forbidden - Only tax preparers and admins can assign forms' },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();
     const { clientId, taxFormId, notes } = body;
 
     if (!clientId || !taxFormId) {
-      return NextResponse.json({ error: 'Missing required fields: clientId, taxFormId' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Missing required fields: clientId, taxFormId' },
+        { status: 400 }
+      );
     }
 
     // Verify client exists and has CLIENT or LEAD role
@@ -85,7 +91,10 @@ export async function POST(request: NextRequest) {
     });
 
     if (existing) {
-      return NextResponse.json({ error: 'Form is already assigned to this client' }, { status: 409 });
+      return NextResponse.json(
+        { error: 'Form is already assigned to this client' },
+        { status: 409 }
+      );
     }
 
     // For tax preparers, verify they have access to this client
@@ -98,7 +107,10 @@ export async function POST(request: NextRequest) {
       });
 
       if (!assignment) {
-        return NextResponse.json({ error: 'You do not have access to this client' }, { status: 403 });
+        return NextResponse.json(
+          { error: 'You do not have access to this client' },
+          { status: 403 }
+        );
       }
     }
 
@@ -189,7 +201,10 @@ export async function GET(request: NextRequest) {
       });
 
       if (!assignment) {
-        return NextResponse.json({ error: 'You do not have access to this client' }, { status: 403 });
+        return NextResponse.json(
+          { error: 'You do not have access to this client' },
+          { status: 403 }
+        );
       }
     }
 

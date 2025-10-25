@@ -84,8 +84,7 @@ class Logger {
    * Error-level logging for exceptions and critical failures
    * Always logs in all environments
    *
-   * In production, this should integrate with error tracking services
-   * like Sentry, DataDog, or similar.
+   * Automatically integrates with Sentry when configured
    */
   error(message: string, error?: Error | unknown, metadata?: LogMetadata) {
     const errorDetails =
@@ -104,13 +103,22 @@ class Logger {
 
     console.error(`[ERROR] ${message}${this.formatMetadata(fullMetadata)}`);
 
-    // TODO: Integrate with Sentry or other error tracking service
-    // if (this.isProduction) {
-    //   Sentry.captureException(error, {
-    //     tags: metadata,
-    //     level: 'error',
-    //   })
-    // }
+    // Integrate with Sentry if configured
+    if (this.isProduction && typeof window !== 'undefined' && process.env.NEXT_PUBLIC_SENTRY_DSN) {
+      // Client-side Sentry integration
+      // Note: Sentry is imported dynamically to avoid bundling when not configured
+      import('@sentry/nextjs')
+        .then((module) => {
+          module.captureException(error instanceof Error ? error : new Error(message), {
+            tags: metadata,
+            level: 'error',
+            extra: { message, ...fullMetadata },
+          });
+        })
+        .catch(() => {
+          // Sentry not available - silently continue
+        });
+    }
   }
 
   /**

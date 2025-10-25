@@ -23,9 +23,6 @@ export async function GET() {
       environment: process.env.SQUARE_ENVIRONMENT || 'sandbox',
     });
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Square not configured' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Square not configured' }, { status: 500 });
   }
 }

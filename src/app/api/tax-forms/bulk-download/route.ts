@@ -25,10 +25,7 @@ export async function POST(request: NextRequest) {
     const { formIds, zipName } = body;
 
     if (!formIds || !Array.isArray(formIds) || formIds.length === 0) {
-      return NextResponse.json(
-        { error: 'formIds must be a non-empty array' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'formIds must be a non-empty array' }, { status: 400 });
     }
 
     // Get all requested forms
@@ -40,15 +37,12 @@ export async function POST(request: NextRequest) {
     });
 
     if (forms.length === 0) {
-      return NextResponse.json(
-        { error: 'No active forms found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'No active forms found' }, { status: 404 });
     }
 
     // Update download counts for all forms
     await prisma.taxForm.updateMany({
-      where: { id: { in: forms.map(f => f.id) } },
+      where: { id: { in: forms.map((f) => f.id) } },
       data: { downloadCount: { increment: 1 } },
     });
 
@@ -56,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     // Create a buffer to write the ZIP file to memory
     const archive = archiver('zip', {
-      zlib: { level: 9 } // Maximum compression
+      zlib: { level: 9 }, // Maximum compression
     });
 
     const chunks: Buffer[] = [];
@@ -106,9 +100,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     logger.error('Error creating bulk download:', error);
-    return NextResponse.json(
-      { error: 'Failed to create bulk download' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to create bulk download' }, { status: 500 });
   }
 }

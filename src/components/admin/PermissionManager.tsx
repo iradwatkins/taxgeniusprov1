@@ -138,7 +138,9 @@ export function PermissionManager({
       } else {
         toast({
           title: 'Success',
-          description: result.message || `Permissions updated for ${roleName}. ${result.usersUpdated || 0} users affected.`,
+          description:
+            result.message ||
+            `Permissions updated for ${roleName}. ${result.usersUpdated || 0} users affected.`,
           duration: 5000,
         });
       }

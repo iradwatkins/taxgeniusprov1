@@ -3,6 +3,8 @@ import { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { LandingPageTemplate } from '@/components/landing-page/LandingPageTemplate';
 import { logger } from '@/lib/logger';
+import { generateTaxGeniusLocalBusinessSchema } from '@/lib/seo-llm/1-core-seo/schema/tax-genius-schemas';
+import { normalizeState } from '@/lib/seo-llm/1-core-seo/utils/state-mapping';
 
 // ISR: Revalidate every 1 hour (AC8)
 export const revalidate = 3600;
@@ -110,6 +112,23 @@ export default async function CityLandingPage({ params }: PageProps) {
     notFound();
   }
 
+  // Generate LocalBusiness schema for SEO
+  const stateData = normalizeState(page.state);
+  const localBusinessSchema = generateTaxGeniusLocalBusinessSchema(
+    page.city,
+    stateData.name,
+    stateData.code
+  );
+
   // Render landing page template (AC14)
-  return <LandingPageTemplate data={page} />;
+  return (
+    <>
+      {/* LocalBusiness Schema for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+      />
+      <LandingPageTemplate data={page} />
+    </>
+  );
 }

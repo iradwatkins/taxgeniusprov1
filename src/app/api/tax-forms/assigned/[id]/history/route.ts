@@ -13,10 +13,7 @@ import { logger } from '@/lib/logger';
 /**
  * GET - Get edit history for a form
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { userId } = await auth();
 

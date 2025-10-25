@@ -207,11 +207,7 @@ export function AssignFormDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {clients.map((client) => (
-                    <SelectItem
-                      key={client.id}
-                      value={client.id}
-                      disabled={client.hasAssignment}
-                    >
+                    <SelectItem key={client.id} value={client.id} disabled={client.hasAssignment}>
                       <div className="flex items-center justify-between w-full">
                         <span>{client.name}</span>
                         {client.hasAssignment && (

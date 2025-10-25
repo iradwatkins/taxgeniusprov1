@@ -6,7 +6,14 @@
  * Uses pdf-lib for PDF manipulation
  */
 
-import { PDFDocument, PDFForm, PDFTextField, PDFCheckBox, PDFDropdown, PDFRadioGroup } from 'pdf-lib';
+import {
+  PDFDocument,
+  PDFForm,
+  PDFTextField,
+  PDFCheckBox,
+  PDFDropdown,
+  PDFRadioGroup,
+} from 'pdf-lib';
 import { logger } from '@/lib/logger';
 
 export interface PDFFormField {
@@ -49,7 +56,7 @@ export async function parsePDFFormFields(pdfBuffer: Buffer): Promise<ParsedPDFFo
 
     logger.info('Parsing PDF form', {
       totalPages: pdfDoc.getPageCount(),
-      totalFields: formFields.length
+      totalFields: formFields.length,
     });
 
     // Process each field
@@ -90,7 +97,7 @@ export async function parsePDFFormFields(pdfBuffer: Buffer): Promise<ParsedPDFFo
       fields.push(parsedField);
     }
 
-    const fillableFields = fields.filter(f => !f.readOnly).length;
+    const fillableFields = fields.filter((f) => !f.readOnly).length;
 
     return {
       fields,
@@ -117,7 +124,7 @@ export async function fillPDFForm(
     const form = pdfDoc.getForm();
 
     logger.info('Filling PDF form', {
-      fieldsToFill: Object.keys(formData).length
+      fieldsToFill: Object.keys(formData).length,
     });
 
     // Fill each field
@@ -191,13 +198,13 @@ export function calculateFormCompletionPercentage(
   fields: PDFFormField[],
   formData: Record<string, string | boolean>
 ): number {
-  const fillableFields = fields.filter(f => !f.readOnly);
+  const fillableFields = fields.filter((f) => !f.readOnly);
 
   if (fillableFields.length === 0) {
     return 0;
   }
 
-  const filledFields = fillableFields.filter(field => {
+  const filledFields = fillableFields.filter((field) => {
     const value = formData[field.name];
 
     if (value === undefined || value === null) {
@@ -290,11 +297,14 @@ export async function extractFormMetadata(pdfBuffer: Buffer): Promise<{
     return {
       hasFormFields: parsed.formHasFields,
       fieldCount: parsed.totalFields,
-      fieldNames: parsed.fields.map(f => f.name),
-      fieldTypes: parsed.fields.reduce((acc, f) => {
-        acc[f.name] = f.type;
-        return acc;
-      }, {} as Record<string, string>),
+      fieldNames: parsed.fields.map((f) => f.name),
+      fieldTypes: parsed.fields.reduce(
+        (acc, f) => {
+          acc[f.name] = f.type;
+          return acc;
+        },
+        {} as Record<string, string>
+      ),
     };
   } catch (error) {
     logger.error('Error extracting form metadata', { error });

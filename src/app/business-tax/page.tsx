@@ -23,6 +23,8 @@ import {
 import Link from 'next/link';
 import { Header } from '@/components/header';
 import Image from 'next/image';
+import { ServiceFAQSection } from '@/components/services/ServiceFAQSection';
+import { businessTaxFAQs } from '@/lib/seo-llm/1-core-seo/data/service-faqs';
 
 export default function BusinessTaxPage() {
   return (
@@ -434,6 +436,9 @@ export default function BusinessTaxPage() {
           </div>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <ServiceFAQSection faqs={businessTaxFAQs} />
 
       {/* CTA */}
       <section className="py-24 bg-background">

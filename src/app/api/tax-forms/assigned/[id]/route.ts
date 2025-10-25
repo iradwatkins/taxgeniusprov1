@@ -16,10 +16,7 @@ import { logger } from '@/lib/logger';
 /**
  * PATCH - Update form data or status
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { userId } = await auth();
 
@@ -191,10 +188,7 @@ export async function PATCH(
 /**
  * DELETE - Unassign a tax form (Tax Preparer or Admin only)
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { userId } = await auth();
 
@@ -216,7 +210,10 @@ export async function DELETE(
 
     // Only tax preparers and admins can unassign forms
     if (!['TAX_PREPARER', 'ADMIN', 'SUPER_ADMIN'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Forbidden - Only tax preparers and admins can unassign forms' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Forbidden - Only tax preparers and admins can unassign forms' },
+        { status: 403 }
+      );
     }
 
     // Get the assignment
@@ -239,7 +236,10 @@ export async function DELETE(
       });
 
       if (!clientAssignment) {
-        return NextResponse.json({ error: 'You do not have access to this client' }, { status: 403 });
+        return NextResponse.json(
+          { error: 'You do not have access to this client' },
+          { status: 403 }
+        );
       }
     }
 

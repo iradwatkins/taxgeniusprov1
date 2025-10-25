@@ -156,7 +156,8 @@ export async function PUT(request: NextRequest) {
               success: true,
               template,
               usersUpdated: 0,
-              warning: 'Template saved successfully. User updates will be applied when they next log in.',
+              warning:
+                'Template saved successfully. User updates will be applied when they next log in.',
             },
             { status: 200 }
           );
@@ -169,7 +170,8 @@ export async function PUT(request: NextRequest) {
             success: true,
             template,
             usersUpdated: 0,
-            warning: 'Template updated but failed to update some users. Changes will apply on next login.',
+            warning:
+              'Template updated but failed to update some users. Changes will apply on next login.',
           },
           { status: 200 }
         );
