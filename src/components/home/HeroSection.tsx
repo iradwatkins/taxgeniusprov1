@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Shield, Award, Users, Phone, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { AnimatedCounter } from './AnimatedCounter';
+import AnimatedCounter from '@/components/AnimatedCounter';
 
 export function HeroSection() {
   return (

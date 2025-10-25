@@ -24,6 +24,20 @@
 .DS_Store
 *.pem
 
+# OS artifacts
+Thumbs.db
+__MACOSX
+
+# Editor artifacts
+*.swp
+*.swo
+*~
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
 # debug
 npm-debug.log*
 yarn-debug.log*
