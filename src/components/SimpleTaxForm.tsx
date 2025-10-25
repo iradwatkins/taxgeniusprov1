@@ -95,6 +95,21 @@ interface PreparerInfo {
   bio?: string | null;
 }
 
+// Component prop types
+interface FormPageProps {
+  formData: TaxFormData;
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  setFormData: React.Dispatch<React.SetStateAction<TaxFormData>>;
+}
+
+interface FormPageWithFileProps extends FormPageProps {
+  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+interface SubmitPageProps {
+  handleSubmit: () => Promise<void>;
+}
+
 export default function SimpleTaxForm() {
   const { user, isLoaded } = useUser();
   const [page, setPage] = useState(1);
@@ -616,7 +631,7 @@ function WelcomePage({ onNext }: { onNext: () => void }) {
   );
 }
 
-function PersonalInfoPage({ formData, handleInputChange, setFormData }: any) {
+function PersonalInfoPage({ formData, handleInputChange, setFormData }: FormPageProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -690,7 +705,7 @@ function PersonalInfoPage({ formData, handleInputChange, setFormData }: any) {
   );
 }
 
-function AddressPage({ formData, handleInputChange }: any) {
+function AddressPage({ formData, handleInputChange }: Omit<FormPageProps, 'setFormData'>) {
   return (
     <div className="space-y-6">
       <div>
@@ -765,7 +780,7 @@ function AddressPage({ formData, handleInputChange }: any) {
 }
 
 // Combined page for desktop
-function PersonalAndAddressPage({ formData, handleInputChange, setFormData }: any) {
+function PersonalAndAddressPage({ formData, handleInputChange, setFormData }: FormPageProps) {
   return (
     <div className="space-y-8">
       <PersonalInfoPage
@@ -780,7 +795,7 @@ function PersonalAndAddressPage({ formData, handleInputChange, setFormData }: an
   );
 }
 
-function IdentityPage({ formData, handleInputChange }: any) {
+function IdentityPage({ formData, handleInputChange }: Omit<FormPageProps, 'setFormData'>) {
   return (
     <div className="space-y-6">
       <div>
@@ -820,7 +835,7 @@ function IdentityPage({ formData, handleInputChange }: any) {
   );
 }
 
-function DependentStatusPage({ formData, setFormData }: any) {
+function DependentStatusPage({ formData, setFormData }: Omit<FormPageProps, 'handleInputChange'>) {
   return (
     <div className="space-y-6">
       <div>
@@ -851,7 +866,7 @@ function DependentStatusPage({ formData, setFormData }: any) {
   );
 }
 
-function FilingStatusPage({ formData, handleInputChange, setFormData }: any) {
+function FilingStatusPage({ formData, handleInputChange, setFormData }: FormPageProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -914,7 +929,7 @@ function FilingStatusPage({ formData, handleInputChange, setFormData }: any) {
 }
 
 // Combined page for desktop
-function DependentAndFilingPage({ formData, handleInputChange, setFormData }: any) {
+function DependentAndFilingPage({ formData, handleInputChange, setFormData }: FormPageProps) {
   return (
     <div className="space-y-8">
       <DependentStatusPage formData={formData} setFormData={setFormData} />
@@ -929,7 +944,7 @@ function DependentAndFilingPage({ formData, handleInputChange, setFormData }: an
   );
 }
 
-function EducationPage({ formData, setFormData }: any) {
+function EducationPage({ formData, setFormData }: Omit<FormPageProps, 'handleInputChange'>) {
   return (
     <div className="space-y-6">
       <div>
@@ -956,7 +971,7 @@ function EducationPage({ formData, setFormData }: any) {
   );
 }
 
-function DependentsPage({ formData, setFormData }: any) {
+function DependentsPage({ formData, setFormData }: Omit<FormPageProps, 'handleInputChange'>) {
   return (
     <div className="space-y-6">
       <div>
@@ -1058,7 +1073,7 @@ function DependentsPage({ formData, setFormData }: any) {
 }
 
 // Combined page for desktop
-function EducationAndDependentsPage({ formData, handleInputChange, setFormData }: any) {
+function EducationAndDependentsPage({ formData, handleInputChange, setFormData }: FormPageProps) {
   return (
     <div className="space-y-8">
       <EducationPage formData={formData} setFormData={setFormData} />
@@ -1069,7 +1084,7 @@ function EducationAndDependentsPage({ formData, handleInputChange, setFormData }
   );
 }
 
-function MortgagePage({ formData, setFormData }: any) {
+function MortgagePage({ formData, setFormData }: Omit<FormPageProps, 'handleInputChange'>) {
   return (
     <div className="space-y-6">
       <div>
@@ -1096,7 +1111,7 @@ function MortgagePage({ formData, setFormData }: any) {
   );
 }
 
-function TaxCreditsPage({ formData, setFormData }: any) {
+function TaxCreditsPage({ formData, setFormData }: Omit<FormPageProps, 'handleInputChange'>) {
   return (
     <div className="space-y-6">
       <div>
@@ -1132,7 +1147,7 @@ function TaxCreditsPage({ formData, setFormData }: any) {
   );
 }
 
-function IrsPinPage({ formData, handleInputChange, setFormData }: any) {
+function IrsPinPage({ formData, handleInputChange, setFormData }: FormPageProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -1177,7 +1192,7 @@ function IrsPinPage({ formData, handleInputChange, setFormData }: any) {
 }
 
 // Combined page for desktop
-function TaxCreditsAndPinPage({ formData, handleInputChange, setFormData }: any) {
+function TaxCreditsAndPinPage({ formData, handleInputChange, setFormData }: FormPageProps) {
   return (
     <div className="space-y-8">
       <TaxCreditsPage formData={formData} setFormData={setFormData} />
@@ -1192,7 +1207,7 @@ function TaxCreditsAndPinPage({ formData, handleInputChange, setFormData }: any)
   );
 }
 
-function RefundAdvancePage({ formData, setFormData }: any) {
+function RefundAdvancePage({ formData, setFormData }: Omit<FormPageProps, 'handleInputChange'>) {
   return (
     <div className="space-y-6">
       <div>
@@ -1221,7 +1236,11 @@ function RefundAdvancePage({ formData, setFormData }: any) {
   );
 }
 
-function IdDocumentsPage({ formData, handleInputChange, handleFileChange }: any) {
+function IdDocumentsPage({
+  formData,
+  handleInputChange,
+  handleFileChange,
+}: Omit<FormPageWithFileProps, 'setFormData'>) {
   return (
     <div className="space-y-6">
       <div>
@@ -1277,7 +1296,7 @@ function IdDocumentsPage({ formData, handleInputChange, handleFileChange }: any)
   );
 }
 
-function CongratulationsPage({ handleSubmit }: any) {
+function CongratulationsPage({ handleSubmit }: SubmitPageProps) {
   return (
     <div className="space-y-8 text-center py-8">
       <div className="w-32 h-32 bg-gradient-to-br from-success/20 to-success/10 rounded-full mx-auto flex items-center justify-center">

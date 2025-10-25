@@ -20,7 +20,7 @@ export interface CreateCampaignInput {
   fromName?: string;
   fromEmail?: string;
   replyTo?: string;
-  segmentRules?: any; // JSON rules for targeting
+  segmentRules?: Prisma.JsonValue; // JSON rules for targeting
   createdBy?: string;
 }
 
@@ -65,7 +65,7 @@ export class CRMEmailService {
 
       logger.info('[CRMEmailService] Campaign created', { campaignId: campaign.id });
       return campaign;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMEmailService] Error creating campaign', { error: error.message });
       throw new Error(`Failed to create campaign: ${error.message}`);
     }
@@ -106,7 +106,7 @@ export class CRMEmailService {
       }
 
       return campaign;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMEmailService] Error getting campaign', { error: error.message });
       throw error;
     }
@@ -151,7 +151,7 @@ export class CRMEmailService {
         limit,
         totalPages: Math.ceil(total / limit),
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMEmailService] Error listing campaigns', { error: error.message });
       throw new Error(`Failed to list campaigns: ${error.message}`);
     }
@@ -206,7 +206,7 @@ export class CRMEmailService {
       });
 
       return recipients;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMEmailService] Error getting recipients', { error: error.message });
       throw new Error(`Failed to get recipients: ${error.message}`);
     }
@@ -291,7 +291,7 @@ export class CRMEmailService {
             });
 
             sentCount++;
-          } catch (error: any) {
+          } catch (error: unknown) {
             logger.error('[CRMEmailService] Error sending to recipient', {
               email: recipient.email,
               error: error.message,
@@ -335,7 +335,7 @@ export class CRMEmailService {
         sentCount,
         recipientCount: recipients.length,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMEmailService] Error sending campaign', { error: error.message });
       throw new Error(`Failed to send campaign: ${error.message}`);
     }
@@ -375,7 +375,7 @@ export class CRMEmailService {
         success: true,
         emailId: result.data?.id,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMEmailService] Error sending email', {
         email,
         error: error.message,
@@ -401,7 +401,7 @@ export class CRMEmailService {
       });
 
       return activity;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMEmailService] Error creating email activity', {
         error: error.message,
       });
@@ -443,7 +443,7 @@ export class CRMEmailService {
           });
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMEmailService] Error tracking email open', { error: error.message });
     }
   }
@@ -484,7 +484,7 @@ export class CRMEmailService {
           },
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMEmailService] Error tracking email click', { error: error.message });
     }
   }
@@ -525,7 +525,7 @@ export class CRMEmailService {
             ? Math.round(((campaign.clickedCount / campaign.openedCount) * 100 * 10) / 10)
             : 0,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMEmailService] Error getting campaign stats', { error: error.message });
       throw new Error(`Failed to get campaign stats: ${error.message}`);
     }

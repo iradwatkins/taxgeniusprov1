@@ -73,7 +73,7 @@ export class CRMTaskService {
 
       logger.info('[CRMTaskService] Task created', { taskId: task.id });
       return task;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMTaskService] Error creating task', { error: error.message });
       throw new Error(`Failed to create task: ${error.message}`);
     }
@@ -103,7 +103,7 @@ export class CRMTaskService {
       }
 
       return task;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMTaskService] Error getting task', { error: error.message, taskId });
       throw error;
     }
@@ -171,7 +171,7 @@ export class CRMTaskService {
         limit,
         totalPages: Math.ceil(total / limit),
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMTaskService] Error listing tasks', { error: error.message });
       throw new Error(`Failed to list tasks: ${error.message}`);
     }
@@ -185,7 +185,7 @@ export class CRMTaskService {
       logger.info('[CRMTaskService] Updating task', { taskId, updates: Object.keys(data) });
 
       // If marking as done, set completedAt and completedBy
-      const updateData: any = { ...data };
+      const updateData: Prisma.CRMTaskUpdateInput = { ...data };
 
       if (data.status === TaskStatus.DONE) {
         updateData.completedAt = new Date();
@@ -209,7 +209,7 @@ export class CRMTaskService {
 
       logger.info('[CRMTaskService] Task updated', { taskId });
       return task;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMTaskService] Error updating task', { error: error.message, taskId });
       throw new Error(`Failed to update task: ${error.message}`);
     }
@@ -228,7 +228,7 @@ export class CRMTaskService {
 
       logger.info('[CRMTaskService] Task deleted', { taskId });
       return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMTaskService] Error deleting task', { error: error.message, taskId });
       throw new Error(`Failed to delete task: ${error.message}`);
     }
@@ -267,7 +267,7 @@ export class CRMTaskService {
       });
 
       return tasks;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMTaskService] Error getting tasks due soon', { error: error.message });
       throw new Error(`Failed to get tasks due soon: ${error.message}`);
     }
@@ -305,7 +305,7 @@ export class CRMTaskService {
       });
 
       return tasks;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMTaskService] Error getting overdue tasks', { error: error.message });
       throw new Error(`Failed to get overdue tasks: ${error.message}`);
     }
@@ -338,7 +338,7 @@ export class CRMTaskService {
         overdue,
         active: todo + inProgress,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMTaskService] Error getting task stats', { error: error.message });
       throw new Error(`Failed to get task stats: ${error.message}`);
     }

@@ -10,7 +10,13 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { PipelineStage, EmailActivityStatus } from '@prisma/client';
+import {
+  PipelineStage,
+  EmailActivityStatus,
+  type Prisma,
+  type CRMEmailActivity,
+  type CRMInteraction,
+} from '@prisma/client';
 import { logger } from '@/lib/logger';
 
 export interface ScoreBreakdown {
@@ -67,7 +73,7 @@ export class CRMLeadScoringService {
       });
 
       return breakdown;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMLeadScoringService] Error calculating score', { error: error.message });
       throw new Error(`Failed to calculate lead score: ${error.message}`);
     }
@@ -76,7 +82,7 @@ export class CRMLeadScoringService {
   /**
    * Calculate email engagement score (0-25 points)
    */
-  private static calculateEmailEngagementScore(emailActivities: any[]): number {
+  private static calculateEmailEngagementScore(emailActivities: CRMEmailActivity[]): number {
     if (!emailActivities || emailActivities.length === 0) return 0;
 
     const totalEmails = emailActivities.length;
@@ -103,7 +109,7 @@ export class CRMLeadScoringService {
   /**
    * Calculate interaction score (0-25 points)
    */
-  private static calculateInteractionScore(interactions: any[]): number {
+  private static calculateInteractionScore(interactions: CRMInteraction[]): number {
     if (!interactions || interactions.length === 0) return 0;
 
     const interactionCount = interactions.length;
@@ -210,7 +216,7 @@ export class CRMLeadScoringService {
       });
 
       return breakdown;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMLeadScoringService] Error updating score', { error: error.message });
       throw new Error(`Failed to update contact score: ${error.message}`);
     }
@@ -257,7 +263,7 @@ export class CRMLeadScoringService {
       });
 
       return { success: true, newScore };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMLeadScoringService] Error adjusting score', { error: error.message });
       throw new Error(`Failed to adjust score: ${error.message}`);
     }
@@ -320,7 +326,7 @@ export class CRMLeadScoringService {
         success: successCount,
         errors: errorCount,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMLeadScoringService] Error in batch update', { error: error.message });
       throw new Error(`Failed to batch update scores: ${error.message}`);
     }
@@ -338,7 +344,7 @@ export class CRMLeadScoringService {
       });
 
       return history;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMLeadScoringService] Error getting score history', {
         error: error.message,
       });
@@ -371,7 +377,7 @@ export class CRMLeadScoringService {
       });
 
       return contacts;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMLeadScoringService] Error getting contacts by score', {
         error: error.message,
       });
@@ -428,7 +434,7 @@ export class CRMLeadScoringService {
           cold: total > 0 ? Math.round((coldLeads / total) * 100) : 0,
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('[CRMLeadScoringService] Error getting insights', { error: error.message });
       throw new Error(`Failed to get score insights: ${error.message}`);
     }
