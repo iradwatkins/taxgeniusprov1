@@ -15,9 +15,8 @@ import { prisma } from '@/lib/prisma';
 import { generateCompleteCityContent } from './city-content-prompts';
 import type { CityData } from './city-data-types';
 
-// Import existing Google AI image generation
-// @ts-ignore - Will use existing implementation
-import { generateProductImage } from '@/lib/image-generation';
+// Import Google AI image generation from SEO system
+import { generateProductImage } from '@/lib/seo-llm/2-llm-integrations/google-imagen/google-ai-client';
 
 export interface ProductCampaignSpec {
   productName: string;
