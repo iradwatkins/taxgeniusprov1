@@ -18,15 +18,18 @@ export async function GET() {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    // Get profile
-    const profile = await prisma.profile.findUnique({
+    // Get or create profile using upsert to avoid race conditions
+    const profile = await prisma.profile.upsert({
       where: { clerkUserId: userId },
-      select: { id: true },
+      update: {}, // No updates if exists
+      create: {
+        clerkUserId: userId,
+        role: 'LEAD', // Default role, user will select proper role later
+      },
+      select: { id: true, role: true },
     });
 
-    if (!profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
-    }
+    logger.info(`Profile resolved: ${profile.id}`);
 
     // Get user's short links
     const links = await getUserShortLinks(profile.id);

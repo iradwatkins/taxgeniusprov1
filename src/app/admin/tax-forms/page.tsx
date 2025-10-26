@@ -63,7 +63,7 @@ export default function AdminTaxFormsPage() {
 
   // Redirect if no access
   useEffect(() => {
-    if (isLoaded && (!user || !permissions?.clientFileCenter)) {
+    if (isLoaded && (!user || !permissions?.taxForms)) {
       redirect('/forbidden');
     }
   }, [isLoaded, user, permissions]);

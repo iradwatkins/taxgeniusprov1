@@ -220,6 +220,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: FileText,
     permission: 'taxForms', // ✅ NOW INDEPENDENT! Can toggle separately from Client File Center
     section: '📋 CRM',
+    roles: ['tax_preparer', 'admin', 'super_admin'], // ✅ Visible to tax preparers too!
   },
   {
     label: 'My Analytics',

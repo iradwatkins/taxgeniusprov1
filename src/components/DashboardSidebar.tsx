@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ShieldCheck } from 'lucide-react';
+import { PWASidebarInstall } from '@/components/PWASidebarInstall';
 
 interface DashboardSidebarProps {
   role: UserRole;
@@ -327,8 +328,12 @@ export function DashboardSidebar({ role, permissions }: DashboardSidebarProps) {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer with Role Badge */}
+      {/* Footer with PWA Install & Role Badge */}
       <SidebarFooter>
+        {/* PWA Install Prompt */}
+        <PWASidebarInstall />
+
+        {/* Role Badge */}
         <div className="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground">
           <ShieldCheck className="h-4 w-4" />
           {!isCollapsed && <span className="capitalize">{role.replace('_', ' ')} Account</span>}

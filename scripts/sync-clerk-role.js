@@ -1,8 +1,8 @@
 import { clerkClient } from '@clerk/nextjs/server';
 
 async function syncUserRole() {
-  const clerkUserId = 'user_340giQLv6tlxCRWeepOYqVErO2O';
-  const role = 'client'; // lowercase to match TypeScript type
+  const clerkUserId = 'user_33zIM4IXU6Z89xnFMBQQ1iZ04X7'; // appvillagellc@gmail.com
+  const role = 'affiliate'; // lowercase to match TypeScript type
 
   try {
     console.log(`Updating Clerk metadata for user: ${clerkUserId}`);
