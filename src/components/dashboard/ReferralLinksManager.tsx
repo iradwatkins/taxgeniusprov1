@@ -12,6 +12,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '@clerk/nextjs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -79,15 +80,26 @@ export function ReferralLinksManager() {
     reason?: string;
   } | null>(null);
 
+  const { isLoaded, isSignedIn } = useAuth();
+
   useEffect(() => {
-    loadReferralLinks();
-    loadTrackingCode();
-  }, []);
+    // Only load data when Clerk auth is fully loaded and user is signed in
+    if (isLoaded && isSignedIn) {
+      loadReferralLinks();
+      loadTrackingCode();
+    }
+  }, [isLoaded, isSignedIn]);
 
   const loadReferralLinks = async () => {
     try {
       const response = await fetch('/api/links');
+
       if (!response.ok) {
+        // Don't throw error if we get redirected (auth issue)
+        if (response.status === 401 || response.status === 403) {
+          logger.info('Not authenticated, skipping referral links load');
+          return;
+        }
         throw new Error('Failed to fetch referral links');
       }
 
@@ -111,7 +123,13 @@ export function ReferralLinksManager() {
   const loadTrackingCode = async () => {
     try {
       const response = await fetch('/api/profile/tracking-code');
+
       if (!response.ok) {
+        // Don't throw error if we get redirected (auth issue)
+        if (response.status === 401 || response.status === 403) {
+          logger.info('Not authenticated, skipping tracking code load');
+          return;
+        }
         throw new Error('Failed to fetch tracking code');
       }
 
@@ -119,6 +137,7 @@ export function ReferralLinksManager() {
       setTrackingCode(data.data);
     } catch (error) {
       logger.error('Error loading tracking code:', error);
+      toast.error('Failed to load tracking code');
     }
   };
 

@@ -84,12 +84,23 @@ export default async function TaxPreparerSettingsPage() {
                 {user?.firstName?.[0] || user?.emailAddresses[0]?.emailAddress[0] || 'U'}
               </AvatarFallback>
             </Avatar>
-            <div className="space-y-2">
+            <div className="space-y-2 flex-1">
               <Button variant="outline" size="sm">
                 <Upload className="w-4 h-4 mr-2" />
                 Change Photo
               </Button>
               <p className="text-xs text-muted-foreground">JPG, PNG or GIF. Max size 2MB.</p>
+
+              {/* QR Code Branding Option */}
+              <div className="flex items-center space-x-2 pt-2">
+                <Switch id="usePhotoInQRCodes" />
+                <Label htmlFor="usePhotoInQRCodes" className="text-sm font-normal cursor-pointer">
+                  Use this photo in your QR codes
+                  <span className="block text-xs text-muted-foreground mt-0.5">
+                    Your profile photo will appear in QR codes for promotional materials and lead pages
+                  </span>
+                </Label>
+              </div>
             </div>
           </div>
 

@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { currentUser } from '@clerk/nextjs/server';
-import { DashboardHeader } from '@/components/DashboardHeader';
-import { DashboardSidebar } from '@/components/DashboardSidebar';
+import { CRMLayoutClient } from '@/components/CRMLayoutClient';
 import { getUserPermissions, UserRole, UserPermissions } from '@/lib/permissions';
 
 export default async function CRMLayout({ children }: { children: React.ReactNode }) {
@@ -31,17 +30,8 @@ export default async function CRMLayout({ children }: { children: React.ReactNod
   const permissions = getUserPermissions(sidebarRole, customPermissions);
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
-      {/* Header - uses real user data from Clerk */}
-      <DashboardHeader />
-
-      <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar - uses real role-based navigation with permissions */}
-        <DashboardSidebar role={sidebarRole} permissions={permissions} className="hidden md:flex" />
-
-        {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto bg-muted/10">{children}</main>
-      </div>
-    </div>
+    <CRMLayoutClient role={sidebarRole} permissions={permissions}>
+      {children}
+    </CRMLayoutClient>
   );
 }

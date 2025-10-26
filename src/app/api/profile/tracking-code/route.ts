@@ -14,6 +14,7 @@ import {
   customizeTrackingCode,
   validateCustomTrackingCode,
   isTrackingCodeAvailable,
+  assignTrackingCodeToUser,
 } from '@/lib/services/tracking-code.service';
 
 /**
@@ -38,10 +39,15 @@ export async function GET() {
     }
 
     // Get tracking code data
-    const trackingData = await getUserTrackingCode(profile.id);
+    let trackingData = await getUserTrackingCode(profile.id);
 
+    // If user doesn't have a tracking code, auto-generate one
     if (!trackingData) {
-      return NextResponse.json({ error: 'Tracking code not found' }, { status: 404 });
+      logger.info(`Auto-generating tracking code for user ${profile.id}`);
+      trackingData = await assignTrackingCodeToUser(
+        profile.id,
+        process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax'
+      );
     }
 
     return NextResponse.json({

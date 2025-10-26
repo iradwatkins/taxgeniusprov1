@@ -4,42 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import {
-  Home,
-  FileText,
-  Upload,
-  Users,
-  DollarSign,
-  Settings,
-  ShieldCheck,
-  BarChart3,
-  Package,
-  Briefcase,
-  UserCheck,
-  Trophy,
-  QrCode,
-  Database,
-  Sparkles,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  GraduationCap,
-  MessageSquare,
-  Mail,
-  Calendar,
-  BookOpen,
-  FolderOpen,
-  TrendingUp,
-  Share2,
-  Bell,
-  Megaphone,
-  Globe,
-  Link2,
-  CreditCard,
-} from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { UserRole, UserPermissions } from '@/lib/permissions';
 import { logger } from '@/lib/logger';
 import {
@@ -48,52 +13,35 @@ import {
   SECTION_ROLE_RESTRICTIONS,
   type NavItem,
 } from '@/lib/navigation-items';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+  useSidebar,
+} from '@/components/ui/sidebar';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ShieldCheck } from 'lucide-react';
 
 interface DashboardSidebarProps {
   role: UserRole;
   permissions: Partial<UserPermissions>;
-  isCollapsed?: boolean;
-  onCollapsedChange?: (collapsed: boolean) => void;
-  className?: string;
 }
 
-export function DashboardSidebar({
-  role,
-  permissions,
-  isCollapsed: controlledCollapsed,
-  onCollapsedChange,
-  className,
-}: DashboardSidebarProps) {
-  // Load collapsed state from localStorage on mount
-  const [internalCollapsed, setInternalCollapsed] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('sidebar-collapsed');
-      return saved === 'true';
-    }
-    return false;
-  });
-
+export function DashboardSidebar({ role, permissions }: DashboardSidebarProps) {
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
     '⚙️ System Controls': true, // Keep System Controls collapsed by default
-    // Ensure client dashboard section is NOT collapsed
-    '📱 My Dashboard': false,
+    '📱 My Dashboard': false, // Ensure client dashboard section is NOT collapsed
   });
   const pathname = usePathname();
-
-  // Use controlled state if provided, otherwise use internal state
-  const isCollapsed = controlledCollapsed !== undefined ? controlledCollapsed : internalCollapsed;
-
-  const handleCollapsedChange = (collapsed: boolean) => {
-    if (onCollapsedChange) {
-      onCollapsedChange(collapsed);
-    } else {
-      setInternalCollapsed(collapsed);
-      // Persist to localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('sidebar-collapsed', String(collapsed));
-      }
-    }
-  };
+  const { state } = useSidebar();
+  const isCollapsed = state === 'collapsed';
 
   // Generate navigation items dynamically based on user's permissions AND role
   const navItems = ALL_NAV_ITEMS.filter((item) => {
@@ -180,27 +128,22 @@ export function DashboardSidebar({
   });
 
   return (
-    <TooltipProvider delayDuration={0}>
-      <div
-        className={cn(
-          'relative flex flex-col border-r bg-background transition-all duration-300',
-          isCollapsed ? 'w-16' : 'w-64',
-          className
-        )}
-      >
-        {/* Collapse Toggle Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute -right-3 top-20 z-50 h-6 w-6 rounded-full border bg-background shadow-md"
-          onClick={() => handleCollapsedChange(!isCollapsed)}
-        >
-          {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </Button>
+    <Sidebar collapsible="icon" variant="sidebar">
+      {/* Sidebar Header */}
+      <SidebarHeader>
+        <div className="flex items-center gap-2 px-2 py-1.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <span className="text-lg font-bold">TG</span>
+          </div>
+          {!isCollapsed && <span className="font-semibold">Tax Genius Pro</span>}
+        </div>
+      </SidebarHeader>
 
-        {/* Sidebar Content */}
-        <ScrollArea className="flex-1 py-4">
-          <nav className="px-2">
+      {/* Sidebar Content */}
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
             {role === 'admin' || role === 'super_admin' ? (
               // Render with sections for admin users - ordered sections
               // Define section order for consistent display
@@ -212,7 +155,6 @@ export function DashboardSidebar({
                   '💰 Financials',
                   '📊 Analytics',
                   '📢 Marketing',
-                  '🎓 Learning',
                   '💼 Business',
                   '🔗 Quick Share Tools',
                   '⚙️ System Controls',
@@ -259,48 +201,26 @@ export function DashboardSidebar({
 
                       {/* Section Items - only show if not collapsed */}
                       {(!isSectionCollapsed || isCollapsed) && (
-                        <div className="space-y-0.5">
+                        <div className={cn('space-y-0.5', !isCollapsed && !isSectionCollapsed && 'ml-2')}>
                           {items.map((item) => {
                             const isActive =
                               pathname === item.href || pathname.startsWith(`${item.href}/`);
                             const Icon = item.icon;
 
-                            const navItem = (
-                              <Link key={item.href} href={item.href}>
-                                <div
-                                  className={cn(
-                                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                                    !isCollapsed && !isSectionCollapsed && 'ml-2',
-                                    isCollapsed && 'justify-center',
-                                    'hover:bg-accent hover:text-accent-foreground',
-                                    isActive && 'bg-accent text-accent-foreground',
-                                    !isActive && 'text-muted-foreground'
-                                  )}
-                                >
-                                  <Icon className="h-5 w-5 flex-shrink-0" />
-                                  {!isCollapsed && (
-                                    <>
-                                      <span className="flex-1">{item.label}</span>
-                                      {item.badge && (
-                                        <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-                                          {item.badge}
-                                        </span>
-                                      )}
-                                    </>
-                                  )}
-                                </div>
-                              </Link>
-                            );
-
-                            return isCollapsed ? (
-                              <Tooltip key={item.href}>
-                                <TooltipTrigger asChild>{navItem}</TooltipTrigger>
-                                <TooltipContent side="right">
-                                  <p>{item.label}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            ) : (
-                              navItem
+                            return (
+                              <SidebarMenuItem key={item.href}>
+                                <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
+                                  <Link href={item.href}>
+                                    <Icon className="h-5 w-5" />
+                                    <span>{item.label}</span>
+                                    {item.badge && (
+                                      <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                                        {item.badge}
+                                      </span>
+                                    )}
+                                  </Link>
+                                </SidebarMenuButton>
+                              </SidebarMenuItem>
                             );
                           })}
                         </div>
@@ -324,7 +244,6 @@ export function DashboardSidebar({
                   '👥 Clients',
                   '📋 CRM',
                   '📊 Analytics', // Fixed: was '📈 Analytics'
-                  '🎓 Learning',
                   '💼 Business',
                   '⚙️ Settings',
                 ].map((sectionName, sectionIndex) => {
@@ -369,48 +288,26 @@ export function DashboardSidebar({
 
                       {/* Section Items - only show if not collapsed */}
                       {(!isSectionCollapsed || isCollapsed) && (
-                        <div className="space-y-0.5">
+                        <div className={cn('space-y-0.5', !isCollapsed && !isSectionCollapsed && 'ml-2')}>
                           {items.map((item) => {
                             const isActive =
                               pathname === item.href || pathname.startsWith(`${item.href}/`);
                             const Icon = item.icon;
 
-                            const navItem = (
-                              <Link key={item.href} href={item.href}>
-                                <div
-                                  className={cn(
-                                    'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                                    !isCollapsed && !isSectionCollapsed && 'ml-2',
-                                    isCollapsed && 'justify-center',
-                                    'hover:bg-accent hover:text-accent-foreground',
-                                    isActive && 'bg-accent text-accent-foreground',
-                                    !isActive && 'text-muted-foreground'
-                                  )}
-                                >
-                                  <Icon className="h-5 w-5 flex-shrink-0" />
-                                  {!isCollapsed && (
-                                    <>
-                                      <span className="flex-1">{item.label}</span>
-                                      {item.badge && (
-                                        <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-                                          {item.badge}
-                                        </span>
-                                      )}
-                                    </>
-                                  )}
-                                </div>
-                              </Link>
-                            );
-
-                            return isCollapsed ? (
-                              <Tooltip key={item.href}>
-                                <TooltipTrigger asChild>{navItem}</TooltipTrigger>
-                                <TooltipContent side="right">
-                                  <p>{item.label}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            ) : (
-                              navItem
+                            return (
+                              <SidebarMenuItem key={item.href}>
+                                <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
+                                  <Link href={item.href}>
+                                    <Icon className="h-5 w-5" />
+                                    <span>{item.label}</span>
+                                    {item.badge && (
+                                      <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                                        {item.badge}
+                                      </span>
+                                    )}
+                                  </Link>
+                                </SidebarMenuButton>
+                              </SidebarMenuItem>
                             );
                           })}
                         </div>
@@ -425,19 +322,21 @@ export function DashboardSidebar({
                 })}
               </div>
             )}
-          </nav>
-        </ScrollArea>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
 
-        {/* Footer with Role Badge */}
-        {!isCollapsed && (
-          <div className="border-t p-4">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <ShieldCheck className="h-4 w-4" />
-              <span className="capitalize">{role.replace('_', ' ')} Account</span>
-            </div>
-          </div>
-        )}
-      </div>
-    </TooltipProvider>
+      {/* Footer with Role Badge */}
+      <SidebarFooter>
+        <div className="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground">
+          <ShieldCheck className="h-4 w-4" />
+          {!isCollapsed && <span className="capitalize">{role.replace('_', ' ')} Account</span>}
+        </div>
+      </SidebarFooter>
+
+      {/* Rail for resizing */}
+      <SidebarRail />
+    </Sidebar>
   );
 }

@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  output: 'standalone', // Required for Docker deployment
+  // output: 'standalone', // Disabled - causing routing issues
   typedRoutes: true,
   eslint: {
     ignoreDuringBuilds: true,

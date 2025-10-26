@@ -3,7 +3,7 @@
 import { UserButton, useUser } from '@clerk/nextjs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Bell, Menu, Eye } from 'lucide-react';
+import { Bell, Eye } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Moon, Sun } from 'lucide-react';
 import {
@@ -12,18 +12,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import { Separator } from '@/components/ui/separator';
 import { RoleSwitcher } from '@/components/admin/RoleSwitcher';
 import { UserRole } from '@/lib/permissions';
 
 interface DashboardHeaderProps {
-  onMenuClick?: () => void;
   actualRole?: UserRole;
   effectiveRole?: UserRole;
   isViewingAsOtherRole?: boolean;
 }
 
 export function DashboardHeader({
-  onMenuClick,
   actualRole,
   effectiveRole,
   isViewingAsOtherRole = false,
@@ -68,25 +68,21 @@ export function DashboardHeader({
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center gap-4 px-4 md:px-6">
-        {/* Mobile Menu Button */}
-        <Button variant="ghost" size="icon" className="md:hidden" onClick={onMenuClick}>
-          <Menu className="h-5 w-5" />
-        </Button>
+    <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 sticky top-0 bg-background z-10">
+      {/* Sidebar Toggle */}
+      <SidebarTrigger className="-ml-1" />
+      <Separator orientation="vertical" className="mr-2 h-4" />
 
-        {/* Logo/Brand - Hidden on mobile */}
-        <div className="hidden md:flex items-center gap-2">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">TG</span>
-            </div>
-            <span className="text-lg font-semibold">Tax Genius</span>
-          </div>
+      {/* Logo/Brand */}
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
+          <span className="text-white font-bold text-sm">TG</span>
         </div>
+        <span className="text-lg font-semibold hidden md:block">Tax Genius</span>
+      </div>
 
-        {/* Spacer */}
-        <div className="flex-1" />
+      {/* Spacer */}
+      <div className="flex-1" />
 
         {/* Right Side Actions */}
         <div className="flex items-center gap-2">
@@ -149,7 +145,6 @@ export function DashboardHeader({
             />
           </div>
         </div>
-      </div>
     </header>
   );
 }

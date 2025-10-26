@@ -49,7 +49,15 @@ export default async function CalendarPage() {
     | undefined;
   const permissions = getUserPermissions(role || 'client', customPermissions);
 
+  // ✅ Check main permission for page access
   if (!permissions.calendar) redirect('/forbidden');
+
+  // 🎛️ Extract micro-permissions for calendar features
+  // Fallback to main permission for backward compatibility
+  const canView = permissions.calendar_view ?? permissions.calendar;
+  const canCreate = permissions.calendar_create ?? false;
+  const canEdit = permissions.calendar_edit ?? false;
+  const canDelete = permissions.calendar_delete ?? false;
 
   // Fetch appointments
   type AppointmentWithUser = Awaited<ReturnType<typeof prisma.appointment.findMany>>[number];
@@ -96,10 +104,12 @@ export default async function CalendarPage() {
               <Calendar className="w-8 h-8" />
               Calendar & Appointments
             </h1>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              New Appointment
-            </Button>
+            {canCreate && (
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                New Appointment
+              </Button>
+            )}
           </div>
           <p className="text-muted-foreground">Manage appointments and schedules</p>
         </div>
@@ -248,12 +258,16 @@ export default async function CalendarPage() {
                             )}
                           </div>
                           <div className="space-x-2">
-                            <Button variant="outline" size="sm">
-                              View
-                            </Button>
-                            <Button variant="outline" size="sm">
-                              Edit
-                            </Button>
+                            {canView && (
+                              <Button variant="outline" size="sm">
+                                View
+                              </Button>
+                            )}
+                            {canEdit && (
+                              <Button variant="outline" size="sm">
+                                Edit
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -301,7 +315,7 @@ export default async function CalendarPage() {
                             </p>
                           </div>
                           <div className="space-x-2">
-                            <Button size="sm">Schedule</Button>
+                            {canCreate && <Button size="sm">Schedule</Button>}
                             <Button size="sm" variant="outline">
                               Contact
                             </Button>

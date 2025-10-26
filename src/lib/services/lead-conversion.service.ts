@@ -80,23 +80,29 @@ export async function convertLeadToClient(
     );
     logger.info(`Assigned tracking code to profile ${profile.id}`);
 
-    // 3.5. Auto-assign to Tax Genius default preparer
-    const taxGeniusPreparerId = process.env.TAX_GENIUS_PREPARER_ID;
-    if (taxGeniusPreparerId) {
+    // 3.5. Auto-assign to preparer (use lead's assigned preparer OR Tax Genius default)
+    const preparerId = lead.assignedPreparerId || process.env.TAX_GENIUS_PREPARER_ID;
+
+    if (preparerId) {
       try {
         await prisma.clientPreparer.create({
           data: {
             clientId: profile.id,
-            preparerId: taxGeniusPreparerId,
+            preparerId: preparerId,
             isActive: true,
           },
         });
-        logger.info(`✅ Auto-assigned client ${profile.id} to Tax Genius preparer`);
+
+        if (lead.assignedPreparerId) {
+          logger.info(`✅ Auto-assigned client ${profile.id} to their referrer preparer ${preparerId}`);
+        } else {
+          logger.info(`✅ Auto-assigned client ${profile.id} to Tax Genius default preparer ${preparerId}`);
+        }
       } catch (error) {
-        logger.error(`Failed to auto-assign client to Tax Genius preparer:`, error);
+        logger.error(`Failed to auto-assign client to preparer:`, error);
       }
     } else {
-      logger.warn('⚠️  TAX_GENIUS_PREPARER_ID not set - skipping auto-assignment');
+      logger.warn('⚠️  No preparer assignment: lead has no assignedPreparerId and TAX_GENIUS_PREPARER_ID not set');
     }
 
     // 4. Create TaxReturn from lead data

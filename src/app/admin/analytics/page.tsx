@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { currentUser } from '@clerk/nextjs/server';
 import { UserRole } from '@prisma/client';
+import { getUserPermissions, type UserPermissions } from '@/lib/permissions';
 import {
   Users,
   MousePointerClick,
@@ -31,12 +32,14 @@ export const metadata = {
 
 async function checkAdminAccess() {
   const user = await currentUser();
-  if (!user) return { hasAccess: false, userId: null, role: null };
+  if (!user) return { hasAccess: false, userId: null, role: null, permissions: null };
 
   const role = user.publicMetadata?.role as string;
-  const hasAccess = role === 'admin' || role === 'super_admin';
+  const customPermissions = user.publicMetadata?.permissions as Partial<UserPermissions> | undefined;
+  const permissions = getUserPermissions(role as any, customPermissions);
+  const hasAccess = (role === 'admin' || role === 'super_admin') && permissions.analytics;
 
-  return { hasAccess, userId: user.id, role };
+  return { hasAccess, userId: user.id, role, permissions };
 }
 
 export default async function AdminAnalyticsOverviewPage({
@@ -44,11 +47,16 @@ export default async function AdminAnalyticsOverviewPage({
 }: {
   searchParams: { period?: string };
 }) {
-  const { hasAccess, userId, role } = await checkAdminAccess();
+  const { hasAccess, userId, role, permissions } = await checkAdminAccess();
 
-  if (!hasAccess || !userId) {
+  if (!hasAccess || !userId || !permissions) {
     redirect('/forbidden');
   }
+
+  // 🎛️ Extract micro-permissions for analytics features
+  const canView = permissions.analytics_view ?? permissions.analytics;
+  const canExport = permissions.analytics_export ?? false;
+  const canViewDetailed = permissions.analytics_detailed ?? permissions.analytics;
 
   // Get period from URL or default to 30d
   const period = (searchParams.period as Period) || '30d';
@@ -135,7 +143,9 @@ export default async function AdminAnalyticsOverviewPage({
         </div>
         <div className="flex items-center gap-3">
           <AnalyticsPeriodSelector currentPeriod={period} />
-          <ExportButton data={exportData} filename="lead-analytics-overview" variant="default" />
+          {canExport && (
+            <ExportButton data={exportData} filename="lead-analytics-overview" variant="default" />
+          )}
         </div>
       </div>
 

@@ -1,6 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useUser } from '@clerk/nextjs';
+import { redirect } from 'next/navigation';
+import { getUserPermissions, UserRole } from '@/lib/permissions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,6 +27,7 @@ import {
   FileText,
   Star,
   Filter,
+  Loader2,
 } from 'lucide-react';
 
 interface Video {
@@ -39,9 +43,37 @@ interface Video {
 }
 
 export default function AcademyPage() {
+  const { user, isLoaded } = useUser();
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [completedVideos, setCompletedVideos] = useState<Set<string>>(new Set());
+
+  // 🎛️ Check permissions
+  const role = user?.publicMetadata?.role as UserRole | undefined;
+  const permissions = role
+    ? getUserPermissions(role, user?.publicMetadata?.permissions as any)
+    : null;
+
+  // Extract micro-permissions for academy features
+  const canView = permissions?.academy_view ?? permissions?.academy ?? false;
+  const canEnroll = permissions?.academy_enroll ?? permissions?.academy ?? false; // Access videos
+  const canComplete = permissions?.academy_complete ?? permissions?.academy ?? false; // Mark as complete
+
+  // Redirect if no access
+  useEffect(() => {
+    if (isLoaded && (!user || !permissions?.academy)) {
+      redirect('/forbidden');
+    }
+  }, [isLoaded, user, permissions]);
+
+  // Show loading while checking auth
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   // Training videos - Real Tax Genius training content
   const videos: Video[] = [
@@ -300,11 +332,13 @@ export default function AcademyPage() {
                   </CardDescription>
 
                   <div className="flex gap-2">
-                    <Button className="flex-1" onClick={() => handleWatchVideo(video)}>
-                      <PlayCircle className="mr-2 h-4 w-4" />
-                      Watch
-                    </Button>
-                    {!isCompleted && (
+                    {canView && (
+                      <Button className="flex-1" onClick={() => handleWatchVideo(video)}>
+                        <PlayCircle className="mr-2 h-4 w-4" />
+                        Watch
+                      </Button>
+                    )}
+                    {canComplete && !isCompleted && (
                       <Button variant="outline" onClick={() => handleMarkComplete(video.id)}>
                         <CheckCircle className="h-4 w-4" />
                       </Button>

@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useUser } from '@clerk/nextjs';
+import { redirect } from 'next/navigation';
+import { getUserPermissions, UserRole } from '@/lib/permissions';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Search, Download, Eye, BarChart3, Calendar } from 'lucide-react';
+import { Search, Download, Eye, BarChart3, Calendar, Loader2 } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -38,12 +41,41 @@ interface TaxForm {
 }
 
 export default function AdminTaxFormsPage() {
+  const { user, isLoaded } = useUser();
   const [forms, setForms] = useState<TaxForm[]>([]);
   const [search, setSearch] = useState('');
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [availableYears, setAvailableYears] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  // 🎛️ Check permissions
+  const role = user?.publicMetadata?.role as UserRole | undefined;
+  const permissions = role
+    ? getUserPermissions(role, user?.publicMetadata?.permissions as any)
+    : null;
+
+  // Extract micro-permissions for tax forms features
+  const canView = permissions?.taxforms_view ?? permissions?.clientFileCenter ?? false;
+  const canDownload = permissions?.taxforms_download ?? permissions?.clientFileCenter ?? false;
+  const canUpload = permissions?.taxforms_upload ?? false; // Admin only
+  const canDelete = permissions?.taxforms_delete ?? false; // Admin only
+
+  // Redirect if no access
+  useEffect(() => {
+    if (isLoaded && (!user || !permissions?.clientFileCenter)) {
+      redirect('/forbidden');
+    }
+  }, [isLoaded, user, permissions]);
+
+  // Show loading while checking auth
+  if (!isLoaded || !permissions) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   useEffect(() => {
     fetchForms();

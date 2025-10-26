@@ -221,9 +221,9 @@ export function TicketDetail({
   };
 
   return (
-    <div className="grid gap-6 md:grid-cols-3">
+    <div className="grid gap-6">
       {/* Main Conversation Area */}
-      <Card className="md:col-span-2">
+      <Card>
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="space-y-1">
@@ -369,126 +369,6 @@ export function TicketDetail({
               </div>
               <p className="text-xs text-muted-foreground">Tip: Press Ctrl+Enter to send quickly</p>
             </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Sidebar - Ticket Info */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Ticket Details</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Status */}
-          {isPreparer && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Status</label>
-              <Select value={ticket.status} onValueChange={updateStatus} disabled={updatingStatus}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="OPEN">Open</SelectItem>
-                  <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
-                  <SelectItem value="WAITING_CLIENT">Waiting for Client</SelectItem>
-                  <SelectItem value="WAITING_PREPARER">Waiting for Preparer</SelectItem>
-                  <SelectItem value="RESOLVED">Resolved</SelectItem>
-                  <SelectItem value="CLOSED">Closed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          {/* Priority */}
-          {isPreparer && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Priority</label>
-              <Select value={ticket.priority} onValueChange={updatePriority}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="LOW">Low</SelectItem>
-                  <SelectItem value="NORMAL">Normal</SelectItem>
-                  <SelectItem value="HIGH">High</SelectItem>
-                  <SelectItem value="URGENT">Urgent</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          <Separator />
-
-          {/* Created By */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-1.5">
-              <User className="h-4 w-4" />
-              Created By
-            </label>
-            <p className="text-sm">
-              {ticket.creator?.firstName} {ticket.creator?.lastName}
-            </p>
-            <p className="text-xs text-muted-foreground">{ticket.creator?.email}</p>
-          </div>
-
-          {/* Assigned To */}
-          {ticket.assignedTo && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center gap-1.5">
-                <User className="h-4 w-4" />
-                Assigned To
-              </label>
-              <p className="text-sm">
-                {ticket.assignedTo.firstName} {ticket.assignedTo.lastName}
-              </p>
-              <p className="text-xs text-muted-foreground">{ticket.assignedTo.email}</p>
-            </div>
-          )}
-
-          <Separator />
-
-          {/* Timestamps */}
-          <div className="space-y-3 text-xs text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Clock className="h-3.5 w-3.5" />
-              <span>
-                Created {formatDistanceToNow(new Date(ticket.createdAt), { addSuffix: true })}
-              </span>
-            </div>
-            {ticket.firstResponseAt && (
-              <div className="flex items-center gap-2">
-                <Clock className="h-3.5 w-3.5" />
-                <span>
-                  First response{' '}
-                  {formatDistanceToNow(new Date(ticket.firstResponseAt), { addSuffix: true })}
-                </span>
-              </div>
-            )}
-            {ticket.resolvedAt && (
-              <div className="flex items-center gap-2">
-                <Clock className="h-3.5 w-3.5" />
-                <span>
-                  Resolved {formatDistanceToNow(new Date(ticket.resolvedAt), { addSuffix: true })}
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Tags */}
-          {ticket.tags && ticket.tags.length > 0 && (
-            <>
-              <Separator />
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Tags</label>
-                <div className="flex flex-wrap gap-1.5">
-                  {ticket.tags.map((tag: string) => (
-                    <Badge key={tag} variant="secondary" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </>
           )}
         </CardContent>
       </Card>

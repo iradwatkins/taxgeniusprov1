@@ -1,5 +1,3 @@
-import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
 import { ProductCard } from './_components/ProductCard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,15 +29,7 @@ async function getProducts() {
 }
 
 export default async function StorePage() {
-  // Check if user is authenticated and has appropriate role
-  const user = await currentUser();
-  const userRole = user?.publicMetadata?.role as string | undefined;
-  const canAccessStore = userRole === 'affiliate' || userRole === 'tax_preparer';
-
-  if (!canAccessStore) {
-    redirect('/forbidden');
-  }
-
+  // Authentication and access control handled in layout.tsx
   const products = await getProducts();
 
   // Group products by category

@@ -29,7 +29,7 @@ export default function ClientDocumentsPage() {
         {/* File Manager */}
         <FileManager
           viewMode="list"
-          showTree={true}
+          showTree={false} // Hide tree on mobile - cleaner experience
           allowUpload={true}
           allowFolderCreate={true}
           allowDelete={false} // Clients cannot delete

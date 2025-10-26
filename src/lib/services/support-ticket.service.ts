@@ -81,7 +81,6 @@ export async function createTicket(input: CreateTicketInput) {
             id: true,
             firstName: true,
             lastName: true,
-            email: true,
             phone: true,
           },
         },
@@ -90,7 +89,6 @@ export async function createTicket(input: CreateTicketInput) {
             id: true,
             firstName: true,
             lastName: true,
-            email: true,
             phone: true,
           },
         },
@@ -104,8 +102,42 @@ export async function createTicket(input: CreateTicketInput) {
       assignedToId: assignedPreparer?.id,
     });
 
-    // TODO: Trigger workflow - TICKET_CREATED
-    // TODO: Send notification to assigned preparer
+    // Send notification to assigned preparer
+    if (assignedPreparer?.id) {
+      try {
+        const { NotificationService } = await import('./notification.service');
+        await NotificationService.send({
+          userId: assignedPreparer.id,
+          type: 'TICKET_ASSIGNED',
+          title: 'New Support Ticket',
+          message: `${ticket.creator.firstName || 'A client'} created a new support ticket: ${ticket.title}`,
+          channels: ['IN_APP', 'EMAIL', 'PUSH'],
+          metadata: {
+            ticketId: ticket.id,
+            ticketNumber: ticket.ticketNumber,
+            actionUrl: `/dashboard/tax-preparer/tickets/${ticket.id}`,
+          },
+        });
+
+        logger.info('Notification sent to preparer for new ticket', {
+          preparerId: assignedPreparer.id,
+          ticketId: ticket.id,
+        });
+      } catch (notificationError) {
+        logger.error('Failed to send notification to preparer', {
+          error: notificationError,
+          ticketId: ticket.id,
+        });
+      }
+    }
+
+    // Trigger workflows asynchronously
+    executeWorkflows('TICKET_CREATED', ticket.id).catch((error) => {
+      logger.error('Failed to execute workflows for new ticket', {
+        error,
+        ticketId: ticket.id,
+      });
+    });
 
     return ticket;
   } catch (error) {
@@ -134,7 +166,6 @@ async function findAssignedPreparer(clientId: string) {
             id: true,
             firstName: true,
             lastName: true,
-            email: true,
             phone: true,
           },
         },
@@ -176,7 +207,6 @@ export async function getTicketById(ticketId: string) {
             id: true,
             firstName: true,
             lastName: true,
-            email: true,
             phone: true,
             avatarUrl: true,
           },
@@ -186,7 +216,6 @@ export async function getTicketById(ticketId: string) {
             id: true,
             firstName: true,
             lastName: true,
-            email: true,
             phone: true,
             avatarUrl: true,
             companyName: true,
@@ -429,7 +458,6 @@ export async function getTicketsByUser(
               id: true,
               firstName: true,
               lastName: true,
-              email: true,
               avatarUrl: true,
             },
           },
@@ -438,7 +466,6 @@ export async function getTicketsByUser(
               id: true,
               firstName: true,
               lastName: true,
-              email: true,
               avatarUrl: true,
             },
           },
@@ -627,7 +654,6 @@ export async function searchTickets(query: string, userId?: string, role?: strin
             id: true,
             firstName: true,
             lastName: true,
-            email: true,
           },
         },
         assignedTo: {
@@ -635,7 +661,6 @@ export async function searchTickets(query: string, userId?: string, role?: strin
             id: true,
             firstName: true,
             lastName: true,
-            email: true,
           },
         },
       },

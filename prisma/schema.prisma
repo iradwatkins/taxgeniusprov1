@@ -118,6 +118,9 @@ model Profile {
   customBookingMessage        String? @db.Text // Custom message shown on booking page
   bookingCalendarColor        String? // Hex color for calendar display (#3B82F6)
 
+  // QR Code Branding (For Tax Preparers - Epic 6)
+  usePhotoInQRCodes           Boolean @default(false) // Use profile photo in QR codes instead of Tax Genius logo
+
   // Encrypted sensitive data
   ssn         String? // Encrypted
   dateOfBirth String? // Encrypted
@@ -158,6 +161,13 @@ model Profile {
   assignedTaxForms    ClientTaxForm[]      @relation("ClientTaxForms")
   formsAssignedByMe   ClientTaxForm[]      @relation("AssignedForms")
   taxFormEdits        TaxFormEdit[]        @relation("FormEdits")
+
+  // Folder Upload Links (NEW - Epic: Calendar + CRM + File Sharing)
+  clientUploadLinks   FolderUploadLink[]   @relation("ClientUploadLinks") // Upload links for this client
+  createdUploadLinks  FolderUploadLink[]   @relation("CreatedUploadLinks") // Upload links created by this preparer
+
+  // Marketing Assets (Photos, Logos, etc.)
+  marketingAssets     MarketingAsset[]     @relation("MarketingAssets")
 
   @@index([role])
   @@index([vanitySlug])
@@ -644,6 +654,10 @@ model Document {
   deletedAt   DateTime?       // When document was deleted
   deletedBy   String?         // Who deleted it
 
+  // Upload Link tracking (NEW - for shareable folder upload links)
+  uploadLinkId  String?               // If uploaded via shareable link
+  uploadLink    FolderUploadLink?     @relation("UploadedViaLink", fields: [uploadLinkId], references: [id], onDelete: SetNull)
+
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
 
@@ -653,6 +667,7 @@ model Document {
   @@index([status])
   @@index([reviewedBy])
   @@index([folderId])
+  @@index([uploadLinkId])
   @@index([isDeleted])
   @@map("documents")
 }
@@ -683,6 +698,9 @@ model Folder {
   // Documents in this folder
   documents   Document[]
 
+  // Upload Links (NEW - shareable links for client uploads)
+  uploadLinks FolderUploadLink[]
+
   // Soft delete
   isDeleted   Boolean  @default(false)
   deletedAt   DateTime?
@@ -696,6 +714,69 @@ model Folder {
   @@index([path])
   @@index([isDeleted])
   @@map("folders")
+}
+
+// Shareable Upload Links (NEW - Epic: Calendar + CRM + File Sharing)
+// Tax preparers can create time-limited upload links for clients to upload documents
+model FolderUploadLink {
+  id            String   @id @default(cuid())
+  token         String   @unique @default(uuid())
+
+  // Relationships
+  folderId      String
+  folder        Folder   @relation(fields: [folderId], references: [id], onDelete: Cascade)
+
+  clientId      String   // Client who can upload via this link
+  client        Profile  @relation("ClientUploadLinks", fields: [clientId], references: [id], onDelete: Cascade)
+
+  createdBy     String   // Tax preparer who created the link
+  creator       Profile  @relation("CreatedUploadLinks", fields: [createdBy], references: [id], onDelete: Cascade)
+
+  // Link configuration
+  expiresAt     DateTime // 24 hours from creation (configurable)
+  isActive      Boolean  @default(true)
+  maxUploads    Int?     // Optional limit on number of uploads
+  uploadCount   Int      @default(0)
+
+  // Tracking
+  lastUsedAt    DateTime?
+  metadata      Json?    // Share method, IP addresses, etc.
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  uploads       Document[] @relation("UploadedViaLink")
+
+  @@index([token])
+  @@index([folderId])
+  @@index([clientId])
+  @@index([createdBy])
+  @@index([expiresAt])
+  @@index([isActive])
+  @@map("folder_upload_links")
+}
+
+// Marketing Assets (Photos, Logos, etc.) for Tax Preparers
+model MarketingAsset {
+  id          String   @id @default(cuid())
+  profileId   String
+  profile     Profile  @relation("MarketingAssets", fields: [profileId], references: [id], onDelete: Cascade)
+
+  category    String   // profile_photo, logo, office, custom
+  fileName    String
+  fileUrl     String
+  fileSize    Int
+  mimeType    String
+  isPrimary   Boolean  @default(false) // For profile_photo category
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([profileId])
+  @@index([category])
+  @@index([isPrimary])
+  @@map("marketing_assets")
 }
 
 // File operation audit trail

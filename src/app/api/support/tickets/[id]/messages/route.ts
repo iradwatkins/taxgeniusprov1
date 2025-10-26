@@ -80,11 +80,51 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       attachments: attachments || [],
     });
 
-    // Determine workflow trigger
+    // Determine workflow trigger and notification target
     const isPreparer = profile.role === UserRole.TAX_PREPARER || isAdmin;
     const trigger = isPreparer
       ? WorkflowTrigger.PREPARER_RESPONSE
       : WorkflowTrigger.CLIENT_RESPONSE;
+
+    // Send notification to the other party (client sends → notify preparer, preparer sends → notify client)
+    if (!isInternal) {
+      const notifyUserId = isPreparer ? ticket.creatorId : ticket.assignedToId;
+
+      if (notifyUserId) {
+        // Dynamic import to avoid circular dependencies
+        import('@/lib/services/notification.service')
+          .then(({ NotificationService }) => {
+            return NotificationService.send({
+              userId: notifyUserId,
+              type: isPreparer ? 'TICKET_REPLY' : 'TICKET_REPLY',
+              title: isPreparer ? 'New Response from Your Tax Preparer' : 'Client Replied to Ticket',
+              message: `${profile.firstName || 'Someone'} replied: ${content.substring(0, 100)}${content.length > 100 ? '...' : ''}`,
+              channels: ['IN_APP', 'EMAIL', 'PUSH'],
+              metadata: {
+                ticketId,
+                messageId: message.id,
+                actionUrl: isPreparer
+                  ? `/dashboard/client/tickets/${ticketId}`
+                  : `/dashboard/tax-preparer/tickets/${ticketId}`,
+              },
+            });
+          })
+          .then(() => {
+            logger.info('Notification sent for ticket message', {
+              ticketId,
+              notifyUserId,
+              messageId: message.id,
+            });
+          })
+          .catch((notificationError) => {
+            logger.error('Failed to send notification for ticket message', {
+              error: notificationError,
+              ticketId,
+              messageId: message.id,
+            });
+          });
+      }
+    }
 
     // Trigger workflows asynchronously
     executeWorkflows(trigger, ticketId, {

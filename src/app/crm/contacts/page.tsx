@@ -95,6 +95,13 @@ export default function CRMContactsPage() {
     ? getUserPermissions(role, user?.publicMetadata?.permissions as any)
     : null;
 
+  // 🎛️ Extract micro-permissions for contacts features
+  const canView = permissions?.contacts_view ?? permissions?.addressBook ?? false;
+  const canCreate = permissions?.contacts_create ?? false;
+  const canEdit = permissions?.contacts_edit ?? false;
+  const canDelete = permissions?.contacts_delete ?? false;
+  const canExport = permissions?.contacts_export ?? false;
+
   // Redirect if no access
   useEffect(() => {
     if (isLoaded && (!user || !permissions?.addressBook)) {
@@ -156,10 +163,12 @@ export default function CRMContactsPage() {
             {canSeeAll ? 'Manage all contacts in your system' : 'Manage your assigned contacts'}
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Contact
-        </Button>
+        {canCreate && (
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Contact
+          </Button>
+        )}
       </div>
 
       {/* Stats Cards */}
@@ -366,13 +375,15 @@ export default function CRMContactsPage() {
                         : 'Never'}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => (window.location.href = `/crm/contacts/${contact.id}`)}
-                      >
-                        View
-                      </Button>
+                      {canView && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => (window.location.href = `/crm/contacts/${contact.id}`)}
+                        >
+                          View
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

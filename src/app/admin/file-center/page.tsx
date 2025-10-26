@@ -11,7 +11,16 @@ export default async function FileCenterPage() {
   const customPermissions = user.publicMetadata?.permissions as any;
   const permissions = getUserPermissions(role || 'client', customPermissions);
 
+  // ✅ Check main permission for page access
   if (!permissions.clientFileCenter) redirect('/forbidden');
+
+  // 🎛️ Extract micro-permissions for file features
+  // Fallback to main permission for backward compatibility
+  const canView = permissions.files_view ?? permissions.clientFileCenter;
+  const canUpload = permissions.files_upload ?? false;
+  const canDownload = permissions.files_download ?? permissions.clientFileCenter;
+  const canDelete = permissions.files_delete ?? false;
+  const canShare = permissions.files_share ?? false;
 
   return (
     <div className="min-h-screen bg-background">
@@ -26,12 +35,12 @@ export default async function FileCenterPage() {
 
         {/* File Manager */}
         <FileManager
-          showTree={true}
-          allowUpload={true}
-          allowFolderCreate={true}
-          allowDelete={true}
-          allowMove={true}
-          allowShare={true}
+          showTree={canView}
+          allowUpload={canUpload}
+          allowFolderCreate={canUpload}
+          allowDelete={canDelete}
+          allowMove={canUpload}
+          allowShare={canShare}
         />
       </div>
     </div>
