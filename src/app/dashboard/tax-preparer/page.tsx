@@ -198,7 +198,7 @@ export default function PreparerDashboard() {
         </CardContent>
       </Card>
 
-      {/* Referral Links */}
+      {/* Referral Links Manager */}
       <ReferralLinksManager />
 
       {/* Overview Content */}

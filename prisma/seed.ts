@@ -109,7 +109,7 @@ async function main() {
         name: 'Referrer Welcome Kit',
         description: 'Complete starter package for new referrers including: 500 business cards, branded t-shirt, flyers, promotional materials, and welcome guide. Everything you need to start referring clients successfully.',
         price: 79.99,
-        imageUrl: 'https://images.unsplash.com/photo-1513415277222-37a0b660c5f4?w=800&q=80', // Placeholder - replace with actual kit image
+        imageUrl: '/placeholder-product.png', // Placeholder - replace with actual kit image
         category: 'Kits',
         isActive: true,
       }
