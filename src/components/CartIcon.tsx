@@ -12,9 +12,9 @@ export function CartIcon() {
   const getItemCount = useShoppingCart((state) => state.getItemCount);
   const itemCount = getItemCount();
 
-  // Only show cart for affiliates and tax preparers
+  // Only show cart for admins and tax preparers
   const userRole = user?.publicMetadata?.role as string | undefined;
-  const canAccessCart = userRole === 'affiliate' || userRole === 'tax_preparer';
+  const canAccessCart = userRole === 'admin' || userRole === 'super_admin' || userRole === 'tax_preparer';
 
   if (!canAccessCart) {
     return null;

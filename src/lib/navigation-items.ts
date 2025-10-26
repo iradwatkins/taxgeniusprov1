@@ -135,14 +135,6 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     section: '🎯 Affiliate Dashboard',
     roles: ['affiliate'],
   },
-  {
-    label: 'Store',
-    href: '/store',
-    icon: Package,
-    permission: 'store',
-    section: '🎯 Affiliate Dashboard',
-    roles: ['affiliate'],
-  },
 
   // 👥 Clients Section (for tax preparers and admins)
   {
@@ -214,6 +206,52 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: Mail,
     permission: 'emails',
     section: '📋 CRM',
+  },
+  {
+    label: 'Academy',
+    href: '/app/academy',
+    icon: GraduationCap,
+    permission: 'academy',
+    section: '📋 CRM',
+  },
+  {
+    label: 'IRS Forms',
+    href: '/admin/tax-forms',
+    icon: FileText,
+    permission: 'taxForms', // ✅ NOW INDEPENDENT! Can toggle separately from Client File Center
+    section: '📋 CRM',
+  },
+  {
+    label: 'My Analytics',
+    href: '/dashboard/tax-preparer/analytics',
+    icon: BarChart3,
+    permission: 'analytics',
+    section: '📋 CRM',
+    roles: ['tax_preparer'],
+  },
+  {
+    label: 'My Tracking Code',
+    href: '/dashboard/tax-preparer/tracking',
+    icon: QrCode,
+    permission: 'trackingCode',
+    section: '📋 CRM',
+    roles: ['tax_preparer', 'admin', 'super_admin', 'affiliate', 'client'], // ✅ ALL REFERRERS! Everyone can refer people
+  },
+  {
+    label: 'Store',
+    href: '/store',
+    icon: Package,
+    permission: 'store',
+    section: '📋 CRM',
+    roles: ['tax_preparer', 'admin', 'super_admin'],
+  },
+  {
+    label: 'Marketing Assets',
+    href: '/crm/marketing-assets',
+    icon: FolderOpen,
+    permission: 'marketingAssets', // ✅ NOW INDEPENDENT! Can toggle separately from Client File Center
+    section: '📋 CRM',
+    roles: ['tax_preparer', 'admin', 'super_admin'], // ✅ NOW VISIBLE TO ADMIN TOO!
   },
   {
     label: 'Support System',
@@ -360,31 +398,6 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     roles: ['admin', 'super_admin'],
   },
 
-  // 🎓 Learning Section
-  {
-    label: 'Learning Center',
-    href: '/admin/learning-center',
-    icon: GraduationCap,
-    permission: 'learningCenter',
-    section: '🎓 Learning',
-    roles: ['admin', 'super_admin'],
-  },
-  {
-    label: 'Academy',
-    href: '/app/academy',
-    icon: GraduationCap,
-    permission: 'academy',
-    section: '🎓 Learning',
-  },
-  {
-    label: 'Tax Forms Library',
-    href: '/admin/tax-forms',
-    icon: FileText,
-    permission: 'clientFileCenter',
-    section: '🎓 Learning',
-    roles: ['admin', 'super_admin'],
-  },
-
   // 💼 Business Section (for tax preparers and affiliates)
   {
     label: 'My Earnings',
@@ -393,38 +406,6 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     permission: 'earnings',
     section: '💼 Business',
     roles: ['tax_preparer'],
-  },
-  {
-    label: 'My Analytics',
-    href: '/dashboard/tax-preparer/analytics',
-    icon: BarChart3,
-    permission: 'analytics',
-    section: '💼 Business',
-    roles: ['tax_preparer'],
-  },
-  {
-    label: 'My Tracking Code',
-    href: '/dashboard/tax-preparer/tracking',
-    icon: QrCode,
-    permission: 'trackingCode',
-    section: '💼 Business',
-    roles: ['tax_preparer'],
-  },
-  {
-    label: 'Academy',
-    href: '/app/academy',
-    icon: GraduationCap,
-    permission: 'academy',
-    section: '💼 Business',
-    roles: ['tax_preparer', 'affiliate'],
-  },
-  {
-    label: 'Store',
-    href: '/store',
-    icon: Package,
-    permission: 'store',
-    section: '💼 Business',
-    roles: ['tax_preparer', 'affiliate'],
   },
   {
     label: 'My Earnings',
