@@ -1,5 +1,8 @@
-import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import {
   MousePointerClick,
   UserPlus,
@@ -9,38 +12,103 @@ import {
   TrendingUp,
   Award,
   Clock,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react';
-import { getMyAffiliateAnalytics } from '@/lib/services/lead-analytics.service';
 import { MetricsGrid } from '@/components/admin/analytics/MetricsGrid';
 import { createFunnelStages } from '@/lib/utils/analytics';
 import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart';
 import { ExportButton } from '@/components/admin/analytics/ExportButton';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import type { AffiliateAnalytics } from '@/lib/services/lead-analytics.service';
 
-export const metadata = {
-  title: 'My Lead Analytics | Tax Genius Pro',
-  description: 'Track your affiliate performance and commissions',
-};
+export default function AffiliateAnalyticsPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [myData, setMyData] = useState<AffiliateAnalytics | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-async function checkAffiliateAccess() {
-  const user = await currentUser();
-  if (!user) return { hasAccess: false, userId: null };
+  useEffect(() => {
+    // Wait for session to load
+    if (status === 'loading') return;
 
-  const role = user.publicMetadata?.role as string;
-  const hasAccess = role === 'affiliate';
+    // Check authentication and role
+    if (!session?.user) {
+      router.push('/auth/signin');
+      return;
+    }
 
-  return { hasAccess, userId: user.id };
-}
+    const role = session.user.role as string;
+    if (role !== 'affiliate') {
+      router.push('/forbidden');
+      return;
+    }
 
-export default async function AffiliateAnalyticsPage() {
-  const { hasAccess, userId } = await checkAffiliateAccess();
+    // Fetch analytics data
+    async function fetchAnalytics() {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/affiliate/analytics');
 
-  if (!hasAccess || !userId) {
-    redirect('/forbidden');
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Failed to load analytics' }));
+          throw new Error(errorData.error || 'Failed to load analytics');
+        }
+
+        const data = await response.json();
+        setMyData(data);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load analytics');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchAnalytics();
+  }, [session, status, router]);
+
+  // Loading state
+  if (loading || status === 'loading') {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center space-y-3">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+            <p className="text-muted-foreground">Loading your analytics...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  // Fetch my analytics - ONLY my data
-  const myData = await getMyAffiliateAnalytics(userId);
+  // Error state
+  if (error) {
+    return (
+      <div className="p-6 space-y-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  // No data state
+  if (!myData) {
+    return (
+      <div className="p-6 space-y-6">
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>No Data Available</AlertTitle>
+          <AlertDescription>Unable to load analytics data. Please try again later.</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   // Create funnel data
   const funnelStages = createFunnelStages(
@@ -63,7 +131,7 @@ export default async function AffiliateAnalyticsPage() {
     revenue: myData.revenue,
     commissionsEarned: myData.commissionsEarned,
     commissionsPending: myData.commissionsPending,
-    lastActive: myData.lastActive?.toISOString() || 'Never',
+    lastActive: myData.lastActive?.toString() || 'Never',
     linkBreakdown: myData.linkBreakdown,
     recentLeads: myData.recentLeads,
   };
@@ -237,7 +305,9 @@ export default async function AffiliateAnalyticsPage() {
                 >
                   <div className="flex-1">
                     <p className="font-medium">{lead.name}</p>
-                    <p className="text-sm text-muted-foreground">{lead.email}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(lead.createdAt).toLocaleDateString()}
+                    </p>
                   </div>
                   <div className="text-right ml-4">
                     <div className="flex items-center gap-2">
@@ -251,9 +321,6 @@ export default async function AffiliateAnalyticsPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(lead.createdAt).toLocaleDateString()}
-                    </p>
                   </div>
                 </div>
               ))}

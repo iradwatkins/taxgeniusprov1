@@ -80,7 +80,7 @@ export async function generateQRCode(options: GenerateQROptions): Promise<QRCode
             where: {
               OR: [
                 { id: userId },
-                { clerkUserId: userId }
+                { userId: userId }
               ]
             },
             select: {
@@ -160,7 +160,7 @@ export async function generateQRBuffer(options: GenerateQROptions): Promise<Buff
             where: {
               OR: [
                 { id: userId },
-                { clerkUserId: userId }
+                { userId: userId }
               ]
             },
             select: {

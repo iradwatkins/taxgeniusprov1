@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { QuickShareLanding } from '@/components/quick-share/QuickShareLanding';
 import { UserRole } from '@/lib/permissions';
 
@@ -10,15 +10,15 @@ export const metadata = {
 
 export default async function QuickSharePage() {
   // Get authenticated user
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
 
   // Redirect to login if not authenticated
   if (!user) {
-    redirect('/auth/login');
+    redirect('/auth/signin');
   }
 
   // Get user's role
-  const role = (user.publicMetadata?.role as UserRole) || 'client';
+  const role = (user?.role as UserRole) || 'client';
 
   return <QuickShareLanding userId={user.id} role={role} firstName={user.firstName || undefined} />;
 }

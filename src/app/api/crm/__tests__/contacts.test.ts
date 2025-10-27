@@ -101,7 +101,7 @@ describe('CRM Contacts API - Integration Tests', () => {
 
       vi.mocked(prisma.profile.findUnique).mockResolvedValue({
         id: 'preparer-1',
-        clerkUserId: 'clerk-preparer-1',
+        userId: 'clerk-preparer-1',
       } as any);
 
       vi.mocked(CRMService.listContacts).mockResolvedValue({
@@ -348,7 +348,7 @@ describe('CRM Contacts API - Integration Tests', () => {
 
       vi.mocked(prisma.profile.findUnique).mockResolvedValue({
         id: 'preparer-1',
-        clerkUserId: 'clerk-preparer-1',
+        userId: 'clerk-preparer-1',
       } as any);
 
       vi.mocked(CRMService.getContactById).mockRejectedValue(

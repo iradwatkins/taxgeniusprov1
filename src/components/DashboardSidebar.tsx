@@ -36,10 +36,9 @@ interface DashboardSidebarProps {
 }
 
 export function DashboardSidebar({ role, permissions }: DashboardSidebarProps) {
-  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
-    '⚙️ System Controls': true, // Keep System Controls collapsed by default
-    '📱 My Dashboard': false, // Ensure client dashboard section is NOT collapsed
-  });
+  // Collapse all sections by default for a cleaner, less overwhelming interface
+  // Users can expand the sections they need
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
   const pathname = usePathname();
   const { state } = useSidebar();
   const isCollapsed = state === 'collapsed';
@@ -167,6 +166,7 @@ export function DashboardSidebar({ role, permissions }: DashboardSidebarProps) {
                   // Check if this section should be visible for the current role
                   if (!isSectionVisibleForRole(sectionName)) return null;
 
+                  // Default all sections to expanded (false) so users can see navigation links
                   const isSectionCollapsed = collapsedSections[sectionName] ?? false;
 
                   return (
@@ -254,6 +254,7 @@ export function DashboardSidebar({ role, permissions }: DashboardSidebarProps) {
                   // Check if this section should be visible for the current role
                   if (!isSectionVisibleForRole(sectionName)) return null;
 
+                  // Default all sections to expanded (false) so users can see navigation links
                   const isSectionCollapsed = collapsedSections[sectionName] ?? false;
 
                   return (

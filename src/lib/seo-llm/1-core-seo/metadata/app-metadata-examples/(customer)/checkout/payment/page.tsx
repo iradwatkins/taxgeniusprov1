@@ -31,7 +31,7 @@ interface PayPalOrderDetails {
 export default function PaymentPage() {
   const router = useRouter();
   const { items, subtotal, clearCart, itemCount } = useCart();
-  const { user } = useUser();
+  const { data: session } = useSession(); const user = session?.user;
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(null);
   const [selectedSavedPaymentMethod, setSelectedSavedPaymentMethod] = useState<any>(null);
   const [showManualPayment, setShowManualPayment] = useState(false);

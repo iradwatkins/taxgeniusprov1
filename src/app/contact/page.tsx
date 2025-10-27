@@ -275,7 +275,7 @@ export default function ContactPage() {
                     <Mail className="w-6 h-6 text-primary mt-1" />
                     <div>
                       <h3 className="font-semibold mb-1">Email</h3>
-                      <p className="text-muted-foreground">info@taxgeniuspro.tax</p>
+                      <p className="text-muted-foreground">support@taxgeniuspro.tax</p>
                       <p className="text-muted-foreground">support@taxgeniuspro.tax</p>
                     </div>
                   </div>

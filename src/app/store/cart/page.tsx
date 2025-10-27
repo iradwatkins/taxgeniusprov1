@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { ShoppingBag, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -15,8 +15,9 @@ import { logger } from '@/lib/logger';
 
 export default function CartPage() {
   const router = useRouter();
-  const { isSignedIn } = useAuth();
-  const { user } = useUser();
+  const { data: session } = useSession();
+  const user = session?.user;
+  const isSignedIn = !!session?.user;
   const { items, getTotal, getItemCount } = useShoppingCart();
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -48,7 +49,7 @@ export default function CartPage() {
       toast.error('Please sign in to continue', {
         description: 'You need to be signed in to checkout.',
       });
-      router.push('/auth/login?redirect=/store/cart');
+      router.push('/auth/signin?redirect=/store/cart');
       return;
     }
 

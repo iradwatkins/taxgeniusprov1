@@ -18,13 +18,13 @@ const openai = new OpenAI({
 const ASSISTANT_ID = process.env.OPENAI_ASSISTANT_ID || '';
 
 export interface CreateThreadParams {
-  clerkUserId: string;
+  userId: string;
   initialMessage?: string;
 }
 
 export interface SendMessageParams {
   threadId: string;
-  clerkUserId: string;
+  userId: string;
   message: string;
 }
 
@@ -46,7 +46,7 @@ export interface MessageResponse {
  * Create a new conversation thread
  */
 export async function createThread(params: CreateThreadParams): Promise<ThreadResponse> {
-  const { clerkUserId, initialMessage } = params;
+  const { userId, initialMessage } = params;
 
   try {
     // Create OpenAI thread
@@ -55,7 +55,7 @@ export async function createThread(params: CreateThreadParams): Promise<ThreadRe
     // Store thread in database
     const dbThread = await prisma.taxAssistantThread.create({
       data: {
-        clerkUserId,
+        userId,
         openaiThreadId: thread.id,
         openaiAssistantId: ASSISTANT_ID,
         title: initialMessage ? initialMessage.substring(0, 100) : 'New Conversation',
@@ -67,7 +67,7 @@ export async function createThread(params: CreateThreadParams): Promise<ThreadRe
     if (initialMessage) {
       const response = await sendMessage({
         threadId: dbThread.id,
-        clerkUserId,
+        userId,
         message: initialMessage,
       });
       messages = response.messages;
@@ -88,7 +88,7 @@ export async function createThread(params: CreateThreadParams): Promise<ThreadRe
  * Send a message and get assistant response
  */
 export async function sendMessage(params: SendMessageParams): Promise<ThreadResponse> {
-  const { threadId, clerkUserId, message } = params;
+  const { threadId, userId, message } = params;
 
   try {
     // Get thread from database
@@ -102,7 +102,7 @@ export async function sendMessage(params: SendMessageParams): Promise<ThreadResp
     }
 
     // Verify ownership
-    if (dbThread.clerkUserId !== clerkUserId) {
+    if (dbThread.userId !== userId) {
       throw new Error('Unauthorized access to thread');
     }
 
@@ -214,7 +214,7 @@ export async function sendMessage(params: SendMessageParams): Promise<ThreadResp
 /**
  * Get thread history
  */
-export async function getThread(threadId: string, clerkUserId: string): Promise<ThreadResponse> {
+export async function getThread(threadId: string, userId: string): Promise<ThreadResponse> {
   const dbThread = await prisma.taxAssistantThread.findUnique({
     where: { id: threadId },
     include: { messages: { orderBy: { createdAt: 'asc' } } },
@@ -225,7 +225,7 @@ export async function getThread(threadId: string, clerkUserId: string): Promise<
   }
 
   // Verify ownership
-  if (dbThread.clerkUserId !== clerkUserId) {
+  if (dbThread.userId !== userId) {
     throw new Error('Unauthorized access to thread');
   }
 
@@ -245,10 +245,10 @@ export async function getThread(threadId: string, clerkUserId: string): Promise<
 /**
  * List all threads for a user
  */
-export async function listThreads(clerkUserId: string) {
+export async function listThreads(userId: string) {
   const threads = await prisma.taxAssistantThread.findMany({
     where: {
-      clerkUserId,
+      userId,
       isActive: true,
     },
     orderBy: { lastMessageAt: 'desc' },
@@ -268,7 +268,7 @@ export async function listThreads(clerkUserId: string) {
 /**
  * Delete a thread
  */
-export async function deleteThread(threadId: string, clerkUserId: string) {
+export async function deleteThread(threadId: string, userId: string) {
   const dbThread = await prisma.taxAssistantThread.findUnique({
     where: { id: threadId },
   });
@@ -278,7 +278,7 @@ export async function deleteThread(threadId: string, clerkUserId: string) {
   }
 
   // Verify ownership
-  if (dbThread.clerkUserId !== clerkUserId) {
+  if (dbThread.userId !== userId) {
     throw new Error('Unauthorized access to thread');
   }
 
@@ -317,9 +317,9 @@ function extractFormReferences(text: string): string[] {
 /**
  * Get usage statistics for a user
  */
-export async function getUsageStats(clerkUserId: string) {
+export async function getUsageStats(userId: string) {
   const stats = await prisma.taxAssistantThread.aggregate({
-    where: { clerkUserId },
+    where: { userId },
     _sum: {
       tokensUsed: true,
       costInCents: true,

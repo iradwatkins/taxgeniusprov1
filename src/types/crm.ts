@@ -18,7 +18,7 @@ import {
 
 export interface CRMContactInput {
   userId?: string | null;
-  clerkUserId?: string | null;
+  userId?: string | null;
   contactType: ContactType;
   firstName: string;
   lastName: string;
@@ -71,7 +71,7 @@ export interface CRMContactWithRelations extends CRMContact {
   user?: {
     id: string;
     email: string;
-    clerkUserId?: string | null;
+    userId?: string | null;
   } | null;
   interactions?: CRMInteraction[];
   stageHistory?: CRMStageHistory[];
@@ -92,7 +92,7 @@ export interface CRMContactListResponse {
 export interface CRMInteractionInput {
   contactId: string;
   userId?: string | null;
-  clerkUserId?: string | null;
+  userId?: string | null;
   type: InteractionType;
   direction?: Direction;
   subject?: string;
@@ -174,7 +174,7 @@ export type CRMStageHistoryResponse = APIResponse<CRMStageHistoryWithRelations[]
 
 export interface CRMAccessContext {
   userId: string;
-  clerkUserId?: string | null;
+  userId?: string | null;
   userRole: string;
   preparerId?: string; // If user is a tax preparer, their preparer ID
 }

@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { FileManager } from '@/components/file-manager/FileManager';
 import { AlertCircle, Users, FileText } from 'lucide-react';
 import { logger } from '@/lib/logger';
+import { EmptyState } from '@/components/EmptyState';
 
 export function TaxPreparerFileCenter() {
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -140,17 +141,25 @@ export function TaxPreparerFileCenter() {
           allowMove={true}
           allowShare={false}
         />
+      ) : clients.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title="No clients assigned"
+          description="You don't have any clients assigned yet. Once clients are assigned to you, you'll be able to manage their documents here."
+          size="lg"
+          helpLink={{
+            label: 'Learn about client management',
+            href: '/help/clients',
+          }}
+        />
       ) : (
-        <Card className="p-12">
-          <div className="text-center text-muted-foreground">
-            <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
-            <p className="text-lg font-medium mb-2">No Client Selected</p>
-            <p className="text-sm">
-              Select a client from the dropdown above to browse their documents with visual folder
-              navigation.
-            </p>
-          </div>
-        </Card>
+        <EmptyState
+          icon={FileText}
+          title="No client selected"
+          description="Select a client from the dropdown above to browse their documents with visual folder navigation. You can upload, organize, and share files with your clients."
+          size="md"
+          showCard={true}
+        />
       )}
     </div>
   );

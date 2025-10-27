@@ -12,7 +12,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -80,10 +80,12 @@ export function ReferralLinksManager() {
     reason?: string;
   } | null>(null);
 
-  const { isLoaded, isSignedIn } = useAuth();
+  const { data: session, status } = useSession();
+  const isLoaded = status !== 'loading';
+  const isSignedIn = !!session?.user;
 
   useEffect(() => {
-    // Only load data when Clerk auth is fully loaded and user is signed in
+    // Only load data when NextAuth is fully loaded and user is signed in
     if (isLoaded && isSignedIn) {
       loadReferralLinks();
       loadTrackingCode();

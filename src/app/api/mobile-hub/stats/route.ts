@@ -5,13 +5,13 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const session = await auth(); const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -19,14 +19,14 @@ export async function GET(request: NextRequest) {
 
     // Get or create stats record
     let stats = await prisma.mobileHubStats.findUnique({
-      where: { clerkUserId: userId },
+      where: { userId: userId },
     });
 
     if (!stats) {
       // Create initial stats record
       stats = await prisma.mobileHubStats.create({
         data: {
-          clerkUserId: userId,
+          userId: userId,
           userRole: 'client', // Will be updated
         },
       });
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
       await recalculateStats(userId);
       // Refetch updated stats
       stats = await prisma.mobileHubStats.findUnique({
-        where: { clerkUserId: userId },
+        where: { userId: userId },
       });
     }
 
@@ -67,25 +67,25 @@ async function recalculateStats(userId: string) {
   try {
     // Count shares
     const shareCount = await prisma.mobileHubShare.count({
-      where: { clerkUserId: userId },
+      where: { userId: userId },
     });
 
     // Count clicks
     const clickCount = await prisma.mobileHubLinkClick.count({
-      where: { clerkUserId: userId },
+      where: { userId: userId },
     });
 
     // Count conversions
     const conversionCount = await prisma.mobileHubLinkClick.count({
       where: {
-        clerkUserId: userId,
+        userId: userId,
         converted: true,
       },
     });
 
     // Update stats
     await prisma.mobileHubStats.update({
-      where: { clerkUserId: userId },
+      where: { userId: userId },
       data: {
         linkShares: shareCount,
         linkClicks: clickCount,

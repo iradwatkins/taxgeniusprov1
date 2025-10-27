@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useShoppingCart } from '@/lib/hooks/useShoppingCart';
@@ -11,8 +11,9 @@ import { toast } from 'sonner';
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { isSignedIn } = useAuth();
-  const { user } = useUser();
+  const { data: session } = useSession();
+  const user = session?.user;
+  const isSignedIn = !!session?.user;
   const { items, clearCart } = useShoppingCart();
   const [mounted, setMounted] = useState(false);
 
@@ -22,7 +23,7 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     if (mounted && !isSignedIn) {
-      router.push('/auth/login?redirect=/store/checkout');
+      router.push('/auth/signin?redirect=/store/checkout');
     }
   }, [mounted, isSignedIn, router]);
 

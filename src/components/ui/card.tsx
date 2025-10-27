@@ -2,6 +2,25 @@ import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
+/**
+ * Card Component - Padding Standards
+ *
+ * DEFAULT PADDING (use component defaults - don't override):
+ * - CardHeader: p-6 (default)
+ * - CardContent: p-6 pt-0 (default, assumes header above)
+ * - CardFooter: p-6 pt-0 (default)
+ *
+ * WHEN TO OVERRIDE:
+ * - Compact cards (mobile, lists): className="p-4"
+ * - Emphasis/standalone: className="p-8"
+ * - Empty states: className="p-8" or "p-12"
+ * - Special layouts: Use specific padding as needed
+ *
+ * BEST PRACTICE:
+ * Let the component handle default padding. Only add className
+ * when you need non-standard padding.
+ */
+
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div

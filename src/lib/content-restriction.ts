@@ -539,7 +539,7 @@ export async function logAccessAttempt(
   try {
     await prisma.accessAttemptLog.create({
       data: {
-        clerkUserId: userContext.userId,
+        userId: userContext.userId,
         userRole: userContext.role,
         username: userContext.username,
         attemptedRoute,

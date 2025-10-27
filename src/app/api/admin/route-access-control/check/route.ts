@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { logger } from '@/lib/logger';
 import { CheckRouteAccessRequest, CheckRouteAccessResponse } from '@/types/route-access-control';
 import { checkPageAccess, matchRoutePattern } from '@/lib/content-restriction';
@@ -16,7 +16,7 @@ import { prisma } from '@/lib/prisma';
  */
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await auth();
+    const session = await auth(); const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

@@ -55,7 +55,7 @@ interface PageRestriction {
 
 interface AccessLog {
   id: string;
-  clerkUserId: string | null;
+  userId: string | null;
   userEmail: string | null;
   userRole: string | null;
   username: string | null;

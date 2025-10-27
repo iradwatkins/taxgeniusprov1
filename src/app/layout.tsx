@@ -7,7 +7,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Providers } from '@/lib/providers';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { ClerkProvider } from '@clerk/nextjs';
+// Using NextAuth SessionProvider;
 import { ConditionalFooter } from '@/components/ConditionalFooter';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 
@@ -57,31 +57,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <head>
-          <GoogleAnalytics />
-        </head>
-        <body className={`${inter.variable} font-sans antialiased min-h-screen`}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Providers>
-              <ErrorBoundary>
-                <TooltipProvider>
-                  {children}
-                  <ConditionalFooter />
-                  <Toaster />
-                  <Sonner />
-                </TooltipProvider>
-              </ErrorBoundary>
-            </Providers>
-          </ThemeProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <GoogleAnalytics />
+      </head>
+      <body className={`${inter.variable} font-sans antialiased min-h-screen`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Providers>
+            <ErrorBoundary>
+              <TooltipProvider>
+                {children}
+                <ConditionalFooter />
+                <Toaster />
+                <Sonner />
+              </TooltipProvider>
+            </ErrorBoundary>
+          </Providers>
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }

@@ -8,25 +8,24 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
-import { clerkClient } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
+// Clerk client removed - using NextAuth;
 import { logger } from '@/lib/logger';
 import { getPlatformOverview, parseDateRange } from '@/lib/services/admin-analytics.service';
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const session = await auth();
+    const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user is admin or super admin
-    const clerk = await clerkClient();
-    const user = await clerk.users.getUser(userId);
-    const role = user.publicMetadata?.role as string;
+    const role = session?.user?.role;
 
-    if (role !== 'admin' && role !== 'super_admin') {
+    if (role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 

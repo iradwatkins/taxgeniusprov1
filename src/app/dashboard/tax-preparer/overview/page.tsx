@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,9 +29,9 @@ export const metadata = {
 };
 
 async function isTaxPreparer() {
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
   if (!user) return false;
-  const role = user.publicMetadata?.role as string;
+  const role = user?.role as string;
   return role === 'TAX_PREPARER' || role === 'super_admin';
 }
 
@@ -42,7 +42,7 @@ export default async function PreparerOverviewDashboard() {
     redirect('/forbidden');
   }
 
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
   const preparerId = user?.id || '';
 
   // Fetch all dashboard data

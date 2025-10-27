@@ -1,20 +1,20 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { DashboardLayoutClient } from '@/components/DashboardLayoutClient';
 import { getUserPermissions, UserRole, UserPermissions } from '@/lib/permissions';
 import { getEffectiveRole } from '@/lib/utils/role-switcher';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   // Get real authenticated user from Clerk
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
 
   // Redirect to login if not authenticated
   if (!user) {
-    redirect('/auth/login');
+    redirect('/auth/signin');
   }
 
   // Get real role from user's public metadata
-  const actualRole = (user.publicMetadata?.role as UserRole) || 'client';
+  const actualRole = (user?.role as UserRole) || 'client';
 
   // Get effective role (checks if admin is viewing as another role)
   const roleInfo = await getEffectiveRole(actualRole, user.id);
@@ -23,7 +23,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const viewingRoleName = roleInfo.viewingRoleName;
 
   // Get user permissions based on effective role
-  const customPermissions = user.publicMetadata?.permissions as
+  const customPermissions = user?.permissions as
     | Partial<UserPermissions>
     | undefined;
   const permissions = getUserPermissions(effectiveRole, customPermissions);

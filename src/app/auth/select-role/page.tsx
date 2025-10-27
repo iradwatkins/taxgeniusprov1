@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { UserRole } from '@/lib/auth';
@@ -28,7 +28,7 @@ const roles: { value: UserRole; label: string; description: string }[] = [
 
 export default function SelectRolePage() {
   const router = useRouter();
-  const { user } = useUser();
+  const { data: session } = useSession(); const user = session?.user;
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { POST } from '../route';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { generateLandingPageContent } from '@/lib/services/ai-content.service';
 
 // Mock Clerk auth

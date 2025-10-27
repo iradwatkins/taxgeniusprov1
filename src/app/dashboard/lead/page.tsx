@@ -4,18 +4,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Clock, CheckCircle2, Mail, Phone, AlertCircle } from 'lucide-react';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function LeadDashboard() {
-  const { user, isLoaded } = useUser();
+  const { data: session, status } = useSession(); const user = session?.user; const isLoaded = status !== 'loading';
   const router = useRouter();
 
   // Redirect if user is no longer a lead (role changed)
   useEffect(() => {
     if (isLoaded && user) {
-      const role = user.publicMetadata?.role as string;
+      const role = user?.role as string;
       // Normalize role to lowercase to handle any case inconsistencies
       const normalizedRole = role?.toLowerCase();
       if (normalizedRole && normalizedRole !== 'lead') {
@@ -138,7 +138,7 @@ export default function LeadDashboard() {
                   <h3 className="font-medium">Email Notification</h3>
                   <p className="text-sm text-muted-foreground">
                     You'll receive an email at{' '}
-                    <span className="font-medium">{user?.emailAddresses[0]?.emailAddress}</span>{' '}
+                    <span className="font-medium">{user?.email}</span>{' '}
                     once your account has been reviewed.
                   </p>
                 </div>
@@ -161,10 +161,10 @@ export default function LeadDashboard() {
                     <p className="text-sm">
                       <strong>Email:</strong>{' '}
                       <a
-                        href="mailto:support@taxgeniuspro.com"
+                        href="mailto:support@taxgeniuspro.tax"
                         className="text-primary hover:underline"
                       >
-                        support@taxgeniuspro.com
+                        support@taxgeniuspro.tax
                       </a>
                     </p>
                   </div>

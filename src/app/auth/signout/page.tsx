@@ -1,18 +1,16 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useClerk } from '@clerk/nextjs';
+import { signOut } from 'next-auth/react';
 import { Loader2 } from 'lucide-react';
 
 export default function SignOutPage() {
-  const { signOut } = useClerk();
-
   useEffect(() => {
     // Sign out and redirect
     signOut({
-      redirectUrl: '/auth/login',
+      callbackUrl: '/auth/signin',
     });
-  }, [signOut]);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background">

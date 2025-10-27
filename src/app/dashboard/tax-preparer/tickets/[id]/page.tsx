@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { TicketDetail } from '@/components/support/ticket-detail';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -11,16 +11,16 @@ export const metadata = {
 };
 
 async function getUserProfile() {
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
   if (!user) return null;
 
-  const role = user.publicMetadata?.role;
+  const role = user?.role;
   if (role !== 'tax_preparer' && role !== 'admin' && role !== 'super_admin') {
     return null;
   }
 
   return {
-    clerkUserId: user.id,
+    userId: user.id,
     role: role as string,
   };
 }

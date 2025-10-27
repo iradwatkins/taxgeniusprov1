@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import {
   Users,
   MousePointerClick,
@@ -29,10 +29,10 @@ export const metadata = {
 };
 
 async function checkAdminAccess() {
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
   if (!user) return { hasAccess: false, userId: null, role: null };
 
-  const role = user.publicMetadata?.role as string;
+  const role = user?.role as string;
   const hasAccess = role === 'admin' || role === 'super_admin';
 
   return { hasAccess, userId: user.id, role };

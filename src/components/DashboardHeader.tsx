@@ -1,21 +1,27 @@
 'use client';
 
-import { UserButton, useUser } from '@clerk/nextjs';
+import { useSession, signOut } from 'next-auth/react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Bell, Eye } from 'lucide-react';
+import { Bell, Eye, LogOut, Settings, User } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Moon, Sun } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
 import { RoleSwitcher } from '@/components/admin/RoleSwitcher';
 import { UserRole } from '@/lib/permissions';
+import { GlobalSearch } from '@/components/GlobalSearch';
+import { KeyboardShortcutsDialog } from '@/components/KeyboardShortcutsDialog';
+import { RecentItemsDropdown } from '@/components/RecentItems';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface DashboardHeaderProps {
   actualRole?: UserRole;
@@ -28,72 +34,96 @@ export function DashboardHeader({
   effectiveRole,
   isViewingAsOtherRole = false,
 }: DashboardHeaderProps) {
-  const { user } = useUser();
+  const { data: session } = useSession();
+  const user = session?.user;
   const { theme, setTheme } = useTheme();
 
-  // ALWAYS trust server props if provided (prevents flickering from stale Clerk cache)
+  // ALWAYS trust server props if provided (prevents flickering from stale session cache)
   // Only fall back to client-side user data if server didn't provide props
-  const role = effectiveRole ?? (user?.publicMetadata?.role as UserRole | undefined);
-  const realRole = actualRole ?? (user?.publicMetadata?.role as UserRole | undefined);
+  const role = effectiveRole ?? user?.role;
+  const realRole = actualRole ?? user?.role;
 
   // If we have server props, don't let client data override them during hydration
   const displayRole = effectiveRole !== undefined ? effectiveRole : role;
   const displayRealRole = actualRole !== undefined ? actualRole : realRole;
 
   const getRoleBadgeColor = (role?: string) => {
-    switch (role) {
-      case 'super_admin':
+    const normalizedRole = role?.toString().toUpperCase();
+    switch (normalizedRole) {
+      case 'SUPER_ADMIN':
         return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
-      case 'admin':
+      case 'ADMIN':
         return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
-      case 'lead':
+      case 'LEAD':
         return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
-      case 'tax_preparer':
+      case 'TAX_PREPARER':
         return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
-      case 'affiliate':
+      case 'AFFILIATE':
         return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300';
-      case 'client':
+      case 'CLIENT':
         return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300';
       default:
         return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300';
     }
   };
 
-  const formatRole = (role?: string) => {
+  const formatRole = (role?: string | UserRole) => {
     if (!role) return 'User';
-    return role
+    return String(role)
       .split('_')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   };
 
+  const getUserInitials = () => {
+    if (user?.name) {
+      return user.name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+    }
+    if (user?.email) {
+      return user.email.slice(0, 2).toUpperCase();
+    }
+    return 'U';
+  };
+
   return (
-    <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 sticky top-0 bg-background z-10">
-      {/* Sidebar Toggle */}
-      <SidebarTrigger className="-ml-1" />
-      <Separator orientation="vertical" className="mr-2 h-4" />
+    <>
+      <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 sticky top-0 bg-background z-10">
+        {/* Sidebar Toggle */}
+        <SidebarTrigger className="-ml-1" />
+        <Separator orientation="vertical" className="mr-2 h-4" />
 
-      {/* Logo/Brand */}
-      <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
-          <span className="text-white font-bold text-sm">TG</span>
+        {/* Logo/Brand */}
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
+            <span className="text-white font-bold text-sm">TG</span>
+          </div>
+          <span className="text-lg font-semibold hidden md:block">Tax Genius</span>
         </div>
-        <span className="text-lg font-semibold hidden md:block">Tax Genius</span>
-      </div>
 
-      {/* Spacer */}
-      <div className="flex-1" />
+        {/* Spacer */}
+        <div className="flex-1" />
 
         {/* Right Side Actions */}
         <div className="flex items-center gap-2">
           {/* Role Switcher - Only for admins */}
-          {(displayRealRole === 'super_admin' || displayRealRole === 'admin') && (
+          {(displayRealRole === 'SUPER_ADMIN' || displayRealRole === 'ADMIN') && (
             <RoleSwitcher
               actualRole={displayRealRole}
-              effectiveRole={displayRole || 'client'}
+              effectiveRole={displayRole || 'CLIENT'}
               isViewingAsOtherRole={isViewingAsOtherRole}
             />
           )}
+
+          {/* Global Search - Command+K */}
+          <GlobalSearch />
+
+          {/* Recent Items - Quick Access */}
+          <RecentItemsDropdown maxItems={10} />
 
           {/* Dark Mode Toggle */}
           <DropdownMenu>
@@ -111,18 +141,12 @@ export function DashboardHeader({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-primary" />
-          </Button>
-
           {/* User Profile Section */}
           <div className="flex items-center gap-3 pl-2 border-l">
             {/* User Info - Hidden on small screens */}
             <div className="hidden lg:flex flex-col items-end">
               <p className="text-sm font-medium leading-none">
-                {user?.firstName || user?.emailAddresses[0]?.emailAddress?.split('@')[0]}
+                {user?.name || user?.email?.split('@')[0]}
               </p>
               <Badge
                 variant="secondary"
@@ -133,18 +157,48 @@ export function DashboardHeader({
               </Badge>
             </div>
 
-            {/* Clerk User Button with custom appearance */}
-            <UserButton
-              afterSignOutUrl="/auth/login"
-              appearance={{
-                elements: {
-                  avatarBox: 'h-10 w-10',
-                  userButtonPopoverCard: 'shadow-lg',
-                },
-              }}
-            />
+            {/* User Button with dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={user?.image || undefined} alt={user?.name || 'User'} />
+                    <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{user?.name || 'User'}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+                  className="text-red-600 dark:text-red-400"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
-    </header>
+      </header>
+
+      {/* Keyboard Shortcuts Dialog - Global */}
+      <KeyboardShortcutsDialog />
+    </>
   );
 }

@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     // Find the profile for this Clerk user
     const profile = await prisma.profile.findUnique({
       where: {
-        clerkUserId: user.id,
+        userId: user.id,
       },
     });
 

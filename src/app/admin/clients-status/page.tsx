@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,15 +42,15 @@ export default async function ClientsStatusPage({
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   // Get authenticated user
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
 
   if (!user) {
-    redirect('/auth/login');
+    redirect('/auth/signin');
   }
 
   // Check permissions
-  const role = user.publicMetadata?.role as UserRole | undefined;
-  const customPermissions = user.publicMetadata?.permissions as any;
+  const role = user?.role as UserRole | undefined;
+  const customPermissions = user?.permissions as any;
   const permissions = getUserPermissions(role || 'client', customPermissions);
 
   // Check if user has access to this page
@@ -271,7 +271,7 @@ export default async function ClientsStatusPage({
                                 {client.firstName} {client.lastName}
                               </p>
                               <p className="text-sm text-muted-foreground">
-                                ID: {client.clerkUserId || client.id}
+                                ID: {client.userId || client.id}
                               </p>
                             </div>
                           </TableCell>
@@ -283,7 +283,7 @@ export default async function ClientsStatusPage({
                                   {client.phone}
                                 </p>
                               )}
-                              {client.clerkUserId && (
+                              {client.userId && (
                                 <p className="text-sm flex items-center gap-1">
                                   <Mail className="w-3 h-3" />
                                   Contact via system

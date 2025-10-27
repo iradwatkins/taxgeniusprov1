@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -16,8 +17,11 @@ import {
   Users,
 } from 'lucide-react';
 import { ReferralLinksManager } from '@/components/dashboard/ReferralLinksManager';
+import { OnboardingDialog } from '@/components/OnboardingDialog';
+import { UserRole } from '@/lib/permissions';
 
 export default function ClientDashboard() {
+  const { data: session } = useSession(); const user = session?.user;
   const { data, isLoading, error } = useQuery({
     queryKey: ['client-dashboard'],
     queryFn: async () => {
@@ -82,9 +86,18 @@ export default function ClientDashboard() {
   const referralStats = data?.referralStats;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
-        {/* Header Section */}
+    <>
+      {/* Onboarding Dialog */}
+      {user && (
+        <OnboardingDialog
+          role={(user?.role as UserRole) || 'client'}
+          userName={user.name || undefined}
+        />
+      )}
+
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
+          {/* Header Section */}
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
             {taxReturn ? 'Welcome Back!' : 'Welcome to Tax Genius Pro'}
@@ -270,6 +283,7 @@ export default function ClientDashboard() {
           <ReferralLinksManager />
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

@@ -8,7 +8,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
 import { clearRestrictionCache } from '@/lib/content-restriction';
 import { logger } from '@/lib/logger';
@@ -18,7 +18,7 @@ const prisma = new PrismaClient();
 // GET - List all restrictions
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const session = await auth(); const userId = session?.user?.id;
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 // POST - Create new restriction
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const session = await auth(); const userId = session?.user?.id;
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
 // PUT - Update restriction
 export async function PUT(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const session = await auth(); const userId = session?.user?.id;
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -138,7 +138,7 @@ export async function PUT(request: NextRequest) {
 // DELETE - Delete restriction
 export async function DELETE(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const session = await auth(); const userId = session?.user?.id;
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

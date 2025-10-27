@@ -7,7 +7,7 @@
  * Supports: short-link codes and vanity tracking codes
  */
 
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { validateShortCode, isShortCodeAvailable } from '@/lib/services/short-link.service';
@@ -18,7 +18,7 @@ import {
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth();
+    const session = await auth(); const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });

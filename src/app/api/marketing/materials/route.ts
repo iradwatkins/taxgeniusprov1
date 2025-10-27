@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
@@ -13,14 +13,14 @@ import { logger } from '@/lib/logger';
 export async function GET(req: NextRequest) {
   try {
     // Verify authentication
-    const user = await currentUser();
+    const session = await auth(); const user = session?.user;
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get profile with role check
     const profile = await prisma.profile.findUnique({
-      where: { clerkUserId: user.id },
+      where: { userId: user.id },
     });
 
     if (!profile) {
@@ -69,14 +69,14 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     // Verify authentication
-    const user = await currentUser();
+    const session = await auth(); const user = session?.user;
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get profile with ADMIN role check
     const profile = await prisma.profile.findUnique({
-      where: { clerkUserId: user.id },
+      where: { userId: user.id },
     });
 
     if (!profile || profile.role !== 'ADMIN') {

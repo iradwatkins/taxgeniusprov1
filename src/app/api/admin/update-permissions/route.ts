@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { currentUser, clerkClient } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { UserRole, UserPermissions } from '@/lib/permissions';
 import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
     // Check if the current user is a super admin
-    const user = await currentUser();
+    const session = await auth(); const user = session?.user;
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const isSuperAdmin = user.publicMetadata?.role === 'super_admin';
+    const isSuperAdmin = user?.role === 'super_admin';
 
     if (!isSuperAdmin) {
       return NextResponse.json(
@@ -36,28 +36,22 @@ export async function POST(request: NextRequest) {
     // Handle default permissions update (for all admin users)
     if (userId === 'default') {
       // Update all admin users with the new default permissions
-      const client = await clerkClient();
-      const users = await client.users.getUserList({
-        limit: 100, // Adjust as needed
+      const adminProfiles = await prisma.profile.findMany({
+        where: { role: 'admin' },
+        take: 100,
       });
 
-      const adminUsers = users.data.filter((u) => u.publicMetadata?.role === 'admin');
-
-      const updatePromises = adminUsers.map((adminUser) =>
-        client.users.updateUserMetadata(adminUser.id, {
-          publicMetadata: {
-            ...adminUser.publicMetadata,
-            permissions: permissions,
-          },
-        })
-      );
-
-      await Promise.all(updatePromises);
+      await prisma.profile.updateMany({
+        where: { role: 'admin' },
+        data: {
+          customPermissions: permissions as any,
+        },
+      });
 
       return NextResponse.json({
         success: true,
-        message: `Updated permissions for ${adminUsers.length} admin users`,
-        affectedUsers: adminUsers.length,
+        message: `Updated permissions for ${adminProfiles.length} admin users`,
+        affectedUsers: adminProfiles.length,
       });
     }
 
@@ -87,7 +81,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Update role and permissions in Clerk
-    const client = await clerkClient();
     await client.users.updateUserMetadata(userId, {
       publicMetadata: {
         role: role,
@@ -118,13 +111,13 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     // Check if the current user is a super admin
-    const user = await currentUser();
+    const session = await auth(); const user = session?.user;
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const isSuperAdmin = user.publicMetadata?.role === 'super_admin';
+    const isSuperAdmin = user?.role === 'super_admin';
 
     if (!isSuperAdmin) {
       return NextResponse.json(
@@ -141,23 +134,32 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
 
-    // Get user from Clerk
-    const client = await clerkClient();
-    const targetUser = await client.users.getUser(userId);
+    // Get user profile from database
+    const profile = await prisma.profile.findUnique({
+      where: { userId },
+      include: {
+        user: {
+          select: {
+            email: true,
+            name: true,
+          },
+        },
+      },
+    });
 
-    if (!targetUser) {
+    if (!profile) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Return user's current role and permissions
     return NextResponse.json({
       user: {
-        id: targetUser.id,
-        email: targetUser.emailAddresses[0]?.emailAddress,
-        firstName: targetUser.firstName,
-        lastName: targetUser.lastName,
-        role: targetUser.publicMetadata?.role || 'client',
-        permissions: targetUser.publicMetadata?.permissions || {},
+        id: userId,
+        email: profile.user.email,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        role: profile.role,
+        permissions: profile.customPermissions || {},
       },
     });
   } catch (error) {

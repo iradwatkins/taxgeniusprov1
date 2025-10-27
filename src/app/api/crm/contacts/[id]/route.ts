@@ -54,7 +54,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     let preparerId: string | undefined;
     if (role === 'tax_preparer') {
       const profile = await prisma.profile.findUnique({
-        where: { clerkUserId: user.id },
+        where: { userId: user.id },
       });
       preparerId = profile?.id;
     }
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // Build access context
     const accessContext: CRMAccessContext = {
       userId: user.id,
-      clerkUserId: user.id,
+      userId: user.id,
       userRole: role,
       preparerId,
     };
@@ -119,7 +119,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     let preparerId: string | undefined;
     if (role === 'tax_preparer') {
       const profile = await prisma.profile.findUnique({
-        where: { clerkUserId: user.id },
+        where: { userId: user.id },
       });
       preparerId = profile?.id;
     }
@@ -127,7 +127,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     // Build access context
     const accessContext: CRMAccessContext = {
       userId: user.id,
-      clerkUserId: user.id,
+      userId: user.id,
       userRole: role,
       preparerId,
     };
@@ -183,7 +183,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     // Build access context
     const accessContext: CRMAccessContext = {
       userId: user.id,
-      clerkUserId: user.id,
+      userId: user.id,
       userRole: role,
     };
 

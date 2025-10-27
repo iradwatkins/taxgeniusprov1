@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Menu, ArrowRight, ChevronDown } from 'lucide-react';
 import Image from 'next/image';
@@ -20,6 +21,12 @@ import {
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+
+  // Auto-close mobile menu on navigation
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -182,7 +189,7 @@ export function Header() {
             <CartIcon />
             <ThemeToggle />
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/auth/login">Login</Link>
+              <Link href="/auth/signin">Login</Link>
             </Button>
             <StartTaxReturnButton size="sm" />
           </div>
@@ -328,7 +335,7 @@ export function Header() {
             </div>
             <div className="pt-3 space-y-2">
               <Button variant="outline" className="w-full" size="sm" asChild>
-                <Link href="/auth/login">Login</Link>
+                <Link href="/auth/signin">Login</Link>
               </Button>
               <div className="w-full">
                 <StartTaxReturnButton size="sm" className="w-full" />

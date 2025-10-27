@@ -1,20 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { Shield } from 'lucide-react';
 
 export default function AdminSetupPage() {
-  const { user } = useUser();
+  const { data: session } = useSession(); const user = session?.user;
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const userEmail = user?.emailAddresses[0]?.emailAddress;
-  const isAllowed = userEmail === 'iradwatkins@gmail.com';
+  const isAllowed = userEmail === 'support@taxgeniuspro.tax';
 
   const handleSetupSuperAdmin = async () => {
     setIsLoading(true);
@@ -56,7 +56,7 @@ export default function AdminSetupPage() {
             <CardDescription>Please log in to continue</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => router.push('/auth/login')} className="w-full">
+            <Button onClick={() => router.push('/auth/signin')} className="w-full">
               Go to Login
             </Button>
           </CardContent>
@@ -109,7 +109,7 @@ export default function AdminSetupPage() {
               <p className="text-muted-foreground">
                 Current Role:{' '}
                 <span className="font-mono text-foreground">
-                  {(user.publicMetadata?.role as string) || 'none'}
+                  {(user?.role as string) || 'none'}
                 </span>
               </p>
             </div>

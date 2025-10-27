@@ -46,7 +46,7 @@ export async function findLeadByEmail(email: string): Promise<TaxIntakeLead | nu
  */
 export async function convertLeadToClient(
   leadId: string,
-  clerkUserId: string
+  userId: string
 ): Promise<ConversionResult> {
   try {
     logger.info(`Starting lead-to-client conversion for lead ${leadId}`);
@@ -70,7 +70,7 @@ export async function convertLeadToClient(
     }
 
     // 2. Create CLIENT profile
-    const profile = await createProfileFromLead(lead, clerkUserId);
+    const profile = await createProfileFromLead(lead, userId);
     logger.info(`Created CLIENT profile ${profile.id} for lead ${leadId}`);
 
     // 3. Assign tracking code
@@ -132,20 +132,20 @@ export async function convertLeadToClient(
 /**
  * Create CLIENT profile from TaxIntakeLead
  */
-async function createProfileFromLead(lead: TaxIntakeLead, clerkUserId: string): Promise<Profile> {
+async function createProfileFromLead(lead: TaxIntakeLead, userId: string): Promise<Profile> {
   // Check if profile already exists for this Clerk user
   const existingProfile = await prisma.profile.findUnique({
-    where: { clerkUserId },
+    where: { userId },
   });
 
   if (existingProfile) {
-    logger.info(`Profile already exists for ${clerkUserId}, using existing profile`);
+    logger.info(`Profile already exists for ${userId}, using existing profile`);
     return existingProfile;
   }
 
   const profile = await prisma.profile.create({
     data: {
-      clerkUserId,
+      userId,
       role: 'CLIENT',
       firstName: lead.first_name,
       lastName: lead.last_name,

@@ -1,13 +1,13 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
 import { BookingSettingsClient } from '@/components/admin/BookingSettingsClient';
 
 export default async function BookingSettingsPage() {
-  const user = await currentUser();
-  if (!user) redirect('/auth/login');
+  const session = await auth(); const user = session?.user;
+  if (!user) redirect('/auth/signin');
 
-  const role = user.publicMetadata?.role as UserRole | undefined;
+  const role = user?.role as UserRole | undefined;
   const permissions = getUserPermissions(role || 'client');
 
   // Only admins can access booking settings

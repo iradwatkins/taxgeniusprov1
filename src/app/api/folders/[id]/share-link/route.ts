@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { SMSService } from '@/lib/services/sms.service';
@@ -16,7 +16,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { userId } = await auth();
+    const session = await auth(); const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -42,7 +42,7 @@ export async function POST(
 
     // Get tax preparer's profile
     const preparer = await prisma.profile.findUnique({
-      where: { clerkUserId: userId },
+      where: { userId: userId },
     });
 
     if (!preparer) {
@@ -66,7 +66,7 @@ export async function POST(
             firstName: true,
             lastName: true,
             phone: true,
-            clerkUserId: true,
+            userId: true,
           },
         },
         creator: {
@@ -143,7 +143,7 @@ export async function POST(
         break;
 
       case 'email':
-        const recipientEmail = email || (await getUserEmail(uploadLink.client.clerkUserId!));
+        const recipientEmail = email || (await getUserEmail(uploadLink.client.userId!));
 
         if (!recipientEmail) {
           return NextResponse.json(
@@ -207,7 +207,7 @@ export async function POST(
           const { NotificationService } = await import('@/lib/services/notification.service');
 
           await NotificationService.send({
-            userId: uploadLink.client.clerkUserId!,
+            userId: uploadLink.client.userId!,
             type: 'DOCUMENT_UPLOADED',
             title: 'Document Upload Request',
             message: `${preparerName} has requested you upload documents to "${uploadLink.folder.name}"`,
@@ -250,7 +250,7 @@ export async function POST(
           ...currentMetadata,
           sharedAt: new Date().toISOString(),
           sharedVia: method.toLowerCase(),
-          sharedTo: phoneNumber || email || uploadLink.client.clerkUserId,
+          sharedTo: phoneNumber || email || uploadLink.client.userId,
         },
       },
     });
@@ -278,13 +278,15 @@ export async function POST(
 /**
  * Helper function to get user's email from Clerk
  */
-async function getUserEmail(clerkUserId: string): Promise<string | null> {
+async function getUserEmail(userId: string): Promise<string | null> {
   try {
-    const { clerkClient } = await import('@clerk/nextjs/server');
-    const user = await clerkClient().users.getUser(clerkUserId);
-    return user.emailAddresses[0]?.emailAddress || null;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true },
+    });
+    return user?.email || null;
   } catch (error) {
-    logger.error('Failed to get user email from Clerk', error);
+    logger.error('Failed to get user email from database', error);
     return null;
   }
 }

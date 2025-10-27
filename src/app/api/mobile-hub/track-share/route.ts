@@ -5,13 +5,13 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const session = await auth(); const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     // Create share record
     await prisma.mobileHubShare.create({
       data: {
-        clerkUserId: userId,
+        userId: userId,
         userRole,
         linkType,
         linkUrl: url,
@@ -44,9 +44,9 @@ export async function POST(request: NextRequest) {
 
     // Increment share count in stats
     await prisma.mobileHubStats.upsert({
-      where: { clerkUserId: userId },
+      where: { userId: userId },
       create: {
-        clerkUserId: userId,
+        userId: userId,
         userRole,
         linkShares: 1,
       },

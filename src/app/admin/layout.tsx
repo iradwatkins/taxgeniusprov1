@@ -1,19 +1,19 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { AdminLayoutClient } from '@/components/AdminLayoutClient';
 import { getUserPermissions, UserRole, UserPermissions } from '@/lib/permissions';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   // Get real authenticated user from Clerk
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
 
   // Redirect to login if not authenticated
   if (!user) {
-    redirect('/auth/login');
+    redirect('/auth/signin');
   }
 
   // Get real role from user's public metadata
-  const role = user.publicMetadata?.role as string | undefined;
+  const role = user?.role as string | undefined;
 
   // Redirect non-admin users to forbidden page
   // Allow both admin and super_admin roles
@@ -25,7 +25,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const sidebarRole = role as UserRole;
 
   // Get user permissions (custom or default based on role)
-  const customPermissions = user.publicMetadata?.permissions as
+  const customPermissions = user?.permissions as
     | Partial<UserPermissions>
     | undefined;
   const permissions = getUserPermissions(sidebarRole, customPermissions);

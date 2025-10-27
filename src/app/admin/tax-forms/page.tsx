@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/select';
 import { logger } from '@/lib/logger';
 import { useToast } from '@/hooks/use-toast';
+import { TableSkeleton, StatCardSkeleton } from '@/components/SkeletonPatterns';
 
 interface TaxForm {
   id: string;
@@ -41,7 +42,7 @@ interface TaxForm {
 }
 
 export default function AdminTaxFormsPage() {
-  const { user, isLoaded } = useUser();
+  const { data: session, status } = useSession(); const user = session?.user; const isLoaded = status !== 'loading';
   const [forms, setForms] = useState<TaxForm[]>([]);
   const [search, setSearch] = useState('');
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -68,11 +69,20 @@ export default function AdminTaxFormsPage() {
     }
   }, [isLoaded, user, permissions]);
 
-  // Show loading while checking auth
+  // Show loading skeleton while checking auth
   if (!isLoaded || !permissions) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="space-y-2">
+          <div className="h-8 w-48 rounded-md bg-muted animate-pulse" />
+          <div className="h-5 w-64 rounded-md bg-muted animate-pulse" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StatCardSkeleton />
+          <StatCardSkeleton />
+          <StatCardSkeleton />
+        </div>
+        <TableSkeleton rows={10} columns={7} />
       </div>
     );
   }

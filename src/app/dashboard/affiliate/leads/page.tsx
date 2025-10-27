@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -41,9 +41,9 @@ export const metadata = {
 };
 
 async function isAffiliate() {
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
   if (!user) return false;
-  const role = user.publicMetadata?.role;
+  const role = user?.role;
   return role === 'affiliate' || role === 'admin';
 }
 
@@ -244,12 +244,10 @@ export default async function AffiliateLeadsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Lead</TableHead>
-                <TableHead>Contact</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Source</TableHead>
                 <TableHead>Signup Date</TableHead>
                 <TableHead>Value</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -276,18 +274,6 @@ export default async function AffiliateLeadsPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-1 text-sm">
-                        <Mail className="w-3 h-3" />
-                        {lead.email}
-                      </div>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Phone className="w-3 h-3" />
-                        {lead.phone}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
                     <div className="flex items-center gap-2">
                       {getStatusIcon(lead.status)}
                       <Badge className={getStatusColor(lead.status)}>{lead.status}</Badge>
@@ -308,11 +294,6 @@ export default async function AffiliateLeadsPage() {
                     ) : (
                       <p className="text-sm text-muted-foreground">-</p>
                     )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="sm">
-                      <Eye className="w-4 h-4" />
-                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

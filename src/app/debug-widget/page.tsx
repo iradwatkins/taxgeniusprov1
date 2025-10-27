@@ -1,10 +1,10 @@
 'use client';
 
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { TaxAssistantWidget } from '@/components/tax-assistant/TaxAssistantWidget';
 
 export default function DebugWidgetPage() {
-  const { user } = useUser();
+  const { data: session } = useSession(); const user = session?.user;
   const role = user?.publicMetadata?.role as string;
 
   return (

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser, clerkClient } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -28,9 +28,9 @@ export const metadata = {
 };
 
 async function isAdmin() {
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
   if (!user) return false;
-  const role = user.publicMetadata?.role as string;
+  const role = user?.role as string;
   return role === 'admin' || role === 'super_admin';
 }
 
@@ -41,30 +41,35 @@ export default async function AdminUsersPage() {
     redirect('/forbidden');
   }
 
-  const currentUserData = await currentUser();
+  const currentUserData = await auth();
   const isSuperAdmin = currentUserData?.publicMetadata?.role === 'super_admin';
 
-  // Fetch all users from Clerk
-  const clerk = await clerkClient();
-  const { data: users } = await clerk.users.getUserList({
-    limit: 100,
+  // Fetch all users with profiles from database
+  const usersWithProfiles = await prisma.user.findMany({
+    take: 100,
+    include: {
+      profile: true,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
   });
 
   // Format users data for client component
-  const formattedUsers = users.map((user) => ({
+  const formattedUsers = usersWithProfiles.map((user) => ({
     id: user.id,
-    email: user.emailAddresses[0]?.emailAddress || '',
-    firstName: user.firstName || '',
-    lastName: user.lastName || '',
-    role: (user.publicMetadata?.role as string) || 'client',
-    permissions: user.publicMetadata?.permissions as Record<string, boolean> | undefined,
-    createdAt: new Date(user.createdAt).toISOString(),
+    email: user.email,
+    firstName: user.profile?.firstName || '',
+    lastName: user.profile?.lastName || '',
+    role: user.profile?.role ? String(user.profile.role) : 'CLIENT',
+    permissions: user.profile?.customPermissions as Record<string, boolean> | undefined,
+    createdAt: user.createdAt.toISOString(),
   }));
 
   // Count users by role
-  const usersByRole = users.reduce(
+  const usersByRole = usersWithProfiles.reduce(
     (acc, user) => {
-      const role = (user.publicMetadata?.role as string) || 'no_role';
+      const role = user.profile?.role ? String(user.profile.role) : 'no_role';
       acc[role] = (acc[role] || 0) + 1;
       return acc;
     },

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/core/providers/AuthProvider';
+import { useSession } from 'next-auth/react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProtectedRouteProps {
@@ -14,7 +14,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredRole,
   requireProfile = false,
 }) => {
-  const { user, loading } = useAuth();
+  const { data: session, status } = useSession();
+  const user = session?.user;
+  const loading = status === 'loading';
   const location = useLocation();
 
   // Show loading while authentication state is being determined

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -50,15 +50,15 @@ const statusColors: Record<string, string> = {
 
 export default async function ReferralsStatusPage() {
   // Get authenticated user
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
 
   if (!user) {
-    redirect('/auth/login');
+    redirect('/auth/signin');
   }
 
   // Check permissions
-  const role = user.publicMetadata?.role as UserRole | undefined;
-  const customPermissions = user.publicMetadata?.permissions as any;
+  const role = user?.role as UserRole | undefined;
+  const customPermissions = user?.permissions as any;
   const permissions = getUserPermissions(role || 'client', customPermissions);
 
   // Check if user has access to this page

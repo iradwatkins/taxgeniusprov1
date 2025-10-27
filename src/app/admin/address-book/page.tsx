@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { redirect } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { getUserPermissions, UserRole, type UserPermissions } from '@/lib/permissions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -153,17 +153,17 @@ const generateMockContacts = (): Contact[] => {
 };
 
 export default function AddressBookPage() {
-  const { user } = useUser();
+  const { data: session } = useSession(); const user = session?.user;
   const [contacts] = useState<Contact[]>(generateMockContacts());
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTab, setSelectedTab] = useState('all');
 
   if (!user) {
-    redirect('/auth/login');
+    redirect('/auth/signin');
   }
 
-  const role = user.publicMetadata?.role as UserRole | undefined;
-  const customPermissions = user.publicMetadata?.permissions as
+  const role = user?.role as UserRole | undefined;
+  const customPermissions = user?.permissions as
     | Partial<UserPermissions>
     | undefined;
   const permissions = getUserPermissions(role || 'client', customPermissions);

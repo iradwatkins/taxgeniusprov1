@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { z } from 'zod';
@@ -34,7 +34,7 @@ const CheckoutRequestSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     // STEP 1: Authenticate with Clerk
-    const { userId } = await auth();
+    const session = await auth(); const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });

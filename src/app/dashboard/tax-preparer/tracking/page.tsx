@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { getUserPermissions, type UserPermissions } from '@/lib/permissions';
 import { TrackingCodeDashboard } from '@/components/tracking/TrackingCodeDashboard';
@@ -10,11 +10,11 @@ export const metadata = {
 };
 
 async function checkPreparerAccess() {
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
   if (!user) return { hasAccess: false, userId: null, profileId: null, permissions: null };
 
-  const role = user.publicMetadata?.role as string;
-  const customPermissions = user.publicMetadata?.permissions as Partial<UserPermissions> | undefined;
+  const role = user?.role as string;
+  const customPermissions = user?.permissions as Partial<UserPermissions> | undefined;
   const permissions = getUserPermissions(role as any, customPermissions);
 
   // Allow tax_preparer, admin, and super_admin to access tracking
@@ -24,7 +24,7 @@ async function checkPreparerAccess() {
   let profileId = null;
   if (hasAccess && user.id) {
     const profile = await prisma.profile.findUnique({
-      where: { clerkUserId: user.id },
+      where: { userId: user.id },
       select: { id: true },
     });
     profileId = profile?.id || null;

@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await currentUser();
+    const session = await auth(); const user = session?.user;
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Verify user is admin
-    const role = user.publicMetadata?.role;
+    const role = user?.role;
     if (role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     // Build query
     const where: any = {
-      role: 'CLIENT',
+      role: 'client',
     };
 
     // Fetch all clients with optional filtering

@@ -221,10 +221,10 @@ export async function getTop15Preparers(dateRange?: DateRange): Promise<TopPerfo
   // Get preparer details
   const preparerIds = preparerMaterials.map((pm) => pm.creatorId);
   const preparers = await prisma.profile.findMany({
-    where: { clerkUserId: { in: preparerIds } },
+    where: { userId: { in: preparerIds } },
     select: {
       id: true,
-      clerkUserId: true,
+      userId: true,
       firstName: true,
       lastName: true,
       avatarUrl: true,
@@ -233,7 +233,7 @@ export async function getTop15Preparers(dateRange?: DateRange): Promise<TopPerfo
 
   // Combine and return
   return preparerMaterials.map((pm, idx) => {
-    const preparer = preparers.find((p) => p.clerkUserId === pm.creatorId);
+    const preparer = preparers.find((p) => p.userId === pm.creatorId);
     const clicks = pm._sum.clicks || 0;
     const returnsFiled = pm._sum.returnsFiled || 0;
 
@@ -286,10 +286,10 @@ export async function getTop15Affiliates(dateRange?: DateRange): Promise<TopPerf
 
   const affiliateIds = affiliateMaterials.map((am) => am.creatorId);
   const affiliates = await prisma.profile.findMany({
-    where: { clerkUserId: { in: affiliateIds } },
+    where: { userId: { in: affiliateIds } },
     select: {
       id: true,
-      clerkUserId: true,
+      userId: true,
       firstName: true,
       lastName: true,
       avatarUrl: true,
@@ -297,7 +297,7 @@ export async function getTop15Affiliates(dateRange?: DateRange): Promise<TopPerf
   });
 
   return affiliateMaterials.map((am, idx) => {
-    const affiliate = affiliates.find((a) => a.clerkUserId === am.creatorId);
+    const affiliate = affiliates.find((a) => a.userId === am.creatorId);
     const clicks = am._sum.clicks || 0;
     const returnsFiled = am._sum.returnsFiled || 0;
 
@@ -350,10 +350,10 @@ export async function getTop15Referrers(dateRange?: DateRange): Promise<TopPerfo
 
   const referrerIds = referrerMaterials.map((rm) => rm.creatorId);
   const referrers = await prisma.profile.findMany({
-    where: { clerkUserId: { in: referrerIds } },
+    where: { userId: { in: referrerIds } },
     select: {
       id: true,
-      clerkUserId: true,
+      userId: true,
       firstName: true,
       lastName: true,
       avatarUrl: true,
@@ -361,7 +361,7 @@ export async function getTop15Referrers(dateRange?: DateRange): Promise<TopPerfo
   });
 
   return referrerMaterials.map((rm, idx) => {
-    const referrer = referrers.find((r) => r.clerkUserId === rm.creatorId);
+    const referrer = referrers.find((r) => r.userId === rm.creatorId);
     const clicks = rm._sum.clicks || 0;
     const returnsFiled = rm._sum.returnsFiled || 0;
 
@@ -418,16 +418,16 @@ export async function getTop15Materials(dateRange?: DateRange): Promise<TopMater
   // Get creator names
   const creatorIds = materials.map((m) => m.creatorId);
   const creators = await prisma.profile.findMany({
-    where: { clerkUserId: { in: creatorIds } },
+    where: { userId: { in: creatorIds } },
     select: {
-      clerkUserId: true,
+      userId: true,
       firstName: true,
       lastName: true,
     },
   });
 
   return materials.map((material, idx) => {
-    const creator = creators.find((c) => c.clerkUserId === material.creatorId);
+    const creator = creators.find((c) => c.userId === material.creatorId);
 
     return {
       rank: idx + 1,
@@ -671,9 +671,9 @@ export async function getTopEarners(limit: number = 5): Promise<TopEarner[]> {
   // Get user details
   const userIds = earners.map((e) => e.referrerId);
   const users = await prisma.profile.findMany({
-    where: { clerkUserId: { in: userIds } },
+    where: { userId: { in: userIds } },
     select: {
-      clerkUserId: true,
+      userId: true,
       firstName: true,
       lastName: true,
       role: true,
@@ -684,7 +684,7 @@ export async function getTopEarners(limit: number = 5): Promise<TopEarner[]> {
   const result: TopEarner[] = [];
 
   for (const earner of earners) {
-    const user = users.find((u) => u.clerkUserId === earner.referrerId);
+    const user = users.find((u) => u.userId === earner.referrerId);
     if (!user) continue;
 
     // Count conversions for this user

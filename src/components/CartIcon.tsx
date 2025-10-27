@@ -2,13 +2,13 @@
 
 import { ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { useShoppingCart } from '@/lib/hooks/useShoppingCart';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 export function CartIcon() {
-  const { user } = useUser();
+  const { data: session } = useSession(); const user = session?.user;
   const getItemCount = useShoppingCart((state) => state.getItemCount);
   const itemCount = getItemCount();
 

@@ -16,7 +16,7 @@
 
 'use client';
 
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserRole } from '@/lib/permissions';
@@ -54,7 +54,7 @@ export function AccessGate({
   onAccessGranted,
   onAccessDenied,
 }: AccessGateProps) {
-  const { user, isLoaded } = useUser();
+  const { data: session, status } = useSession(); const user = session?.user; const isLoaded = status !== 'loading';
   const router = useRouter();
   const [hasChecked, setHasChecked] = useState(false);
 

@@ -199,9 +199,9 @@ export interface TopPerformer {
  * Supports both Clerk ID and Profile ID for backwards compatibility
  */
 async function getProfileId(userIdOrProfileId: string): Promise<string | null> {
-  // First, try to find by clerkUserId (most common case)
+  // First, try to find by userId (most common case)
   let profile = await prisma.profile.findUnique({
-    where: { clerkUserId: userIdOrProfileId },
+    where: { userId: userIdOrProfileId },
     select: { id: true },
   });
 
@@ -625,7 +625,7 @@ export async function getPreparersAnalytics(
       id: true,
       firstName: true,
       lastName: true,
-      clerkUserId: true,
+      userId: true,
     },
   });
 
@@ -660,7 +660,7 @@ export async function getAffiliatesAnalytics(
       id: true,
       firstName: true,
       lastName: true,
-      clerkUserId: true,
+      userId: true,
     },
   });
 
@@ -698,7 +698,7 @@ export async function getClientsReferralAnalytics(
       id: true,
       firstName: true,
       lastName: true,
-      clerkUserId: true,
+      userId: true,
     },
   });
 
@@ -747,7 +747,7 @@ export async function getMyPreparerAnalytics(
       id: true,
       firstName: true,
       lastName: true,
-      clerkUserId: true,
+      userId: true,
     },
   });
 
@@ -886,7 +886,7 @@ export async function getMyPreparerAnalytics(
   return {
     preparerId: preparer.id,
     preparerName: `${preparer.firstName || ''} ${preparer.lastName || ''}`.trim(),
-    preparerEmail: preparer.clerkUserId || '',
+    preparerEmail: preparer.userId || '',
     marketingLinksCount: marketingLinks.length,
     clicks: totalClicks,
     leads: totalLeads,
@@ -942,7 +942,7 @@ export async function getMyAffiliateAnalytics(
       id: true,
       firstName: true,
       lastName: true,
-      clerkUserId: true,
+      userId: true,
     },
   });
 
@@ -1096,7 +1096,7 @@ export async function getMyAffiliateAnalytics(
   return {
     affiliateId: affiliate.id,
     affiliateName: `${affiliate.firstName || ''} ${affiliate.lastName || ''}`.trim(),
-    affiliateEmail: affiliate.clerkUserId || '',
+    affiliateEmail: affiliate.userId || '',
     campaignsCount: campaigns.length + marketingLinks.length,
     marketingLinksCount: campaigns.length + marketingLinks.length,
     clicks: totalClicks,
@@ -1156,7 +1156,7 @@ export async function getMyReferralAnalytics(
       id: true,
       firstName: true,
       lastName: true,
-      clerkUserId: true,
+      userId: true,
     },
   });
 
@@ -1199,7 +1199,7 @@ export async function getMyReferralAnalytics(
         select: {
           firstName: true,
           lastName: true,
-          clerkUserId: true,
+          userId: true,
         },
       },
     },
@@ -1287,7 +1287,7 @@ export async function getMyReferralAnalytics(
   const referralHistory: ReferralRecord[] = referrals.map((r) => ({
     referralId: r.id,
     referredName: `${r.client.firstName || ''} ${r.client.lastName || ''}`.trim(),
-    referredEmail: r.client.clerkUserId || '',
+    referredEmail: r.client.userId || '',
     status: r.status,
     signupDate: r.signupDate,
     returnFiledDate: r.returnFiledDate,
@@ -1299,7 +1299,7 @@ export async function getMyReferralAnalytics(
   return {
     clientId: client.id,
     clientName: `${client.firstName || ''} ${client.lastName || ''}`.trim(),
-    clientEmail: client.clerkUserId || '',
+    clientEmail: client.userId || '',
     referralLinksCount: referralLinks.length,
     referralsSent,
     clicks: totalClicks,
@@ -1495,7 +1495,7 @@ export async function getTopPerformers(
       id: true,
       firstName: true,
       lastName: true,
-      clerkUserId: true,
+      userId: true,
     },
     take: limit * 2, // Get extra to filter
   });

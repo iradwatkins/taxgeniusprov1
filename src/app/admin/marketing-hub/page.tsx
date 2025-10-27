@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,11 +19,11 @@ import {
 } from 'lucide-react';
 
 export default async function MarketingHubPage() {
-  const user = await currentUser();
-  if (!user) redirect('/auth/login');
+  const session = await auth(); const user = session?.user;
+  if (!user) redirect('/auth/signin');
 
-  const role = user.publicMetadata?.role as UserRole | undefined;
-  const customPermissions = user.publicMetadata?.permissions as any;
+  const role = user?.role as UserRole | undefined;
+  const customPermissions = user?.permissions as any;
   const permissions = getUserPermissions(role || 'client', customPermissions);
 
   if (!permissions.marketingHub) redirect('/forbidden');

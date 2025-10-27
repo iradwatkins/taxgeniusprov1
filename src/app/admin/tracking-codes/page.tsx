@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,10 +13,10 @@ export const metadata = {
 };
 
 async function checkAdminAccess() {
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
   if (!user) return { hasAccess: false };
 
-  const role = user.publicMetadata?.role as string;
+  const role = user?.role as string;
   const hasAccess = role === 'admin' || role === 'super_admin';
 
   return { hasAccess, userId: user.id };
@@ -30,7 +30,7 @@ async function getAllTrackingCodes() {
     },
     select: {
       id: true,
-      clerkUserId: true,
+      userId: true,
       role: true,
       trackingCode: true,
       customTrackingCode: true,
@@ -49,12 +49,12 @@ async function getAllTrackingCodes() {
       let userName = 'Unknown User';
       let userEmail = 'unknown@example.com';
 
-      if (profile.clerkUserId) {
+      if (profile.userId) {
         try {
           // In a real implementation, you'd fetch from Clerk API
           // For now, we'll use placeholder data
-          userName = `User ${profile.clerkUserId.substring(0, 8)}`;
-          userEmail = `user${profile.clerkUserId.substring(0, 8)}@example.com`;
+          userName = `User ${profile.userId.substring(0, 8)}`;
+          userEmail = `user${profile.userId.substring(0, 8)}@example.com`;
         } catch (error) {
           logger.error('Error fetching user details:', error);
         }
@@ -62,7 +62,7 @@ async function getAllTrackingCodes() {
 
       return {
         profileId: profile.id,
-        userId: profile.clerkUserId,
+        userId: profile.userId,
         userName,
         userEmail,
         role: profile.role,

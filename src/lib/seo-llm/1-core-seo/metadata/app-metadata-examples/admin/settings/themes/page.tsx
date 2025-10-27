@@ -6,7 +6,7 @@ export default async function ThemesPage() {
   const { user } = await validateRequest();
 
   if (!user || (user as any).role !== 'ADMIN') {
-    redirect('/auth/login');
+    redirect('/auth/signin');
   }
 
   return (

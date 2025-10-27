@@ -4,7 +4,7 @@
  * POST: Check if a custom tracking code is available
  */
 
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import {
@@ -14,7 +14,7 @@ import {
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth();
+    const session = await auth(); const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });

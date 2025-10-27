@@ -12,7 +12,7 @@ export async function GET() {
   try {
     const defaultPreparer = await prisma.profile.findFirst({
       where: {
-        OR: [{ role: 'SUPER_ADMIN' }, { role: 'ADMIN' }, { role: 'TAX_PREPARER' }],
+        OR: [{ role: 'super_admin' }, { role: 'admin' }, { role: 'tax_preparer' }],
         bookingEnabled: true, // Only return preparers who accept bookings
       },
       orderBy: [

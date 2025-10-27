@@ -4,6 +4,7 @@ import { DashboardHeader } from '@/components/DashboardHeader';
 import { DashboardSidebar } from '@/components/DashboardSidebar';
 import { ViewingAsBar } from '@/components/admin/ViewingAsBar';
 import { TaxAssistantWidget } from '@/components/tax-assistant/TaxAssistantWidget';
+import { MobileNav } from '@/components/ui/mobile-nav';
 import { UserRole, UserPermissions } from '@/lib/permissions';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 
@@ -14,6 +15,19 @@ interface DashboardLayoutClientProps {
   isViewingAsOtherRole: boolean;
   viewingRoleName?: string;
   permissions: Partial<UserPermissions>;
+}
+
+// Convert UserRole to MobileNav role format
+function convertToMobileNavRole(role: UserRole): 'TAX_PREPARER' | 'AFFILIATE' | 'CLIENT' | 'ADMIN' {
+  const roleMap: Record<UserRole, 'TAX_PREPARER' | 'AFFILIATE' | 'CLIENT' | 'ADMIN'> = {
+    tax_preparer: 'TAX_PREPARER',
+    affiliate: 'AFFILIATE',
+    client: 'CLIENT',
+    lead: 'CLIENT', // Leads use the same mobile nav as clients
+    admin: 'ADMIN',
+    super_admin: 'ADMIN', // Super admins use the same mobile nav as admins
+  };
+  return roleMap[role] || 'CLIENT';
 }
 
 export function DashboardLayoutClient({
@@ -55,6 +69,9 @@ export function DashboardLayoutClient({
       {(actualRole === 'tax_preparer' ||
         actualRole === 'admin' ||
         actualRole === 'super_admin') && <TaxAssistantWidget />}
+
+      {/* Mobile Bottom Navigation - Shows on mobile devices */}
+      <MobileNav role={convertToMobileNavRole(effectiveRole)} />
     </SidebarProvider>
   );
 }

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -41,9 +41,9 @@ export const metadata = {
 };
 
 async function isAdmin() {
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
   if (!user) return false;
-  const role = user.publicMetadata?.role as string;
+  const role = user?.role as string;
   return role === 'admin' || role === 'super_admin';
 }
 
@@ -54,7 +54,7 @@ export default async function AdminEarningsPage() {
     redirect('/forbidden');
   }
 
-  const currentUserData = await currentUser();
+  const currentUserData = await auth();
   const isSuperAdmin = currentUserData?.publicMetadata?.role === 'super_admin';
 
   // Fetch real data from database

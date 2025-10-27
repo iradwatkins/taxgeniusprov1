@@ -1,25 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await currentUser();
+    const session = await auth(); const user = session?.user;
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Verify user is a tax preparer or admin
-    const role = user.publicMetadata?.role;
+    const role = user?.role;
     if (role !== 'tax_preparer' && role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Get preparer profile
     const preparerProfile = await prisma.profile.findUnique({
-      where: { clerkUserId: user.id },
+      where: { userId: user.id },
     });
 
     if (!preparerProfile) {
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
               lastName: lastName || null,
               phone: phone || null,
               role: 'client',
-              clerkUserId: `imported_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+              userId: `imported_${Date.now()}_${Math.random().toString(36).substring(7)}`,
             },
           });
         }

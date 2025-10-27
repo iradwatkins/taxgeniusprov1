@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Database, AlertCircle } from 'lucide-react';
 
@@ -9,9 +9,9 @@ export const metadata = {
 };
 
 async function isSuperAdmin() {
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
   if (!user) return false;
-  const role = user.publicMetadata?.role as string;
+  const role = user?.role as string;
   return role === 'super_admin';
 }
 

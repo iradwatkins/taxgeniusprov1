@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { UserRole } from '@/lib/permissions';
 
 /**
@@ -10,14 +10,14 @@ import { UserRole } from '@/lib/permissions';
  * role-specific dashboard, but Next.js requires an actual page to exist first.
  */
 export default async function DashboardRedirect() {
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
 
   if (!user) {
-    redirect('/auth/login');
+    redirect('/auth/signin');
   }
 
   // Get user role from metadata
-  const role = (user.publicMetadata?.role as UserRole) || 'lead';
+  const role = (user?.role as UserRole) || 'lead';
 
   // Redirect to role-specific dashboard
   const dashboardUrls: Record<UserRole, string> = {

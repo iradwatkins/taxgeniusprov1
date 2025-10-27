@@ -5,13 +5,13 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const session = await auth(); const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -19,12 +19,12 @@ export async function GET(request: NextRequest) {
 
     // Get client's documents count
     const documentsCount = await prisma.document.count({
-      where: { clerkUserId: userId },
+      where: { userId: userId },
     });
 
     // Get latest tax return (if exists)
     const latestReturn = await prisma.taxReturn.findFirst({
-      where: { clerkUserId: userId },
+      where: { userId: userId },
       orderBy: { createdAt: 'desc' },
     });
 

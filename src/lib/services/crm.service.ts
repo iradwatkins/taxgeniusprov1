@@ -409,7 +409,7 @@ export class CRMService {
           fromStage: fromStage || contact.stage,
           toStage,
           changedBy: accessContext.userId,
-          changedByClerk: accessContext.clerkUserId,
+          changedByClerk: accessContext.userId,
           reason,
         },
       });

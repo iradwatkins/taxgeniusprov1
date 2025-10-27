@@ -10,6 +10,11 @@ import { StatsGrid } from '@/components/dashboard/preparer/StatsGrid';
 import { OverviewTab } from '@/components/dashboard/preparer/OverviewTab';
 import { getPriorityColor } from '@/components/dashboard/preparer/utils';
 import { ReferralLinksManager } from '@/components/dashboard/ReferralLinksManager';
+import { StatsWidget } from '@/components/gamification/StatsWidget';
+import { useSession } from 'next-auth/react';
+import { RecentItemsCard } from '@/components/RecentItems';
+import { OnboardingDialog } from '@/components/OnboardingDialog';
+import { UserRole } from '@/lib/permissions';
 
 // Types
 interface Client {
@@ -38,6 +43,8 @@ interface PreparerStats {
 }
 
 export default function PreparerDashboard() {
+  const { data: session } = useSession(); const user = session?.user;
+
   // Mock data
   const stats: PreparerStats = {
     totalClients: 47,
@@ -94,15 +101,34 @@ export default function PreparerDashboard() {
   ];
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
+    <>
+      {/* Onboarding Dialog */}
+      {user && (
+        <OnboardingDialog
+          role={(user?.role as UserRole) || 'tax_preparer'}
+          userName={user.name || undefined}
+        />
+      )}
+
+      <div className="container mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6 pb-20 md:pb-6">
+        {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Preparer Dashboard</h1>
-        <p className="text-muted-foreground">Manage your clients and tax preparations</p>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Preparer Dashboard</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">Manage your clients and tax preparations</p>
       </div>
+
+      {/* Gamification Widget */}
+      {user && <StatsWidget userId={user.id} role="tax_preparer" compact={true} />}
 
       {/* Stats Grid */}
       <StatsGrid stats={stats} />
+
+      {/* Recent Items - Quick Access to recently viewed items */}
+      <RecentItemsCard
+        title="Recently Accessed"
+        maxItems={5}
+        showEmpty={false}
+      />
 
       {/* Quick Access */}
       <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/50 dark:to-blue-900/50 border-blue-200/50">
@@ -114,83 +140,83 @@ export default function PreparerDashboard() {
           <CardDescription>Your most important tools and features</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
             <Button
               variant="outline"
-              className="h-auto flex-col gap-3 py-6 bg-white dark:bg-gray-950 hover:shadow-lg transition-all"
+              className="h-auto flex-col gap-2 sm:gap-3 py-4 sm:py-6 bg-white dark:bg-gray-950 hover:shadow-lg transition-all"
               asChild
             >
               <a href="/dashboard/tax-preparer/analytics">
-                <div className="h-14 w-14 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                  <BarChart3 className="h-7 w-7 text-purple-600" />
+                <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                  <BarChart3 className="h-6 w-6 sm:h-7 sm:w-7 text-purple-600" />
                 </div>
                 <div className="text-center">
-                  <p className="font-semibold text-sm">My Analytics</p>
-                  <p className="text-xs text-muted-foreground mt-1">Track performance</p>
+                  <p className="font-semibold text-xs sm:text-sm">My Analytics</p>
+                  <p className="text-xs text-muted-foreground mt-1 hidden sm:block">Track performance</p>
                 </div>
               </a>
             </Button>
 
             <Button
               variant="outline"
-              className="h-auto flex-col gap-3 py-6 bg-white dark:bg-gray-950 hover:shadow-lg transition-all"
+              className="h-auto flex-col gap-2 sm:gap-3 py-4 sm:py-6 bg-white dark:bg-gray-950 hover:shadow-lg transition-all"
               asChild
             >
               <a href="/dashboard/tax-preparer/tracking">
-                <div className="h-14 w-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                  <FileCheck className="h-7 w-7 text-green-600" />
+                <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                  <FileCheck className="h-6 w-6 sm:h-7 sm:w-7 text-green-600" />
                 </div>
                 <div className="text-center">
-                  <p className="font-semibold text-sm">My Tracking Code</p>
-                  <p className="text-xs text-muted-foreground mt-1">Referral link</p>
+                  <p className="font-semibold text-xs sm:text-sm">My Tracking Code</p>
+                  <p className="text-xs text-muted-foreground mt-1 hidden sm:block">Referral link</p>
                 </div>
               </a>
             </Button>
 
             <Button
               variant="outline"
-              className="h-auto flex-col gap-3 py-6 bg-white dark:bg-gray-950 hover:shadow-lg transition-all"
+              className="h-auto flex-col gap-2 sm:gap-3 py-4 sm:py-6 bg-white dark:bg-gray-950 hover:shadow-lg transition-all"
               asChild
             >
               <a href="/app/academy">
-                <div className="h-14 w-14 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                  <Sparkles className="h-7 w-7 text-orange-600" />
+                <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                  <Sparkles className="h-6 w-6 sm:h-7 sm:w-7 text-orange-600" />
                 </div>
                 <div className="text-center">
-                  <p className="font-semibold text-sm">Academy</p>
-                  <p className="text-xs text-muted-foreground mt-1">6 training videos</p>
+                  <p className="font-semibold text-xs sm:text-sm">Academy</p>
+                  <p className="text-xs text-muted-foreground mt-1 hidden sm:block">6 training videos</p>
                 </div>
               </a>
             </Button>
 
             <Button
               variant="outline"
-              className="h-auto flex-col gap-3 py-6 bg-white dark:bg-gray-950 hover:shadow-lg transition-all"
+              className="h-auto flex-col gap-2 sm:gap-3 py-4 sm:py-6 bg-white dark:bg-gray-950 hover:shadow-lg transition-all"
               asChild
             >
               <a href="/store">
-                <div className="h-14 w-14 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                  <ShoppingCart className="h-7 w-7 text-blue-600" />
+                <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                  <ShoppingCart className="h-6 w-6 sm:h-7 sm:w-7 text-blue-600" />
                 </div>
                 <div className="text-center">
-                  <p className="font-semibold text-sm">Store</p>
-                  <p className="text-xs text-muted-foreground mt-1">Marketing materials</p>
+                  <p className="font-semibold text-xs sm:text-sm">Store</p>
+                  <p className="text-xs text-muted-foreground mt-1 hidden sm:block">Marketing materials</p>
                 </div>
               </a>
             </Button>
 
             <Button
               variant="outline"
-              className="h-auto flex-col gap-3 py-6 bg-white dark:bg-gray-950 hover:shadow-lg transition-all"
+              className="h-auto flex-col gap-2 sm:gap-3 py-4 sm:py-6 bg-white dark:bg-gray-950 hover:shadow-lg transition-all"
               asChild
             >
               <a href="/dashboard/tax-preparer/settings">
-                <div className="h-14 w-14 rounded-full bg-gray-100 dark:bg-gray-900/30 flex items-center justify-center">
-                  <Palette className="h-7 w-7 text-gray-600" />
+                <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-gray-100 dark:bg-gray-900/30 flex items-center justify-center">
+                  <Palette className="h-6 w-6 sm:h-7 sm:w-7 text-gray-600" />
                 </div>
                 <div className="text-center">
-                  <p className="font-semibold text-sm">Settings</p>
-                  <p className="text-xs text-muted-foreground mt-1">Account & profile</p>
+                  <p className="font-semibold text-xs sm:text-sm">Settings</p>
+                  <p className="text-xs text-muted-foreground mt-1 hidden sm:block">Account & profile</p>
                 </div>
               </a>
             </Button>
@@ -209,6 +235,7 @@ export default function PreparerDashboard() {
 
       {/* Recent Leads */}
       <RecentLeadsTable limit={10} />
-    </div>
+      </div>
+    </>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { redirect } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -81,7 +81,7 @@ interface Contact {
 }
 
 export default function CRMContactsPage() {
-  const { user, isLoaded } = useUser();
+  const { data: session, status } = useSession(); const user = session?.user; const isLoaded = status !== 'loading';
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

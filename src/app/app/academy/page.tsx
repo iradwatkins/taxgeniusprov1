@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,7 +43,7 @@ interface Video {
 }
 
 export default function AcademyPage() {
-  const { user, isLoaded } = useUser();
+  const { data: session, status } = useSession(); const user = session?.user; const isLoaded = status !== 'loading';
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [completedVideos, setCompletedVideos] = useState<Set<string>>(new Set());

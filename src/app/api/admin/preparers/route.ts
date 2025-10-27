@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
 
 /**
@@ -12,12 +12,12 @@ import { getUserPermissions, UserRole } from '@/lib/permissions';
  */
 export async function GET(req: NextRequest) {
   try {
-    const user = await currentUser();
+    const session = await auth(); const user = session?.user;
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const role = user.publicMetadata?.role as UserRole | undefined;
+    const role = user?.role as UserRole | undefined;
     const permissions = getUserPermissions(role || 'client');
 
     // Only admins can access this endpoint
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
         role: true,
         companyName: true,
         phone: true,
-        clerkUserId: true,
+        userId: true,
         // Include booking settings if requested
         ...(includeBookingSettings && {
           bookingEnabled: true,
@@ -65,8 +65,8 @@ export async function GET(req: NextRequest) {
       preparers.map(async (preparer) => {
         let email = '';
 
-        if (preparer.clerkUserId) {
-          // Fetch email from Clerk if we have clerkUserId
+        if (preparer.userId) {
+          // Fetch email from Clerk if we have userId
           // For now, we'll use placeholder - in production you'd fetch from Clerk
           email = `${preparer.firstName?.toLowerCase()}.${preparer.lastName?.toLowerCase()}@taxgeniuspro.tax`;
         }

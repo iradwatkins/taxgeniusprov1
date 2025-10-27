@@ -82,8 +82,8 @@ export function SupportSettingsForm({ section }: SupportSettingsFormProps) {
       case 'email':
         return {
           senderName: 'Tax Genius Pro Support',
-          senderEmail: 'support@taxgeniuspro.com',
-          replyToEmail: 'support@taxgeniuspro.com',
+          senderEmail: 'support@taxgeniuspro.tax',
+          replyToEmail: 'support@taxgeniuspro.tax',
           includeTicketLink: true,
           includeUnsubscribeLink: true,
         };

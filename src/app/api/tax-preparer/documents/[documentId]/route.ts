@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { unlink } from 'fs/promises';
@@ -13,7 +13,7 @@ import { existsSync } from 'fs';
  */
 export async function PATCH(req: NextRequest, { params }: { params: { documentId: string } }) {
   try {
-    const { userId } = await auth();
+    const session = await auth(); const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -21,7 +21,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { documentId
 
     // Get user's profile
     const profile = await prisma.profile.findUnique({
-      where: { clerkUserId: userId },
+      where: { userId: userId },
     });
 
     if (!profile) {
@@ -119,7 +119,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { documentId
  */
 export async function DELETE(req: NextRequest, { params }: { params: { documentId: string } }) {
   try {
-    const { userId } = await auth();
+    const session = await auth(); const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -127,7 +127,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { documentI
 
     // Get user's profile
     const profile = await prisma.profile.findUnique({
-      where: { clerkUserId: userId },
+      where: { userId: userId },
     });
 
     if (!profile) {
@@ -205,7 +205,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { documentI
  */
 export async function GET(req: NextRequest, { params }: { params: { documentId: string } }) {
   try {
-    const { userId } = await auth();
+    const session = await auth(); const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -213,7 +213,7 @@ export async function GET(req: NextRequest, { params }: { params: { documentId: 
 
     // Get user's profile
     const profile = await prisma.profile.findUnique({
-      where: { clerkUserId: userId },
+      where: { userId: userId },
     });
 
     if (!profile) {

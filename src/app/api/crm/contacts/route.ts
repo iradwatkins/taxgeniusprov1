@@ -19,7 +19,7 @@ import type { CRMAccessContext } from '@/types/crm';
 // Validation schema for creating a contact
 const createContactSchema = z.object({
   userId: z.string().optional().nullable(),
-  clerkUserId: z.string().optional().nullable(),
+  userId: z.string().optional().nullable(),
   contactType: z.nativeEnum(ContactType),
   firstName: z.string().min(1).max(100),
   lastName: z.string().min(1).max(100),
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
     let preparerId: string | undefined;
     if (role === 'tax_preparer') {
       const profile = await prisma.profile.findUnique({
-        where: { clerkUserId: user.id },
+        where: { userId: user.id },
       });
       preparerId = profile?.id;
     }
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     // Build access context
     const accessContext: CRMAccessContext = {
       userId: user.id,
-      clerkUserId: user.id,
+      userId: user.id,
       userRole: role,
       preparerId,
     };

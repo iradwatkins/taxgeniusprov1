@@ -94,7 +94,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     if (!user) {
       // Create new user
-      const role = googleUser.email === 'iradwatkins@gmail.com' ? 'ADMIN' : 'CUSTOMER';
+      const role = googleUser.email === 'support@taxgeniuspro.tax' ? 'ADMIN' : 'CUSTOMER';
 
       const userId = `user_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       user = await prisma.user.create({

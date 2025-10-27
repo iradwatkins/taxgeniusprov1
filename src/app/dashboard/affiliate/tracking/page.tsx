@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { TrackingCodeDashboard } from '@/components/tracking/TrackingCodeDashboard';
 
@@ -9,17 +9,17 @@ export const metadata = {
 };
 
 async function checkAffiliateAccess() {
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
   if (!user) return { hasAccess: false, userId: null, profileId: null };
 
-  const role = user.publicMetadata?.role as string;
+  const role = user?.role as string;
   const hasAccess = role === 'affiliate';
 
   // Get profile ID
   let profileId = null;
   if (hasAccess && user.id) {
     const profile = await prisma.profile.findUnique({
-      where: { clerkUserId: user.id },
+      where: { userId: user.id },
       select: { id: true },
     });
     profileId = profile?.id || null;

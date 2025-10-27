@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -35,7 +35,7 @@ interface MarketingAsset {
 }
 
 export default function MarketingAssetsPage() {
-  const { user, isLoaded } = useUser();
+  const { data: session, status } = useSession(); const user = session?.user; const isLoaded = status !== 'loading';
   const queryClient = useQueryClient();
   const [selectedCategory, setSelectedCategory] = useState<'profile_photo' | 'logo' | 'office' | 'custom'>('profile_photo');
   const [uploading, setUploading] = useState(false);

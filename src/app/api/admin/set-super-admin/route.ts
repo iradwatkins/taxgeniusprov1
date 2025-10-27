@@ -1,72 +1,61 @@
 import { NextResponse } from 'next/server';
-import { currentUser } from '@clerk/nextjs/server';
-import { clerkClient } from '@clerk/nextjs/server';
-import { PrismaClient } from '@prisma/client';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
-
-const prisma = new PrismaClient();
 
 /**
  * API endpoint to set a user as SUPER_ADMIN
- * Restricted to iradwatkins@gmail.com only
+ * Restricted to support@taxgeniuspro.tax only
  */
 export async function POST() {
   try {
-    const user = await currentUser();
+    const session = await auth();
+    const user = session?.user;
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userEmail = user.emailAddresses[0]?.emailAddress;
+    const userEmail = user.email;
 
-    // Only allow iradwatkins@gmail.com to use this endpoint
-    if (userEmail !== 'iradwatkins@gmail.com') {
+    // Only allow support@taxgeniuspro.tax to use this endpoint
+    if (userEmail !== 'support@taxgeniuspro.tax') {
       return NextResponse.json(
-        { error: 'Forbidden: Only iradwatkins@gmail.com can use this endpoint' },
+        { error: 'Forbidden: Only support@taxgeniuspro.tax can use this endpoint' },
         { status: 403 }
       );
     }
 
     logger.info(`🔐 Setting ${userEmail} as SUPER_ADMIN...`);
 
-    // Update Clerk metadata
-    await (
-      await clerkClient()
-    ).users.updateUserMetadata(user.id, {
-      publicMetadata: {
-        role: 'super_admin',
-      },
+    // Check if profile exists
+    const existingProfile = await prisma.profile.findUnique({
+      where: { userId: user.id },
     });
 
-    logger.info('✅ Clerk metadata updated');
-
-    // Update or create Profile in database
-    const profile = await prisma.profile.findUnique({
-      where: { clerkUserId: user.id },
-    });
-
-    if (!profile) {
-      logger.info('Creating new profile...');
+    if (!existingProfile) {
+      logger.info('Creating new SUPER_ADMIN profile...');
       await prisma.profile.create({
         data: {
-          clerkUserId: user.id,
-          role: 'SUPER_ADMIN',
-          firstName: user.firstName || 'Irad',
-          lastName: user.lastName || 'Watkins',
+          userId: user.id,
+          role: 'super_admin',
+          firstName: user.name?.split(' ')[0] || 'Super',
+          lastName: user.name?.split(' ').slice(1).join(' ') || 'Admin',
         },
       });
     } else {
-      logger.info(`Updating profile from ${profile.role} to SUPER_ADMIN...`);
+      logger.info(`Updating profile from ${existingProfile.role} to SUPER_ADMIN...`);
       await prisma.profile.update({
-        where: { id: profile.id },
-        data: { role: 'SUPER_ADMIN' },
+        where: { id: existingProfile.id },
+        data: { role: 'super_admin' },
       });
     }
 
+    logger.info('✅ SUPER_ADMIN role set successfully');
+
     return NextResponse.json({
       success: true,
-      message: `Successfully set ${userEmail} as SUPER_ADMIN`,
+      message: `Successfully set ${userEmail} as SUPER_ADMIN. Please sign out and sign back in for changes to take effect.`,
       userId: user.id,
       role: 'super_admin',
     });

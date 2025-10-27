@@ -120,14 +120,6 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     roles: ['affiliate'],
   },
   {
-    label: 'Marketing',
-    href: '/dashboard/affiliate/marketing',
-    icon: Megaphone,
-    permission: 'marketing',
-    section: '🎯 Affiliate Dashboard',
-    roles: ['affiliate'],
-  },
-  {
     label: 'Analytics',
     href: '/dashboard/affiliate/analytics',
     icon: BarChart3,
@@ -221,22 +213,6 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     permission: 'taxForms', // ✅ NOW INDEPENDENT! Can toggle separately from Client File Center
     section: '📋 CRM',
     roles: ['tax_preparer', 'admin', 'super_admin'], // ✅ Visible to tax preparers too!
-  },
-  {
-    label: 'My Analytics',
-    href: '/dashboard/tax-preparer/analytics',
-    icon: BarChart3,
-    permission: 'analytics',
-    section: '📋 CRM',
-    roles: ['tax_preparer'],
-  },
-  {
-    label: 'My Tracking Code',
-    href: '/dashboard/tax-preparer/tracking',
-    icon: QrCode,
-    permission: 'trackingCode',
-    section: '📋 CRM',
-    roles: ['tax_preparer', 'admin', 'super_admin', 'affiliate', 'client'], // ✅ ALL REFERRERS! Everyone can refer people
   },
   {
     label: 'Store',
@@ -346,6 +322,22 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     section: '📊 Analytics',
     roles: ['admin', 'super_admin'],
   },
+  {
+    label: 'My Analytics',
+    href: '/dashboard/tax-preparer/analytics',
+    icon: BarChart3,
+    permission: 'analytics',
+    section: '📊 Analytics',
+    roles: ['tax_preparer'],
+  },
+  {
+    label: 'My Tracking Code',
+    href: '/dashboard/tax-preparer/tracking',
+    icon: QrCode,
+    permission: 'trackingCode',
+    section: '📊 Analytics',
+    roles: ['tax_preparer', 'admin', 'super_admin', 'affiliate', 'client'],
+  },
 
   // 📢 Marketing Section
   {
@@ -354,7 +346,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: Megaphone,
     permission: 'marketingHub',
     section: '📢 Marketing',
-    roles: ['admin', 'super_admin'],
+    roles: ['tax_preparer', 'admin', 'super_admin'],
   },
   {
     label: 'Tracking Codes',
@@ -362,7 +354,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: QrCode,
     permission: 'marketingHub',
     section: '📢 Marketing',
-    roles: ['admin', 'super_admin'],
+    roles: ['tax_preparer', 'admin', 'super_admin'],
   },
 
   // 🛒 Marketing Materials Section (Paid Features: Store, Content Generator, Products)

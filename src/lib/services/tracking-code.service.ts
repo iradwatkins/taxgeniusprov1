@@ -431,14 +431,14 @@ export async function getUserTrackingCode(profileId: string): Promise<TrackingCo
  */
 export async function getUserByTrackingCode(
   code: string
-): Promise<{ id: string; clerkUserId: string | null; role: string } | null> {
+): Promise<{ id: string; userId: string | null; role: string } | null> {
   const profile = await prisma.profile.findFirst({
     where: {
       OR: [{ trackingCode: code }, { customTrackingCode: code }],
     },
     select: {
       id: true,
-      clerkUserId: true,
+      userId: true,
       role: true,
     },
   });

@@ -6,7 +6,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { clerkClient } from '@clerk/nextjs/server';
+// Clerk client removed - using NextAuth;
 import { logger } from '@/lib/logger';
 import { UserRole } from '@prisma/client';
 
@@ -73,7 +73,6 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
 
     // Total users from Clerk
-    const clerk = await clerkClient();
     const { totalCount: totalUsers } = await clerk.users.getUserList({ limit: 1 });
 
     // Users last month

@@ -1,14 +1,14 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
 import { FileManager } from '@/components/file-manager/FileManager';
 
 export default async function FileCenterPage() {
-  const user = await currentUser();
-  if (!user) redirect('/auth/login');
+  const session = await auth(); const user = session?.user;
+  if (!user) redirect('/auth/signin');
 
-  const role = user.publicMetadata?.role as UserRole | undefined;
-  const customPermissions = user.publicMetadata?.permissions as any;
+  const role = user?.role as UserRole | undefined;
+  const customPermissions = user?.permissions as any;
   const permissions = getUserPermissions(role || 'client', customPermissions);
 
   // ✅ Check main permission for page access

@@ -4,7 +4,7 @@ import { LayoutDashboard, Settings, HelpCircle, LogOut, Share2 } from 'lucide-re
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { useClerk } from '@clerk/nextjs';
+import { signOut } from 'next-auth/react';
 import { UserRole, UserPermissions } from '@/lib/permissions';
 
 interface QuickLinksProps {
@@ -14,7 +14,6 @@ interface QuickLinksProps {
 
 export function QuickLinks({ role, permissions }: QuickLinksProps) {
   const router = useRouter();
-  const { signOut } = useClerk();
 
   const links = [
     {
@@ -45,7 +44,7 @@ export function QuickLinks({ role, permissions }: QuickLinksProps) {
     {
       label: 'Sign Out',
       icon: LogOut,
-      action: () => signOut(() => router.push('/')),
+      action: () => signOut({ callbackUrl: '/' }),
       show: true,
       variant: 'destructive' as const,
     },

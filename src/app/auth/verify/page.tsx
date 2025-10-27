@@ -32,7 +32,7 @@ export default function VerifyPage() {
               <Link href="/auth/signup">Sign Up</Link>
             </Button>
             <Button asChild className="w-full" variant="outline">
-              <Link href="/auth/login">Already have an account? Sign In</Link>
+              <Link href="/auth/signin">Already have an account? Sign In</Link>
             </Button>
           </div>
         </CardContent>

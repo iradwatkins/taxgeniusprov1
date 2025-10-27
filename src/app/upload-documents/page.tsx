@@ -1,14 +1,14 @@
 import DocumentUpload from '@/components/DocumentUpload';
 import SaveFormDataClient from '@/components/SaveFormDataClient';
 import { redirect } from 'next/navigation';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 
 export default async function UploadDocumentsPage() {
-  const { userId } = await auth();
+  const session = await auth(); const userId = session?.user?.id;
 
   // Require authentication for document upload
   if (!userId) {
-    redirect('/auth/login?redirect_url=/upload-documents');
+    redirect('/auth/signin?redirect_url=/upload-documents');
   }
 
   return (

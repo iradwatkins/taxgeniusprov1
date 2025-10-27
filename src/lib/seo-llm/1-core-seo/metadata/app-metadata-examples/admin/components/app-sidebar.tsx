@@ -52,7 +52,7 @@ import {
 const data = {
   user: {
     name: 'Ira Watkins',
-    email: 'iradwatkins@gmail.com',
+    email: 'support@taxgeniuspro.tax',
     avatar: '/avatars/admin.jpg',
   },
   teams: [

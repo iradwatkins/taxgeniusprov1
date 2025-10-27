@@ -54,7 +54,7 @@ describe('CRMService - Unit Tests', () => {
       const mockContact = {
         id: 'contact-1',
         userId: 'user-1',
-        clerkUserId: 'clerk-user-1',
+        userId: 'clerk-user-1',
         contactType: ContactType.CLIENT,
         firstName: 'John',
         lastName: 'Doe',
@@ -87,7 +87,7 @@ describe('CRMService - Unit Tests', () => {
 
       const result = await CRMService.createContact({
         userId: 'user-1',
-        clerkUserId: 'clerk-user-1',
+        userId: 'clerk-user-1',
         contactType: ContactType.CLIENT,
         firstName: 'John',
         lastName: 'Doe',
@@ -127,13 +127,13 @@ describe('CRMService - Unit Tests', () => {
   describe('getContactById', () => {
     const adminAccessContext: CRMAccessContext = {
       userId: 'admin-1',
-      clerkUserId: 'clerk-admin-1',
+      userId: 'clerk-admin-1',
       userRole: UserRole.ADMIN,
     };
 
     const preparerAccessContext: CRMAccessContext = {
       userId: 'preparer-1',
-      clerkUserId: 'clerk-preparer-1',
+      userId: 'clerk-preparer-1',
       userRole: UserRole.TAX_PREPARER,
       preparerId: 'prep-id-1',
     };
@@ -208,7 +208,7 @@ describe('CRMService - Unit Tests', () => {
   describe('updateContact', () => {
     const adminAccessContext: CRMAccessContext = {
       userId: 'admin-1',
-      clerkUserId: 'clerk-admin-1',
+      userId: 'clerk-admin-1',
       userRole: UserRole.ADMIN,
     };
 
@@ -245,7 +245,7 @@ describe('CRMService - Unit Tests', () => {
     it('should enforce access control', async () => {
       const preparerAccessContext: CRMAccessContext = {
         userId: 'preparer-1',
-        clerkUserId: 'clerk-preparer-1',
+        userId: 'clerk-preparer-1',
         userRole: UserRole.TAX_PREPARER,
         preparerId: 'prep-id-1',
       };
@@ -267,7 +267,7 @@ describe('CRMService - Unit Tests', () => {
     it('should allow admin to delete contact', async () => {
       const adminAccessContext: CRMAccessContext = {
         userId: 'admin-1',
-        clerkUserId: 'clerk-admin-1',
+        userId: 'clerk-admin-1',
         userRole: UserRole.ADMIN,
       };
 
@@ -282,7 +282,7 @@ describe('CRMService - Unit Tests', () => {
     it('should deny non-admin from deleting', async () => {
       const preparerAccessContext: CRMAccessContext = {
         userId: 'preparer-1',
-        clerkUserId: 'clerk-preparer-1',
+        userId: 'clerk-preparer-1',
         userRole: UserRole.TAX_PREPARER,
       };
 
@@ -295,7 +295,7 @@ describe('CRMService - Unit Tests', () => {
   describe('listContacts', () => {
     const adminAccessContext: CRMAccessContext = {
       userId: 'admin-1',
-      clerkUserId: 'clerk-admin-1',
+      userId: 'clerk-admin-1',
       userRole: UserRole.ADMIN,
     };
 
@@ -377,7 +377,7 @@ describe('CRMService - Unit Tests', () => {
     it('should enforce row-level security for preparers', async () => {
       const preparerAccessContext: CRMAccessContext = {
         userId: 'preparer-1',
-        clerkUserId: 'clerk-preparer-1',
+        userId: 'clerk-preparer-1',
         userRole: UserRole.TAX_PREPARER,
         preparerId: 'prep-id-1',
       };
@@ -414,7 +414,7 @@ describe('CRMService - Unit Tests', () => {
   describe('assignContactToPreparer', () => {
     const adminAccessContext: CRMAccessContext = {
       userId: 'admin-1',
-      clerkUserId: 'clerk-admin-1',
+      userId: 'clerk-admin-1',
       userRole: UserRole.ADMIN,
     };
 
@@ -447,7 +447,7 @@ describe('CRMService - Unit Tests', () => {
     it('should deny non-admin from assigning', async () => {
       const preparerAccessContext: CRMAccessContext = {
         userId: 'preparer-1',
-        clerkUserId: 'clerk-preparer-1',
+        userId: 'clerk-preparer-1',
         userRole: UserRole.TAX_PREPARER,
       };
 
@@ -460,7 +460,7 @@ describe('CRMService - Unit Tests', () => {
   describe('updateContactStage', () => {
     const adminAccessContext: CRMAccessContext = {
       userId: 'admin-1',
-      clerkUserId: 'clerk-admin-1',
+      userId: 'clerk-admin-1',
       userRole: UserRole.ADMIN,
     };
 
@@ -545,7 +545,7 @@ describe('CRMService - Unit Tests', () => {
   describe('getContactInteractions', () => {
     const adminAccessContext: CRMAccessContext = {
       userId: 'admin-1',
-      clerkUserId: 'clerk-admin-1',
+      userId: 'clerk-admin-1',
       userRole: UserRole.ADMIN,
     };
 
@@ -582,7 +582,7 @@ describe('CRMService - Unit Tests', () => {
   describe('getContactStageHistory', () => {
     const adminAccessContext: CRMAccessContext = {
       userId: 'admin-1',
-      clerkUserId: 'clerk-admin-1',
+      userId: 'clerk-admin-1',
       userRole: UserRole.ADMIN,
     };
 

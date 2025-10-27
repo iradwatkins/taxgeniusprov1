@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { logger } from '@/lib/logger';
+import { ReferralLinksManager } from '@/components/dashboard/ReferralLinksManager';
 import {
   QrCode,
   Copy,
@@ -402,62 +403,8 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
         </Card>
       )}
 
-      {/* Performance Metrics Placeholder */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-primary" />
-            Tracking Code Performance
-          </CardTitle>
-          <CardDescription>Track how your marketing materials are performing</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
-              <div className="flex items-center gap-2 mb-2">
-                <MousePointerClick className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                <p className="text-xs font-medium text-muted-foreground">Total Clicks</p>
-              </div>
-              <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">-</p>
-              <p className="text-xs text-muted-foreground mt-1">Coming soon</p>
-            </div>
-
-            <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
-              <div className="flex items-center gap-2 mb-2">
-                <Users className="h-4 w-4 text-green-600 dark:text-green-400" />
-                <p className="text-xs font-medium text-muted-foreground">Leads Generated</p>
-              </div>
-              <p className="text-2xl font-bold text-green-700 dark:text-green-300">-</p>
-              <p className="text-xs text-muted-foreground mt-1">Coming soon</p>
-            </div>
-
-            <div className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-200 dark:border-purple-800">
-              <div className="flex items-center gap-2 mb-2">
-                <CheckCircle2 className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                <p className="text-xs font-medium text-muted-foreground">Conversions</p>
-              </div>
-              <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">-</p>
-              <p className="text-xs text-muted-foreground mt-1">Coming soon</p>
-            </div>
-
-            <div className="p-4 bg-yellow-50 dark:bg-yellow-950 rounded-lg border border-yellow-200 dark:border-yellow-800">
-              <div className="flex items-center gap-2 mb-2">
-                <DollarSign className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-                <p className="text-xs font-medium text-muted-foreground">Revenue</p>
-              </div>
-              <p className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">-</p>
-              <p className="text-xs text-muted-foreground mt-1">Coming soon</p>
-            </div>
-          </div>
-
-          <div className="mt-6 p-4 bg-muted/50 rounded-lg text-center">
-            <p className="text-sm text-muted-foreground">
-              Performance tracking will be available once you start using your tracking code in
-              marketing materials.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Referral Links & QR Codes */}
+      <ReferralLinksManager />
 
       {/* Usage Information */}
       <Card>

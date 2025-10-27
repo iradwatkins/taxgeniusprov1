@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { POST, GET } from '../route';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
 
 // Mock Clerk auth

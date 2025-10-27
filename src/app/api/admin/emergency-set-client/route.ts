@@ -6,8 +6,8 @@
  * Visit while logged in: https://taxgeniuspro.tax/api/admin/emergency-set-client
  */
 
-import { currentUser } from '@clerk/nextjs/server';
-import { clerkClient } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
+// Clerk client removed - using NextAuth;
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
@@ -17,7 +17,7 @@ export async function GET() {
     logger.info('🚨 EMERGENCY: Setting client role...');
 
     // Get current user
-    const user = await currentUser();
+    const session = await auth(); const user = session?.user;
 
     if (!user) {
       return NextResponse.json(
@@ -34,7 +34,6 @@ export async function GET() {
 
     // Update Clerk metadata
     logger.info('📝 Updating Clerk metadata...');
-    const clerk = await clerkClient();
     await clerk.users.updateUserMetadata(user.id, {
       publicMetadata: {
         role: 'client',
@@ -46,14 +45,14 @@ export async function GET() {
     logger.info('📝 Updating database profile...');
     try {
       const profile = await prisma.profile.findUnique({
-        where: { clerkUserId: user.id },
+        where: { userId: user.id },
       });
 
       if (!profile) {
         await prisma.profile.create({
           data: {
-            clerkUserId: user.id,
-            role: 'CLIENT',
+            userId: user.id,
+            role: 'client',
             firstName: user.firstName || 'Tax',
             lastName: user.lastName || 'Genius',
           },
@@ -62,7 +61,7 @@ export async function GET() {
       } else {
         await prisma.profile.update({
           where: { id: profile.id },
-          data: { role: 'CLIENT' },
+          data: { role: 'client' },
         });
         logger.info('✅ Profile updated to CLIENT role');
       }

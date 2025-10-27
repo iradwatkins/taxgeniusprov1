@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
 
 /**
@@ -79,18 +79,18 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
  */
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await currentUser();
+    const session = await auth(); const user = session?.user;
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { id: preparerId } = await params;
-    const role = user.publicMetadata?.role as UserRole | undefined;
+    const role = user?.role as UserRole | undefined;
     const permissions = getUserPermissions(role || 'client');
 
     // Check if user is admin or the preparer themselves
     const userProfile = await prisma.profile.findUnique({
-      where: { clerkUserId: user.id },
+      where: { userId: user.id },
     });
 
     const isAdmin = permissions.users === 'full';

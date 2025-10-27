@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { addTicketMessage } from '@/lib/services/support-ticket.service';
 import { executeWorkflows } from '@/lib/services/ticket-workflow.service';
@@ -17,15 +17,15 @@ import { logger } from '@/lib/logger';
  */
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { userId: clerkUserId } = await auth();
+    const { userId: userId } = await auth();
 
-    if (!clerkUserId) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get user profile
     const profile = await prisma.profile.findUnique({
-      where: { clerkUserId },
+      where: { userId },
       select: { id: true, role: true },
     });
 

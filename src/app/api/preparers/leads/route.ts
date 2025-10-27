@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { currentUser, clerkClient } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 
@@ -9,13 +9,13 @@ import { logger } from '@/lib/logger';
  */
 export async function GET(req: NextRequest) {
   try {
-    const user = await currentUser();
+    const session = await auth(); const user = session?.user;
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const role = user.publicMetadata?.role as string;
+    const role = user?.role as string;
     if (role !== 'tax_preparer' && role !== 'admin' && role !== 'super_admin') {
       return NextResponse.json(
         { error: 'Forbidden: Only tax preparers and admins can access this endpoint' },
@@ -24,7 +24,6 @@ export async function GET(req: NextRequest) {
     }
 
     // Fetch all Clerk users with role = LEAD
-    const clerk = await clerkClient();
     const { data: allUsers } = await clerk.users.getUserList({
       limit: 500, // Adjust as needed
     });
@@ -61,13 +60,13 @@ export async function GET(req: NextRequest) {
  */
 export async function PATCH(req: NextRequest) {
   try {
-    const user = await currentUser();
+    const session = await auth(); const user = session?.user;
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const role = user.publicMetadata?.role as string;
+    const role = user?.role as string;
     if (role !== 'tax_preparer' && role !== 'admin' && role !== 'super_admin') {
       return NextResponse.json(
         { error: 'Forbidden: Only tax preparers and admins can change lead roles' },
@@ -91,7 +90,6 @@ export async function PATCH(req: NextRequest) {
     }
 
     // Verify the target user is currently a LEAD
-    const clerk = await clerkClient();
     const targetUser = await clerk.users.getUser(userId);
 
     if (!targetUser) {

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { UserRole } from '@prisma/client';
 import { getUserPermissions, type UserPermissions } from '@/lib/permissions';
 import {
@@ -31,11 +31,11 @@ export const metadata = {
 };
 
 async function checkAdminAccess() {
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
   if (!user) return { hasAccess: false, userId: null, role: null, permissions: null };
 
-  const role = user.publicMetadata?.role as string;
-  const customPermissions = user.publicMetadata?.permissions as Partial<UserPermissions> | undefined;
+  const role = user?.role as string;
+  const customPermissions = user?.permissions as Partial<UserPermissions> | undefined;
   const permissions = getUserPermissions(role as any, customPermissions);
   const hasAccess = (role === 'admin' || role === 'super_admin') && permissions.analytics;
 

@@ -161,7 +161,7 @@ export const loginMetadata: Metadata = generateMetadata({
   description:
     'Login to your Tax Genius Pro account. Access your tax returns, documents, and account dashboard. Secure login with email or social accounts.',
   keywords: ['login', 'sign in', 'account access', 'tax account login'],
-  url: '/auth/login',
+  url: '/auth/signin',
   noindex: true,
 });
 

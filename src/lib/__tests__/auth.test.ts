@@ -21,7 +21,7 @@ vi.mock('@clerk/nextjs/server', () => ({
   },
 }));
 
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 
 const mockAuth = auth as ReturnType<typeof vi.fn>;
 const mockCurrentUser = currentUser as ReturnType<typeof vi.fn>;
@@ -201,7 +201,6 @@ describe('Auth Helpers', () => {
 
   describe('updateUserRole', () => {
     it('should update user metadata with new role', async () => {
-      const { clerkClient } = await import('@clerk/nextjs/server');
       const mockUpdateMetadata = vi.fn().mockResolvedValue({});
 
       vi.mocked(clerkClient).users = {

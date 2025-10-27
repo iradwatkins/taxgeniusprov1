@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -142,7 +142,7 @@ async function OrderDetails({ sessionId }: { sessionId: string }) {
 
 export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   // Check if user is authenticated and has appropriate role
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
   const userRole = user?.publicMetadata?.role as string | undefined;
   const canAccessStore = userRole === 'affiliate' || userRole === 'tax_preparer';
 

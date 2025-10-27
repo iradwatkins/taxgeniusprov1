@@ -17,7 +17,7 @@ const setupTestData = async () => {
     Array.from({ length: 5 }, async (_, i) => {
       return await prisma.profile.create({
         data: {
-          clerkUserId: `test-preparer-${i}@test.com`,
+          userId: `test-preparer-${i}@test.com`,
           email: `test-preparer-${i}@test.com`,
           firstName: `Preparer`,
           lastName: `${i}`,

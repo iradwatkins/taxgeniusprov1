@@ -1,21 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { useUser, useClerk } from '@clerk/nextjs';
+import { useSession, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { Shield } from 'lucide-react';
 
 export default function AdminSetupPage() {
-  const { user } = useUser();
-  const { signOut } = useClerk();
+  const { data: session } = useSession();
+  const user = session?.user;
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const userEmail = user?.emailAddresses[0]?.emailAddress;
-  const isAllowed = userEmail === 'iradwatkins@gmail.com';
+  const userEmail = user?.email;
+  const isAllowed = userEmail === 'support@taxgeniuspro.tax';
 
   const handleSetupSuperAdmin = async () => {
     setIsLoading(true);
@@ -33,7 +33,7 @@ export default function AdminSetupPage() {
 
         // Force sign out and redirect to login to refresh session with new role
         setTimeout(async () => {
-          await signOut({ redirectUrl: '/auth/login?redirect_url=/dashboard/admin' });
+          await signOut({ callbackUrl: '/auth/signin?callbackUrl=/dashboard/admin' });
         }, 2000);
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to set super admin' });
@@ -57,8 +57,8 @@ export default function AdminSetupPage() {
             <CardDescription>Please log in to continue</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => router.push('/auth/login')} className="w-full">
-              Go to Login
+            <Button onClick={() => router.push('/auth/signin')} className="w-full">
+              Go to Sign In
             </Button>
           </CardContent>
         </Card>
@@ -110,7 +110,7 @@ export default function AdminSetupPage() {
               <p className="text-muted-foreground">
                 Current Role:{' '}
                 <span className="font-mono text-foreground">
-                  {(user.publicMetadata?.role as string) || 'none'}
+                  {user?.role ? String(user.role) : 'none'}
                 </span>
               </p>
             </div>

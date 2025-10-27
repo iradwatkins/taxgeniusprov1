@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { currentUser, clerkClient } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { logger } from '@/lib/logger';
 
 /**
@@ -11,7 +11,7 @@ import { logger } from '@/lib/logger';
 export async function POST(request: NextRequest) {
   try {
     // Authentication check
-    const currentUserData = await currentUser();
+    const currentUserData = await auth();
 
     if (!currentUserData) {
       return NextResponse.json({ error: 'Unauthorized - You must be logged in' }, { status: 401 });
@@ -42,29 +42,26 @@ export async function POST(request: NextRequest) {
 
     logger.info(`🔍 Looking for user with email: ${email}`);
 
-    const clerk = await clerkClient();
-
-    // Get user by email
-    const users = await clerk.users.getUserList({
-      emailAddress: [email],
+    // Get user by email from database
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: { profile: true },
     });
 
-    if (users.data.length === 0) {
+    if (!user) {
       return NextResponse.json({ error: `No user found with email: ${email}` }, { status: 404 });
     }
 
-    const user = users.data[0];
-    logger.info(`✅ Found user: ${user.firstName} ${user.lastName} (${user.id})`);
+    logger.info(`✅ Found user: ${user.profile?.firstName || ''} ${user.profile?.lastName || ''} (${user.id})`);
 
     // Check current role
-    const currentRole = user.publicMetadata?.role;
+    const currentRole = user.profile?.role;
     logger.info(`📋 Current role: ${currentRole || 'none'}`);
 
-    // Update role
-    await clerk.users.updateUserMetadata(user.id, {
-      publicMetadata: {
-        role,
-      },
+    // Update role in profile
+    await prisma.profile.update({
+      where: { userId: user.id },
+      data: { role: role as any },
     });
 
     logger.info(`✅ Successfully set ${role} role for ${email}`);
@@ -74,8 +71,8 @@ export async function POST(request: NextRequest) {
       message: `Successfully set ${role} role for ${email}. User must sign out and sign back in for changes to take effect.`,
       user: {
         id: user.id,
-        email: user.emailAddresses[0].emailAddress,
-        name: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        name: `${user.profile?.firstName || ''} ${user.profile?.lastName || ''}`,
         previousRole: currentRole,
         newRole: role,
       },

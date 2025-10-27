@@ -5,7 +5,7 @@
  * be performed with actual admin privileges, not while viewing as another role
  */
 
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { UserRole } from '@/lib/permissions';
 import { getEffectiveRole } from './role-switcher';
 import { logProtectedOperationAttempt } from '../services/audit-log.service';
@@ -35,13 +35,13 @@ export async function requireActualAdminRole(operation: ProtectedOperation): Pro
   email: string;
   actualRole: UserRole;
 }> {
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
 
   if (!user) {
     throw new Error('Unauthorized - User not authenticated');
   }
 
-  const actualRole = user.publicMetadata?.role as UserRole;
+  const actualRole = user?.role as UserRole;
   const email =
     user.emailAddresses.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress || 'unknown';
 
@@ -113,10 +113,10 @@ export async function getViewingStatus(): Promise<{
   viewingRoleName?: string;
 } | null> {
   try {
-    const user = await currentUser();
+    const session = await auth(); const user = session?.user;
     if (!user) return null;
 
-    const actualRole = user.publicMetadata?.role as UserRole;
+    const actualRole = user?.role as UserRole;
     if (actualRole !== 'super_admin' && actualRole !== 'admin') {
       return null;
     }

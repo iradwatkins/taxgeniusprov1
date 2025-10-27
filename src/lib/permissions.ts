@@ -193,6 +193,7 @@ export const SECTION_PERMISSIONS: Record<SectionPermission, Permission[]> = {
 
 export type UserPermissions = Record<Permission, boolean>;
 
+// TypeScript best practice: lowercase with underscores (matches Prisma enum)
 export type UserRole = 'super_admin' | 'admin' | 'tax_preparer' | 'affiliate' | 'lead' | 'client';
 
 /**
@@ -203,12 +204,12 @@ export type UserRole = 'super_admin' | 'admin' | 'tax_preparer' | 'affiliate' | 
  * QUICK REFERENCE: WHAT MAKES EACH ROLE UNIQUE
  * ==================================================================================
  *
- * 🛡️  SUPER ADMIN:    Database, Permissions, Google Analytics, All Client Files, Alerts
- * 👑 ADMIN:          User Management, Payouts, Content Generator, System-wide Analytics
+ * 🛡️  SUPER admin:    Database, Permissions, Google Analytics, All Client Files, Alerts
+ * 👑 admin:          User Management, Payouts, Content Generator, System-wide Analytics
  * 📊 TAX PREPARER:   Client Documents (their clients only), Lead Tracking, Academy
- * 🤝 AFFILIATE:      Marketing Store, Professional Marketing Materials, Conversion Tracking
- * 🔶 LEAD:           Pending Approval (no access until role changed by admin)
- * 👤 CLIENT:         Upload Documents, Conditional Referral Access (most restricted)
+ * 🤝 affiliate:      Marketing Store, Professional Marketing Materials, Conversion Tracking
+ * 🔶 lead:           Pending Approval (no access until role changed by admin)
+ * 👤 client:         Upload Documents, Conditional Referral Access (most restricted)
  *
  * KEY DIFFERENTIATORS:
  * - LEAD has no dashboard access (pending approval page only)

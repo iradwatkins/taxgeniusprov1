@@ -219,7 +219,7 @@ async function batchFetchRecentLeads(
 
 async function getProfileId(userIdOrProfileId: string): Promise<string | null> {
   let profile = await prisma.profile.findUnique({
-    where: { clerkUserId: userIdOrProfileId },
+    where: { userId: userIdOrProfileId },
     select: { id: true },
   });
 
@@ -298,7 +298,7 @@ export async function getPreparersAnalyticsOptimized(
       id: true,
       firstName: true,
       lastName: true,
-      clerkUserId: true,
+      userId: true,
     },
   });
 
@@ -371,7 +371,7 @@ export async function getPreparersAnalyticsOptimized(
     return {
       preparerId: preparer.id,
       preparerName: `${preparer.firstName || ''} ${preparer.lastName || ''}`.trim(),
-      preparerEmail: preparer.clerkUserId || '',
+      preparerEmail: preparer.userId || '',
       marketingLinksCount: preparerLinks.length,
       clicks: totalClicks,
       leads: totalLeads,
@@ -489,7 +489,7 @@ export async function getAffiliatesAnalyticsOptimized(
       id: true,
       firstName: true,
       lastName: true,
-      clerkUserId: true,
+      userId: true,
     },
   });
 
@@ -598,7 +598,7 @@ export async function getAffiliatesAnalyticsOptimized(
     return {
       affiliateId: affiliate.id,
       affiliateName: `${affiliate.firstName || ''} ${affiliate.lastName || ''}`.trim(),
-      affiliateEmail: affiliate.clerkUserId || '',
+      affiliateEmail: affiliate.userId || '',
       campaignsCount: affiliateCampaigns.length + affiliateLinks.length,
       marketingLinksCount: affiliateCampaigns.length + affiliateLinks.length,
       clicks: totalClicks,

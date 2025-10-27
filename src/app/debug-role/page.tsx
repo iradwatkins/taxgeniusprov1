@@ -1,14 +1,14 @@
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
 export default async function DebugRolePage() {
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
 
   if (!user) {
-    redirect('/auth/login');
+    redirect('/auth/signin');
   }
 
-  const role = user.publicMetadata?.role;
+  const role = user?.role;
 
   return (
     <div className="min-h-screen bg-background p-8">
@@ -42,7 +42,7 @@ export default async function DebugRolePage() {
           <div>
             <p className="text-sm text-muted-foreground">Full Public Metadata</p>
             <pre className="bg-muted p-4 rounded mt-2 overflow-auto">
-              {JSON.stringify(user.publicMetadata, null, 2)}
+              {JSON.stringify(user, null, 2)}
             </pre>
           </div>
 

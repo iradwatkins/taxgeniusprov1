@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -35,9 +35,9 @@ export const metadata = {
 };
 
 async function isAffiliate() {
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
   if (!user) return false;
-  const role = user.publicMetadata?.role;
+  const role = user?.role;
   return role === 'affiliate' || role === 'admin';
 }
 
@@ -48,7 +48,7 @@ export default async function AffiliateSettingsPage() {
     redirect('/forbidden');
   }
 
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
 
   return (
     <div className="p-6 space-y-6">

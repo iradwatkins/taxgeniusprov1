@@ -1,14 +1,14 @@
 /**
- * EMERGENCY API: Set iradwatkins@gmail.com as super_admin
+ * EMERGENCY API: Set info@taxgeniuspro.tax as super_admin
  *
  * This endpoint bypasses normal checks and directly sets super_admin role
- * Only works for iradwatkins@gmail.com
+ * Only works for info@taxgeniuspro.tax
  *
  * Visit: https://taxgeniuspro.tax/api/admin/emergency-set-super-admin
  */
 
-import { currentUser } from '@clerk/nextjs/server';
-import { clerkClient } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
+// Clerk client removed - using NextAuth;
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
@@ -18,7 +18,7 @@ export async function GET() {
     logger.info('🚨 EMERGENCY: Setting super_admin role...');
 
     // Get current user
-    const user = await currentUser();
+    const session = await auth(); const user = session?.user;
 
     if (!user) {
       return NextResponse.json(
@@ -32,9 +32,9 @@ export async function GET() {
       (e) => e.id === user.primaryEmailAddressId
     )?.emailAddress;
 
-    if (email !== 'iradwatkins@gmail.com') {
+    if (email !== 'info@taxgeniuspro.tax') {
       return NextResponse.json(
-        { error: 'Access denied. This endpoint is only for iradwatkins@gmail.com' },
+        { error: 'Access denied. This endpoint is only for info@taxgeniuspro.tax' },
         { status: 403 }
       );
     }
@@ -43,7 +43,6 @@ export async function GET() {
 
     // Update Clerk metadata
     logger.info('📝 Updating Clerk metadata...');
-    const clerk = await clerkClient();
     await clerk.users.updateUserMetadata(user.id, {
       publicMetadata: {
         role: 'super_admin',
@@ -55,14 +54,14 @@ export async function GET() {
     logger.info('📝 Updating database profile...');
     try {
       const profile = await prisma.profile.findUnique({
-        where: { clerkUserId: user.id },
+        where: { userId: user.id },
       });
 
       if (!profile) {
         await prisma.profile.create({
           data: {
-            clerkUserId: user.id,
-            role: 'SUPER_ADMIN',
+            userId: user.id,
+            role: 'super_admin',
             email: email,
             firstName: user.firstName || 'Irad',
             lastName: user.lastName || 'Watkins',
@@ -72,7 +71,7 @@ export async function GET() {
       } else {
         await prisma.profile.update({
           where: { id: profile.id },
-          data: { role: 'SUPER_ADMIN' },
+          data: { role: 'super_admin' },
         });
         logger.info('✅ Profile updated to SUPER_ADMIN role');
       }
@@ -80,7 +79,7 @@ export async function GET() {
       logger.error('⚠️  Database update failed (non-critical):', dbError);
     }
 
-    logger.info('🎉 SUCCESS! iradwatkins@gmail.com is now super_admin');
+    logger.info('🎉 SUCCESS! info@taxgeniuspro.tax is now super_admin');
 
     return NextResponse.json({
       success: true,

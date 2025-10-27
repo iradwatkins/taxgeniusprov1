@@ -24,7 +24,7 @@ import Link from 'next/link';
 export default function ShippingPage() {
   const router = useRouter();
   const { items, subtotal, itemCount } = useCart();
-  const { user } = useUser();
+  const { data: session } = useSession(); const user = session?.user;
 
   const [shippingAddress, setShippingAddress] = useState<Partial<ShippingAddress>>({
     country: 'US',

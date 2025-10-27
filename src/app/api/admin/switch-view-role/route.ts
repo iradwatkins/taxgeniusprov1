@@ -5,7 +5,7 @@
  * to preview the application from other roles' perspectives
  */
 
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { UserRole } from '@/lib/permissions';
 import { logger } from '@/lib/logger';
@@ -23,14 +23,14 @@ import {
 export async function POST(request: NextRequest) {
   try {
     // Verify user is authenticated
-    const user = await currentUser();
+    const session = await auth(); const user = session?.user;
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get actual role from user metadata
-    const actualRole = user.publicMetadata?.role as UserRole | undefined;
+    const actualRole = user?.role as UserRole | undefined;
 
     // Verify user is admin or super_admin
     if (actualRole !== 'super_admin' && actualRole !== 'admin') {
@@ -113,14 +113,14 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // Verify user is authenticated
-    const user = await currentUser();
+    const session = await auth(); const user = session?.user;
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get actual role from user metadata
-    const actualRole = user.publicMetadata?.role as UserRole | undefined;
+    const actualRole = user?.role as UserRole | undefined;
 
     // Verify user is admin or super_admin
     if (actualRole !== 'super_admin' && actualRole !== 'admin') {
@@ -158,14 +158,14 @@ export async function DELETE(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     // Verify user is authenticated
-    const user = await currentUser();
+    const session = await auth(); const user = session?.user;
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get actual role from user metadata
-    const actualRole = user.publicMetadata?.role as UserRole | undefined;
+    const actualRole = user?.role as UserRole | undefined;
 
     // Verify user is admin or super_admin
     if (actualRole !== 'super_admin' && actualRole !== 'admin') {

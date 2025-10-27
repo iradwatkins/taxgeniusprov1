@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       await prisma.cRMContact.create({
         data: {
           userId: null,
-          clerkUserId: null,
+          userId: null,
           contactType: 'PREPARER',
           firstName: lead.firstName,
           lastName: lead.lastName,

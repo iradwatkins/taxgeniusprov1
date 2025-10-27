@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/select';
 import { PreparerCard } from '@/components/PreparerCard';
 import Image from 'next/image';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 
 // Tax intake form data structure
 interface TaxFormData {
@@ -111,7 +111,7 @@ interface SubmitPageProps {
 }
 
 export default function SimpleTaxForm() {
-  const { user, isLoaded } = useUser();
+  const { data: session, status } = useSession(); const user = session?.user; const isLoaded = status !== 'loading';
   const [page, setPage] = useState(1);
   const [isDesktop, setIsDesktop] = useState(false);
   const [isSaving, setIsSaving] = useState(false);

@@ -16,15 +16,15 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { checkPageAccess, checkContentAccess, UserContext } from '@/lib/content-restriction';
 import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
     // Get current user
-    const { userId } = await auth();
-    const user = userId ? await currentUser() : null;
+    const session = await auth(); const userId = session?.user?.id;
+    const user = userId ? await auth() : null;
 
     // Get query params
     const searchParams = request.nextUrl.searchParams;

@@ -40,35 +40,52 @@ import { SourceBreakdown } from '@/components/analytics/SourceBreakdown';
 import { AttributionStatsCard } from '@/components/dashboard/attribution-stats-card';
 import { RecentLeadsTable } from '@/components/dashboard/recent-leads-table';
 import { ReferralLinksManager } from '@/components/dashboard/ReferralLinksManager';
+import { StatsWidget } from '@/components/gamification/StatsWidget';
+import { useSession } from 'next-auth/react';
+import { OnboardingDialog } from '@/components/OnboardingDialog';
+import { UserRole } from '@/lib/permissions';
 
 export default function AffiliateDashboard() {
+  const { data: session } = useSession(); const user = session?.user;
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState('overview');
   const { data: stats, isLoading: statsLoading } = useReferrerStats();
   const { data: activity, isLoading: activityLoading } = useRecentActivity(5);
 
-  // Affiliate ID comes from auth context - placeholder for development
-  const affiliateId = 'current-affiliate-id';
+  // Affiliate ID comes from auth context
+  const affiliateId = user?.id || 'current-affiliate-id';
   const affiliateName = 'Affiliate'; // Will be replaced with real name from auth
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6 space-y-6">
-        {/* Header */}
+    <>
+      {/* Onboarding Dialog */}
+      {user && (
+        <OnboardingDialog
+          role={(user?.role as UserRole) || 'affiliate'}
+          userName={user.name || undefined}
+        />
+      )}
+
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6 pb-20 md:pb-6">
+          {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Affiliate Dashboard</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Affiliate Dashboard</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Track your campaigns, earnings, and marketing performance
             </p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <NotificationBell userId={affiliateId} />
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" className="h-9 w-9 sm:h-10 sm:w-10">
               <Bell className="h-4 w-4" />
             </Button>
           </div>
         </div>
+
+        {/* Gamification Widget */}
+        {user && <StatsWidget userId={user.id} role="affiliate" compact={true} />}
 
         {/* Stats Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -116,13 +133,13 @@ export default function AffiliateDashboard() {
 
         {/* Main Content Tabs */}
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-6 lg:w-auto">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="links">Links & QR</TabsTrigger>
-            <TabsTrigger value="store">Store</TabsTrigger>
-            <TabsTrigger value="contests">Contests</TabsTrigger>
-            <TabsTrigger value="marketing">Marketing</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 lg:w-auto gap-1">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+            <TabsTrigger value="links" className="text-xs sm:text-sm">Links & QR</TabsTrigger>
+            <TabsTrigger value="store" className="text-xs sm:text-sm">Store</TabsTrigger>
+            <TabsTrigger value="contests" className="text-xs sm:text-sm">Contests</TabsTrigger>
+            <TabsTrigger value="marketing" className="text-xs sm:text-sm">Marketing</TabsTrigger>
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -448,6 +465,7 @@ export default function AffiliateDashboard() {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { SquareClient, SquareEnvironment } from 'square'
 import { randomUUID } from 'crypto'
-import { auth } from '@clerk/nextjs/server'
+import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { logger } from '@/lib/logger'
 
@@ -35,7 +35,7 @@ const client = new SquareClient({
  */
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth()
+    const session = await auth(); const userId = session?.user?.id
     const body = await request.json()
 
     const {

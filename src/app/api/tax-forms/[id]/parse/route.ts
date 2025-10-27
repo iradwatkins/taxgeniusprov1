@@ -7,7 +7,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { parsePDFFormFields } from '@/lib/services/pdf-form-parser.service';
 import { logger } from '@/lib/logger';
@@ -16,7 +16,7 @@ import { join } from 'path';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { userId } = await auth();
+    const session = await auth(); const userId = session?.user?.id;
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

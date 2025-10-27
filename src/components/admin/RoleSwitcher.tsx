@@ -155,16 +155,21 @@ export function RoleSwitcher({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant={isViewingAsOtherRole ? 'default' : 'ghost'}
-          size="icon"
-          className="relative"
+          variant={isViewingAsOtherRole ? 'default' : 'outline'}
+          size="sm"
+          className={`relative gap-2 ${isViewingAsOtherRole ? 'bg-yellow-500 hover:bg-yellow-600 text-black border-yellow-600' : ''}`}
           disabled={isLoading}
         >
-          {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Eye className="h-5 w-5" />}
+          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Eye className="h-4 w-4" />}
+          <span className="hidden md:inline">
+            {isViewingAsOtherRole
+              ? `Viewing as ${ROLE_DISPLAY_CONFIG[currentEffectiveRole].label}`
+              : 'Switch View'
+            }
+          </span>
           {isViewingAsOtherRole && (
-            <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-yellow-500 border-2 border-background" />
+            <span className="md:hidden absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-500 border-2 border-background animate-pulse" />
           )}
-          <span className="sr-only">Switch viewing role</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">

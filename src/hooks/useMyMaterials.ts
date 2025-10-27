@@ -5,7 +5,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 
 // ============ Types ============
 
@@ -100,7 +100,8 @@ export function useMyTopMaterials(options?: {
   page?: number;
   pageSize?: number;
 }) {
-  const { userId } = useAuth();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
   return useQuery({
     queryKey: ['my-materials', userId, options],
@@ -142,7 +143,8 @@ export function useMyTopMaterials(options?: {
  * @returns React Query result with funnel data
  */
 export function useConversionFunnel(options?: { dateRange?: string; materialId?: string }) {
-  const { userId } = useAuth();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
   return useQuery({
     queryKey: ['conversion-funnel', userId, options],
@@ -172,7 +174,8 @@ export function useConversionFunnel(options?: { dateRange?: string; materialId?:
  * @returns React Query result with source breakdown data
  */
 export function useSourceBreakdown(options?: { dateRange?: string }) {
-  const { userId } = useAuth();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
   return useQuery({
     queryKey: ['source-breakdown', userId, options],

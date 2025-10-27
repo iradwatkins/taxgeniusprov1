@@ -14,8 +14,8 @@ export interface CreateTaskInput {
   description?: string;
   dueDate?: Date;
   priority?: TaskPriority;
-  assignedTo?: string; // clerkUserId
-  createdBy?: string; // clerkUserId
+  assignedTo?: string; // userId
+  createdBy?: string; // userId
 }
 
 export interface UpdateTaskInput {

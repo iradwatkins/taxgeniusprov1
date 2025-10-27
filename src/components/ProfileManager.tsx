@@ -7,14 +7,15 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useAuth } from '@/core/providers/AuthProvider';
+import { useSession } from 'next-auth/react';
 import { useProfile } from '@/core/hooks/useProfile';
 import { User, Settings, ExternalLink } from 'lucide-react';
 import { logger } from '@/lib/logger';
 
 export const ProfileManager: React.FC = () => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
   const { profile, isLoading, updateProfile, updateProfileLoading, setVanitySlug } = useProfile();
 
   const [firstName, setFirstName] = useState(profile?.first_name || '');

@@ -1,10 +1,12 @@
 'use client';
 
+import { useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Download, X } from 'lucide-react';
 import { FileManagerFile } from './FileManager';
 import { formatDistanceToNow } from 'date-fns';
+import { addRecentItem } from '@/lib/recent-items';
 
 interface FilePreviewProps {
   file: FileManagerFile;
@@ -12,6 +14,22 @@ interface FilePreviewProps {
 }
 
 export function FilePreview({ file, onClose }: FilePreviewProps) {
+  // Track recently accessed document
+  useEffect(() => {
+    addRecentItem({
+      id: file.id,
+      type: 'document',
+      title: file.fileName,
+      subtitle: `${file.type} • ${file.taxYear}`,
+      href: '/dashboard/tax-preparer/documents',
+      metadata: {
+        fileSize: file.fileSize,
+        mimeType: file.mimeType,
+        status: file.status,
+      },
+    });
+  }, [file.id]);
+
   // Ensure fileUrl uses /api/uploads prefix
   const fileUrl = file.fileUrl.startsWith('/api/uploads')
     ? file.fileUrl

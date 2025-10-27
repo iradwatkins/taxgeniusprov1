@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 
 /**
  * Mobile Hub Redirect Component
@@ -12,7 +12,9 @@ import { useUser } from '@clerk/nextjs';
  */
 export function MobileHubRedirect() {
   const router = useRouter();
-  const { isLoaded, isSignedIn } = useUser();
+  const { data: session, status } = useSession();
+  const isLoaded = status !== 'loading';
+  const isSignedIn = !!session?.user;
 
   useEffect(() => {
     // Wait for auth to load

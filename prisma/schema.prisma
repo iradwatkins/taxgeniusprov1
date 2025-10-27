@@ -10,48 +10,72 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============ Authentication & Users ============
+// ============ Authentication & Users (NextAuth) ============
 
 model User {
   id             String    @id @default(cuid())
+  name           String?
   email          String    @unique
-  hashedPassword String?
   emailVerified  DateTime?
+  image          String?
+  hashedPassword String?   // For credentials provider
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
   // Relations
+  accounts      Account[]
   sessions      Session[]
   profile       Profile?
-  oauthAccounts OAuthAccount[]
   magicLinks    MagicLink[]
 
   // CRM Relations (Epic 7)
-  crmContact     CRMContact?
+  crmContact      CRMContact?
   crmInteractions CRMInteraction[]
 
   @@map("users")
 }
 
-model Session {
-  id        String   @id
-  userId    String
-  expiresAt DateTime
-  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
-  @@index([userId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@map("sessions")
 }
 
-model OAuthAccount {
-  providerId     String
-  providerUserId String
-  userId         String
-  user           User   @relation(references: [id], fields: [userId], onDelete: Cascade)
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
 
-  @@id([providerId, providerUserId])
-  @@index([userId])
-  @@map("oauth_accounts")
+  @@id([identifier, token])
+  @@map("verification_tokens")
 }
 
 model MagicLink {
@@ -71,19 +95,18 @@ model MagicLink {
 // ============ User Profiles ============
 
 enum UserRole {
-  SUPER_ADMIN
-  ADMIN
-  LEAD          // Default role for new signups (pending admin approval)
-  CLIENT        // User who has completed tax preparation with Tax Genius
-  TAX_PREPARER  // Tax professional
-  AFFILIATE     // Referrer working for Tax Genius (hasn't done taxes with us)
+  super_admin   // Super administrator with full system access
+  admin         // Administrator with limited system access
+  lead          // Default role for new signups (pending admin approval)
+  client        // User who has completed tax preparation with Tax Genius
+  tax_preparer  // Tax professional
+  affiliate     // Referrer working for Tax Genius (hasn't done taxes with us)
 }
 
 model Profile {
   id          String   @id @default(cuid())
-  userId      String?  @unique // Lucia auth user ID (legacy)
-  user        User?    @relation(references: [id], fields: [userId], onDelete: Cascade)
-  clerkUserId String?  @unique // Clerk user ID (current)
+  userId      String   @unique // NextAuth user ID
+  user        User     @relation(references: [id], fields: [userId], onDelete: Cascade)
   role        UserRole
   firstName   String?
   lastName    String?
@@ -169,9 +192,17 @@ model Profile {
   // Marketing Assets (Photos, Logos, etc.)
   marketingAssets     MarketingAsset[]     @relation("MarketingAssets")
 
+  // Gamification Relations
+  userStats           UserStats?           @relation("UserStats")
+  userAchievements    UserAchievement[]    @relation("UserAchievements")
+  dailyCompletions    DailyChallengeCompletion[] @relation("DailyChallengeCompletions")
+
+  // Professional Email System
+  professionalEmails  ProfessionalEmailAlias[] @relation("ProfessionalEmailAliases")
+  emailTemplates      EmailTemplate[]          @relation("EmailTemplates")
+
   @@index([role])
   @@index([vanitySlug])
-  @@index([clerkUserId])
   @@index([trackingCode])
   @@index([customTrackingCode])
   @@index([shortLinkUsername])
@@ -1289,7 +1320,7 @@ enum OrderStatus {
 model Order {
   id                String      @id @default(cuid())
   userId            String
-  profile           Profile     @relation(fields: [userId], references: [clerkUserId], onDelete: Cascade)
+  profile           Profile     @relation(fields: [userId], references: [userId], onDelete: Cascade)
   paymentSessionId  String      @unique // Stripe or Square session ID
   paymentMethod     String      @default("STRIPE") // "STRIPE", "SQUARE", "CASHAPP"
   squareOrderId     String?     @unique // Square Order ID
@@ -1929,7 +1960,6 @@ model CRMContact {
 
   @@index([email])
   @@index([userId])
-  @@index([clerkUserId])
   @@index([assignedPreparerId])
   @@index([stage])
   @@index([contactType])
@@ -1976,7 +2006,6 @@ model CRMInteraction {
   @@index([emailThreadId])
   @@index([type])
   @@index([userId])
-  @@index([clerkUserId])
   @@map("crm_interactions")
 }
 
@@ -2329,7 +2358,6 @@ model AccessAttemptLog {
   userAgent             String?  @db.Text
   timestamp             DateTime @default(now())
 
-  @@index([clerkUserId])
   @@index([attemptedRoute])
   @@index([timestamp])
   @@index([wasBlocked])
@@ -2387,7 +2415,6 @@ model TaxAssistantThread {
   // Relations
   messages          TaxAssistantMessage[]
 
-  @@index([clerkUserId])
   @@index([openaiThreadId])
   @@index([lastMessageAt])
   @@index([isActive])
@@ -2503,7 +2530,6 @@ model MobileHubStats {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  @@index([clerkUserId])
   @@map("mobile_hub_stats")
 }
 
@@ -2875,4 +2901,273 @@ model TaxFormEdit {
   @@index([editedBy])
   @@index([editedAt])
   @@map("tax_form_edits")
+}
+
+// ============ Gamification System ============
+
+// Achievement Rarity Levels
+enum AchievementRarity {
+  COMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+// Achievement Categories
+enum AchievementCategory {
+  MILESTONE      // First time events (first client, first referral)
+  PERFORMANCE    // Speed, quality metrics
+  ENGAGEMENT     // Activity, logins, streaks
+  STREAK         // Consecutive action tracking
+  VOLUME         // Total counts (100 clients, 500 docs)
+  QUALITY        // High ratings, satisfaction
+  COMMUNITY      // Contests, leaderboards
+  SPECIAL        // Limited time, seasonal
+}
+
+// Achievement unlockable badges and rewards
+model Achievement {
+  id          String              @id @default(cuid())
+  slug        String              @unique // "first_client", "speed_demon", "early_bird"
+  title       String              // "First Client Filed"
+  description String              @db.Text // "File your first client's tax return"
+  category    AchievementCategory
+  icon        String              // Icon name from lucide-react
+  rarity      AchievementRarity   @default(COMMON)
+  points      Int                 @default(0) // XP points awarded
+  targetRoles String[]            // ["TAX_PREPARER", "AFFILIATE", "REFERRER", "CLIENT"]
+
+  // Unlock criteria (JSON)
+  // Examples:
+  // { "type": "client_count", "threshold": 1 }
+  // { "type": "filing_speed", "maxHours": 2 }
+  // { "type": "login_streak", "days": 7 }
+  // { "type": "referral_count", "threshold": 10 }
+  criteria    Json                @db.JsonB
+
+  // Rewards & Display
+  badgeColor  String              @default("#3B82F6") // Hex color for badge
+  badgeImage  String?             // Optional custom badge image URL
+  isActive    Boolean             @default(true) // Can be disabled
+  sortOrder   Int                 @default(0) // Display order
+
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  // Relations
+  userAchievements UserAchievement[]
+
+  @@index([category])
+  @@index([rarity])
+  @@index([isActive])
+  @@map("achievements")
+}
+
+// User's achievement progress and unlocks
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  profile       Profile     @relation("UserAchievements", fields: [userId], references: [userId], onDelete: Cascade)
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  // Progress tracking
+  progress      Int         @default(0) // Current progress toward achievement (0-100 or actual count)
+  isUnlocked    Boolean     @default(false)
+  unlockedAt    DateTime?   // When achievement was unlocked
+  viewedAt      DateTime?   // When user saw the unlock notification (for new badge indicator)
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@index([isUnlocked])
+  @@index([unlockedAt])
+  @@map("user_achievements")
+}
+
+// User stats and XP tracking
+model UserStats {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  profile             Profile  @relation("UserStats", fields: [userId], references: [userId], onDelete: Cascade)
+
+  // Overall Gamification Stats
+  totalXP             Int      @default(0) // Total XP earned
+  level               Int      @default(1) // Current level
+  currentLevelXP      Int      @default(0) // XP in current level
+  nextLevelXP         Int      @default(100) // XP needed to reach next level
+
+  // Streaks
+  loginStreak         Int      @default(0) // Consecutive days logged in
+  longestLoginStreak  Int      @default(0) // Best streak record
+  lastLoginDate       DateTime? // Last login date for streak calculation
+
+  // Tax Preparer Specific Stats
+  clientsFiledTotal   Int      @default(0) // Total returns filed
+  clientsFiledMonth   Int      @default(0) // Returns filed this month
+  avgFilingTimeHours  Float?   // Average time to file (hours)
+  fastestFilingHours  Float?   // Fastest filing time (hours)
+  clientSatisfaction  Float?   // Average client rating (1-5)
+  documentsProcessed  Int      @default(0) // Total documents processed
+
+  // Affiliate/Referrer Specific Stats
+  referralsTotal      Int      @default(0) // Total referrals
+  referralsMonth      Int      @default(0) // Referrals this month
+  conversionRate      Float?   // Referral to client conversion %
+  topMaterialUsed     String?  // Most successful marketing material
+  linksCreated        Int      @default(0) // Tracking links created
+
+  // Engagement Stats
+  documentsUploaded   Int      @default(0) // Documents uploaded
+  messagesReceived    Int      @default(0) // Messages received
+  messagesSent        Int      @default(0) // Messages sent
+  ticketsCreated      Int      @default(0) // Support tickets created
+  ticketsResolved     Int      @default(0) // Support tickets resolved (preparers)
+
+  // Monthly reset fields (reset on 1st of month)
+  lastMonthlyReset    DateTime? // When monthly stats were last reset
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([totalXP])
+  @@index([level])
+  @@index([loginStreak])
+  @@map("user_stats")
+}
+
+// Daily challenges for users
+model DailyChallenge {
+  id          String   @id @default(cuid())
+  date        DateTime @unique @db.Date // The date this challenge is active
+  targetRoles String[] // ["TAX_PREPARER", "AFFILIATE", "REFERRER"]
+
+  // Challenge details
+  title       String   // "File 3 Returns Today"
+  description String   @db.Text // "Complete 3 client tax returns before midnight"
+  icon        String   @default("Trophy") // Lucide icon name
+
+  // Criteria for completion (JSON)
+  // { "type": "file_returns", "count": 3 }
+  // { "type": "upload_documents", "count": 5 }
+  // { "type": "send_messages", "count": 10 }
+  criteria    Json     @db.JsonB
+
+  // Rewards
+  reward      String   // "50 XP + Speed Demon Progress"
+  xpReward    Int      @default(50) // XP awarded on completion
+
+  // Status
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  // Relations
+  completions DailyChallengeCompletion[]
+
+  @@index([date])
+  @@index([isActive])
+  @@map("daily_challenges")
+}
+
+// Track daily challenge completions
+model DailyChallengeCompletion {
+  id          String         @id @default(cuid())
+  userId      String
+  profile     Profile        @relation("DailyChallengeCompletions", fields: [userId], references: [userId], onDelete: Cascade)
+  challengeId String
+  challenge   DailyChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  // Completion tracking
+  completedAt DateTime       @default(now())
+  xpAwarded   Int            // XP awarded for this completion
+
+  @@unique([userId, challengeId])
+  @@index([userId])
+  @@index([completedAt])
+  @@map("daily_challenge_completions")
+}
+
+// ============ Professional Email System ============
+
+// Professional email aliases (e.g., ira@taxgeniuspro.tax)
+// Supports email forwarding + send-as configuration
+model ProfessionalEmailAlias {
+  id                    String    @id @default(cuid())
+  profileId             String    // Allow multiple aliases per user
+  profile               Profile   @relation("ProfessionalEmailAliases", fields: [profileId], references: [id], onDelete: Cascade)
+
+  // Email Identity
+  emailAddress          String    @unique // "ira@taxgeniuspro.tax"
+  forwardToEmail        String              // "ira.johnson@gmail.com"
+  displayName           String?             // "Ira Johnson"
+  isPrimary             Boolean   @default(false) // Default sending alias
+
+  // Status
+  status                String    @default("PENDING_PAYMENT") // PENDING_PAYMENT, PROVISIONING, ACTIVE, SUSPENDED, CANCELLED
+
+  // Auto Send-As Configuration (Gmail API)
+  gmailSendAsConfigured Boolean   @default(false)
+  gmailSendAsId         String?   // Gmail API send-as ID
+  verificationCode      String?   // Gmail verification code
+
+  // SMTP Credentials (for non-Gmail sending via Resend)
+  smtpEnabled           Boolean   @default(true)
+  encryptedSmtpPassword String?   @db.Text // For custom SMTP if needed
+
+  // Forwarding Configuration (Cloudflare)
+  dnsConfigured         Boolean   @default(false)
+  forwardingActive      Boolean   @default(false)
+  cloudflareRuleId      String?   // Cloudflare email routing rule ID
+
+  // Billing
+  annualPrice           Float     @default(36.00)
+  nextBillingDate       DateTime?
+  subscriptionStartDate DateTime?
+  stripeSubscriptionId  String?   // Stripe subscription ID
+  stripePriceId         String?   // Stripe price ID
+
+  // Provisioning metadata
+  provisionedAt         DateTime?
+  lastTestedAt          DateTime? // Last time forwarding was tested
+  testEmailSent         Boolean   @default(false)
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([profileId])
+  @@index([status])
+  @@index([emailAddress])
+  @@index([forwardingActive])
+  @@map("professional_email_aliases")
+}
+
+// Email templates for quick responses
+model EmailTemplate {
+  id          String   @id @default(cuid())
+  profileId   String?  // null = shared template (admin-created)
+  profile     Profile? @relation("EmailTemplates", fields: [profileId], references: [id], onDelete: Cascade)
+
+  // Template Details
+  name        String   // "First Contact", "Follow-up", "Documents Request"
+  subject     String   // Email subject line with variable support
+  body        String   @db.Text // Email body with variable support
+
+  // Organization
+  category    String   @default("GENERAL") // "LEAD", "CLIENT", "GENERAL"
+  isShared    Boolean  @default(false)    // Admin-created shared templates
+  isDefault   Boolean  @default(false)    // System default templates
+
+  // Usage tracking
+  usageCount  Int      @default(0) // How many times this template was used
+  lastUsedAt  DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([profileId])
+  @@index([category])
+  @@index([isShared])
+  @@map("email_templates")
 }

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { MobileHubClient } from '@/components/mobile-hub/MobileHubClient';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
 
@@ -9,16 +9,16 @@ export const metadata = {
 };
 
 export default async function MobileHubPage() {
-  const user = await currentUser();
+  const session = await auth(); const user = session?.user;
 
   // Redirect to login if not authenticated
   if (!user) {
-    redirect('/auth/login?redirect=/mobile-hub');
+    redirect('/auth/signin?redirect=/mobile-hub');
   }
 
   // Get user role
-  const role = (user.publicMetadata?.role as UserRole) || 'client';
-  const permissions = getUserPermissions(role, user.publicMetadata?.permissions as any);
+  const role = (user?.role as UserRole) || 'client';
+  const permissions = getUserPermissions(role, user?.permissions as any);
 
   // Get user profile data
   const userProfile = {

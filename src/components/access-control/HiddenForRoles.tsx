@@ -20,7 +20,7 @@
 
 'use client';
 
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { ReactNode, useEffect, useState } from 'react';
 import { UserRole } from '@/lib/permissions';
 
@@ -47,7 +47,7 @@ export function HiddenForRoles({
   visibleToRoles,
   loadingFallback = null,
 }: HiddenForRolesProps) {
-  const { user, isLoaded } = useUser();
+  const { data: session, status } = useSession(); const user = session?.user; const isLoaded = status !== 'loading';
   const [shouldShow, setShouldShow] = useState<boolean | null>(null);
 
   useEffect(() => {

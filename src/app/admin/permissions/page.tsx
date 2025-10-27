@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { currentUser, clerkClient } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import {
   getUserPermissions,
   UserRole,
@@ -17,10 +17,10 @@ import { PermissionPresets } from '@/components/admin/PermissionPresets';
 import { logger } from '@/lib/logger';
 
 export default async function PermissionsPage() {
-  const user = await currentUser();
-  if (!user) redirect('/auth/login');
+  const session = await auth(); const user = session?.user;
+  if (!user) redirect('/auth/signin');
 
-  const role = user.publicMetadata?.role as UserRole | undefined;
+  const role = user?.role as UserRole | undefined;
 
   // Only super_admin can access this page
   if (role !== 'super_admin') {
@@ -55,23 +55,25 @@ export default async function PermissionsPage() {
     logger.error('Error fetching role templates:', error);
   }
 
-  // Count users for each role using Clerk
-  const clerk = await clerkClient();
+  // Count users for each role using Prisma
   const userCountsByRole: Record<string, number> = {
-    super_admin: 0,
-    admin: 0,
-    tax_preparer: 0,
-    affiliate: 0,
-    lead: 0,
-    client: 0,
+    SUPER_ADMIN: 0,
+    ADMIN: 0,
+    TAX_PREPARER: 0,
+    AFFILIATE: 0,
+    LEAD: 0,
+    CLIENT: 0,
   };
 
   try {
-    const allUsers = await clerk.users.getUserList({ limit: 500 });
-    allUsers.data.forEach((clerkUser) => {
-      const userRole = clerkUser.publicMetadata?.role as string | undefined;
-      if (userRole && userCountsByRole.hasOwnProperty(userRole)) {
-        userCountsByRole[userRole]++;
+    const roleCounts = await prisma.profile.groupBy({
+      by: ['role'],
+      _count: { role: true },
+    });
+
+    roleCounts.forEach((count) => {
+      if (count.role && userCountsByRole.hasOwnProperty(count.role)) {
+        userCountsByRole[count.role] = count._count.role;
       }
     });
   } catch (error) {
@@ -189,7 +191,7 @@ export default async function PermissionsPage() {
                               {adminUser.firstName} {adminUser.lastName}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                              {adminUser.clerkUserId || adminUser.id}
+                              {adminUser.userId || adminUser.id}
                             </p>
                           </div>
                         </div>

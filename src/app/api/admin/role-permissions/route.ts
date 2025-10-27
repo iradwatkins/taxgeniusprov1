@@ -9,7 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth, clerkClient } from '@clerk/nextjs/server';
+import { auth } from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
 import { UserRole, UserPermissions, DEFAULT_PERMISSIONS } from '@/lib/permissions';
 import { logger } from '@/lib/logger';
@@ -19,17 +19,16 @@ const prisma = new PrismaClient();
 // GET - Fetch all role permission templates
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const session = await auth();
+    const userId = session?.user?.id;
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Only super_admin can access
-    const clerk = await clerkClient();
-    const user = await clerk.users.getUser(userId);
-    const role = user.publicMetadata?.role as string | undefined;
+    const role = session?.user?.role;
 
-    if (role !== 'super_admin') {
+    if (role !== 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'Forbidden - Super admin only' }, { status: 403 });
     }
 
@@ -62,17 +61,16 @@ export async function GET(request: NextRequest) {
 // PUT - Update a role's permission template
 export async function PUT(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const session = await auth();
+    const userId = session?.user?.id;
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Only super_admin can access
-    const clerk = await clerkClient();
-    const user = await clerk.users.getUser(userId);
-    const role = user.publicMetadata?.role as string | undefined;
+    const role = session?.user?.role;
 
-    if (role !== 'super_admin') {
+    if (role !== 'SUPER_ADMIN') {
       return NextResponse.json({ error: 'Forbidden - Super admin only' }, { status: 403 });
     }
 
