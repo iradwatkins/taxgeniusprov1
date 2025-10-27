@@ -177,6 +177,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: Calendar,
     permission: 'calendar',
     section: '📋 CRM',
+    roles: ['tax_preparer', 'admin', 'super_admin'],
   },
   {
     label: 'CRM Contacts',
@@ -184,6 +185,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: BookOpen,
     permission: 'addressBook',
     section: '📋 CRM',
+    roles: ['tax_preparer', 'admin', 'super_admin'],
   },
   {
     label: 'Client File Center',
@@ -191,6 +193,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: FolderOpen,
     permission: 'clientFileCenter',
     section: '📋 CRM',
+    roles: ['tax_preparer', 'admin', 'super_admin'],
   },
   {
     label: 'Emails',
@@ -198,6 +201,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: Mail,
     permission: 'emails',
     section: '📋 CRM',
+    roles: ['admin', 'super_admin'],
   },
   {
     label: 'Academy',
@@ -205,6 +209,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: GraduationCap,
     permission: 'academy',
     section: '📋 CRM',
+    roles: ['tax_preparer', 'admin', 'super_admin'],
   },
   {
     label: 'IRS Forms',
