@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -86,10 +87,6 @@ export default async function AdminUsersPage() {
             Manage users, roles, and permissions across the platform
           </p>
         </div>
-        <Button>
-          <UserPlus className="w-4 h-4 mr-2" />
-          Invite User
-        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -100,7 +97,7 @@ export default async function AdminUsersPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{users.length}</div>
+            <div className="text-2xl font-bold">{formattedUsers.length}</div>
             <p className="text-xs text-muted-foreground">Across all roles</p>
           </CardContent>
         </Card>

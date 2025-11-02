@@ -54,7 +54,7 @@ export default function PreparerPage() {
 
       {/* Hero Section */}
       <section className="relative py-20 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
+        <div className="absolute inset-0 bg-background" />
         <div className="container mx-auto px-4 lg:px-8 relative">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
@@ -100,7 +100,7 @@ export default function PreparerPage() {
             </div>
 
             <div className="relative">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/20 dark:to-blue-800/20">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-blue-50 dark:bg-blue-900/20">
                 {/* IMAGE PLACEHOLDER - Replace with actual preparer hero image */}
                 <div className="aspect-square flex items-center justify-center p-12">
                   <div className="text-center">
@@ -301,7 +301,7 @@ export default function PreparerPage() {
       {/* CTA Section */}
       <section className="py-20">
         <div className="container mx-auto px-4 lg:px-8">
-          <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 overflow-hidden relative">
+          <Card className="bg-primary/10 border-primary/20 overflow-hidden relative">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
             <CardContent className="p-12 text-center relative">
               <h2 className="text-3xl lg:text-5xl font-bold mb-6">Ready to Join Our Team?</h2>

@@ -41,21 +41,41 @@ export async function GET() {
 
     logger.info(`Profile resolved: ${profile.id}`);
 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax';
+
     // Get tracking code data
-    let trackingData = await getUserTrackingCode(profile.id);
+    let trackingData = await getUserTrackingCode(profile.id, baseUrl);
 
     // If user doesn't have a tracking code, auto-generate one
     if (!trackingData) {
       logger.info(`Auto-generating tracking code for user ${profile.id}`);
-      trackingData = await assignTrackingCodeToUser(
-        profile.id,
-        process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax'
-      );
+      trackingData = await assignTrackingCodeToUser(profile.id, baseUrl);
     }
+
+    // Get profile data for response
+    const profileData = await prisma.profile.findUnique({
+      where: { id: profile.id },
+      select: {
+        trackingCode: true,
+        customTrackingCode: true,
+        trackingCodeChanged: true,
+        trackingCodeFinalized: true,
+        trackingCodeQRUrl: true,
+      },
+    });
 
     return NextResponse.json({
       success: true,
-      data: trackingData,
+      data: {
+        trackingCode: profileData?.trackingCode,
+        customTrackingCode: profileData?.customTrackingCode,
+        trackingCodeChanged: profileData?.trackingCodeChanged || false,
+        trackingCodeFinalized: profileData?.trackingCodeFinalized || false,
+        trackingCodeQRUrl: profileData?.trackingCodeQRUrl,
+        canCustomize: !profileData?.trackingCodeFinalized,
+        activeCode: trackingData.code,
+        trackingUrl: trackingData.trackingUrl,
+      },
     });
   } catch (error) {
     logger.error('Error getting tracking code:', error);
@@ -98,20 +118,39 @@ export async function PATCH(req: Request) {
 
     logger.info(`Profile resolved: ${profile.id}`);
 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax';
+
     // Customize tracking code
-    const result = await customizeTrackingCode(
-      profile.id,
-      customCode.trim(),
-      process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax'
-    );
+    const result = await customizeTrackingCode(profile.id, customCode.trim(), baseUrl);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 });
     }
 
+    // Get updated profile data for response
+    const profileData = await prisma.profile.findUnique({
+      where: { id: profile.id },
+      select: {
+        trackingCode: true,
+        customTrackingCode: true,
+        trackingCodeChanged: true,
+        trackingCodeFinalized: true,
+        trackingCodeQRUrl: true,
+      },
+    });
+
     return NextResponse.json({
       success: true,
-      data: result.data,
+      data: {
+        trackingCode: profileData?.trackingCode,
+        customTrackingCode: profileData?.customTrackingCode,
+        trackingCodeChanged: profileData?.trackingCodeChanged || false,
+        trackingCodeFinalized: profileData?.trackingCodeFinalized || false,
+        trackingCodeQRUrl: profileData?.trackingCodeQRUrl,
+        canCustomize: !profileData?.trackingCodeFinalized,
+        activeCode: result.data?.code,
+        trackingUrl: result.data?.trackingUrl,
+      },
       message: 'Tracking code customized successfully',
     });
   } catch (error) {

@@ -1,8 +1,0 @@
-schema: 1
-story: '6.3'
-gate: PASS
-status_reason: 'Admin analytics dashboard complete with Top 15 rankings across all categories and optimized query performance.'
-reviewer: 'Claude Code (AI QA)'
-updated: '2025-10-13T00:00:00Z'
-top_issues: []
-waiver: { active: false }

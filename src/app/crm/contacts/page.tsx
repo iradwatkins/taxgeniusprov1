@@ -90,9 +90,9 @@ export default function CRMContactsPage() {
   const [typeFilter, setTypeFilter] = useState<string>('all');
 
   // Check permissions
-  const role = user?.publicMetadata?.role as UserRole | undefined;
+  const role = user?.role as UserRole | undefined;
   const permissions = role
-    ? getUserPermissions(role, user?.publicMetadata?.permissions as any)
+    ? getUserPermissions(role, user?.permissions as any)
     : null;
 
   // 🎛️ Extract micro-permissions for contacts features

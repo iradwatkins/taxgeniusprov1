@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function ReferralSignupPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <section className="bg-gradient-to-r from-green-600 to-emerald-600 text-white py-12 px-4">
         <div className="container mx-auto max-w-4xl text-center">

@@ -39,7 +39,7 @@ export default function FindARefundPage() {
       <Header />
 
       {/* Hero Section with Refund Checker */}
-      <section className="relative py-16 lg:py-24 overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      <section className="relative py-16 lg:py-24 overflow-hidden bg-background">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
             {/* Left Column - Heading & Info */}
@@ -113,7 +113,7 @@ export default function FindARefundPage() {
                   height={600}
                   className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-black/30" />
 
                 {/* Floating Badge */}
                 <motion.div
@@ -289,7 +289,7 @@ export default function FindARefundPage() {
                   height={600}
                   className="object-cover w-full h-full"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                <div className="absolute inset-0 bg-black/20" />
               </div>
             </motion.div>
 
@@ -582,7 +582,7 @@ export default function FindARefundPage() {
       </section>
 
       {/* Help Section - CTA */}
-      <section className="py-20 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-4xl mx-auto">
             <motion.div

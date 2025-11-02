@@ -78,7 +78,7 @@ export default async function AdminDashboardPage() {
 
         {/* Client Stats Grid */}
         <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200">
+          <Card className="bg-blue-50 dark:from-blue-950 dark:to-blue-900 border-blue-200">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">Old Clients</CardTitle>
               <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />

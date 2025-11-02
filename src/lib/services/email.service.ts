@@ -8,6 +8,7 @@ import { DocumentsReceivedEmail } from '../../../emails/documents-received';
 import { ReturnFiledEmail } from '../../../emails/return-filed';
 import { ReferralInvitationEmail } from '../../../emails/referral-invitation';
 import { CertificationCompleteEmail } from '../../../emails/certification-complete';
+import { TaxPreparerWelcomeEmail } from '../../../emails/TaxPreparerWelcomeEmail';
 import { logger } from '@/lib/logger';
 
 // Initialize Resend
@@ -108,6 +109,56 @@ export class EmailService {
       return true;
     } catch (error) {
       logger.error('Error sending welcome email:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Send tax preparer welcome email with magic link for password setup
+   */
+  static async sendTaxPreparerWelcomeEmail(
+    to: string,
+    name: string,
+    email: string,
+    trackingCode: string,
+    magicLinkUrl: string,
+    expiresIn: string = '24 hours'
+  ): Promise<boolean> {
+    try {
+      if (process.env.NODE_ENV === 'development') {
+        logger.info('Tax Preparer Welcome Email (Dev Mode):', {
+          to,
+          name,
+          email,
+          trackingCode,
+          magicLinkUrl,
+          expiresIn,
+        });
+        return true;
+      }
+
+      const { data, error } = await resend.emails.send({
+        from: this.fromEmail,
+        to,
+        subject: 'Welcome to Tax Genius Pro - Set Up Your Tax Preparer Account',
+        react: TaxPreparerWelcomeEmail({
+          name,
+          email,
+          trackingCode,
+          magicLinkUrl,
+          expiresIn,
+        }),
+      });
+
+      if (error) {
+        logger.error('Error sending tax preparer welcome email:', error);
+        return false;
+      }
+
+      logger.info('Tax preparer welcome email sent:', data?.id);
+      return true;
+    } catch (error) {
+      logger.error('Error sending tax preparer welcome email:', error);
       return false;
     }
   }

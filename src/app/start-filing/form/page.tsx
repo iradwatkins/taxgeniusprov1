@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { Suspense } from 'react';
 import SimpleTaxForm from '@/components/SimpleTaxForm';
 import { ShortLinkTracker } from '@/components/tracking/ShortLinkTracker';
+import { prisma } from '@/lib/prisma';
 
 export const metadata: Metadata = {
   title: 'File Your Tax Return - Tax Genius Pro',
@@ -13,9 +14,49 @@ export const metadata: Metadata = {
   },
 };
 
-export default function TaxFormPage() {
+interface PageProps {
+  searchParams: { ref?: string };
+}
+
+async function getPreparerByRef(ref: string | undefined) {
+  if (!ref) return null;
+
+  try {
+    const profile = await prisma.profile.findFirst({
+      where: {
+        OR: [
+          { trackingCode: ref },
+          { customTrackingCode: ref },
+        ],
+      },
+      include: {
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
+    });
+
+    if (!profile) return null;
+
+    return {
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      avatarUrl: profile.avatarUrl,
+      email: profile.user?.email,
+    };
+  } catch (error) {
+    console.error('Error fetching preparer:', error);
+    return null;
+  }
+}
+
+export default async function TaxFormPage({ searchParams }: PageProps) {
+  const preparer = await getPreparerByRef(searchParams.ref);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-background to-green-50 py-12">
+    <div className="min-h-screen bg-background py-12">
       {/* Track short link clicks */}
       <Suspense fallback={null}>
         <ShortLinkTracker />
@@ -29,7 +70,7 @@ export default function TaxFormPage() {
           </p>
         </div>
 
-        <SimpleTaxForm />
+        <SimpleTaxForm preparer={preparer} />
       </div>
     </div>
   );

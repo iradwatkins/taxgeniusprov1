@@ -143,7 +143,7 @@ async function OrderDetails({ sessionId }: { sessionId: string }) {
 export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   // Check if user is authenticated and has appropriate role
   const session = await auth(); const user = session?.user;
-  const userRole = user?.publicMetadata?.role as string | undefined;
+  const userRole = user?.role as string | undefined;
   const canAccessStore = userRole === 'affiliate' || userRole === 'tax_preparer';
 
   if (!canAccessStore) {

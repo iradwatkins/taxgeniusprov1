@@ -14,7 +14,25 @@ import {
   Zap,
 } from 'lucide-react';
 import { getCompanyLeadsSummary } from '@/lib/services/lead-analytics.service';
+import {
+  getTrafficMetrics,
+  getTrafficSources,
+  getDeviceCategories,
+} from '@/lib/services/google-analytics.service';
+import {
+  getSearchMetrics,
+  getTopQueries,
+  getTopPages,
+} from '@/lib/services/search-console.service';
+import { getCoreWebVitals } from '@/lib/services/pagespeed-insights.service';
 import { LeadMetricCard } from '@/components/admin/analytics/LeadMetricCard';
+import { GA4MetricsCard } from '@/components/admin/analytics/GA4MetricsCard';
+import { TrafficSourcesChart } from '@/components/admin/analytics/TrafficSourcesChart';
+import { DeviceCategoryChart } from '@/components/admin/analytics/DeviceCategoryChart';
+import { SearchMetricsCard } from '@/components/admin/analytics/SearchMetricsCard';
+import { TopQueriesChart } from '@/components/admin/analytics/TopQueriesChart';
+import { TopPagesChart } from '@/components/admin/analytics/TopPagesChart';
+import { CoreWebVitalsCard } from '@/components/admin/analytics/CoreWebVitalsCard';
 import { createFunnelStages } from '@/lib/utils/analytics';
 import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart';
 import {
@@ -63,6 +81,48 @@ export default async function AdminAnalyticsOverviewPage({
 
   // Fetch lead generation summary
   const summary = await getCompanyLeadsSummary(userId, role as UserRole, period);
+
+  // Convert period to GA4 date format
+  const ga4DateMap: Record<Period, string> = {
+    '7d': '7daysAgo',
+    '30d': '30daysAgo',
+    '90d': '90daysAgo',
+    'all': '365daysAgo', // All time = last year for GA4
+  };
+  const ga4StartDate = ga4DateMap[period];
+
+  // Convert period to Search Console date format (YYYY-MM-DD)
+  const today = new Date();
+  const scDateMap: Record<Period, { startDate: string; endDate: string }> = {
+    '7d': {
+      startDate: new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      endDate: today.toISOString().split('T')[0],
+    },
+    '30d': {
+      startDate: new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      endDate: today.toISOString().split('T')[0],
+    },
+    '90d': {
+      startDate: new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      endDate: today.toISOString().split('T')[0],
+    },
+    'all': {
+      startDate: new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      endDate: today.toISOString().split('T')[0],
+    },
+  };
+  const { startDate: scStartDate, endDate: scEndDate } = scDateMap[period];
+
+  // Fetch GA4 website metrics, Search Console data, and Core Web Vitals (parallel fetching for performance)
+  const [ga4Metrics, ga4Sources, ga4Devices, scMetrics, scQueries, scPages, coreWebVitals] = await Promise.all([
+    getTrafficMetrics(ga4StartDate, 'today'),
+    getTrafficSources(ga4StartDate, 'today'),
+    getDeviceCategories(ga4StartDate, 'today'),
+    getSearchMetrics(scStartDate, scEndDate),
+    getTopQueries(scStartDate, scEndDate),
+    getTopPages(scStartDate, scEndDate),
+    getCoreWebVitals('https://taxgeniuspro.tax'),
+  ]);
 
   // Prepare export data
   const exportData = [
@@ -278,7 +338,28 @@ export default async function AdminAnalyticsOverviewPage({
         </div>
       </div>
 
-      {/* Charts Row */}
+      {/* Google Analytics 4 Website Performance Section */}
+      <GA4MetricsCard metrics={ga4Metrics} />
+
+      {/* GA4 Charts Row - Traffic Sources & Device Breakdown */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <TrafficSourcesChart sources={ga4Sources} />
+        <DeviceCategoryChart devices={ga4Devices} />
+      </div>
+
+      {/* Google Search Console SEO Performance Section */}
+      <SearchMetricsCard metrics={scMetrics} />
+
+      {/* Search Console Charts Row - Top Queries & Top Pages */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <TopQueriesChart queries={scQueries} />
+        <TopPagesChart pages={scPages} />
+      </div>
+
+      {/* Core Web Vitals Section */}
+      <CoreWebVitalsCard vitals={coreWebVitals} />
+
+      {/* Lead Generation Charts Row */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Conversion Funnel */}
         <ConversionFunnelChart

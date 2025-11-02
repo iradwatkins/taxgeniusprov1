@@ -110,13 +110,22 @@ interface SubmitPageProps {
   handleSubmit: () => Promise<void>;
 }
 
-export default function SimpleTaxForm() {
+interface SimpleTaxFormProps {
+  preparer?: {
+    firstName: string | null;
+    lastName: string | null;
+    avatarUrl: string | null;
+    email: string | null;
+  } | null;
+}
+
+export default function SimpleTaxForm({ preparer: initialPreparer }: SimpleTaxFormProps = {}) {
   const { data: session, status } = useSession(); const user = session?.user; const isLoaded = status !== 'loading';
   const [page, setPage] = useState(1);
   const [isDesktop, setIsDesktop] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showThankYou, setShowThankYou] = useState(false);
-  const [preparer, setPreparer] = useState<PreparerInfo | null>(null);
+  const [preparer, setPreparer] = useState<PreparerInfo | null>(initialPreparer as PreparerInfo | null);
   const [formData, setFormData] = useState<TaxFormData>({
     first_name: '',
     middle_name: '',
@@ -151,8 +160,13 @@ export default function SimpleTaxForm() {
     license_file: null,
   });
 
-  // Fetch preparer info on mount
+  // Fetch preparer info on mount (only if not provided via props)
   useEffect(() => {
+    if (initialPreparer) {
+      // Already have preparer from props, skip API call
+      return;
+    }
+
     const fetchPreparerInfo = async () => {
       try {
         const response = await fetch('/api/preparer/info');
@@ -169,7 +183,7 @@ export default function SimpleTaxForm() {
     };
 
     fetchPreparerInfo();
-  }, []);
+  }, [initialPreparer]);
 
   // Auto-fill email from authenticated user
   useEffect(() => {
@@ -382,7 +396,7 @@ export default function SimpleTaxForm() {
       // Desktop pages (grouped)
       switch (page) {
         case 1:
-          return <WelcomePage onNext={handleNext} />;
+          return <WelcomePage onNext={handleNext} preparer={preparer} />;
         case 2:
           return (
             <PersonalAndAddressPage
@@ -438,7 +452,7 @@ export default function SimpleTaxForm() {
       // Mobile pages (individual)
       switch (page) {
         case 1:
-          return <WelcomePage onNext={handleNext} />;
+          return <WelcomePage onNext={handleNext} preparer={preparer} />;
         case 2:
           return (
             <PersonalInfoPage
@@ -600,25 +614,70 @@ function ThankYouPage() {
   );
 }
 
-function WelcomePage({ onNext }: { onNext: () => void }) {
+function WelcomePage({ onNext, preparer }: { onNext: () => void; preparer?: PreparerInfo | null }) {
+  const preparerName = preparer
+    ? `${preparer.firstName || ''} ${preparer.lastName || ''}`.trim()
+    : null;
+
   return (
     <div className="space-y-8 text-center py-8">
-      {/* Tax Genius Logo */}
+      {/* Tax Professional or Owliver Image */}
       <div className="flex justify-center">
-        <Image
-          src="/images/tax-genius-logo.png"
-          alt="Tax Genius Pro - Owliver"
-          width={240}
-          height={120}
-          className="h-24 w-auto"
-          priority
-        />
+        {preparer && preparer.avatarUrl ? (
+          <div className="relative">
+            <div className="relative w-20 h-20 rounded-full overflow-hidden border-4 border-primary shadow-xl">
+              <Image
+                src={preparer.avatarUrl}
+                alt={preparerName || 'Tax Professional'}
+                fill
+                className="object-cover"
+                priority
+                quality={100}
+                sizes="(max-width: 768px) 100px, 80px"
+              />
+            </div>
+            {/* Verified Badge */}
+            <div className="absolute -bottom-1 -right-1 bg-secondary rounded-full p-1.5 border-2 border-background shadow-lg">
+              <svg
+                className="w-4 h-4 text-white"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </div>
+          </div>
+        ) : (
+          <Image
+            src="/icon-512x512.png"
+            alt="Tax Genius Pro - Oliver the Owl"
+            width={200}
+            height={200}
+            className="object-contain"
+            priority
+          />
+        )}
       </div>
       <div className="space-y-4">
-        <h2 className="text-3xl font-bold">Hi! I'm Owliver</h2>
-        <p className="text-xl text-muted-foreground">
-          Your trusted Tax Genius, ready to help you maximize your returns.
-        </p>
+        {preparer && preparerName ? (
+          <>
+            <h2 className="text-3xl font-bold">Hi! I'm {preparerName}</h2>
+            <p className="text-xl text-muted-foreground">
+              Your licensed tax professional, ready to help you maximize your returns.
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 className="text-3xl font-bold">Hi! I'm Oliver</h2>
+            <p className="text-xl text-muted-foreground">
+              Your trusted Tax Genius, ready to help you maximize your returns.
+            </p>
+          </>
+        )}
         <div className="max-w-md mx-auto pt-4">
           <p className="text-lg">Let's start with the basic questions and we will do the rest.</p>
         </div>

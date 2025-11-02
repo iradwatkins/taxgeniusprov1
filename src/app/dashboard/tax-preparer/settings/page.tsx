@@ -28,6 +28,7 @@ import {
   Upload,
   FileText,
 } from 'lucide-react';
+import { MarketingContactForm } from '@/components/settings/MarketingContactForm';
 
 export const metadata = {
   title: 'Settings | Tax Genius Pro',
@@ -439,6 +440,9 @@ export default async function TaxPreparerSettingsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Marketing Contact Information */}
+      <MarketingContactForm />
 
       {/* Danger Zone */}
       <Card className="border-red-200 dark:border-red-800">

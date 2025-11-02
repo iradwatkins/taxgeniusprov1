@@ -15,36 +15,126 @@ export interface TrackingCodeData {
   isCustom: boolean;
   qrCodeUrl: string | null;
   canCustomize: boolean;
+  isFinalized: boolean;
+  trackingUrl: string;
+}
+
+/**
+ * Generate initials from user name
+ * For tax preparers: first + middle + last initials (e.g., "Ira D Watkins" -> "idw")
+ * Handles special characters and accents
+ */
+function generateInitialsFromName(
+  firstName: string | null,
+  middleName: string | null,
+  lastName: string | null
+): string {
+  // Helper function to clean and get first letter
+  const getFirstLetter = (name: string | null): string => {
+    if (!name || name.trim().length === 0) return '';
+
+    // Remove special characters and accents, keep only letters
+    const cleaned = name
+      .normalize('NFD') // Decompose accented characters
+      .replace(/[\u0300-\u036f]/g, '') // Remove accents
+      .replace(/[^a-zA-Z]/g, '') // Keep only letters
+      .toLowerCase();
+
+    return cleaned.charAt(0);
+  };
+
+  const firstInitial = getFirstLetter(firstName);
+  const middleInitial = getFirstLetter(middleName);
+  const lastInitial = getFirstLetter(lastName);
+
+  // Combine initials (at least first and last should exist)
+  let initials = firstInitial + middleInitial + lastInitial;
+
+  // If no initials could be extracted, use fallback
+  if (initials.length === 0) {
+    return 'user';
+  }
+
+  return initials;
 }
 
 /**
  * Generate a unique tracking code
- * Format: TGP-XXXXXX (6 digits)
+ * Format depends on role:
+ * - Tax Preparers: Initials-based (e.g., "idw", "idw2")
+ * - Affiliates/Customers: Numeric (e.g., "TGP-123456")
  */
-export async function generateUniqueTrackingCode(): Promise<string> {
+export async function generateUniqueTrackingCode(options?: {
+  role?: string;
+  firstName?: string | null;
+  middleName?: string | null;
+  lastName?: string | null;
+}): Promise<string> {
   let code: string;
   let exists = true;
   let attempts = 0;
-  const maxAttempts = 10;
+  const maxAttempts = 20;
 
-  while (exists && attempts < maxAttempts) {
-    // Generate 6-digit random number
-    const random = Math.floor(100000 + Math.random() * 900000);
-    code = `TGP-${random}`;
+  // Determine if this is a tax preparer
+  const isTaxPreparer = options?.role === 'tax_preparer';
 
-    // Check if code already exists
-    const existing = await prisma.profile.findFirst({
-      where: {
-        OR: [{ trackingCode: code }, { customTrackingCode: code }],
-      },
-    });
+  if (isTaxPreparer && options?.firstName && options?.lastName) {
+    // Generate initials-based code for tax preparers
+    const baseInitials = generateInitialsFromName(
+      options.firstName,
+      options.middleName,
+      options.lastName
+    );
 
-    exists = !!existing;
-    attempts++;
-  }
+    let suffix = '';
+    let suffixNumber = 1;
 
-  if (exists) {
-    throw new Error('Failed to generate unique tracking code after multiple attempts');
+    while (exists && attempts < maxAttempts) {
+      code = baseInitials + suffix;
+
+      // Check if code already exists
+      const existing = await prisma.profile.findFirst({
+        where: {
+          OR: [{ trackingCode: code }, { customTrackingCode: code }],
+        },
+      });
+
+      if (!existing) {
+        exists = false;
+      } else {
+        // Try with number suffix
+        suffixNumber++;
+        suffix = suffixNumber.toString();
+        attempts++;
+      }
+    }
+
+    if (exists) {
+      throw new Error(
+        `Failed to generate unique initials-based tracking code for ${baseInitials} after ${maxAttempts} attempts`
+      );
+    }
+  } else {
+    // Generate numeric code for affiliates and customers
+    while (exists && attempts < maxAttempts) {
+      // Generate 6-digit random number
+      const random = Math.floor(100000 + Math.random() * 900000);
+      code = `TGP-${random}`;
+
+      // Check if code already exists
+      const existing = await prisma.profile.findFirst({
+        where: {
+          OR: [{ trackingCode: code }, { customTrackingCode: code }],
+        },
+      });
+
+      exists = !!existing;
+      attempts++;
+    }
+
+    if (exists) {
+      throw new Error('Failed to generate unique tracking code after multiple attempts');
+    }
   }
 
   return code!;
@@ -55,6 +145,7 @@ export async function generateUniqueTrackingCode(): Promise<string> {
  */
 export async function generateTrackingQRCode(
   trackingCode: string,
+  profileId: string,
   baseUrl: string = 'https://taxgeniuspro.tax'
 ): Promise<QRCodeResult> {
   const trackingUrl = `${baseUrl}/ref/${trackingCode}`;
@@ -64,8 +155,9 @@ export async function generateTrackingQRCode(
     materialId: trackingCode,
     format: 'PNG',
     size: 512,
-    brandColor: '#f9d938', // Tax Genius brand color (yellow)
     errorCorrectionLevel: 'H', // High error correction for print materials
+    withLogo: true, // Always include logo
+    userId: profileId, // Pass profileId to use custom logo if available
   });
 }
 
@@ -118,14 +210,15 @@ export async function autoGenerateReferralLinks(
     content: 'appointment',
   });
 
-  // Generate QR codes
+  // Generate QR codes with user's custom logo
   const intakeQR = await generateQRCode({
     url: intakeUrl,
     materialId: intakeCode,
     format: 'PNG',
     size: 512,
-    brandColor: '#f9d938',
     errorCorrectionLevel: 'H',
+    withLogo: true,
+    userId: profileId,
   });
 
   const appointmentQR = await generateQRCode({
@@ -133,8 +226,9 @@ export async function autoGenerateReferralLinks(
     materialId: appointmentCode,
     format: 'PNG',
     size: 512,
-    brandColor: '#f9d938',
     errorCorrectionLevel: 'H',
+    withLogo: true,
+    userId: profileId,
   });
 
   // Create or update intake link
@@ -266,11 +360,31 @@ export async function assignTrackingCodeToUser(
 ): Promise<TrackingCodeData> {
   const url = baseUrl || process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax';
 
-  // Generate unique code
-  const trackingCode = await generateUniqueTrackingCode();
+  // Get profile data for tracking code generation
+  const profile = await prisma.profile.findUnique({
+    where: { id: profileId },
+    select: {
+      role: true,
+      firstName: true,
+      middleName: true,
+      lastName: true,
+    },
+  });
 
-  // Generate QR code
-  const qrCode = await generateTrackingQRCode(trackingCode, url);
+  if (!profile) {
+    throw new Error('Profile not found');
+  }
+
+  // Generate unique code with user data
+  const trackingCode = await generateUniqueTrackingCode({
+    role: profile.role,
+    firstName: profile.firstName,
+    middleName: profile.middleName,
+    lastName: profile.lastName,
+  });
+
+  // Generate QR code with user's logo
+  const qrCode = await generateTrackingQRCode(trackingCode, profileId, url);
 
   // Update profile
   await prisma.profile.update({
@@ -290,16 +404,20 @@ export async function assignTrackingCodeToUser(
     // Don't throw - tracking code assignment should still succeed
   }
 
+  const trackingUrl = `${url}?ref=${trackingCode}`;
+
   return {
     code: trackingCode,
     isCustom: false,
     qrCodeUrl: qrCode.dataUrl,
     canCustomize: true,
+    isFinalized: false,
+    trackingUrl,
   };
 }
 
 /**
- * Customize tracking code (one-time only)
+ * Customize tracking code (can be edited multiple times until finalized)
  * Also updates referral links with new vanity code
  */
 export async function customizeTrackingCode(
@@ -315,6 +433,8 @@ export async function customizeTrackingCode(
     select: {
       trackingCode: true,
       trackingCodeChanged: true,
+      trackingCodeFinalized: true,
+      customTrackingCode: true,
     },
   });
 
@@ -322,11 +442,11 @@ export async function customizeTrackingCode(
     return { success: false, error: 'Profile not found' };
   }
 
-  // Check if already customized
-  if (profile.trackingCodeChanged) {
+  // Check if already finalized
+  if (profile.trackingCodeFinalized) {
     return {
       success: false,
-      error: 'Tracking code has already been customized (one-time change only)',
+      error: 'Tracking code has been finalized and cannot be changed',
     };
   }
 
@@ -342,12 +462,13 @@ export async function customizeTrackingCode(
     return { success: false, error: 'This tracking code is already taken' };
   }
 
-  // Generate new QR code with custom code
-  const qrCode = await generateTrackingQRCode(customCode, url);
+  // Generate new QR code with custom code and user's logo
+  const qrCode = await generateTrackingQRCode(customCode, profileId, url);
 
-  // Delete old referral links (based on old tracking code)
-  const oldIntakeCode = `${profile.trackingCode}-intake`.toLowerCase();
-  const oldAppointmentCode = `${profile.trackingCode}-appt`.toLowerCase();
+  // Delete old referral links (based on currently active tracking code)
+  const activeCode = profile.customTrackingCode || profile.trackingCode;
+  const oldIntakeCode = `${activeCode}-intake`.toLowerCase();
+  const oldAppointmentCode = `${activeCode}-appt`.toLowerCase();
 
   try {
     await prisma.marketingLink.deleteMany({
@@ -383,13 +504,17 @@ export async function customizeTrackingCode(
     // Don't throw - customization should still succeed
   }
 
+  const trackingUrl = `${url}?ref=${customCode}`;
+
   return {
     success: true,
     data: {
       code: customCode,
       isCustom: true,
       qrCodeUrl: qrCode.dataUrl,
-      canCustomize: false,
+      canCustomize: true, // Still can customize until finalized
+      isFinalized: false,
+      trackingUrl,
     },
   };
 }
@@ -397,13 +522,16 @@ export async function customizeTrackingCode(
 /**
  * Get user's active tracking code data
  */
-export async function getUserTrackingCode(profileId: string): Promise<TrackingCodeData | null> {
+export async function getUserTrackingCode(profileId: string, baseUrl?: string): Promise<TrackingCodeData | null> {
+  const url = baseUrl || process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax';
+
   const profile = await prisma.profile.findUnique({
     where: { id: profileId },
     select: {
       trackingCode: true,
       customTrackingCode: true,
       trackingCodeChanged: true,
+      trackingCodeFinalized: true,
       trackingCodeQRUrl: true,
     },
   });
@@ -418,11 +546,77 @@ export async function getUserTrackingCode(profileId: string): Promise<TrackingCo
     return null;
   }
 
+  const trackingUrl = `${url}?ref=${activeCode}`;
+
   return {
     code: activeCode,
     isCustom: !!profile.customTrackingCode,
     qrCodeUrl: profile.trackingCodeQRUrl,
-    canCustomize: !profile.trackingCodeChanged,
+    canCustomize: !profile.trackingCodeFinalized,
+    isFinalized: profile.trackingCodeFinalized,
+    trackingUrl,
+  };
+}
+
+/**
+ * Finalize tracking code (permanently lock it)
+ * After finalization, the code cannot be changed anymore
+ */
+export async function finalizeTrackingCode(
+  profileId: string,
+  baseUrl?: string
+): Promise<{ success: boolean; error?: string; data?: TrackingCodeData }> {
+  const url = baseUrl || process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax';
+
+  // Get profile
+  const profile = await prisma.profile.findUnique({
+    where: { id: profileId },
+    select: {
+      trackingCode: true,
+      customTrackingCode: true,
+      trackingCodeFinalized: true,
+      trackingCodeQRUrl: true,
+    },
+  });
+
+  if (!profile) {
+    return { success: false, error: 'Profile not found' };
+  }
+
+  // Check if already finalized
+  if (profile.trackingCodeFinalized) {
+    return { success: false, error: 'Tracking code is already finalized' };
+  }
+
+  // Get active code
+  const activeCode = profile.customTrackingCode || profile.trackingCode;
+  if (!activeCode) {
+    return { success: false, error: 'No tracking code found' };
+  }
+
+  // Update profile to finalize
+  await prisma.profile.update({
+    where: { id: profileId },
+    data: {
+      trackingCodeFinalized: true,
+      trackingCodeChanged: true, // Also set this for backwards compatibility
+    },
+  });
+
+  const trackingUrl = `${url}?ref=${activeCode}`;
+
+  logger.info(`✅ Tracking code finalized for profile ${profileId}: ${activeCode}`);
+
+  return {
+    success: true,
+    data: {
+      code: activeCode,
+      isCustom: !!profile.customTrackingCode,
+      qrCodeUrl: profile.trackingCodeQRUrl,
+      canCustomize: false,
+      isFinalized: true,
+      trackingUrl,
+    },
   };
 }
 

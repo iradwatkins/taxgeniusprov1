@@ -16,8 +16,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const role = user?.role as string | undefined;
 
   // Redirect non-admin users to forbidden page
-  // Allow both admin and super_admin roles
-  if (role !== 'admin' && role !== 'super_admin') {
+  // Allow admin, super_admin, and tax_preparer roles
+  if (role !== 'admin' && role !== 'super_admin' && role !== 'tax_preparer') {
     redirect('/forbidden');
   }
 

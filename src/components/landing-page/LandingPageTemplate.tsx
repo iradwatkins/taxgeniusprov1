@@ -38,7 +38,7 @@ export function LandingPageTemplate({ data }: LandingPageTemplateProps) {
   return (
     <div className="min-h-screen">
       {/* Hero Section (AC15) */}
-      <section className="bg-gradient-to-br from-primary to-primary/80 py-12 md:py-20">
+      <section className="bg-primary py-12 md:py-20">
         <div className="container mx-auto px-4">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 md:mb-8">
             {data.headline}

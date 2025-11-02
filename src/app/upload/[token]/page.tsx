@@ -114,7 +114,7 @@ export default function PublicUploadPage({ params }: { params: Promise<{ token: 
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-background dark:bg-gray-900">
         <Card className="w-full max-w-md mx-4">
           <CardContent className="pt-6">
             <div className="flex flex-col items-center justify-center py-8 space-y-4">
@@ -130,7 +130,7 @@ export default function PublicUploadPage({ params }: { params: Promise<{ token: 
   // Error state
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background dark:bg-gray-900 p-4">
         <Card className="w-full max-w-md border-red-200">
           <CardHeader>
             <div className="flex items-center gap-2 text-red-600">
@@ -155,7 +155,7 @@ export default function PublicUploadPage({ params }: { params: Promise<{ token: 
   // Success state
   if (uploadComplete) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-background dark:bg-gray-900 p-4">
         <Card className="w-full max-w-md border-green-200">
           <CardHeader>
             <div className="flex items-center gap-2 text-green-600">
@@ -194,7 +194,7 @@ export default function PublicUploadPage({ params }: { params: Promise<{ token: 
 
   // Main upload UI
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4">
+    <div className="min-h-screen bg-background dark:bg-gray-900 p-4">
       <div className="max-w-3xl mx-auto py-8 space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">

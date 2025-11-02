@@ -31,7 +31,7 @@ export default function RefundAdvancePage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative py-16 lg:py-24 overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      <section className="relative py-16 lg:py-24 overflow-hidden bg-background">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-8">
@@ -82,7 +82,7 @@ export default function RefundAdvancePage() {
                 height={600}
                 className="object-cover w-full h-[400px]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-black/30" />
               <div className="absolute bottom-8 left-8 right-8">
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg" asChild>
@@ -511,7 +511,7 @@ export default function RefundAdvancePage() {
       </section>
 
       {/* Final CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-primary/10 via-background to-secondary/10">
+      <section className="py-20 bg-muted">
         <div className="container mx-auto px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}

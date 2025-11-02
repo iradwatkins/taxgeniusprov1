@@ -70,7 +70,7 @@ export default async function TaxPreparerTicketsPage() {
         <TicketStatsCards role="preparer" />
 
         {/* AI Quick Actions */}
-        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 border-purple-200 dark:border-purple-800">
+        <Card className="bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-800">
           <CardHeader>
             <div className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-purple-600" />

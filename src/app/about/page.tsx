@@ -27,7 +27,7 @@ export default function AboutPage() {
 
       {/* Hero Section */}
       <section className="relative py-20 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5" />
+        <div className="absolute inset-0 bg-background" />
         <div className="container mx-auto px-4 lg:px-8 relative">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -117,7 +117,7 @@ export default function AboutPage() {
                   height={600}
                   className="object-cover w-full h-full"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-black/20" />
                 <div className="absolute bottom-6 left-6 right-6">
                   <Badge className="bg-primary/90 text-primary-foreground border-0 text-sm">
                     Est. 1990s • Atlanta & Chicago
@@ -221,7 +221,7 @@ export default function AboutPage() {
                   height={600}
                   className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-black/30" />
               </div>
             </motion.div>
           </div>
@@ -247,7 +247,7 @@ export default function AboutPage() {
                   height={600}
                   className="object-cover w-full h-full"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-black/30" />
                 <div className="absolute bottom-6 left-6 right-6">
                   <div className="bg-card/95 backdrop-blur-sm rounded-lg p-4 border-2 border-background">
                     <div className="flex items-center gap-3">
@@ -333,7 +333,7 @@ export default function AboutPage() {
       </section>
 
       {/* Embracing Technology & Innovation */}
-      <section className="py-20 lg:py-24 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      <section className="py-20 lg:py-24 bg-background">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
             <motion.div
@@ -398,7 +398,7 @@ export default function AboutPage() {
                   height={600}
                   className="object-cover w-full h-full"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-black/20" />
               </div>
             </motion.div>
           </div>
@@ -448,7 +448,7 @@ export default function AboutPage() {
                       height={400}
                       className="object-cover w-full h-64"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-black/30" />
                     <div className="absolute bottom-6 left-6 right-6">
                       <p className="text-white font-semibold text-xl">
                         Our team is ready to serve you

@@ -15,7 +15,7 @@ export default function PreparerLandingPage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary via-primary/90 to-primary/70 text-primary-foreground py-16 px-4 overflow-hidden">
+      <section className="relative bg-primary text-primary-foreground py-16 px-4 overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div
             className="absolute inset-0"
@@ -117,7 +117,7 @@ export default function PreparerLandingPage() {
               ))}
             </div>
 
-            <div className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl p-8 border-4 border-primary/20">
+            <div className="bg-primary/15 rounded-2xl p-8 border-4 border-primary/20">
               <div className="text-center space-y-4">
                 <div className="text-6xl">👔</div>
                 <p className="text-sm text-muted-foreground">[Image: Professional tax preparer]</p>
@@ -245,7 +245,7 @@ export default function PreparerLandingPage() {
           <div className="grid md:grid-cols-3 gap-8">
             {['Polo Shirt', 'Business Cards', 'Flyers'].map((item, i) => (
               <div key={i} className="bg-card border rounded-lg p-6 text-center">
-                <div className="h-48 bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg flex items-center justify-center mb-4">
+                <div className="h-48 bg-primary/15 rounded-lg flex items-center justify-center mb-4">
                   <div className="text-5xl">📦</div>
                 </div>
                 <h3 className="font-semibold text-lg">{item}</h3>
@@ -345,7 +345,7 @@ export default function PreparerLandingPage() {
             ].map((testimonial, i) => (
               <div key={i} className="bg-card border rounded-xl p-6">
                 <div className="flex items-start gap-4 mb-4">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center text-2xl font-bold text-primary border-2 border-primary/20">
+                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-2xl font-bold text-primary border-2 border-primary/20">
                     {testimonial.name.charAt(0)}
                   </div>
                   <div>
@@ -362,7 +362,7 @@ export default function PreparerLandingPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-16 px-4 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
+      <section className="py-16 px-4 bg-primary text-primary-foreground">
         <div className="container mx-auto max-w-5xl text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-8">
             READY TO CHANGE YOUR LIFE! SIGN UP TODAY

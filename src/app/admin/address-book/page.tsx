@@ -304,7 +304,7 @@ export default function AddressBookPage() {
 
         {/* Quick Stats */}
         <div className="grid md:grid-cols-5 gap-4 mb-8">
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-blue-200">
+          <Card className="bg-blue-50 dark:from-blue-950 dark:to-blue-900 border-blue-200">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>

@@ -95,7 +95,7 @@ export default function TaxCalculatorPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative py-16 lg:py-20 overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      <section className="relative py-16 lg:py-20 overflow-hidden bg-background">
         <div className="container mx-auto px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -602,7 +602,7 @@ export default function TaxCalculatorPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-br from-primary/10 via-background to-secondary/10">
+      <section className="py-20 bg-muted">
         <div className="container mx-auto px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}

@@ -165,7 +165,7 @@ export default function HelpCenterPage() {
       <Header />
 
       {/* Hero Section with Search */}
-      <section className="py-24 lg:py-32 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      <section className="py-24 lg:py-32 bg-background">
         <div className="container mx-auto px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -453,7 +453,7 @@ export default function HelpCenterPage() {
       </section>
 
       {/* Still Need Help CTA */}
-      <section className="py-24 bg-gradient-to-br from-primary/10 to-secondary/10">
+      <section className="py-24 bg-muted">
         <div className="container mx-auto px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -470,7 +470,7 @@ export default function HelpCenterPage() {
                     height={400}
                     className="object-cover w-full h-full"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-transparent" />
+                  <div className="absolute inset-0 bg-primary/40" />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
                       <Headphones className="w-10 h-10 text-white" />

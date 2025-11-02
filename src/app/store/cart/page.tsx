@@ -23,7 +23,7 @@ export default function CartPage() {
   const [mounted, setMounted] = useState(false);
 
   // Check if user has access to store
-  const userRole = user?.publicMetadata?.role as string | undefined;
+  const userRole = user?.role as string | undefined;
   const canAccessStore = userRole === 'affiliate' || userRole === 'tax_preparer';
 
   // Prevent hydration mismatch by only rendering cart after mount

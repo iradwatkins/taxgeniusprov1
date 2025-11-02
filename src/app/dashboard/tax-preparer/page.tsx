@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, FileCheck, Sparkles, ShoppingCart, Palette } from 'lucide-react';
+import { BarChart3, FileCheck, Sparkles, ShoppingCart, Palette, FileText } from 'lucide-react';
 import { AttributionStatsCard } from '@/components/dashboard/attribution-stats-card';
 import { RecentLeadsTable } from '@/components/dashboard/recent-leads-table';
 import { StatsGrid } from '@/components/dashboard/preparer/StatsGrid';
@@ -131,7 +131,7 @@ export default function PreparerDashboard() {
       />
 
       {/* Quick Access */}
-      <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/50 dark:to-blue-900/50 border-blue-200/50">
+      <Card className="bg-blue-50 dark:bg-blue-950/50 border-blue-200/50">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-blue-600" />
@@ -140,7 +140,7 @@ export default function PreparerDashboard() {
           <CardDescription>Your most important tools and features</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4">
             <Button
               variant="outline"
               className="h-auto flex-col gap-2 sm:gap-3 py-4 sm:py-6 bg-white dark:bg-gray-950 hover:shadow-lg transition-all"
@@ -169,6 +169,22 @@ export default function PreparerDashboard() {
                 <div className="text-center">
                   <p className="font-semibold text-xs sm:text-sm">My Tracking Code</p>
                   <p className="text-xs text-muted-foreground mt-1 hidden sm:block">Referral link</p>
+                </div>
+              </a>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="h-auto flex-col gap-2 sm:gap-3 py-4 sm:py-6 bg-white dark:bg-gray-950 hover:shadow-lg transition-all"
+              asChild
+            >
+              <a href="/dashboard/tax-preparer/forms">
+                <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                  <FileText className="h-6 w-6 sm:h-7 sm:w-7 text-indigo-600" />
+                </div>
+                <div className="text-center">
+                  <p className="font-semibold text-xs sm:text-sm">Tax Forms</p>
+                  <p className="text-xs text-muted-foreground mt-1 hidden sm:block">Share with clients</p>
                 </div>
               </a>
             </Button>

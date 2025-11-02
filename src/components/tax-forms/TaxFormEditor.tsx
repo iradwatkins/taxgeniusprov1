@@ -1,552 +1,568 @@
 'use client';
 
-/**
- * Tax Form Editor Component
- *
- * Interactive PDF form viewer and editor
- * Allows clients and tax preparers to fill out tax forms collaboratively
- * Features PDF preview, form fields, auto-save, and edit history
- */
-
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { useDebounce } from '@/hooks/use-debounce';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { EditHistoryDialog } from '@/components/tax-forms/EditHistoryDialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Save,
-  Download,
-  FileText,
-  Loader2,
   CheckCircle2,
   Clock,
-  History,
+  Lock,
   AlertCircle,
-  User,
+  Save,
+  FileSignature,
+  History,
+  Download,
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { logger } from '@/lib/logger';
-import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
-interface PDFFormField {
-  name: string;
-  type: 'text' | 'checkbox' | 'radio' | 'dropdown';
-  value?: string | boolean;
-  options?: string[];
-  required?: boolean;
-  readOnly?: boolean;
-  maxLength?: number;
-  multiline?: boolean;
+interface FieldDefinition {
+  id: string;
+  fieldName: string;
+  fieldLabel: string;
+  fieldType: string;
+  section?: string;
+  order: number;
+  isRequired: boolean;
+  validationRules?: any;
+  placeholder?: string;
+  helpText?: string;
+  options?: any;
+  dependsOn?: string;
+  showWhen?: any;
+  irsLineNumber?: string;
+}
+
+interface TaxForm {
+  id: string;
+  formNumber: string;
+  title: string;
+  description?: string;
+  category: string;
+  taxYear: number;
+  fieldDefinitions: FieldDefinition[];
+}
+
+interface ClientTaxForm {
+  id: string;
+  status: string;
+  formData: Record<string, any>;
+  notes?: string;
+  progress: number;
+  taxYear: number;
+  lastEditedAt: string;
+  lastEditedBy?: string;
+  isLocked: boolean;
+}
+
+interface FormData {
+  success: boolean;
+  clientTaxForm: ClientTaxForm;
+  taxForm: TaxForm;
+  client: { id: string; name: string };
+  preparer: { id: string; name: string; company?: string };
+  signatures: Array<{
+    id: string;
+    signedBy: string;
+    signedByRole: string;
+    signedAt: string;
+  }>;
+  permissions: {
+    canEdit: boolean;
+    canSign: boolean;
+  };
 }
 
 interface TaxFormEditorProps {
-  assignmentId: string;
-  formId: string;
-  formNumber: string;
-  formTitle: string;
-  initialFormData?: Record<string, string | boolean>;
-  status: 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED' | 'REVIEWED';
-  isReadOnly?: boolean;
-  onSave?: (formData: Record<string, string | boolean>) => void;
-  onComplete?: () => void;
+  token: string;
+  onSign?: () => void;
+  onViewHistory?: () => void;
 }
 
-export function TaxFormEditor({
-  assignmentId,
-  formId,
-  formNumber,
-  formTitle,
-  initialFormData = {},
-  status,
-  isReadOnly = false,
-  onSave,
-  onComplete,
-}: TaxFormEditorProps) {
-  const [formFields, setFormFields] = useState<PDFFormField[]>([]);
-  const [formData, setFormData] = useState<Record<string, string | boolean>>(initialFormData);
+export function TaxFormEditor({ token, onSign, onViewHistory }: TaxFormEditorProps) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [formData, setFormData] = useState<FormData | null>(null);
+  const [fieldValues, setFieldValues] = useState<Record<string, any>>({});
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
-  const { toast } = useToast();
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Load form fields from PDF
-  useEffect(() => {
-    fetchFormFields();
-  }, [formId]);
+  // Debounce field values for auto-save (2 seconds)
+  const debouncedFieldValues = useDebounce(fieldValues, 2000);
 
-  // Calculate progress whenever form data changes
-  useEffect(() => {
-    calculateProgress();
-  }, [formData, formFields]);
-
-  // Auto-save functionality
-  useEffect(() => {
-    if (!hasUnsavedChanges) return;
-
-    const timer = setTimeout(() => {
-      handleSave(true); // Auto-save
-    }, 3000); // Save 3 seconds after last change
-
-    return () => clearTimeout(timer);
-  }, [formData, hasUnsavedChanges]);
-
-  const fetchFormFields = async () => {
+  // Fetch form data
+  const fetchFormData = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/tax-forms/${formId}/parse`);
+      const response = await fetch(`/api/shared-forms/${token}`);
 
-      if (response.ok) {
-        const data = await response.json();
-
-        if (!data.hasFormFields) {
-          toast({
-            title: 'No Fillable Fields',
-            description:
-              'This PDF does not contain fillable form fields. You can download and fill it manually.',
-            variant: 'destructive',
-          });
-          return;
-        }
-
-        setFormFields(data.fields);
-        logger.info('Form fields loaded', { fieldCount: data.fields.length });
-      } else {
-        throw new Error('Failed to load form fields');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to fetch form');
       }
-    } catch (error) {
-      logger.error('Error loading form fields', { error });
-      toast({
-        title: 'Error',
-        description: 'Failed to load form fields',
-        variant: 'destructive',
+
+      const data: FormData = await response.json();
+      setFormData(data);
+      setFieldValues(data.clientTaxForm.formData || {});
+    } catch (error: any) {
+      toast.error('Failed to load form', {
+        description: error.message,
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
-  const calculateProgress = () => {
-    const fillableFields = formFields.filter((f) => !f.readOnly);
+  // Auto-save when field values change
+  useEffect(() => {
+    if (!formData || loading) return;
 
-    if (fillableFields.length === 0) {
-      setProgress(0);
-      return;
-    }
+    const saveForm = async () => {
+      try {
+        setSaving(true);
 
-    const filledFields = fillableFields.filter((field) => {
-      const value = formData[field.name];
+        // Calculate progress (% of required fields filled)
+        const requiredFields = formData.taxForm.fieldDefinitions.filter(f => f.isRequired);
+        const filledFields = requiredFields.filter(f => {
+          const value = fieldValues[f.fieldName];
+          return value !== undefined && value !== null && value !== '';
+        });
+        const progress = Math.round((filledFields.length / requiredFields.length) * 100);
 
-      if (value === undefined || value === null) return false;
-      if (typeof value === 'boolean') return true;
-      if (typeof value === 'string') return value.trim().length > 0;
+        const response = await fetch(`/api/shared-forms/${token}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            formData: fieldValues,
+            progress,
+          }),
+        });
 
-      return false;
-    });
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to save form');
+        }
 
-    const percentage = Math.round((filledFields.length / fillableFields.length) * 100);
-    setProgress(percentage);
-  };
-
-  const handleFieldChange = (fieldName: string, value: string | boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      [fieldName]: value,
-    }));
-    setHasUnsavedChanges(true);
-  };
-
-  const handleSave = async (isAutoSave = false) => {
-    try {
-      setSaving(true);
-
-      const response = await fetch(`/api/tax-forms/assigned/${assignmentId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          formData,
-          progress,
-        }),
-      });
-
-      if (response.ok) {
+        const result = await response.json();
         setLastSaved(new Date());
-        setHasUnsavedChanges(false);
 
-        if (!isAutoSave) {
-          toast({
-            title: 'Saved',
-            description: 'Your changes have been saved successfully',
-          });
-        }
-
-        onSave?.(formData);
-      } else {
-        throw new Error('Failed to save changes');
-      }
-    } catch (error) {
-      logger.error('Error saving form', { error });
-      toast({
-        title: 'Error',
-        description: 'Failed to save your changes',
-        variant: 'destructive',
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleMarkComplete = async () => {
-    try {
-      setSaving(true);
-
-      const response = await fetch(`/api/tax-forms/assigned/${assignmentId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          formData,
-          status: 'COMPLETED',
-        }),
-      });
-
-      if (response.ok) {
-        toast({
-          title: 'Form Completed',
-          description: 'Your form has been marked as complete and submitted to your tax preparer',
+        // Update form data with new status/progress
+        setFormData(prev => prev ? {
+          ...prev,
+          clientTaxForm: {
+            ...prev.clientTaxForm,
+            progress: result.progress,
+            status: result.status,
+            lastEditedAt: result.lastEditedAt,
+          },
+        } : null);
+      } catch (error: any) {
+        toast.error('Failed to save changes', {
+          description: error.message,
         });
-
-        onComplete?.();
-      } else {
-        throw new Error('Failed to complete form');
+      } finally {
+        setSaving(false);
       }
-    } catch (error) {
-      logger.error('Error completing form', { error });
-      toast({
-        title: 'Error',
-        description: 'Failed to complete form',
-        variant: 'destructive',
-      });
-    } finally {
-      setSaving(false);
+    };
+
+    saveForm();
+  }, [debouncedFieldValues, formData, loading, token]);
+
+  // Initial fetch
+  useEffect(() => {
+    fetchFormData();
+  }, [fetchFormData]);
+
+  // Validate field
+  const validateField = (field: FieldDefinition, value: any): string | null => {
+    if (field.isRequired && (!value || value === '')) {
+      return 'This field is required';
     }
+
+    if (!field.validationRules) return null;
+
+    const rules = field.validationRules;
+
+    // Min/max length for text
+    if (rules.minLength && value.length < rules.minLength) {
+      return `Minimum ${rules.minLength} characters required`;
+    }
+    if (rules.maxLength && value.length > rules.maxLength) {
+      return `Maximum ${rules.maxLength} characters allowed`;
+    }
+
+    // Min/max value for numbers
+    if (rules.min !== undefined && parseFloat(value) < rules.min) {
+      return `Minimum value is ${rules.min}`;
+    }
+    if (rules.max !== undefined && parseFloat(value) > rules.max) {
+      return `Maximum value is ${rules.max}`;
+    }
+
+    // Pattern matching (regex)
+    if (rules.pattern) {
+      const regex = new RegExp(rules.pattern);
+      if (!regex.test(value)) {
+        return rules.patternMessage || 'Invalid format';
+      }
+    }
+
+    return null;
   };
 
-  const handleDownloadFilledPDF = async () => {
-    toast({
-      title: 'Generating PDF',
-      description: 'Creating your filled PDF document...',
+  // Handle field change
+  const handleFieldChange = (fieldName: string, value: any, field: FieldDefinition) => {
+    setFieldValues(prev => ({ ...prev, [fieldName]: value }));
+
+    // Validate
+    const error = validateField(field, value);
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      if (error) {
+        newErrors[fieldName] = error;
+      } else {
+        delete newErrors[fieldName];
+      }
+      return newErrors;
     });
-
-    try {
-      const response = await fetch(`/api/tax-forms/assigned/${assignmentId}/download`);
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${formNumber}_Filled.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-
-        toast({
-          title: 'Success',
-          description: 'Filled PDF downloaded successfully',
-        });
-      } else {
-        throw new Error('Failed to generate PDF');
-      }
-    } catch (error) {
-      logger.error('Error downloading filled PDF', { error });
-      toast({
-        title: 'Error',
-        description: 'Failed to generate filled PDF',
-        variant: 'destructive',
-      });
-    }
   };
 
-  const renderFormField = (field: PDFFormField) => {
-    const value = formData[field.name];
-    const disabled = isReadOnly || field.readOnly || status === 'REVIEWED';
+  // Render field based on type
+  const renderField = (field: FieldDefinition) => {
+    const value = fieldValues[field.fieldName] || '';
+    const error = errors[field.fieldName];
+    const isDisabled = formData?.clientTaxForm.isLocked || !formData?.permissions.canEdit;
 
-    switch (field.type) {
-      case 'text':
-        if (field.multiline) {
-          return (
-            <Textarea
-              id={field.name}
-              value={(value as string) || ''}
-              onChange={(e) => handleFieldChange(field.name, e.target.value)}
-              disabled={disabled}
-              maxLength={field.maxLength}
-              className="min-h-[100px]"
-            />
-          );
-        }
-        return (
+    // Check conditional rendering
+    if (field.dependsOn && field.showWhen) {
+      const dependentValue = fieldValues[field.dependsOn];
+      const shouldShow = field.showWhen[dependentValue];
+      if (!shouldShow) return null;
+    }
+
+    const fieldId = `field-${field.fieldName}`;
+
+    return (
+      <div key={field.id} className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label htmlFor={fieldId} className="text-sm font-medium">
+            {field.fieldLabel}
+            {field.isRequired && <span className="text-destructive ml-1">*</span>}
+            {field.irsLineNumber && (
+              <span className="text-xs text-muted-foreground ml-2">
+                (Line {field.irsLineNumber})
+              </span>
+            )}
+          </Label>
+        </div>
+
+        {field.helpText && (
+          <p className="text-xs text-muted-foreground">{field.helpText}</p>
+        )}
+
+        {/* Text input */}
+        {(field.fieldType === 'text' || field.fieldType === 'email' || field.fieldType === 'ssn' || field.fieldType === 'ein') && (
           <Input
-            id={field.name}
-            type="text"
-            value={(value as string) || ''}
-            onChange={(e) => handleFieldChange(field.name, e.target.value)}
-            disabled={disabled}
-            maxLength={field.maxLength}
+            id={fieldId}
+            type={field.fieldType === 'ssn' || field.fieldType === 'ein' ? 'text' : field.fieldType}
+            value={value}
+            onChange={(e) => handleFieldChange(field.fieldName, e.target.value, field)}
+            placeholder={field.placeholder}
+            disabled={isDisabled}
+            className={error ? 'border-destructive' : ''}
+            maxLength={field.validationRules?.maxLength}
           />
-        );
+        )}
 
-      case 'checkbox':
-        return (
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id={field.name}
-              checked={value === true}
-              onCheckedChange={(checked) => handleFieldChange(field.name, checked === true)}
-              disabled={disabled}
-            />
-            <Label htmlFor={field.name} className="text-sm font-normal cursor-pointer">
-              {formatFieldName(field.name)}
-            </Label>
-          </div>
-        );
+        {/* Number/Currency input */}
+        {(field.fieldType === 'number' || field.fieldType === 'currency') && (
+          <Input
+            id={fieldId}
+            type="number"
+            value={value}
+            onChange={(e) => handleFieldChange(field.fieldName, e.target.value, field)}
+            placeholder={field.placeholder}
+            disabled={isDisabled}
+            className={error ? 'border-destructive' : ''}
+            step={field.fieldType === 'currency' ? '0.01' : '1'}
+          />
+        )}
 
-      case 'dropdown':
-        return (
+        {/* Date input */}
+        {field.fieldType === 'date' && (
+          <Input
+            id={fieldId}
+            type="date"
+            value={value}
+            onChange={(e) => handleFieldChange(field.fieldName, e.target.value, field)}
+            disabled={isDisabled}
+            className={error ? 'border-destructive' : ''}
+          />
+        )}
+
+        {/* Textarea */}
+        {field.fieldType === 'textarea' && (
+          <Textarea
+            id={fieldId}
+            value={value}
+            onChange={(e) => handleFieldChange(field.fieldName, e.target.value, field)}
+            placeholder={field.placeholder}
+            disabled={isDisabled}
+            className={error ? 'border-destructive' : ''}
+            rows={3}
+          />
+        )}
+
+        {/* Select dropdown */}
+        {field.fieldType === 'select' && field.options && (
           <Select
-            value={(value as string) || ''}
-            onValueChange={(newValue) => handleFieldChange(field.name, newValue)}
-            disabled={disabled}
+            value={value}
+            onValueChange={(val) => handleFieldChange(field.fieldName, val, field)}
+            disabled={isDisabled}
           >
-            <SelectTrigger id={field.name}>
-              <SelectValue placeholder="Select an option..." />
+            <SelectTrigger id={fieldId} className={error ? 'border-destructive' : ''}>
+              <SelectValue placeholder={field.placeholder || 'Select...'} />
             </SelectTrigger>
             <SelectContent>
-              {field.options?.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
+              {Array.isArray(field.options) ? (
+                field.options.map((option: any) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))
+              ) : null}
             </SelectContent>
           </Select>
-        );
+        )}
 
-      case 'radio':
-        return (
-          <div className="space-y-2">
-            {field.options?.map((option) => (
-              <div key={option} className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  id={`${field.name}_${option}`}
-                  name={field.name}
-                  value={option}
-                  checked={value === option}
-                  onChange={() => handleFieldChange(field.name, option)}
-                  disabled={disabled}
-                  className="h-4 w-4"
-                />
-                <Label
-                  htmlFor={`${field.name}_${option}`}
-                  className="text-sm font-normal cursor-pointer"
-                >
-                  {option}
-                </Label>
-              </div>
-            ))}
+        {/* Checkbox */}
+        {field.fieldType === 'checkbox' && (
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id={fieldId}
+              checked={value === true || value === 'true'}
+              onCheckedChange={(checked) => handleFieldChange(field.fieldName, checked, field)}
+              disabled={isDisabled}
+            />
+            <Label htmlFor={fieldId} className="text-sm font-normal cursor-pointer">
+              {field.placeholder || 'Check this box'}
+            </Label>
           </div>
-        );
+        )}
 
-      default:
-        return null;
-    }
+        {error && (
+          <p className="text-xs text-destructive flex items-center gap-1">
+            <AlertCircle className="h-3 w-3" />
+            {error}
+          </p>
+        )}
+      </div>
+    );
   };
+
+  // Group fields by section
+  const groupedFields = formData?.taxForm.fieldDefinitions.reduce((acc, field) => {
+    const section = field.section || 'General Information';
+    if (!acc[section]) {
+      acc[section] = [];
+    }
+    acc[section].push(field);
+    return acc;
+  }, {} as Record<string, FieldDefinition[]>) || {};
+
+  // Sort sections and fields
+  Object.keys(groupedFields).forEach(section => {
+    groupedFields[section].sort((a, b) => a.order - b.order);
+  });
 
   if (loading) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-            <p className="text-sm text-muted-foreground">Loading form fields...</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="space-y-4">
+        <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-96 w-full" />
+      </div>
     );
   }
 
-  if (formFields.length === 0) {
+  if (!formData) {
     return (
-      <Card>
-        <CardContent className="py-12">
-          <div className="text-center">
-            <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Fillable Fields</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              This PDF does not contain fillable form fields.
-              <br />
-              Please download the PDF and fill it out manually.
-            </p>
-            <Button onClick={() => window.open(`/api/tax-forms/${formId}/download`)}>
-              <Download className="h-4 w-4 mr-2" />
-              Download PDF
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Failed to load form. Please try refreshing the page.
+        </AlertDescription>
+      </Alert>
     );
   }
+
+  const hasClientSignature = formData.signatures.some(
+    s => s.signedBy === formData.client.id
+  );
+  const hasPreparerSignature = formData.signatures.some(
+    s => s.signedBy === formData.preparer.id
+  );
 
   return (
     <div className="space-y-6">
-      {/* Header Card */}
+      {/* Header */}
       <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between">
+        <CardHeader className="pb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                {formNumber} - {formTitle}
+              <CardTitle className="text-2xl">
+                {formData.taxForm.formNumber} - {formData.taxForm.title}
               </CardTitle>
-              <CardDescription className="mt-2">
-                Fill out the form below. Changes are automatically saved.
+              <CardDescription className="mt-1">
+                Tax Year {formData.clientTaxForm.taxYear} • {formData.client.name}
               </CardDescription>
             </div>
-            <div className="flex flex-col items-end gap-2">
-              {lastSaved && (
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
-                  Saved {lastSaved.toLocaleTimeString()}
-                </div>
+            <div className="flex items-center gap-2">
+              <Badge variant={
+                formData.clientTaxForm.status === 'COMPLETED' ? 'default' :
+                formData.clientTaxForm.status === 'IN_PROGRESS' ? 'secondary' :
+                formData.clientTaxForm.status === 'REVIEWED' ? 'outline' :
+                'secondary'
+              }>
+                {formData.clientTaxForm.status}
+              </Badge>
+              {formData.clientTaxForm.isLocked && (
+                <Badge variant="outline" className="gap-1">
+                  <Lock className="h-3 w-3" />
+                  Locked
+                </Badge>
               )}
-              {saving && (
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  Saving...
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="mt-4 space-y-2">
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground">Completion Progress</span>
-              <span className="font-medium">{progress}%</span>
-            </div>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              />
             </div>
           </div>
         </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Progress bar */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Completion</span>
+              <span className="font-medium">{formData.clientTaxForm.progress}%</span>
+            </div>
+            <Progress value={formData.clientTaxForm.progress} />
+          </div>
 
-        <CardContent>
+          {/* Status indicators */}
+          <div className="flex flex-wrap gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              {saving ? (
+                <>
+                  <Save className="h-4 w-4 animate-spin text-blue-500" />
+                  <span className="text-muted-foreground">Saving...</span>
+                </>
+              ) : lastSaved ? (
+                <>
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  <span className="text-muted-foreground">
+                    Saved {lastSaved.toLocaleTimeString()}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Auto-save enabled</span>
+                </>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <FileSignature className="h-4 w-4" />
+              <span className="text-muted-foreground">
+                Signatures: {hasClientSignature && hasPreparerSignature ? '2/2' :
+                           hasClientSignature || hasPreparerSignature ? '1/2' : '0/2'}
+              </span>
+            </div>
+          </div>
+
+          {/* Action buttons */}
           <div className="flex flex-wrap gap-2">
-            <Button onClick={() => handleSave(false)} disabled={saving || !hasUnsavedChanges}>
-              <Save className="h-4 w-4 mr-2" />
-              Save Changes
-            </Button>
-            {status !== 'COMPLETED' && status !== 'REVIEWED' && (
-              <Button onClick={handleMarkComplete} variant="default" disabled={progress < 100}>
-                <CheckCircle2 className="h-4 w-4 mr-2" />
-                Mark as Complete
+            {formData.permissions.canSign && onSign && (
+              <Button onClick={onSign} variant="default" size="sm" className="gap-2">
+                <FileSignature className="h-4 w-4" />
+                Sign Form
               </Button>
             )}
-            <Button onClick={handleDownloadFilledPDF} variant="outline">
-              <Download className="h-4 w-4 mr-2" />
-              Download Filled PDF
-            </Button>
-            <Button onClick={() => setHistoryDialogOpen(true)} variant="outline">
-              <History className="h-4 w-4 mr-2" />
-              View Edit History
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Edit History Dialog */}
-      <EditHistoryDialog
-        open={historyDialogOpen}
-        onOpenChange={setHistoryDialogOpen}
-        assignmentId={assignmentId}
-        formNumber={formNumber}
-      />
-
-      {/* Form Fields */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Form Fields</CardTitle>
-          <CardDescription>
-            {formFields.filter((f) => !f.readOnly).length} fillable fields
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            {formFields.map((field, index) => {
-              if (field.readOnly || field.type === 'checkbox') {
-                return null; // Skip read-only fields and render checkboxes separately
-              }
-
-              return (
-                <div key={field.name} className="space-y-2">
-                  <Label htmlFor={field.name} className="flex items-center gap-2">
-                    {formatFieldName(field.name)}
-                    {field.required && <Badge variant="destructive">Required</Badge>}
-                  </Label>
-                  {renderFormField(field)}
-                </div>
-              );
-            })}
-
-            {/* Checkboxes Section */}
-            {formFields.some((f) => f.type === 'checkbox' && !f.readOnly) && (
-              <>
-                <Separator className="my-6" />
-                <div className="space-y-4">
-                  <h3 className="font-medium">Additional Options</h3>
-                  {formFields
-                    .filter((f) => f.type === 'checkbox' && !f.readOnly)
-                    .map((field) => (
-                      <div key={field.name}>{renderFormField(field)}</div>
-                    ))}
-                </div>
-              </>
+            {onViewHistory && (
+              <Button onClick={onViewHistory} variant="outline" size="sm" className="gap-2">
+                <History className="h-4 w-4" />
+                View History
+              </Button>
+            )}
+            {formData.taxForm.category && (
+              <Button variant="outline" size="sm" className="gap-2" asChild>
+                <a href={`#`} download>
+                  <Download className="h-4 w-4" />
+                  Download PDF
+                </a>
+              </Button>
             )}
           </div>
         </CardContent>
       </Card>
+
+      {/* Lock notice */}
+      {formData.clientTaxForm.isLocked && (
+        <Alert>
+          <Lock className="h-4 w-4" />
+          <AlertDescription>
+            This form has been reviewed and is now locked. No further edits can be made.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Notes from preparer */}
+      {formData.clientTaxForm.notes && (
+        <Alert>
+          <AlertDescription>
+            <strong>Note from {formData.preparer.name}:</strong> {formData.clientTaxForm.notes}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Form fields grouped by section */}
+      {Object.entries(groupedFields).map(([section, fields]) => (
+        <Card key={section}>
+          <CardHeader>
+            <CardTitle className="text-lg">{section}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {fields.map(field => renderField(field))}
+          </CardContent>
+        </Card>
+      ))}
+
+      {/* Signatures section */}
+      {formData.signatures.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Signatures</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {formData.signatures.map(sig => (
+              <div key={sig.id} className="flex items-center justify-between text-sm border-b pb-2 last:border-0">
+                <div>
+                  <span className="font-medium">{sig.signedByRole}</span>
+                  <span className="text-muted-foreground"> signed this form</span>
+                </div>
+                <span className="text-muted-foreground">
+                  {new Date(sig.signedAt).toLocaleString()}
+                </span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
-}
-
-/**
- * Format field names for display
- * Converts "firstName" to "First Name"
- */
-function formatFieldName(name: string): string {
-  return name
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/_/g, ' ')
-    .trim()
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
 }

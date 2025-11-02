@@ -412,7 +412,7 @@ export default function AffiliateDashboard() {
             </Card>
 
             {/* Special Offers */}
-            <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <Card className="bg-primary/10 border-primary/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5" />

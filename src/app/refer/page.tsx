@@ -296,7 +296,7 @@ function ReferralContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-orange-50 dark:from-orange-950/20 dark:via-yellow-950/20 dark:to-orange-950/20">
+    <div className="min-h-screen bg-background dark:bg-orange-950/20">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-orange-600/10" />
@@ -337,7 +337,7 @@ function ReferralContent() {
               )}
 
               <div>
-                <h1 className="text-4xl lg:text-6xl font-black mb-4 bg-gradient-to-r from-primary to-orange-600 bg-clip-text text-transparent">
+                <h1 className="text-4xl lg:text-6xl font-black mb-4 text-primary">
                   {t.heroTitle}
                 </h1>
                 <p className="text-xl text-gray-600 dark:text-gray-300">
@@ -348,7 +348,7 @@ function ReferralContent() {
               </div>
 
               {/* Countdown Timer */}
-              <Alert className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20 border-red-200">
+              <Alert className="bg-card dark:bg-red-950/20 border-red-200">
                 <Zap className="h-5 w-5 text-red-600" />
                 <AlertDescription className="text-base font-medium">
                   <div>{t.urgentBadge}</div>
@@ -390,7 +390,7 @@ function ReferralContent() {
             {/* Right Column - Form */}
             <div>
               <Card className="shadow-2xl border-2">
-                <CardHeader className="bg-gradient-to-r from-primary/5 to-orange-600/5">
+                <CardHeader className="bg-primary/5">
                   <CardTitle className="text-2xl">
                     <span className="flex items-center gap-2">
                       <Gift className="w-6 h-6 text-primary" />
@@ -453,7 +453,7 @@ function ReferralContent() {
                     <Button
                       type="submit"
                       size="lg"
-                      className="w-full h-14 text-lg bg-gradient-to-r from-primary to-orange-600 hover:from-primary/90 hover:to-orange-600/90"
+                      className="w-full h-14 text-lg bg-primary hover:bg-primary/90"
                       disabled={isLoading}
                     >
                       {isLoading ? (

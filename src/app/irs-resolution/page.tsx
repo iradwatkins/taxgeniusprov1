@@ -403,7 +403,7 @@ export default function IRSResolutionPage() {
       </section>
 
       {/* Urgency CTA */}
-      <section className="py-24 bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden">
+      <section className="py-24 bg-muted relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <motion.div
             animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0] }}

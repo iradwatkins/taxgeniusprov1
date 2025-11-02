@@ -277,7 +277,7 @@ export default function ReferralJoinPage() {
             ].map((testimonial, i) => (
               <div key={i} className="bg-card border rounded-xl p-6">
                 <div className="flex items-start gap-4 mb-4">
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center text-xl font-bold text-primary border-2 border-primary/20">
+                  <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center text-xl font-bold text-primary border-2 border-primary/20">
                     {testimonial.name.charAt(0)}
                   </div>
                   <div>
@@ -300,7 +300,7 @@ export default function ReferralJoinPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-16 px-4 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
+      <section className="py-16 px-4 bg-primary text-primary-foreground">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">READY TO START MAKING EASY MONEY?</h2>
 

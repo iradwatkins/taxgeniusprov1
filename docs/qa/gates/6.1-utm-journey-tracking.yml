@@ -1,8 +1,0 @@
-schema: 1
-story: '6.1'
-gate: PASS
-status_reason: 'Complete UTM journey tracking operational with 4-stage funnel, cookie persistence, and database integration.'
-reviewer: 'Claude Code (AI QA)'
-updated: '2025-10-13T00:00:00Z'
-top_issues: []
-waiver: { active: false }

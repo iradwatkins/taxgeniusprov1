@@ -68,7 +68,7 @@ export default function AuditProtectionPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="py-24 lg:py-32 bg-gradient-to-br from-primary/5 via-background to-secondary/5 relative overflow-hidden">
+      <section className="py-24 lg:py-32 bg-background relative overflow-hidden">
         {/* Animated background elements */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-20 left-10 w-64 h-64 bg-primary rounded-full blur-3xl animate-pulse" />

@@ -255,7 +255,7 @@ function BookingPageContent() {
 
       {/* Hero Section */}
       <section className="relative py-12 lg:py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5" />
+        <div className="absolute inset-0 bg-background" />
         <div className="container mx-auto px-4 lg:px-8 relative">
           <div className="text-center max-w-3xl mx-auto">
             <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">

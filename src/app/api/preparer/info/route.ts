@@ -24,16 +24,27 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ preparer: null }, { status: 200 });
     }
 
-    // Fetch preparer profile
-    const profile = await prisma.profile.findUnique({
-      where: { shortLinkUsername: attribution.attribution.referrerUsername },
+    // Fetch preparer profile by tracking code OR short link username
+    const profile = await prisma.profile.findFirst({
+      where: {
+        OR: [
+          { trackingCode: attribution.attribution.referrerUsername },
+          { customTrackingCode: attribution.attribution.referrerUsername },
+          { shortLinkUsername: attribution.attribution.referrerUsername },
+        ],
+        role: 'tax_preparer',
+      },
       select: {
         firstName: true,
         lastName: true,
         avatarUrl: true,
+        qrCodeLogoUrl: true,
         companyName: true,
         licenseNo: true,
         bio: true,
+        phone: true,
+        email: true,
+        trackingCodeQRUrl: true,
       },
     });
 
@@ -46,10 +57,13 @@ export async function GET(req: NextRequest) {
         preparer: {
           firstName: profile.firstName,
           lastName: profile.lastName,
-          avatarUrl: profile.avatarUrl,
+          avatarUrl: profile.avatarUrl || profile.qrCodeLogoUrl,
           companyName: profile.companyName,
           licenseNo: profile.licenseNo,
           bio: profile.bio,
+          phone: profile.phone,
+          email: profile.email,
+          qrCodeUrl: profile.trackingCodeQRUrl,
         },
       },
       { status: 200 }

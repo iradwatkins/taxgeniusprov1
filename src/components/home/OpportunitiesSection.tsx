@@ -82,7 +82,7 @@ export function OpportunitiesSection() {
                     height={400}
                     className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute inset-0 bg-black/30" />
                   <div className="absolute bottom-4 left-4">
                     <Badge className={`${opportunity.badgeColor} text-sm px-3 py-1`}>
                       {opportunity.badge}

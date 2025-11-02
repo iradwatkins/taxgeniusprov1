@@ -50,7 +50,7 @@ function SignInContent() {
       ],
       ctaText: 'Sign In to Your Account',
       imageSuggestion: 'Professional reviewing documents confidently',
-      theme: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20',
+      theme: 'from-blue-50 to-blue-100 dark:bg-blue-900/20',
       accentColor: 'text-blue-600 dark:text-blue-400',
       welcomeBack: "Welcome back! Let's get your taxes done.",
     },

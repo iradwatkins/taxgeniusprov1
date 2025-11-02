@@ -66,7 +66,7 @@ export default function StartFilingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-background to-green-50">
+    <div className="min-h-screen bg-background">
       {/* JSON-LD Structured Data for SEO */}
       <script
         type="application/ld+json"
@@ -121,7 +121,7 @@ export default function StartFilingPage() {
           </div>
 
           <div className="relative">
-            <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-green-100 to-blue-100">
+            <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-2xl bg-card">
               <Image
                 src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80&auto=format&fit=crop"
                 alt="Happy person celebrating tax refund on laptop"
@@ -248,7 +248,7 @@ export default function StartFilingPage() {
                 expected. These guys know their stuff."
               </p>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-full"></div>
+                <div className="w-10 h-10 bg-secondary rounded-full"></div>
                 <div>
                   <div className="font-semibold">Marcus T.</div>
                   <div className="text-sm text-muted-foreground">Atlanta, GA</div>

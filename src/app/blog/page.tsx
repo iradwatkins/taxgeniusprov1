@@ -148,7 +148,7 @@ export default function BlogPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="py-24 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      <section className="py-24 bg-background">
         <div className="container mx-auto px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -248,7 +248,7 @@ export default function BlogPage() {
                         height={400}
                         className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute inset-0 bg-black/30" />
                       <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground">
                         {post.category}
                       </Badge>
@@ -389,7 +389,7 @@ export default function BlogPage() {
                     height={400}
                     className="object-cover w-full h-full"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-transparent" />
+                  <div className="absolute inset-0 bg-primary/40" />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
                       <Mail className="w-10 h-10 text-white" />

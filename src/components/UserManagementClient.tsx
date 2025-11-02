@@ -20,8 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Users, Search, Filter, Download } from 'lucide-react';
-import { PermissionModal } from '@/components/PermissionModal';
+import { Users, Search, Filter, Download, UserPlus } from 'lucide-react';
+import { EditUserModal } from '@/components/admin/EditUserModal';
+import { CreateTaxPreparerModal } from '@/components/admin/CreateTaxPreparerModal';
 import { UserRole, UserPermissions } from '@/lib/permissions';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -48,41 +49,43 @@ export function UserManagementClient({
 }: UserManagementClientProps) {
   const [users, setUsers] = useState(initialUsers);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const router = useRouter();
 
   const handleEditUser = (user: User) => {
-    if (!isSuperAdmin) {
-      toast.error('Only super admins can edit user permissions');
-      return;
-    }
     setSelectedUser(user);
     setIsModalOpen(true);
   };
 
-  const handleSavePermissions = async (
-    userId: string,
-    role: UserRole,
-    permissions: Partial<UserPermissions>
-  ) => {
+  const handleSaveUser = async (userData: {
+    userId: string;
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    role: UserRole;
+    permissions: Partial<UserPermissions>;
+  }) => {
     try {
-      const response = await fetch('/api/admin/update-permissions', {
-        method: 'POST',
+      const response = await fetch(`/api/admin/users/${userData.userId}`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId,
-          role,
-          permissions,
+          email: userData.email,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          role: userData.role,
+          permissions: userData.permissions,
         }),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to update permissions');
+        throw new Error(error.error || 'Failed to update user');
       }
 
       const data = await response.json();
@@ -90,9 +93,12 @@ export function UserManagementClient({
       // Update local state
       setUsers((prev) =>
         prev.map((user) =>
-          user.id === userId
+          user.id === userData.userId
             ? {
                 ...user,
+                email: data.user.email || user.email,
+                firstName: data.user.firstName || user.firstName,
+                lastName: data.user.lastName || user.lastName,
                 role: data.user.role,
                 permissions: data.user.permissions,
               }
@@ -100,10 +106,10 @@ export function UserManagementClient({
         )
       );
 
-      toast.success('Permissions updated successfully');
+      toast.success('User updated successfully');
       router.refresh();
     } catch (error) {
-      logger.error('Error updating permissions:', error);
+      logger.error('Error updating user:', error);
       throw error;
     }
   };
@@ -153,8 +159,7 @@ export function UserManagementClient({
         <CardHeader>
           <CardTitle>User Directory</CardTitle>
           <CardDescription>
-            View and manage all users in the system
-            {isSuperAdmin && ' - Click Edit to manage permissions'}
+            View and manage all users in the system - Click Edit to update user information and permissions
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -187,6 +192,10 @@ export function UserManagementClient({
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
+            <Button onClick={() => setShowCreateModal(true)}>
+              <UserPlus className="w-4 h-4 mr-2" />
+              Create Tax Preparer
+            </Button>
           </div>
 
           {/* Users Table */}
@@ -210,7 +219,7 @@ export function UserManagementClient({
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-white font-semibold">
+                          <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
                             {user.firstName?.[0] || user.email?.[0]?.toUpperCase() || '?'}
                           </div>
                           <div>
@@ -245,7 +254,6 @@ export function UserManagementClient({
                           variant="ghost"
                           size="sm"
                           onClick={() => handleEditUser(user)}
-                          disabled={!isSuperAdmin}
                         >
                           Edit
                         </Button>
@@ -267,9 +275,9 @@ export function UserManagementClient({
         </CardContent>
       </Card>
 
-      {/* Permission Modal */}
+      {/* Edit User Modal */}
       {selectedUser && (
-        <PermissionModal
+        <EditUserModal
           open={isModalOpen}
           onOpenChange={setIsModalOpen}
           user={{
@@ -280,10 +288,20 @@ export function UserManagementClient({
             role: selectedUser.role as UserRole,
             permissions: selectedUser.permissions as Partial<UserPermissions>,
           }}
-          onSave={handleSavePermissions}
+          onSave={handleSaveUser}
           isSuperAdmin={isSuperAdmin}
         />
       )}
+
+      {/* Create Tax Preparer Modal */}
+      <CreateTaxPreparerModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={() => {
+          // Refresh the page to show new user
+          router.refresh();
+        }}
+      />
     </>
   );
 }

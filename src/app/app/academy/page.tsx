@@ -49,9 +49,9 @@ export default function AcademyPage() {
   const [completedVideos, setCompletedVideos] = useState<Set<string>>(new Set());
 
   // 🎛️ Check permissions
-  const role = user?.publicMetadata?.role as UserRole | undefined;
+  const role = user?.role as UserRole | undefined;
   const permissions = role
-    ? getUserPermissions(role, user?.publicMetadata?.permissions as any)
+    ? getUserPermissions(role, user?.permissions as any)
     : null;
 
   // Extract micro-permissions for academy features

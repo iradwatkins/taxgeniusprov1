@@ -79,13 +79,21 @@ async function getAttributionFromCookie(): Promise<Partial<AttributionData> | nu
       return null;
     }
 
-    // Validate referrer exists
-    const profile = await prisma.profile.findUnique({
-      where: { shortLinkUsername: cookie.referrerUsername },
+    // Validate referrer exists - check tracking codes and short link username
+    const profile = await prisma.profile.findFirst({
+      where: {
+        OR: [
+          { shortLinkUsername: cookie.referrerUsername },
+          { trackingCode: cookie.referrerUsername },
+          { customTrackingCode: cookie.referrerUsername },
+        ],
+      },
       select: {
         id: true,
         role: true,
         shortLinkUsername: true,
+        trackingCode: true,
+        customTrackingCode: true,
       },
     });
 

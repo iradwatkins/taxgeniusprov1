@@ -29,7 +29,7 @@ export default function PersonalTaxFilingPage() {
       <Header />
 
       {/* Hero */}
-      <section className="py-20 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      <section className="py-20 bg-background">
         <div className="container mx-auto px-4 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}

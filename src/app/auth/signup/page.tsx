@@ -45,7 +45,7 @@ function SignUpContent() {
       ],
       ctaText: 'Start Your Free Tax Filing',
       imageSuggestion: 'Happy family receiving tax refund',
-      theme: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20',
+      theme: 'from-blue-50 to-blue-100 dark:bg-blue-900/20',
       accentColor: 'text-blue-600 dark:text-blue-400',
     },
     preparer: {
@@ -227,13 +227,18 @@ function SignUpContent() {
               <Input
                 id="name"
                 type="text"
-                placeholder="John Doe"
+                placeholder="John M Doe (include middle name for tax preparers)"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
                 disabled={isLoading}
                 className="h-12"
               />
+              {role === 'preparer' && (
+                <p className="text-xs text-muted-foreground">
+                  💡 Include your middle name/initial for a personalized tracking code (e.g., "jmd")
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">

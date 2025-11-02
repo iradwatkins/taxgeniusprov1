@@ -1,8 +1,0 @@
-schema: 1
-story: '6.4'
-gate: PASS
-status_reason: 'All role dashboards enhanced with reusable analytics components, real-time data, and mobile responsive design.'
-reviewer: 'Claude Code (AI QA)'
-updated: '2025-10-13T00:00:00Z'
-top_issues: []
-waiver: { active: false }

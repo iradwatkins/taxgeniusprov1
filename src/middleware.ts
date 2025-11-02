@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getUserPermissions, UserRole, UserPermissions, Permission } from '@/lib/permissions';
 import { utmTrackingMiddleware } from '@/middleware/utm-tracking';
+import { refTrackingMiddleware } from '@/middleware/ref-tracking';
 import {
   attributionTrackingMiddleware,
   isShortLinkRequest,
@@ -52,6 +53,9 @@ const isPublicRoute = (pathname: string): boolean => {
     '/book', // Direct booking page (no login required)
     '/book-appointment', // Appointment booking - NO LOGIN REQUIRED
     '/apply', // General application page
+    '/join-team', // Tax preparer recruitment landing page (PUBLIC)
+    '/training', // Tax preparation training course page (PUBLIC)
+    '/home-preview', // Consumer homepage preview (PUBLIC)
     '/preparer', // Tax preparer pages (application, info)
     '/referral', // Referral pages (signup, info)
     '/affiliate', // Affiliate pages (application, info)
@@ -76,6 +80,11 @@ const isPublicRoute = (pathname: string): boolean => {
     // ===== PWA & Static Files =====
     '/sw.js', // Service worker (PWA)
     '/manifest.json', // Web app manifest (PWA)
+
+    // ===== SEO & Crawlers =====
+    '/robots.txt', // Robots.txt for search engines
+    '/sitemap.xml', // XML sitemap for search engines
+    '/sitemap', // Sitemap routes
 
     // ===== Debug/Development =====
     '/debug-role', // Debug page to check user role
@@ -105,6 +114,7 @@ const isPublicApiRoute = (pathname: string): boolean => {
     '/api/webhooks',
     '/api/admin/set-role',
     '/api/preparer/info',
+    '/api/uploads/marketing-assets', // Marketing assets (profile photos, logos) - public for use on business cards, flyers
   ];
 
   return publicApiRoutes.some((route) => pathname.startsWith(route));
@@ -154,7 +164,10 @@ export async function middleware(req: NextRequest) {
   }
 
   // Run UTM tracking middleware (Epic 6)
-  const utmResponse = utmTrackingMiddleware(req);
+  let response = utmTrackingMiddleware(req);
+
+  // Run ref parameter tracking middleware (capture ?ref=code)
+  response = await refTrackingMiddleware(req, response);
 
   // Get session using NextAuth
   const session = await auth();
@@ -173,25 +186,16 @@ export async function middleware(req: NextRequest) {
   // If user is signed in
   if (userId && session?.user) {
     const validRoles: string[] = [
-      'SUPER_ADMIN',
-      'ADMIN',
-      'LEAD',
-      'CLIENT',
-      'TAX_PREPARER',
-      'AFFILIATE',
+      'super_admin',
+      'admin',
+      'lead',
+      'client',
+      'tax_preparer',
+      'affiliate',
     ];
 
     // Get role from session
     let role = session.user.role as string;
-
-    // Normalize role to uppercase to handle any legacy lowercase roles
-    if (role) {
-      const originalRole = role;
-      role = role.toUpperCase();
-      if (originalRole !== role) {
-        logger.info(`🔄 Normalized role from "${originalRole}" to "${role}"`);
-      }
-    }
 
     const isValidRole = role && validRoles.includes(role);
 
@@ -200,7 +204,7 @@ export async function middleware(req: NextRequest) {
     let isViewingAsOtherRole = false;
     let viewingRoleName: string | undefined;
 
-    if (isValidRole && (role === 'SUPER_ADMIN' || role === 'ADMIN')) {
+    if (isValidRole && (role === 'super_admin' || role === 'admin')) {
       try {
         const roleInfo = await getEffectiveRole(role as UserRole, userId);
         effectiveRole = roleInfo.effectiveRole;
@@ -240,7 +244,7 @@ export async function middleware(req: NextRequest) {
       ];
 
       // Check role-based access
-      if (role === 'TAX_PREPARER') {
+      if (role === 'tax_preparer') {
         // Tax preparers can only access specific admin routes
         const isAllowedRoute = taxPreparerAllowedAdminRoutes.some((route) =>
           pathname.startsWith(route)
@@ -251,7 +255,7 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(forbiddenUrl);
         }
         // Continue to permission checks below for allowed routes
-      } else if (role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
+      } else if (role !== 'admin' && role !== 'super_admin') {
         // Block all other non-admin roles from /admin routes
         const forbiddenUrl = req.nextUrl.clone();
       forbiddenUrl.pathname = '/forbidden';
@@ -261,7 +265,7 @@ export async function middleware(req: NextRequest) {
       // SUPER ADMIN ONLY routes - extra protection for sensitive pages
       const superAdminOnlyRoutes = ['/admin/permissions', '/admin/database'];
       if (superAdminOnlyRoutes.some((route) => pathname.startsWith(route))) {
-        if (role !== 'SUPER_ADMIN') {
+        if (role !== 'super_admin') {
           const forbiddenUrl = req.nextUrl.clone();
       forbiddenUrl.pathname = '/forbidden';
       return NextResponse.redirect(forbiddenUrl);
@@ -307,10 +311,10 @@ export async function middleware(req: NextRequest) {
     if (pathname.startsWith('/store')) {
       if (
         !effectiveRole ||
-        (effectiveRole !== 'TAX_PREPARER' &&
-          effectiveRole !== 'AFFILIATE' &&
-          effectiveRole !== 'ADMIN' &&
-          effectiveRole !== 'SUPER_ADMIN')
+        (effectiveRole !== 'tax_preparer' &&
+          effectiveRole !== 'affiliate' &&
+          effectiveRole !== 'admin' &&
+          effectiveRole !== 'super_admin')
       ) {
         const forbiddenUrl = req.nextUrl.clone();
       forbiddenUrl.pathname = '/forbidden';
@@ -323,9 +327,9 @@ export async function middleware(req: NextRequest) {
     if (pathname.startsWith('/app/academy')) {
       if (
         !effectiveRole ||
-        (effectiveRole !== 'TAX_PREPARER' &&
-          effectiveRole !== 'ADMIN' &&
-          effectiveRole !== 'SUPER_ADMIN')
+        (effectiveRole !== 'tax_preparer' &&
+          effectiveRole !== 'admin' &&
+          effectiveRole !== 'super_admin')
       ) {
         const forbiddenUrl = req.nextUrl.clone();
       forbiddenUrl.pathname = '/forbidden';
@@ -375,30 +379,30 @@ export async function middleware(req: NextRequest) {
     // Use effectiveRole so admins viewing as another role get redirected to that role's dashboard
     if (isValidRole && pathname === '/dashboard') {
       const dashboardUrls: Record<string, string> = {
-        SUPER_ADMIN: '/dashboard/admin',
-        ADMIN: '/dashboard/admin',
-        LEAD: '/dashboard/lead',
-        CLIENT: '/dashboard/client',
-        TAX_PREPARER: '/dashboard/tax-preparer',
-        AFFILIATE: '/dashboard/affiliate',
+        super_admin: '/dashboard/admin',
+        admin: '/dashboard/admin',
+        lead: '/dashboard/lead',
+        client: '/dashboard/client',
+        tax_preparer: '/dashboard/tax-preparer',
+        affiliate: '/dashboard/affiliate',
       };
-      const targetPath = dashboardUrls[effectiveRole || role || 'LEAD'] || '/dashboard/lead';
+      const targetPath = dashboardUrls[effectiveRole || role || 'lead'] || '/dashboard/lead';
 
       // Clone the URL and change pathname to avoid host capture
       const redirectUrl = req.nextUrl.clone();
       redirectUrl.pathname = targetPath;
       const redirect = NextResponse.redirect(redirectUrl);
 
-      // Copy UTM cookies to redirect response
-      utmResponse.cookies.getAll().forEach((cookie) => {
+      // Copy tracking cookies to redirect response
+      response.cookies.getAll().forEach((cookie) => {
         redirect.cookies.set(cookie.name, cookie.value, cookie);
       });
       return redirect;
     }
   }
 
-  // Return UTM response with any cookies set
-  return utmResponse;
+  // Return response with all tracking cookies set (UTM + ref)
+  return response;
 }
 
 export const config = {

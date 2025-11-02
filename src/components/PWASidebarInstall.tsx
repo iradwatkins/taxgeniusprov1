@@ -82,55 +82,28 @@ export function PWASidebarInstall() {
     );
   }
 
-  // Expanded state - show full install card
+  // Expanded state - show compact install button
   return (
-    <div className="px-2 py-2">
-      <div className="relative rounded-lg border border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10 p-3">
+    <div className="px-2 py-1">
+      <div className="relative rounded-lg border border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10 p-2">
         {/* Dismiss button */}
         <button
           onClick={handleDismiss}
-          className="absolute top-1 right-1 p-1 rounded-md hover:bg-background/50 transition-colors"
+          className="absolute top-1 right-1 p-0.5 rounded-md hover:bg-background/50 transition-colors"
           aria-label="Dismiss"
         >
           <X className="h-3 w-3 text-muted-foreground" />
         </button>
 
-        <div className="space-y-2 pr-6">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-              <Download className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1">
-              <p className="text-xs font-semibold text-foreground">Install App</p>
-            </div>
-          </div>
-
-          <p className="text-[10px] leading-tight text-muted-foreground">
-            Add Tax Genius Pro to your home screen for quick access and offline support.
-          </p>
-
-          <div className="space-y-1">
-            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-              <span className="text-green-500">✓</span>
-              <span>Works offline</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-              <span className="text-green-500">✓</span>
-              <span>Instant notifications</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-              <span className="text-green-500">✓</span>
-              <span>Native app experience</span>
-            </div>
-          </div>
-
+        <div className="pr-5">
           <Button
             onClick={handleInstall}
             size="sm"
-            className="w-full h-8 text-xs"
+            variant="ghost"
+            className="w-full h-8 text-xs justify-start gap-2 hover:bg-primary/10"
           >
-            <Download className="h-3 w-3 mr-1.5" />
-            Install Now
+            <Download className="h-3.5 w-3.5 text-primary" />
+            <span className="font-medium">Install App</span>
           </Button>
         </div>
       </div>

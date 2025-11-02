@@ -1,28 +1,52 @@
 import AppointmentBooking from '@/components/AppointmentBooking';
+import { BookingPageClient } from '@/components/booking/BookingPageClient';
+import { prisma } from '@/lib/prisma';
+import { Suspense } from 'react';
 
-export default function BookAppointmentPage() {
+interface PageProps {
+  searchParams: { ref?: string };
+}
+
+async function getPreparerByRef(ref: string | undefined) {
+  if (!ref) return null;
+
+  try {
+    const profile = await prisma.profile.findFirst({
+      where: {
+        OR: [
+          { trackingCode: ref },
+          { customTrackingCode: ref },
+        ],
+      },
+      include: {
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
+    });
+
+    if (!profile) return null;
+
+    return {
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      avatarUrl: profile.avatarUrl,
+      email: profile.user?.email,
+    };
+  } catch (error) {
+    console.error('Error fetching preparer:', error);
+    return null;
+  }
+}
+
+export default async function BookAppointmentPage({ searchParams }: PageProps) {
+  const preparer = await getPreparerByRef(searchParams.ref);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 py-12 px-4">
-      <div className="container mx-auto max-w-4xl">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl lg:text-5xl font-bold mb-4">Book Your Appointment</h1>
-          <p className="text-xl text-muted-foreground">
-            Meet with a tax professional • Free consultation • No signup required
-          </p>
-        </div>
-
-        <AppointmentBooking />
-
-        <div className="mt-8 p-6 bg-muted rounded-lg">
-          <h3 className="font-semibold mb-3">What to expect:</h3>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li>✓ 30-minute video call or phone consultation</li>
-            <li>✓ Review your tax situation with a CPA</li>
-            <li>✓ Get answers to your questions</li>
-            <li>✓ Understand next steps for filing</li>
-          </ul>
-        </div>
-      </div>
-    </div>
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <BookingPageClient preparer={preparer} />
+    </Suspense>
   );
 }

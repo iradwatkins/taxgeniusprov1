@@ -37,7 +37,7 @@ export default function TaxGuidePage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="py-24 lg:py-32 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      <section className="py-24 lg:py-32 bg-background">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div

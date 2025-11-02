@@ -110,6 +110,7 @@ model Profile {
   role        UserRole
   firstName   String?
   lastName    String?
+  middleName  String? // Middle name for personalized tracking codes (tax preparers)
   phone       String?
   vanitySlug  String?  @unique // For referrers: TaxGenius.com/YourName
   avatarUrl   String?
@@ -120,10 +121,12 @@ model Profile {
   updatedAt   DateTime @updatedAt
 
   // Universal Tracking System (Auto-generated on signup)
-  trackingCode        String?  @unique // Auto-generated unique code (e.g., "TGP-123456")
-  customTrackingCode  String?  @unique // One-time customizable vanity code
-  trackingCodeChanged Boolean  @default(false) // Enforce one-time change rule
-  trackingCodeQRUrl   String?  @db.Text // Pre-generated QR code data URL
+  trackingCode         String?  @unique // Auto-generated unique code (e.g., "TGP-123456")
+  customTrackingCode   String?  @unique // One-time customizable vanity code
+  trackingCodeChanged  Boolean  @default(false) // Enforce one-time change rule (legacy)
+  trackingCodeFinalized Boolean @default(false) // Permanently lock code after user finalizes
+  trackingCodeQRUrl    String?  @db.Text // Pre-generated QR code data URL
+  qrCodeLogoUrl        String?  @db.Text // Custom logo for QR codes (tax preparer's image or Tax Genius logo)
 
   // Short Link System (NEW - Epic 6)
   shortLinkUsername        String?  @unique // Username for short links (e.g., "irawatkins")
@@ -143,6 +146,11 @@ model Profile {
 
   // QR Code Branding (For Tax Preparers - Epic 6)
   usePhotoInQRCodes           Boolean @default(false) // Use profile photo in QR codes instead of Tax Genius logo
+
+  // Marketing Materials Contact Info (For Tax Preparers - Epic 7)
+  professionalTitle String? // e.g., "Licensed Tax Preparer", "CPA", "EA"
+  website           String? // Public website URL for marketing materials
+  publicAddress     String? // Public-facing address for marketing materials (not encrypted)
 
   // Encrypted sensitive data
   ssn         String? // Encrypted
@@ -184,6 +192,7 @@ model Profile {
   assignedTaxForms    ClientTaxForm[]      @relation("ClientTaxForms")
   formsAssignedByMe   ClientTaxForm[]      @relation("AssignedForms")
   taxFormEdits        TaxFormEdit[]        @relation("FormEdits")
+  formSignatures      FormSignature[]      @relation("FormSignatures")
 
   // Folder Upload Links (NEW - Epic: Calendar + CRM + File Sharing)
   clientUploadLinks   FolderUploadLink[]   @relation("ClientUploadLinks") // Upload links for this client
@@ -200,6 +209,10 @@ model Profile {
   // Professional Email System
   professionalEmails  ProfessionalEmailAlias[] @relation("ProfessionalEmailAliases")
   emailTemplates      EmailTemplate[]          @relation("EmailTemplates")
+
+  // AI Image Generation
+  generatedImages     GeneratedImage[]         @relation("GeneratedImages")
+  acceptedImages      GeneratedImage[]         @relation("AcceptedImages")
 
   @@index([role])
   @@index([vanitySlug])
@@ -2791,6 +2804,7 @@ model TaxForm {
   // Relations
   shares         TaxFormShare[]
   clientForms    ClientTaxForm[]   // Forms assigned to clients
+  fieldDefinitions FormFieldDefinition[] // Dynamic field definitions
 
   @@index([category])
   @@index([taxYear])
@@ -2860,19 +2874,22 @@ model ClientTaxForm {
   progress       Int                  @default(0) // Percentage 0-100
   lastEditedBy   String?              // Last person to edit
   lastEditedAt   DateTime?            // Last edit timestamp
+  taxYear        Int                  // Tax year this form is for (e.g., 2024)
 
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
 
   // Relations
   edits          TaxFormEdit[]        // Edit history
+  signatures     FormSignature[]      // E-signatures on this form
 
   @@index([clientId])
   @@index([taxFormId])
   @@index([assignedBy])
   @@index([status])
   @@index([assignedAt])
-  @@unique([clientId, taxFormId])  // Each client can only have one instance of each form
+  @@index([taxYear])
+  @@unique([clientId, taxFormId, taxYear])  // Each client can have one instance per form per year
   @@map("client_tax_forms")
 }
 
@@ -2901,6 +2918,78 @@ model TaxFormEdit {
   @@index([editedBy])
   @@index([editedAt])
   @@map("tax_form_edits")
+}
+
+// E-Signatures for Tax Forms
+model FormSignature {
+  id                 String          @id @default(cuid())
+
+  clientTaxFormId    String
+  clientTaxForm      ClientTaxForm   @relation(fields: [clientTaxFormId], references: [id], onDelete: Cascade)
+
+  // Who signed
+  signedBy           String
+  signedByProfile    Profile         @relation("FormSignatures", fields: [signedBy], references: [id], onDelete: Cascade)
+  signedByRole       UserRole        // CLIENT or TAX_PREPARER
+
+  // Signature data
+  signatureData      String          @db.Text // Base64 encoded signature image
+  signatureType      String          // "drawn", "typed", "uploaded"
+
+  // Security
+  ipAddress          String?
+  userAgent          String?         @db.Text
+
+  // Consent
+  consentText        String          @db.Text // What they agreed to when signing
+
+  signedAt           DateTime        @default(now())
+
+  @@index([clientTaxFormId])
+  @@index([signedBy])
+  @@index([signedAt])
+  @@map("form_signatures")
+}
+
+// Dynamic Field Definitions for Tax Forms
+model FormFieldDefinition {
+  id                 String          @id @default(cuid())
+
+  taxFormId          String
+  taxForm            TaxForm         @relation(fields: [taxFormId], references: [id], onDelete: Cascade)
+
+  // Field Identity
+  fieldName          String          // "ssn", "firstName", "line1_wages"
+  fieldLabel         String          // "Social Security Number"
+  fieldType          String          // "text", "number", "currency", "date", "ssn", "ein", "select", "checkbox"
+
+  // Positioning & Organization
+  section            String?         // "Part I", "Section A"
+  order              Int             @default(0)
+
+  // Validation
+  isRequired         Boolean         @default(false)
+  validationRules    Json?           @db.JsonB // {min: 0, max: 999999, pattern: "###-##-####"}
+  placeholder        String?
+  helpText           String?         @db.Text
+
+  // Options for select/radio fields
+  options            Json?           @db.JsonB // [{value: "single", label: "Single"}, ...]
+
+  // Conditional rendering
+  dependsOn          String?         // Field name that must be filled first
+  showWhen           Json?           @db.JsonB // {fieldName: "value"}
+
+  // IRS-specific
+  irsLineNumber      String?         // "1a", "2", "Schedule A Line 5"
+
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  @@unique([taxFormId, fieldName])
+  @@index([taxFormId])
+  @@index([fieldName])
+  @@map("form_field_definitions")
 }
 
 // ============ Gamification System ============
@@ -3170,4 +3259,55 @@ model EmailTemplate {
   @@index([category])
   @@index([isShared])
   @@map("email_templates")
+}
+
+// ============ AI Image Generation Center ============
+
+// Track AI-generated images for website use
+model GeneratedImage {
+  id               String    @id @default(cuid())
+
+  // Generation details
+  prompt           String    @db.Text // User's prompt
+  negativePrompt   String?   @db.Text // What to avoid (optional)
+  provider         String    // 'openai' or 'replicate'
+  modelUsed        String?   // Specific model name
+
+  // Status tracking
+  status           String    @default("generating") // generating, ready, accepted, rejected
+
+  // Image details
+  imageUrl         String    @db.Text // Full image URL
+  thumbnailUrl     String?   @db.Text // Thumbnail URL for faster loading
+  width            Int?      // Image width in pixels
+  height           Int?      // Image height in pixels
+  fileSize         Int?      // File size in bytes
+
+  // Organization
+  tags             String[]  // Tags for categorization
+  category         String?   // Category (e.g., 'hero', 'icon', 'background')
+  metadata         Json?     // Additional generation parameters
+
+  // Grouping variations
+  generationId     String    // Groups images generated together
+
+  // User tracking
+  createdBy        String    // User ID who created this
+  createdByProfile Profile   @relation("GeneratedImages", fields: [createdBy], references: [id], onDelete: Cascade)
+  acceptedBy       String?   // User ID who accepted (if applicable)
+  acceptedByProfile Profile? @relation("AcceptedImages", fields: [acceptedBy], references: [id], onDelete: SetNull)
+  acceptedAt       DateTime? // When it was accepted
+
+  // Timestamps
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([createdBy])
+  @@index([acceptedBy])
+  @@index([status])
+  @@index([generationId])
+  @@index([provider])
+  @@index([category])
+  @@index([createdAt])
+  @@map("generated_images")
 }

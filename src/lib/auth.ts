@@ -86,7 +86,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: user.email,
           name: user.name,
           image: user.image,
-          role: user.profile?.role || 'LEAD', // Default to LEAD if no profile
+          role: user.profile?.role || 'lead', // Default to lead if no profile
         } as NextAuthUser & { role: UserRole };
       },
     }),
@@ -125,14 +125,36 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // Log sign in events
       console.log(`User signed in: ${user.email} (${user.id})`);
 
-      // If new user, create a profile with default LEAD role
+      // If new user, create a profile with default lead role
       if (isNewUser) {
+        // Parse name into firstName, middleName, lastName
+        const nameParts = user.name?.split(' ').filter(part => part.length > 0) || [];
+        let firstName = '';
+        let middleName: string | undefined;
+        let lastName = '';
+
+        if (nameParts.length === 1) {
+          // Only first name
+          firstName = nameParts[0];
+        } else if (nameParts.length === 2) {
+          // First and last name only
+          firstName = nameParts[0];
+          lastName = nameParts[1];
+        } else if (nameParts.length >= 3) {
+          // First, middle, and last name
+          firstName = nameParts[0];
+          // Take all middle parts except the last one as middle name
+          middleName = nameParts.slice(1, -1).join(' ');
+          lastName = nameParts[nameParts.length - 1];
+        }
+
         await prisma.profile.create({
           data: {
             userId: user.id,
-            role: 'LEAD',
-            firstName: user.name?.split(' ')[0] || '',
-            lastName: user.name?.split(' ').slice(1).join(' ') || '',
+            role: 'lead',
+            firstName,
+            middleName,
+            lastName,
           },
         });
       }
@@ -180,28 +202,28 @@ export async function getUserRole(): Promise<UserRole | null> {
  */
 export async function hasRole(role: UserRole | string): Promise<boolean> {
   const userRole = await getUserRole();
-  // Handle both old lowercase and new uppercase enum values
-  const normalizedRole = typeof role === 'string' ? role.toUpperCase() : role;
-  const normalizedUserRole = userRole?.toString().toUpperCase();
+  // Normalize roles to lowercase for consistency
+  const normalizedRole = typeof role === 'string' ? role.toLowerCase() : role;
+  const normalizedUserRole = userRole?.toString().toLowerCase();
   return normalizedUserRole === normalizedRole;
 }
 
 /**
  * Check if current user is a super admin
- * @returns True if user is SUPER_ADMIN
+ * @returns True if user is super_admin
  */
 export async function isSuperAdmin(): Promise<boolean> {
   const userRole = await getUserRole();
-  return userRole === 'SUPER_ADMIN';
+  return userRole === 'super_admin';
 }
 
 /**
  * Check if current user is an admin (includes super_admin)
- * @returns True if user is ADMIN or SUPER_ADMIN
+ * @returns True if user is admin or super_admin
  */
 export async function isAdmin(): Promise<boolean> {
   const userRole = await getUserRole();
-  return userRole === 'ADMIN' || userRole === 'SUPER_ADMIN';
+  return userRole === 'admin' || userRole === 'super_admin';
 }
 
 /**
@@ -223,8 +245,8 @@ export async function requireAuth() {
  */
 export async function requireRole(requiredRole: UserRole | string) {
   const user = await requireAuth();
-  const normalizedRequired = typeof requiredRole === 'string' ? requiredRole.toUpperCase() : requiredRole;
-  const normalizedUserRole = user.role.toString().toUpperCase();
+  const normalizedRequired = typeof requiredRole === 'string' ? requiredRole.toLowerCase() : requiredRole;
+  const normalizedUserRole = user.role.toString().toLowerCase();
 
   if (normalizedUserRole !== normalizedRequired) {
     throw new Error('Insufficient permissions');
@@ -240,9 +262,9 @@ export async function requireRole(requiredRole: UserRole | string) {
  */
 export async function requireOneOfRoles(allowedRoles: (UserRole | string)[]) {
   const user = await requireAuth();
-  const normalizedUserRole = user.role.toString().toUpperCase();
+  const normalizedUserRole = user.role.toString().toLowerCase();
   const normalizedAllowedRoles = allowedRoles.map(r =>
-    typeof r === 'string' ? r.toUpperCase() : r
+    typeof r === 'string' ? r.toLowerCase() : r
   );
 
   if (!normalizedAllowedRoles.includes(normalizedUserRole)) {
@@ -270,15 +292,15 @@ export async function validateRequest() {
  * @returns Dashboard URL for the role
  */
 export function getDashboardUrl(role: UserRole | string): string {
-  const normalizedRole = typeof role === 'string' ? role.toUpperCase() : role;
+  const normalizedRole = typeof role === 'string' ? role.toLowerCase() : role;
 
   const dashboardUrls: Record<string, string> = {
-    SUPER_ADMIN: '/dashboard/admin',
-    ADMIN: '/dashboard/admin',
-    LEAD: '/dashboard/lead',
-    CLIENT: '/dashboard/client',
-    TAX_PREPARER: '/dashboard/tax-preparer',
-    AFFILIATE: '/dashboard/affiliate',
+    super_admin: '/dashboard/admin',
+    admin: '/dashboard/admin',
+    lead: '/dashboard/lead',
+    client: '/dashboard/client',
+    tax_preparer: '/dashboard/tax-preparer',
+    affiliate: '/dashboard/affiliate',
   };
 
   return dashboardUrls[normalizedRole] || '/dashboard/lead';
@@ -292,10 +314,10 @@ export function getDashboardUrl(role: UserRole | string): string {
 export async function hasStoreAccess(): Promise<boolean> {
   const userRole = await getUserRole();
   return (
-    userRole === 'TAX_PREPARER' ||
-    userRole === 'AFFILIATE' ||
-    userRole === 'ADMIN' ||
-    userRole === 'SUPER_ADMIN'
+    userRole === 'tax_preparer' ||
+    userRole === 'affiliate' ||
+    userRole === 'admin' ||
+    userRole === 'super_admin'
   );
 }
 
@@ -308,7 +330,7 @@ export async function hasStoreAccess(): Promise<boolean> {
 export async function updateUserRole(userId: string, role: UserRole): Promise<void> {
   // Verify admin permissions
   const currentUser = await requireAuth();
-  if (currentUser.role !== 'SUPER_ADMIN' && currentUser.role !== 'ADMIN') {
+  if (currentUser.role !== 'super_admin' && currentUser.role !== 'admin') {
     throw new Error('Only admins can update user roles');
   }
 

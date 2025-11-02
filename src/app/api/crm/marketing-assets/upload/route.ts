@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(bytes);
     await writeFile(filePath, buffer);
 
-    const fileUrl = `/uploads/marketing-assets/${profile.id}/${fileName}`;
+    const fileUrl = `/api/uploads/marketing-assets/${profile.id}/${fileName}`;
 
     // If profile_photo and this is the first one, set as primary
     const isPrimary = category === 'profile_photo';

@@ -29,7 +29,7 @@ const posterTemplates: PosterTemplate[] = [
     id: 'professional',
     name: 'Tangerine Professional',
     description: 'Clean professional design with tangerine theme',
-    className: 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground',
+    className: 'bg-primary text-primary-foreground',
   },
   {
     id: 'modern',

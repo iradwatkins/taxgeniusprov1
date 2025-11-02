@@ -75,7 +75,7 @@ export function ServicesSection() {
                     height={400}
                     className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-300"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+                  <div className="absolute inset-0 bg-black/30 flex items-end p-4">
                     <Badge className={service.badgeClass}>{service.badgeText}</Badge>
                   </div>
                 </div>

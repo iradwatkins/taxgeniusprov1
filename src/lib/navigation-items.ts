@@ -33,6 +33,7 @@ import {
   Ticket,
   GitBranch,
   LifeBuoy,
+  Image,
 } from 'lucide-react';
 import { UserRole, Permission } from '@/lib/permissions';
 
@@ -170,123 +171,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     roles: ['admin', 'super_admin'],
   },
 
-  // 📋 CRM Section
-  {
-    label: 'Calendar & Appointments',
-    href: '/admin/calendar',
-    icon: Calendar,
-    permission: 'calendar',
-    section: '📋 CRM',
-    roles: ['tax_preparer', 'admin', 'super_admin'],
-  },
-  {
-    label: 'CRM Contacts',
-    href: '/crm/contacts',
-    icon: BookOpen,
-    permission: 'addressBook',
-    section: '📋 CRM',
-    roles: ['tax_preparer', 'admin', 'super_admin'],
-  },
-  {
-    label: 'Client File Center',
-    href: '/admin/file-center',
-    icon: FolderOpen,
-    permission: 'clientFileCenter',
-    section: '📋 CRM',
-    roles: ['tax_preparer', 'admin', 'super_admin'],
-  },
-  {
-    label: 'Emails',
-    href: '/admin/emails',
-    icon: Mail,
-    permission: 'emails',
-    section: '📋 CRM',
-    roles: ['admin', 'super_admin'],
-  },
-  {
-    label: 'Academy',
-    href: '/app/academy',
-    icon: GraduationCap,
-    permission: 'academy',
-    section: '📋 CRM',
-    roles: ['tax_preparer', 'admin', 'super_admin'],
-  },
-  {
-    label: 'IRS Forms',
-    href: '/admin/tax-forms',
-    icon: FileText,
-    permission: 'taxForms', // ✅ NOW INDEPENDENT! Can toggle separately from Client File Center
-    section: '📋 CRM',
-    roles: ['tax_preparer', 'admin', 'super_admin'], // ✅ Visible to tax preparers too!
-  },
-  {
-    label: 'Store',
-    href: '/store',
-    icon: Package,
-    permission: 'store',
-    section: '📋 CRM',
-    roles: ['tax_preparer', 'admin', 'super_admin'],
-  },
-  {
-    label: 'Marketing Assets',
-    href: '/crm/marketing-assets',
-    icon: FolderOpen,
-    permission: 'marketingAssets', // ✅ NOW INDEPENDENT! Can toggle separately from Client File Center
-    section: '📋 CRM',
-    roles: ['tax_preparer', 'admin', 'super_admin'], // ✅ NOW VISIBLE TO ADMIN TOO!
-  },
-  {
-    label: 'Support System',
-    href: '/admin/support-settings',
-    icon: LifeBuoy,
-    permission: 'clientFileCenter',
-    section: '📋 CRM',
-    roles: ['admin', 'super_admin'],
-  },
-  {
-    label: 'Saved Replies',
-    href: '/admin/saved-replies',
-    icon: FileText,
-    permission: 'clientFileCenter',
-    section: '📋 CRM',
-    roles: ['admin', 'super_admin'],
-  },
-  {
-    label: 'Ticket Workflows',
-    href: '/admin/workflows',
-    icon: GitBranch,
-    permission: 'clientFileCenter',
-    section: '📋 CRM',
-    roles: ['admin', 'super_admin'],
-  },
-  {
-    label: 'Ticket Reports',
-    href: '/admin/ticket-reports',
-    icon: BarChart3,
-    permission: 'analytics',
-    section: '📋 CRM',
-    roles: ['admin', 'super_admin'],
-  },
-
-  // 💰 Financials Section (admin only)
-  {
-    label: 'Earnings',
-    href: '/admin/earnings',
-    icon: DollarSign,
-    permission: 'earnings',
-    section: '💰 Financials',
-    roles: ['admin', 'super_admin'],
-  },
-  {
-    label: 'Payouts',
-    href: '/admin/payouts',
-    icon: DollarSign,
-    permission: 'payouts',
-    section: '💰 Financials',
-    roles: ['admin', 'super_admin'],
-  },
-
-  // 📊 Analytics Section
+  // 📊 Analytics Section (Moved to top for admin - overview of whole company)
   {
     label: 'Analytics Overview',
     href: '/admin/analytics',
@@ -341,7 +226,131 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: QrCode,
     permission: 'trackingCode',
     section: '📊 Analytics',
-    roles: ['tax_preparer', 'admin', 'super_admin', 'affiliate', 'client'],
+    roles: ['tax_preparer', 'super_admin', 'affiliate', 'client'],
+  },
+
+  // 📋 CRM Section
+  {
+    label: 'Calendar & Appointments',
+    href: '/admin/calendar',
+    icon: Calendar,
+    permission: 'calendar',
+    section: '📋 CRM',
+    roles: ['tax_preparer', 'super_admin'],
+  },
+  {
+    label: 'CRM Contacts',
+    href: '/crm/contacts',
+    icon: BookOpen,
+    permission: 'addressBook',
+    section: '📋 CRM',
+    roles: ['tax_preparer', 'super_admin'],
+  },
+  {
+    label: 'Client File Center',
+    href: '/admin/file-center',
+    icon: FolderOpen,
+    permission: 'clientFileCenter',
+    section: '📋 CRM',
+    roles: ['tax_preparer', 'super_admin'],
+  },
+  {
+    label: 'Emails',
+    href: '/admin/emails',
+    icon: Mail,
+    permission: 'emails',
+    section: '📋 CRM',
+    roles: ['admin', 'super_admin'],
+  },
+  {
+    label: 'Academy',
+    href: '/app/academy',
+    icon: GraduationCap,
+    permission: 'academy',
+    section: '📋 CRM',
+    roles: ['tax_preparer', 'admin', 'super_admin'],
+  },
+  {
+    label: 'IRS Forms',
+    href: '/admin/tax-forms',
+    icon: FileText,
+    permission: 'taxForms', // ✅ NOW INDEPENDENT! Can toggle separately from Client File Center
+    section: '📋 CRM',
+    roles: ['tax_preparer', 'admin', 'super_admin'], // ✅ Visible to tax preparers too!
+  },
+  {
+    label: 'Store',
+    href: '/store',
+    icon: Package,
+    permission: 'store',
+    section: '📋 CRM',
+    roles: ['tax_preparer', 'admin', 'super_admin'],
+  },
+  {
+    label: 'Marketing Assets',
+    href: '/crm/marketing-assets',
+    icon: FolderOpen,
+    permission: 'marketingAssets', // ✅ NOW INDEPENDENT! Can toggle separately from Client File Center
+    section: '📋 CRM',
+    roles: ['tax_preparer', 'super_admin'],
+  },
+  {
+    label: 'Marketing Products',
+    href: '/dashboard/tax-preparer/marketing-products',
+    icon: Package,
+    permission: 'marketingAssets',
+    section: '📋 CRM',
+    roles: ['tax_preparer'],
+  },
+  {
+    label: 'Support System',
+    href: '/admin/support-settings',
+    icon: LifeBuoy,
+    permission: 'clientFileCenter',
+    section: '📋 CRM',
+    roles: ['super_admin'],
+  },
+  {
+    label: 'Saved Replies',
+    href: '/admin/saved-replies',
+    icon: FileText,
+    permission: 'clientFileCenter',
+    section: '📋 CRM',
+    roles: ['super_admin'],
+  },
+  {
+    label: 'Ticket Workflows',
+    href: '/admin/workflows',
+    icon: GitBranch,
+    permission: 'clientFileCenter',
+    section: '📋 CRM',
+    roles: ['super_admin'],
+  },
+  {
+    label: 'Ticket Reports',
+    href: '/admin/ticket-reports',
+    icon: BarChart3,
+    permission: 'analytics',
+    section: '📋 CRM',
+    roles: ['super_admin'],
+  },
+
+  // 💰 Financials Section (admin only)
+  {
+    label: 'Earnings',
+    href: '/admin/earnings',
+    icon: DollarSign,
+    permission: 'earnings',
+    section: '💰 Financials',
+    roles: ['admin', 'super_admin'],
+  },
+  {
+    label: 'Payouts',
+    href: '/admin/payouts',
+    icon: DollarSign,
+    permission: 'payouts',
+    section: '💰 Financials',
+    roles: ['admin', 'super_admin'],
   },
 
   // 📢 Marketing Section
@@ -351,7 +360,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: Megaphone,
     permission: 'marketingHub',
     section: '📢 Marketing',
-    roles: ['tax_preparer', 'admin', 'super_admin'],
+    roles: ['tax_preparer', 'super_admin'],
   },
   {
     label: 'Tracking Codes',
@@ -359,7 +368,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     icon: QrCode,
     permission: 'marketingHub',
     section: '📢 Marketing',
-    roles: ['tax_preparer', 'admin', 'super_admin'],
+    roles: ['tax_preparer', 'super_admin'],
   },
 
   // 🛒 Marketing Materials Section (Paid Features: Store, Content Generator, Products)
@@ -367,6 +376,14 @@ export const ALL_NAV_ITEMS: NavItem[] = [
     label: 'Content Generator',
     href: '/admin/content-generator',
     icon: Sparkles,
+    permission: 'contentGenerator',
+    section: '🛒 Marketing Materials',
+    roles: ['admin', 'super_admin'],
+  },
+  {
+    label: 'AI Image Center',
+    href: '/admin/image-center',
+    icon: Image,
     permission: 'contentGenerator',
     section: '🛒 Marketing Materials',
     roles: ['admin', 'super_admin'],

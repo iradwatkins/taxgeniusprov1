@@ -10,7 +10,7 @@ import AnimatedCounter from '@/components/AnimatedCounter';
 
 export function HeroSection() {
   return (
-    <section className="relative py-24 lg:py-32 bg-gradient-to-b from-muted/30 to-background overflow-hidden">
+    <section className="relative py-24 lg:py-32 bg-background overflow-hidden">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left Column - Content */}

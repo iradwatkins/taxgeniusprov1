@@ -130,7 +130,7 @@ export default function PreparerJoinPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-background to-blue-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="max-w-2xl w-full">
           <CardContent className="pt-12 pb-12 text-center">
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-100">
@@ -172,7 +172,7 @@ export default function PreparerJoinPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-background to-blue-50">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-12">
         {/* Hero Section */}
         <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">

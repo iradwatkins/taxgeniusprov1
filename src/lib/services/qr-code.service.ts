@@ -38,9 +38,9 @@ export async function generateQRCode(options: GenerateQROptions): Promise<QRCode
     url,
     format = 'PNG',
     size = 512,
-    brandColor = '#000000',
+    brandColor = '#000000', // Always use black for best scanning
     errorCorrectionLevel = 'H', // High error correction for print materials
-    withLogo = false,
+    withLogo = true, // Default to true - always add logo
     userId,
   } = options;
 
@@ -48,8 +48,8 @@ export async function generateQRCode(options: GenerateQROptions): Promise<QRCode
     width: size,
     margin: 2,
     color: {
-      dark: brandColor,
-      light: '#FFFFFF',
+      dark: brandColor, // Use the brandColor parameter
+      light: '#FFFFFF', // Always white background
     },
     errorCorrectionLevel,
   };
@@ -73,7 +73,8 @@ export async function generateQRCode(options: GenerateQROptions): Promise<QRCode
 
       // Add logo if requested
       if (withLogo) {
-        // Check if user wants to use their profile photo in QR codes
+        logger.info('🎨 Adding logo to QR code...', { userId, size });
+        // Check if user has custom QR code logo
         let customLogoUrl: string | undefined;
         if (userId) {
           const userProfile = await prisma.profile.findFirst({
@@ -84,19 +85,27 @@ export async function generateQRCode(options: GenerateQROptions): Promise<QRCode
               ]
             },
             select: {
-              usePhotoInQRCodes: true,
-              avatarUrl: true,
+              qrCodeLogoUrl: true,
             },
           });
 
-          if (userProfile?.usePhotoInQRCodes && userProfile?.avatarUrl) {
-            customLogoUrl = userProfile.avatarUrl;
-            logger.info('Using custom photo for QR code', { userId, avatarUrl: customLogoUrl });
+          if (userProfile?.qrCodeLogoUrl) {
+            customLogoUrl = userProfile.qrCodeLogoUrl;
+            logger.info('📸 Using custom QR logo from profile', { userId, logoUrl: customLogoUrl });
+          } else {
+            logger.info('🏢 No custom logo found, will use default Tax Genius logo');
           }
+        } else {
+          logger.info('🏢 No userId provided, using default Tax Genius logo');
         }
 
         qrBuffer = await addLogoToQRCode(qrBuffer, size, customLogoUrl);
+      } else {
+        logger.info('⏭️ Skipping logo - withLogo is false');
       }
+
+      // Add white bevel border around entire QR code
+      qrBuffer = await addWhiteBevel(qrBuffer, size);
 
       // Convert to data URL
       dataUrl = `data:image/png;base64,${qrBuffer.toString('base64')}`;
@@ -121,9 +130,9 @@ export async function generateQRBuffer(options: GenerateQROptions): Promise<Buff
     url,
     format = 'PNG',
     size = 512,
-    brandColor = '#000000',
+    brandColor = '#000000', // Always use black for best scanning
     errorCorrectionLevel = 'H',
-    withLogo = false,
+    withLogo = true, // Default to true - always add logo
     userId,
   } = options;
 
@@ -131,8 +140,8 @@ export async function generateQRBuffer(options: GenerateQROptions): Promise<Buff
     width: size,
     margin: 2,
     color: {
-      dark: brandColor,
-      light: '#FFFFFF',
+      dark: brandColor, // Use the brandColor parameter
+      light: '#FFFFFF', // Always white background
     },
     errorCorrectionLevel,
   };
@@ -153,7 +162,8 @@ export async function generateQRBuffer(options: GenerateQROptions): Promise<Buff
 
       // Add logo if requested
       if (withLogo) {
-        // Check if user wants to use their profile photo in QR codes
+        logger.info('🎨 [Buffer] Adding logo to QR code...', { userId, size });
+        // Check if user has custom QR code logo
         let customLogoUrl: string | undefined;
         if (userId) {
           const userProfile = await prisma.profile.findFirst({
@@ -164,18 +174,27 @@ export async function generateQRBuffer(options: GenerateQROptions): Promise<Buff
               ]
             },
             select: {
-              usePhotoInQRCodes: true,
-              avatarUrl: true,
+              qrCodeLogoUrl: true,
             },
           });
 
-          if (userProfile?.usePhotoInQRCodes && userProfile?.avatarUrl) {
-            customLogoUrl = userProfile.avatarUrl;
+          if (userProfile?.qrCodeLogoUrl) {
+            customLogoUrl = userProfile.qrCodeLogoUrl;
+            logger.info('📸 [Buffer] Using custom QR logo from profile', { userId, logoUrl: customLogoUrl });
+          } else {
+            logger.info('🏢 [Buffer] No custom logo found, will use default Tax Genius logo');
           }
+        } else {
+          logger.info('🏢 [Buffer] No userId provided, using default Tax Genius logo');
         }
 
         qrBuffer = await addLogoToQRCode(qrBuffer, size, customLogoUrl);
+      } else {
+        logger.info('⏭️ [Buffer] Skipping logo - withLogo is false');
       }
+
+      // Add white bevel border around entire QR code
+      qrBuffer = await addWhiteBevel(qrBuffer, size);
 
       return qrBuffer;
     }
@@ -202,35 +221,47 @@ export function validateQRSize(buffer: Buffer): { valid: boolean; size: number }
  */
 async function addLogoToQRCode(qrBuffer: Buffer, qrSize: number, customLogoUrl?: string): Promise<Buffer> {
   try {
-    let logoBuffer: Buffer;
+    let logoBuffer: Buffer | undefined;
 
     // Use custom logo URL if provided (from preparer profile)
     if (customLogoUrl) {
       try {
+        logger.info('Attempting to fetch custom logo from:', customLogoUrl);
         const response = await fetch(customLogoUrl);
         if (response.ok) {
           const arrayBuffer = await response.arrayBuffer();
           logoBuffer = Buffer.from(arrayBuffer);
+          logger.info('✅ Custom logo fetched successfully');
         } else {
-          throw new Error('Failed to fetch custom logo');
+          throw new Error(`Failed to fetch custom logo: ${response.status} ${response.statusText}`);
         }
       } catch (error) {
         logger.warn('Failed to fetch custom logo, using default:', error);
         // Fall through to default logo
         customLogoUrl = undefined;
+        logoBuffer = undefined;
       }
     }
 
     // If no custom logo or custom logo failed, use default Tax Genius logo
-    if (!customLogoUrl) {
+    if (!logoBuffer) {
       const logoPath = path.join(process.cwd(), 'public', 'images', 'tax-genius-logo.png');
+      logger.info('Using default logo from:', logoPath);
 
       try {
         logoBuffer = await fs.readFile(logoPath);
-      } catch {
+        logger.info('✅ Default logo loaded successfully');
+      } catch (error) {
         // Fallback to icon if logo not found
+        logger.warn('Default logo not found, trying fallback icon:', error);
         const iconPath = path.join(process.cwd(), 'public', 'icon-512x512.png');
-        logoBuffer = await fs.readFile(iconPath);
+        try {
+          logoBuffer = await fs.readFile(iconPath);
+          logger.info('✅ Fallback icon loaded successfully');
+        } catch (iconError) {
+          logger.error('Failed to load fallback icon:', iconError);
+          throw new Error('No logo file available');
+        }
       }
     }
 
@@ -264,10 +295,40 @@ async function addLogoToQRCode(qrBuffer: Buffer, qrSize: number, customLogoUrl?:
       .png()
       .toBuffer();
 
+    logger.info('✅ Logo successfully composited onto QR code');
     return qrWithLogo;
   } catch (error) {
-    logger.error('Failed to add logo to QR code:', error);
+    logger.error('❌ Failed to add logo to QR code:', error);
     // Return original QR code if logo overlay fails
+    logger.warn('⚠️ Returning QR code without logo');
+    return qrBuffer;
+  }
+}
+
+/**
+ * Add white bevel border around QR code
+ * This ensures the QR code can be scanned on dark materials
+ */
+async function addWhiteBevel(qrBuffer: Buffer, qrSize: number): Promise<Buffer> {
+  try {
+    // Add 10% padding as white border (bevel)
+    const bevelSize = Math.floor(qrSize * 0.1);
+
+    const qrWithBevel = await sharp(qrBuffer)
+      .extend({
+        top: bevelSize,
+        bottom: bevelSize,
+        left: bevelSize,
+        right: bevelSize,
+        background: { r: 255, g: 255, b: 255, alpha: 1 }
+      })
+      .png()
+      .toBuffer();
+
+    return qrWithBevel;
+  } catch (error) {
+    logger.error('Failed to add white bevel to QR code:', error);
+    // Return original QR code if bevel fails
     return qrBuffer;
   }
 }

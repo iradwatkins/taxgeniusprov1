@@ -10,7 +10,7 @@ export const metadata = {
 
 export default function PreparerStartPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <section className="bg-primary text-primary-foreground py-12 px-4">
         <div className="container mx-auto max-w-4xl text-center">
@@ -81,7 +81,7 @@ export default function PreparerStartPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             {/* Left Side - Logo Image */}
             <div className="hidden lg:block sticky top-24">
-              <div className="relative h-[600px] rounded-2xl overflow-hidden shadow-2xl border-4 border-primary/20 bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center p-12">
+              <div className="relative h-[600px] rounded-2xl overflow-hidden shadow-2xl border-4 border-primary/20 bg-muted flex items-center justify-center p-12">
                 <Image
                   src="/images/tax-genius-logo.png"
                   alt="Tax Genius Pro - Join Our Team"

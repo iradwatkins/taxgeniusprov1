@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { getUserPermissions, UserRole } from '@/lib/permissions';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,6 +19,8 @@ import {
   Building2,
   Palette,
   X,
+  QrCode,
+  Edit,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Image from 'next/image';
@@ -36,19 +38,26 @@ interface MarketingAsset {
 
 export default function MarketingAssetsPage() {
   const { data: session, status } = useSession(); const user = session?.user; const isLoaded = status !== 'loading';
+  const router = useRouter();
   const queryClient = useQueryClient();
+  const hasRedirected = useRef(false);
   const [selectedCategory, setSelectedCategory] = useState<'profile_photo' | 'logo' | 'office' | 'custom'>('profile_photo');
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const qrLogoInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [qrLogoFile, setQrLogoFile] = useState<File | null>(null);
+  const [qrLogoPreview, setQrLogoPreview] = useState<string | null>(null);
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [currentQrLogo, setCurrentQrLogo] = useState<string | null>(null);
 
-  // 🎛️ Check permissions
-  const role = user?.publicMetadata?.role as UserRole | undefined;
-  const permissions = role
-    ? getUserPermissions(role, user?.publicMetadata?.permissions as any)
-    : null;
+  // 🎛️ Check permissions (memoized to prevent infinite loops)
+  const role = user?.role as UserRole | undefined;
+  const permissions = useMemo(() => {
+    return role ? getUserPermissions(role, user?.permissions as any) : null;
+  }, [role, user?.permissions]);
 
   // Extract micro-permissions for marketing assets features
   const canView = permissions?.marketing_view ?? permissions?.marketingAssets ?? false;
@@ -56,12 +65,18 @@ export default function MarketingAssetsPage() {
   const canUpload = permissions?.marketing_upload ?? false;
   const canDelete = permissions?.marketing_delete ?? false;
 
-  // Redirect if no access
+  // Check if user has marketing assets permission
+  const hasMarketingAssetsPermission = permissions?.marketingAssets ?? false;
+
+  // Redirect if no access (client-side redirect, only once)
   useEffect(() => {
-    if (isLoaded && (!user || !permissions?.marketingAssets)) {
-      redirect('/forbidden');
+    if (isLoaded && !hasRedirected.current) {
+      if (!user || !hasMarketingAssetsPermission) {
+        hasRedirected.current = true;
+        router.push('/forbidden');
+      }
     }
-  }, [isLoaded, user, permissions]);
+  }, [isLoaded, user, hasMarketingAssetsPermission, router]);
 
   // Show loading while checking auth
   if (!isLoaded || !permissions) {
@@ -362,6 +377,66 @@ export default function MarketingAssetsPage() {
                   Upload
                 </>
               )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tracking Code Integration Info */}
+      <Card className="border-primary/50 bg-primary/5">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Star className="w-5 h-5 text-primary" />
+            Marketing Assets + Tracking Codes
+          </CardTitle>
+          <CardDescription>
+            Your marketing materials work with your tracking code to track referrals
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-3 text-sm">
+            <div className="flex items-start gap-3 p-3 bg-background rounded-lg border">
+              <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center mt-0.5">
+                <span className="text-xs font-bold text-primary">1</span>
+              </div>
+              <div>
+                <p className="font-medium">Create Your Flyers & Materials</p>
+                <p className="text-muted-foreground">
+                  Upload your photos here (profile, logo, office) to use in marketing materials
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 bg-background rounded-lg border">
+              <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center mt-0.5">
+                <span className="text-xs font-bold text-primary">2</span>
+              </div>
+              <div>
+                <p className="font-medium">Add Your Tracking Code / QR Code</p>
+                <p className="text-muted-foreground">
+                  Include your tracking QR code on flyers, business cards, and marketing materials
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-3 bg-background rounded-lg border">
+              <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center mt-0.5">
+                <span className="text-xs font-bold text-primary">3</span>
+              </div>
+              <div>
+                <p className="font-medium">Track Your Results</p>
+                <p className="text-muted-foreground">
+                  Monitor clicks and conversions from your marketing materials
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-2 border-t">
+            <Button asChild variant="outline" className="w-full">
+              <a href="/dashboard/tax-preparer/tracking">
+                View Tracking Dashboard & Download QR Codes
+              </a>
             </Button>
           </div>
         </CardContent>

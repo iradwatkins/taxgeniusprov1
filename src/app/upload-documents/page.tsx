@@ -12,7 +12,7 @@ export default async function UploadDocumentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30 py-12 px-4">
+    <div className="min-h-screen bg-background py-12 px-4">
       <SaveFormDataClient />
       <div className="container mx-auto max-w-4xl">
         <div className="text-center mb-8">

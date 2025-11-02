@@ -29,6 +29,7 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ShieldCheck } from 'lucide-react';
 import { PWASidebarInstall } from '@/components/PWASidebarInstall';
+import { RestartTourButton } from '@/components/RestartTourButton';
 
 interface DashboardSidebarProps {
   role: UserRole;
@@ -329,10 +330,13 @@ export function DashboardSidebar({ role, permissions }: DashboardSidebarProps) {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer with PWA Install & Role Badge */}
+      {/* Footer with PWA Install, Restart Tour & Role Badge */}
       <SidebarFooter>
         {/* PWA Install Prompt */}
         <PWASidebarInstall />
+
+        {/* Restart Tour Button */}
+        <RestartTourButton role={role} />
 
         {/* Role Badge */}
         <div className="flex items-center gap-2 px-2 py-1.5 text-xs text-muted-foreground">
