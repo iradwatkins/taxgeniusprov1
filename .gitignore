@@ -69,3 +69,7 @@ next-env.d.ts
 
 # Ira folder - Documentation and notes
 Ira folder/
+
+# Large archive files
+*.tar.gz
+*.tar.gz.crdownload
