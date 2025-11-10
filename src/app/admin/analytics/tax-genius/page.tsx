@@ -211,7 +211,7 @@ export default async function TaxGeniusAnalyticsPage() {
         <LeadMetricCard
           title="Marketing Links"
           value={companyLinks.length}
-          icon={Link2}
+          icon="link-2"
           color="blue"
           format="number"
           subtitle="Active campaigns"
@@ -219,21 +219,21 @@ export default async function TaxGeniusAnalyticsPage() {
         <LeadMetricCard
           title="Total Clicks"
           value={totalClicks}
-          icon={MousePointerClick}
+          icon="mouse-pointer-click"
           color="purple"
           format="number"
         />
         <LeadMetricCard
           title="Leads Generated"
           value={totalLeads}
-          icon={UserPlus}
+          icon="user-plus"
           color="green"
           format="number"
         />
         <LeadMetricCard
           title="Total Revenue"
           value={totalRevenue}
-          icon={DollarSign}
+          icon="dollar-sign"
           color="yellow"
           format="currency"
         />
@@ -244,28 +244,28 @@ export default async function TaxGeniusAnalyticsPage() {
         <LeadMetricCard
           title="Conversions"
           value={totalConversions}
-          icon={FileCheck}
+          icon="file-check"
           color="green"
           format="number"
         />
         <LeadMetricCard
           title="Returns Filed"
           value={totalReturnsFiled}
-          icon={TrendingUp}
+          icon="trending-up"
           color="blue"
           format="number"
         />
         <LeadMetricCard
           title="Conversion Rate"
           value={conversionRate.toFixed(1)}
-          icon={Zap}
+          icon="zap"
           color="purple"
           format="percent"
         />
         <LeadMetricCard
           title="Revenue per Lead"
           value={totalLeads > 0 ? totalRevenue / totalLeads : 0}
-          icon={DollarSign}
+          icon="dollar-sign"
           color="orange"
           format="currency"
         />

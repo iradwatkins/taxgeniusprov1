@@ -3,16 +3,6 @@ import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { UserRole } from '@prisma/client';
 import { getUserPermissions, type UserPermissions } from '@/lib/permissions';
-import {
-  Users,
-  MousePointerClick,
-  UserPlus,
-  FileCheck,
-  DollarSign,
-  TrendingUp,
-  Target,
-  Zap,
-} from 'lucide-react';
 import { getCompanyLeadsSummary } from '@/lib/services/lead-analytics.service';
 import {
   getTrafficMetrics,
@@ -35,10 +25,8 @@ import { TopPagesChart } from '@/components/admin/analytics/TopPagesChart';
 import { CoreWebVitalsCard } from '@/components/admin/analytics/CoreWebVitalsCard';
 import { createFunnelStages } from '@/lib/utils/analytics';
 import { ConversionFunnelChart } from '@/components/admin/analytics/ConversionFunnelChart';
-import {
-  SourceBreakdownChart,
-  createSourceBreakdown,
-} from '@/components/admin/analytics/SourceBreakdownChart';
+import { SourceBreakdownChart } from '@/components/admin/analytics/SourceBreakdownChart';
+import { createSourceBreakdown } from '@/lib/utils/source-breakdown';
 import { ExportButton } from '@/components/admin/analytics/ExportButton';
 import { AnalyticsPeriodSelector } from './AnalyticsPeriodSelector';
 import type { Period } from '@/components/admin/analytics/PeriodToggle';
@@ -221,7 +209,7 @@ export default async function AdminAnalyticsOverviewPage({
               summary.clientReferrals.growthRate) /
             4
           }
-          icon={MousePointerClick}
+          icon="mouse-pointer-click"
           color="blue"
           format="number"
           subtitle={`${period === '7d' ? 'Last 7 days' : period === '30d' ? 'Last 30 days' : period === '90d' ? 'Last 90 days' : 'All time'}`}
@@ -229,21 +217,21 @@ export default async function AdminAnalyticsOverviewPage({
         <LeadMetricCard
           title="Total Leads"
           value={totalLeads}
-          icon={UserPlus}
+          icon="user-plus"
           color="purple"
           format="number"
         />
         <LeadMetricCard
           title="Conversions"
           value={totalConversions}
-          icon={FileCheck}
+          icon="file-check"
           color="green"
           format="number"
         />
         <LeadMetricCard
           title="Total Revenue"
           value={summary.totalRevenue}
-          icon={DollarSign}
+          icon="dollar-sign"
           color="yellow"
           format="currency"
         />
@@ -258,7 +246,7 @@ export default async function AdminAnalyticsOverviewPage({
             title="Tax Genius Leads"
             value={summary.taxGeniusLeads.leads}
             growthRate={summary.taxGeniusLeads.growthRate}
-            icon={Zap}
+            icon="zap"
             color="blue"
             format="number"
             subtitle={`${summary.taxGeniusLeads.conversionRate.toFixed(1)}% conversion`}
@@ -269,7 +257,7 @@ export default async function AdminAnalyticsOverviewPage({
             title="Tax Preparer Leads"
             value={summary.taxPreparerLeads.leads}
             growthRate={summary.taxPreparerLeads.growthRate}
-            icon={Users}
+            icon="users"
             color="purple"
             format="number"
             subtitle={`${summary.taxPreparerLeads.conversionRate.toFixed(1)}% conversion`}
@@ -280,7 +268,7 @@ export default async function AdminAnalyticsOverviewPage({
             title="Affiliate Leads"
             value={summary.affiliateLeads.leads}
             growthRate={summary.affiliateLeads.growthRate}
-            icon={Target}
+            icon="target"
             color="orange"
             format="number"
             subtitle={`${summary.affiliateLeads.conversionRate.toFixed(1)}% conversion`}
@@ -291,7 +279,7 @@ export default async function AdminAnalyticsOverviewPage({
             title="Client Referrals"
             value={summary.clientReferrals.leads}
             growthRate={summary.clientReferrals.growthRate}
-            icon={TrendingUp}
+            icon="trending-up"
             color="green"
             format="number"
             subtitle={`${summary.clientReferrals.conversionRate.toFixed(1)}% conversion`}
@@ -306,7 +294,7 @@ export default async function AdminAnalyticsOverviewPage({
           <LeadMetricCard
             title="Tax Genius Revenue"
             value={summary.taxGeniusLeads.revenue}
-            icon={DollarSign}
+            icon="dollar-sign"
             color="blue"
             format="currency"
             subtitle={`${summary.taxGeniusLeads.returnsFiled} returns filed`}
@@ -314,7 +302,7 @@ export default async function AdminAnalyticsOverviewPage({
           <LeadMetricCard
             title="Tax Preparer Revenue"
             value={summary.taxPreparerLeads.revenue}
-            icon={DollarSign}
+            icon="dollar-sign"
             color="purple"
             format="currency"
             subtitle={`${summary.taxPreparerLeads.returnsFiled} returns filed`}
@@ -322,7 +310,7 @@ export default async function AdminAnalyticsOverviewPage({
           <LeadMetricCard
             title="Affiliate Revenue"
             value={summary.affiliateLeads.revenue}
-            icon={DollarSign}
+            icon="dollar-sign"
             color="orange"
             format="currency"
             subtitle={`${summary.affiliateLeads.returnsFiled} returns filed`}
@@ -330,7 +318,7 @@ export default async function AdminAnalyticsOverviewPage({
           <LeadMetricCard
             title="Referral Revenue"
             value={summary.clientReferrals.revenue}
-            icon={DollarSign}
+            icon="dollar-sign"
             color="green"
             format="currency"
             subtitle={`${summary.clientReferrals.returnsFiled} returns filed`}

@@ -162,7 +162,7 @@ export default async function AdminPreparersAnalyticsPage({
         <LeadMetricCard
           title="Total Marketing Links"
           value={totalMarketingLinks}
-          icon={Link2}
+          icon="link-2"
           color="blue"
           format="number"
           subtitle={`${preparersData.length} preparer${preparersData.length !== 1 ? 's' : ''}`}
@@ -170,21 +170,21 @@ export default async function AdminPreparersAnalyticsPage({
         <LeadMetricCard
           title="Total Clicks"
           value={totalClicks}
-          icon={MousePointerClick}
+          icon="mouse-pointer-click"
           color="purple"
           format="number"
         />
         <LeadMetricCard
           title="Total Leads"
           value={totalLeads}
-          icon={UserPlus}
+          icon="user-plus"
           color="green"
           format="number"
         />
         <LeadMetricCard
           title="Total Revenue"
           value={totalRevenue}
-          icon={DollarSign}
+          icon="dollar-sign"
           color="yellow"
           format="currency"
           subtitle={`${avgConversionRate.toFixed(1)}% avg conversion`}
@@ -196,28 +196,28 @@ export default async function AdminPreparersAnalyticsPage({
         <LeadMetricCard
           title="Conversions"
           value={totalConversions}
-          icon={FileCheck}
+          icon="file-check"
           color="green"
           format="number"
         />
         <LeadMetricCard
           title="Returns Filed"
           value={totalReturnsFiled}
-          icon={TrendingUp}
+          icon="trending-up"
           color="blue"
           format="number"
         />
         <LeadMetricCard
           title="Avg Conversion Rate"
           value={avgConversionRate.toFixed(1)}
-          icon={TrendingUp}
+          icon="trending-up"
           color="purple"
           format="percent"
         />
         <LeadMetricCard
           title="Avg Revenue per Preparer"
           value={preparersData.length > 0 ? totalRevenue / preparersData.length : 0}
-          icon={DollarSign}
+          icon="dollar-sign"
           color="orange"
           format="currency"
         />

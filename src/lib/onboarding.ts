@@ -317,8 +317,15 @@ export const ONBOARDING_STEPS: Record<UserRole, OnboardingStep[]> = {
 
 /**
  * Check if user has completed onboarding
+ *
+ * NOTE: Tours are currently disabled for all users.
+ * This function always returns true to skip onboarding tours.
  */
 export function hasCompletedOnboarding(role?: UserRole): boolean {
+  // Tours disabled - always return true to skip onboarding
+  return true;
+
+  /* Original implementation (disabled):
   if (typeof window === 'undefined') return true;
 
   try {
@@ -331,6 +338,7 @@ export function hasCompletedOnboarding(role?: UserRole): boolean {
     console.error('Error checking onboarding completion:', error);
     return false;
   }
+  */
 }
 
 /**

@@ -24,7 +24,7 @@
     "warning": "ONLY access taxgeniuspro - NEVER touch other databases"
   },
   "gitRepo": {
-    "remote": "https://github.com/iradwatkins/taxgeniuspro.tax.git",
+    "remote": "git@github.com-taxgenius:iradwatkins/taxgeniusprov1.git",
     "expectedBranch": "main"
   },
   "port": 3005,

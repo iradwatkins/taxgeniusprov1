@@ -2,13 +2,9 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import type { SourceData } from '@/lib/utils/source-breakdown';
 
-export interface SourceData {
-  name: string;
-  value: number;
-  percentage: number;
-  color: string;
-}
+export type { SourceData };
 
 interface SourceBreakdownChartProps {
   data: SourceData[];
@@ -176,39 +172,4 @@ export function SourceBreakdownChart({
       </CardContent>
     </Card>
   );
-}
-
-// Helper function to create source breakdown from analytics
-export function createSourceBreakdown(
-  taxGeniusLeads: number,
-  preparerLeads: number,
-  affiliateLeads: number,
-  clientReferrals: number
-): SourceData[] {
-  return [
-    {
-      name: 'Tax Genius',
-      value: taxGeniusLeads,
-      percentage: 0, // Will be calculated in component
-      color: '#3b82f6', // blue
-    },
-    {
-      name: 'Tax Preparers',
-      value: preparerLeads,
-      percentage: 0,
-      color: '#8b5cf6', // purple
-    },
-    {
-      name: 'Affiliates',
-      value: affiliateLeads,
-      percentage: 0,
-      color: '#f59e0b', // orange
-    },
-    {
-      name: 'Client Referrals',
-      value: clientReferrals,
-      percentage: 0,
-      color: '#10b981', // green
-    },
-  ].filter((source) => source.value > 0); // Only show sources with data
 }

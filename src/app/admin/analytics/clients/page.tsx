@@ -168,7 +168,7 @@ export default async function AdminClientsAnalyticsPage({
         <LeadMetricCard
           title="Active Referrers"
           value={clientsData.length}
-          icon={Users}
+          icon="users"
           color="blue"
           format="number"
           subtitle={`${totalReferralLinks} referral links`}
@@ -176,21 +176,21 @@ export default async function AdminClientsAnalyticsPage({
         <LeadMetricCard
           title="Total Clicks"
           value={totalClicks}
-          icon={MousePointerClick}
+          icon="mouse-pointer-click"
           color="purple"
           format="number"
         />
         <LeadMetricCard
           title="Total Referrals"
           value={totalLeads}
-          icon={UserPlus}
+          icon="user-plus"
           color="green"
           format="number"
         />
         <LeadMetricCard
           title="Total Revenue"
           value={totalRevenue}
-          icon={DollarSign}
+          icon="dollar-sign"
           color="yellow"
           format="currency"
           subtitle={`${avgConversionRate.toFixed(1)}% avg conversion`}
@@ -202,28 +202,28 @@ export default async function AdminClientsAnalyticsPage({
         <LeadMetricCard
           title="Total Rewards Paid"
           value={totalRewards}
-          icon={Gift}
+          icon="gift"
           color="green"
           format="currency"
         />
         <LeadMetricCard
           title="Conversions"
           value={totalConversions}
-          icon={FileCheck}
+          icon="file-check"
           color="blue"
           format="number"
         />
         <LeadMetricCard
           title="Returns Filed"
           value={totalReturnsFiled}
-          icon={TrendingUp}
+          icon="trending-up"
           color="purple"
           format="number"
         />
         <LeadMetricCard
           title="Avg Revenue per Client"
           value={clientsData.length > 0 ? totalRevenue / clientsData.length : 0}
-          icon={DollarSign}
+          icon="dollar-sign"
           color="orange"
           format="currency"
         />
