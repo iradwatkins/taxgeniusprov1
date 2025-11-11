@@ -257,7 +257,7 @@ export default function HelpCenterPage() {
                 title: 'Email Support',
                 desc: 'Response within 24 hours',
                 action: 'Send Email',
-                href: 'mailto:support@taxgeniuspro.tax',
+                href: 'mailto:taxgenius.tax@gmail.com',
                 color: 'text-purple-500',
               },
               {

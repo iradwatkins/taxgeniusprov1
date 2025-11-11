@@ -66,19 +66,21 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // EPIC 7: Auto-create CRM contact for real-time visibility
+    // ========================================
+    // CRM INTEGRATION: Create CRM contact and interaction
+    // ========================================
     try {
-      await prisma.cRMContact.create({
-        data: {
-          userId: null,
-          userId: null,
+      const crmContact = await prisma.cRMContact.upsert({
+        where: { email: lead.email.toLowerCase() },
+        create: {
           contactType: 'PREPARER',
           firstName: lead.firstName,
           lastName: lead.lastName,
-          email: lead.email,
+          email: lead.email.toLowerCase(),
           phone: lead.phone,
           stage: 'NEW',
-          source: lead.source,
+          source: lead.source || 'preparer_lead_form',
+          lastContactedAt: new Date(),
           // Epic 6 Attribution Integration
           referrerUsername: lead.referrerUsername,
           referrerType: lead.referrerType,
@@ -87,10 +89,65 @@ export async function POST(request: NextRequest) {
           attributionMethod: lead.attributionMethod,
           attributionConfidence: lead.attributionConfidence,
         },
+        update: {
+          firstName: lead.firstName,
+          lastName: lead.lastName,
+          phone: lead.phone,
+          lastContactedAt: new Date(),
+          // Update attribution if changed
+          referrerUsername: lead.referrerUsername,
+          referrerType: lead.referrerType,
+          attributionMethod: lead.attributionMethod,
+        },
+      });
+
+      logger.info('CRM contact created/updated from preparer lead', {
+        contactId: crmContact.id,
+        leadId: lead.id,
+        email: lead.email,
+      });
+
+      // Create CRMInteraction to log the lead submission
+      await prisma.cRMInteraction.create({
+        data: {
+          contactId: crmContact.id,
+          type: 'NOTE',
+          direction: 'INBOUND',
+          subject: '👔 Tax Preparer Lead Inquiry',
+          body: `**Tax Preparer Lead Submitted**
+
+**Contact Information:**
+- Name: ${lead.firstName} ${lead.lastName}
+- Email: ${lead.email}
+- Phone: ${lead.phone}
+
+**Professional Details:**
+- PTIN: ${validatedData.ptin}
+- Certification: ${validatedData.certification || 'Not specified'}
+- Experience: ${validatedData.experience || 'Not specified'}
+
+${validatedData.message ? `**Message:**\n${validatedData.message}\n\n` : ''}**Attribution:**
+- Method: ${attributionResult.attribution.attributionMethod || 'Direct'}
+${attributionResult.attribution.referrerUsername ? `- Referrer: ${attributionResult.attribution.referrerUsername} (${attributionResult.attribution.referrerType})` : ''}
+- Source: ${lead.source || 'Unknown'}
+
+**UTM Parameters:**
+${utmSource ? `- Source: ${utmSource}` : ''}
+${utmMedium ? `- Medium: ${utmMedium}` : ''}
+${utmCampaign ? `- Campaign: ${utmCampaign}` : ''}
+
+**Lead ID:** ${lead.id}`,
+          occurredAt: new Date(),
+        },
+      });
+
+      logger.info('CRM interaction created for preparer lead', {
+        contactId: crmContact.id,
+        leadId: lead.id,
       });
     } catch (error: any) {
-      // Log error but don't fail lead creation
-      logger.error('[Lead API] Failed to create CRM contact', {
+      // Log error but don't fail lead creation - CRM is supplementary
+      logger.error('[Lead API] Failed to create CRM contact/interaction', {
         leadId: lead.id,
         error: error.message,
       });

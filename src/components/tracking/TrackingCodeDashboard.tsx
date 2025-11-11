@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import {
   Copy,
@@ -19,12 +20,17 @@ import {
   Sparkles,
   QrCode,
   Lock,
-  Shield,
   Link2,
-  FileText,
-  Calendar,
-  RefreshCw,
+  Users,
+  ClipboardList,
+  BarChart3,
+  Eye,
+  Camera,
+  Check,
+  Zap,
+  TrendingUp,
 } from 'lucide-react';
+import { LogoUploadCard } from './LogoUploadCard';
 
 interface TrackingCodeData {
   trackingCode: string;
@@ -35,6 +41,7 @@ interface TrackingCodeData {
   canCustomize: boolean;
   activeCode: string;
   trackingUrl: string;
+  qrCodeLogoUrl?: string | null;
 }
 
 interface IntegratedLink {
@@ -144,7 +151,7 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to save custom code');
+        throw new Error(error.error || 'Failed to save tracking code');
       }
 
       const result = await response.json();
@@ -152,17 +159,22 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
       setIsEditing(false);
       setCustomCode('');
       setAvailability(null);
-      toast.success('Tracking code updated!');
+
+      toast.success('Tracking code updated successfully!');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to save custom code');
+      toast.error(error.message);
     } finally {
       setIsSaving(false);
     }
   };
 
   // Finalize tracking code
-  const handleFinalize = async () => {
-    if (!confirm('Are you sure you want to finalize your tracking code? This action cannot be undone and your code will be permanently locked.')) {
+  const handleFinalizeCode = async () => {
+    if (
+      !confirm(
+        'Are you sure? Once finalized, your tracking code cannot be changed. This will also generate your marketing links.'
+      )
+    ) {
       return;
     }
 
@@ -180,15 +192,21 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
 
       const result = await response.json();
       setTrackingData(result.data);
-      setIntegratedLinks(result.integratedLinks || []);
-      toast.success('Tracking code finalized successfully!');
+
+      // Refresh links
+      const linksResponse = await fetch('/api/profile/tracking-links');
+      if (linksResponse.ok) {
+        const linksResult = await linksResponse.json();
+        setIntegratedLinks(linksResult.links || []);
+      }
+
+      toast.success('Tracking code finalized! Your marketing links are now ready.');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to finalize tracking code');
+      toast.error(error.message);
     } finally {
       setIsFinalizing(false);
     }
   };
-
 
   // Copy to clipboard
   const copyToClipboard = async (text: string, label: string) => {
@@ -203,14 +221,9 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
   };
 
   // Download QR code
-  const downloadQRCode = (qrUrl: string, filename: string) => {
-    if (!qrUrl) {
-      toast.error('QR code not available');
-      return;
-    }
-
+  const downloadQRCode = (dataUrl: string, filename: string) => {
     const link = document.createElement('a');
-    link.href = qrUrl;
+    link.href = dataUrl;
     link.download = filename;
     document.body.appendChild(link);
     link.click();
@@ -218,173 +231,322 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
     toast.success('QR code downloaded!');
   };
 
-  // Get icon for link type
-  const getLinkIcon = (targetPage: string) => {
-    if (targetPage.includes('filing') || targetPage.includes('form')) {
-      return <FileText className="h-4 w-4 text-primary" />;
+  // Get link info with styling
+  const getLinkInfo = (link: IntegratedLink) => {
+    const code = link.code.toLowerCase();
+    const targetPage = link.targetPage?.toLowerCase() || '';
+
+    // Lead form
+    if (code.includes('-lead') || targetPage.includes('contact')) {
+      return {
+        icon: <Users className="h-5 w-5" />,
+        badge: 'Lead Form',
+        badgeColor: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+        description:
+          'Quick contact form for lead capture. Perfect for business cards, flyers, and social media.',
+        formType: 'Simple • 1 Page',
+        gradient: 'from-blue-500 to-cyan-500',
+      };
     }
-    if (targetPage.includes('appointment') || targetPage.includes('book')) {
-      return <Calendar className="h-4 w-4 text-primary" />;
+
+    // Intake form
+    if (code.includes('-intake') || targetPage.includes('filing')) {
+      return {
+        icon: <ClipboardList className="h-5 w-5" />,
+        badge: 'Tax Intake',
+        badgeColor: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+        description:
+          'Complete tax return intake form. For clients ready to submit their full tax information.',
+        formType: 'Comprehensive • Multi-Step',
+        gradient: 'from-green-500 to-emerald-500',
+      };
     }
-    return <Link2 className="h-4 w-4 text-primary" />;
+
+    // Default
+    return {
+      icon: <Link2 className="h-5 w-5" />,
+      badge: 'Custom Link',
+      badgeColor: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+      description: link.description || 'Custom marketing link',
+      formType: 'Custom',
+      gradient: 'from-gray-500 to-slate-500',
+    };
   };
+
+  const isFinalized = trackingData?.trackingCodeFinalized || false;
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 space-y-6 max-w-5xl">
-        <Skeleton className="h-12 w-64" />
-        <div className="grid gap-6 md:grid-cols-2">
-          <Skeleton className="h-80" />
-          <Skeleton className="h-80" />
-        </div>
+      <div className="space-y-6">
+        <Skeleton className="h-48 w-full" />
+        <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }
 
   if (!trackingData) {
     return (
-      <div className="container mx-auto p-6 max-w-5xl">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>Failed to load tracking code. Please refresh the page.</AlertDescription>
-        </Alert>
-      </div>
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>Failed to load tracking code data. Please refresh the page.</AlertDescription>
+      </Alert>
     );
   }
 
-  const isFinalized = trackingData.trackingCodeFinalized;
-
   return (
-    <div className="container mx-auto p-6 space-y-6 max-w-5xl">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">My Tracking Code</h1>
-        <p className="text-muted-foreground mt-1">
-          {isFinalized
-            ? 'Your tracking code is finalized and integrated across all your links'
-            : 'Customize your tracking code before finalizing'}
-        </p>
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="flex flex-col gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Marketing Tracking</h1>
+          <p className="text-muted-foreground mt-2">
+            Manage your tracking code, QR codes, and marketing links in one place
+          </p>
+        </div>
+
+        {/* Quick Stats */}
+        {isFinalized && integratedLinks.length > 0 && (
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card className="border-l-4 border-l-blue-500">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Total Clicks</p>
+                    <h3 className="text-2xl font-bold mt-1">
+                      {integratedLinks.reduce((sum, link) => sum + (link.clicks || 0), 0)}
+                    </h3>
+                  </div>
+                  <BarChart3 className="h-8 w-8 text-blue-500" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-l-4 border-l-green-500">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Unique Visitors</p>
+                    <h3 className="text-2xl font-bold mt-1">
+                      {integratedLinks.reduce((sum, link) => sum + (link.uniqueClicks || 0), 0)}
+                    </h3>
+                  </div>
+                  <Eye className="h-8 w-8 text-green-500" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-l-4 border-l-purple-500">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Active Links</p>
+                    <h3 className="text-2xl font-bold mt-1">{integratedLinks.length}</h3>
+                  </div>
+                  <TrendingUp className="h-8 w-8 text-purple-500" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
 
-      {/* Main Content */}
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Tracking Code Card */}
-        <Card className={isFinalized ? 'border-green-500/50' : ''}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {isFinalized ? (
-                <>
-                  <Shield className="h-5 w-5 text-green-600" />
-                  Finalized Tracking Code
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  Your Tracking Code
-                </>
-              )}
-            </CardTitle>
-            <CardDescription>
-              {trackingData.customTrackingCode ? 'Custom code' : 'Auto-generated code'}
-              {isFinalized && ' (Permanently Locked)'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Active Code */}
-            <div className={`p-4 border rounded-lg ${isFinalized ? 'bg-green-50 border-green-200' : 'bg-primary/5 border-primary/20'}`}>
-              <div className="flex items-center justify-between mb-2">
-                <Label className="text-sm font-medium">Active Code</Label>
-                <div className="flex gap-2">
-                  {trackingData.customTrackingCode && <Badge>Custom</Badge>}
-                  {isFinalized && <Badge variant="secondary" className="bg-green-100 text-green-800"><Lock className="h-3 w-3 mr-1" />Locked</Badge>}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="overview">
+            <Sparkles className="h-4 w-4 mr-2" />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="links">
+            <Link2 className="h-4 w-4 mr-2" />
+            Marketing Links
+          </TabsTrigger>
+          <TabsTrigger value="settings">
+            <Camera className="h-4 w-4 mr-2" />
+            Branding
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-6">
+          {/* Tracking Code Card */}
+          <Card className={isFinalized ? 'border-green-200 dark:border-green-900' : ''}>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    {isFinalized ? (
+                      <Lock className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <Zap className="h-5 w-5 text-yellow-600" />
+                    )}
+                    Your Tracking Code
+                  </CardTitle>
+                  <CardDescription>
+                    {isFinalized
+                      ? 'Your code is locked and generating leads'
+                      : 'Customize your code before finalizing'}
+                  </CardDescription>
+                </div>
+                {isFinalized && (
+                  <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    Active
+                  </Badge>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Active Code Display */}
+              <div className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded-lg border-2 border-blue-200 dark:border-blue-800">
+                <div className="flex items-center justify-between mb-4">
+                  <Label className="text-sm font-medium text-muted-foreground">Active Code</Label>
+                  {isFinalized && <Badge className="bg-green-500">Finalized</Badge>}
+                </div>
+                <div className="flex items-center gap-4">
+                  <code className="text-3xl font-bold font-mono text-blue-600 dark:text-blue-400">
+                    {trackingData.activeCode}
+                  </code>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => copyToClipboard(trackingData.activeCode, 'code')}
+                  >
+                    {copied === 'code' ? (
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <Copy className="h-4 w-4" />
+                    )}
+                  </Button>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <code className="flex-1 text-2xl font-mono font-bold text-primary">
-                  {trackingData.activeCode}
-                </code>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => copyToClipboard(trackingData.activeCode, 'code')}
-                  title="Copy code"
-                >
-                  {copied === 'code' ? (
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
 
-            {/* Tracking URL */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Main Tracking URL</Label>
-              <div className="flex items-center gap-2 p-3 bg-muted rounded-md">
-                <code className="flex-1 text-sm truncate font-mono">
-                  {trackingData.trackingUrl}
-                </code>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => copyToClipboard(trackingData.trackingUrl, 'url')}
-                  title="Copy URL"
-                >
-                  {copied === 'url' ? (
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                </Button>
-                <Button size="icon" variant="ghost" asChild title="Open in new tab">
-                  <a href={trackingData.trackingUrl} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </Button>
-              </div>
-            </div>
-
-            {/* Edit/Finalize Buttons */}
-            {!isFinalized && (
+              {/* Tracking URL */}
               <div className="space-y-2">
-                {trackingData.canCustomize && !isEditing && (
-                  <Button onClick={() => setIsEditing(true)} variant="outline" className="w-full">
-                    <Edit3 className="h-4 w-4 mr-2" />
-                    {trackingData.customTrackingCode ? 'Edit Custom Code' : 'Customize Code'}
+                <Label className="text-sm font-medium">Your Tracking URL</Label>
+                <div className="flex items-center gap-2">
+                  <Input value={trackingData.trackingUrl} readOnly className="font-mono text-sm" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => copyToClipboard(trackingData.trackingUrl, 'url')}
+                  >
+                    {copied === 'url' ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </Button>
-                )}
-                <Button onClick={handleFinalize} disabled={isFinalizing} className="w-full" variant="default">
-                  {isFinalizing ? (
-                    'Finalizing...'
-                  ) : (
-                    <>
-                      <Lock className="h-4 w-4 mr-2" />
-                      Finalize & Lock Code
-                    </>
-                  )}
-                </Button>
-                <p className="text-xs text-muted-foreground text-center">
-                  You can edit your code multiple times before finalizing
-                </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.open(trackingData.trackingUrl, '_blank')}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
 
-        {/* QR Code Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <QrCode className="h-5 w-5 text-primary" />
-              QR Code
-            </CardTitle>
-            <CardDescription>Download for marketing materials</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {trackingData.trackingCodeQRUrl ? (
-              <>
-                <div className="flex justify-center p-6 bg-white rounded-lg border">
+              {/* Actions */}
+              {!isFinalized && (
+                <div className="flex flex-col sm:flex-row gap-3">
+                  {!isEditing ? (
+                    <>
+                      <Button onClick={() => setIsEditing(true)} variant="outline" className="flex-1">
+                        <Edit3 className="h-4 w-4 mr-2" />
+                        Customize Code
+                      </Button>
+                      <Button
+                        onClick={handleFinalizeCode}
+                        disabled={isFinalizing}
+                        className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                      >
+                        {isFinalizing ? (
+                          'Finalizing...'
+                        ) : (
+                          <>
+                            <Lock className="h-4 w-4 mr-2" />
+                            Finalize & Generate Links
+                          </>
+                        )}
+                      </Button>
+                    </>
+                  ) : (
+                    <Button onClick={() => setIsEditing(false)} variant="outline" className="flex-1">
+                      Cancel
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              {/* Customization Form */}
+              {isEditing && !isFinalized && (
+                <Card className="border-2 border-primary">
+                  <CardContent className="pt-6 space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="customCode">Custom Tracking Code</Label>
+                      <Input
+                        id="customCode"
+                        value={customCode}
+                        onChange={(e) =>
+                          setCustomCode(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ''))
+                        }
+                        placeholder="your-custom-code"
+                        maxLength={20}
+                        disabled={isSaving}
+                        className="font-mono"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        3-20 characters: lowercase letters, numbers, hyphens, underscores
+                      </p>
+                    </div>
+
+                    {/* Availability Status */}
+                    {isChecking && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+                        Checking availability...
+                      </div>
+                    )}
+
+                    {availability && !isChecking && (
+                      <Alert variant={availability.available ? 'default' : 'destructive'}>
+                        {availability.available ? (
+                          <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        ) : (
+                          <AlertCircle className="h-4 w-4" />
+                        )}
+                        <AlertDescription>
+                          {availability.available
+                            ? '✓ Code is available!'
+                            : availability.reason || 'Code is not available'}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+
+                    <Button
+                      onClick={handleSaveCustomCode}
+                      disabled={!availability?.available || isSaving}
+                      className="w-full"
+                    >
+                      {isSaving ? 'Saving...' : 'Save Custom Code'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* QR Code Card */}
+          {trackingData.trackingCodeQRUrl && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <QrCode className="h-5 w-5" />
+                  Universal QR Code
+                </CardTitle>
+                <CardDescription>
+                  Scan this QR code to visit your main tracking page
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col items-center space-y-4">
+                <div className="p-4 bg-white rounded-lg border-2 border-gray-200">
                   <img
                     src={trackingData.trackingCodeQRUrl}
                     alt={`QR Code for ${trackingData.activeCode}`}
@@ -392,227 +554,245 @@ export function TrackingCodeDashboard({ userId, profileId, role }: TrackingCodeD
                   />
                 </div>
                 <Button
-                  onClick={() => downloadQRCode(trackingData.trackingCodeQRUrl!, `tracking-qr-${trackingData.activeCode}.png`)}
-                  className="w-full"
+                  onClick={() =>
+                    downloadQRCode(
+                      trackingData.trackingCodeQRUrl!,
+                      `tracking-qr-${trackingData.activeCode}.png`
+                    )
+                  }
+                  className="w-full sm:w-auto"
                   variant="default"
                 >
                   <Download className="h-4 w-4 mr-2" />
                   Download QR Code
                 </Button>
-                <p className="text-xs text-muted-foreground text-center mt-2">
-                  QR codes are permanent and linked to your tracking code
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        {/* Marketing Links Tab */}
+        <TabsContent value="links" className="space-y-6">
+          {!isFinalized ? (
+            <Card className="border-yellow-200 bg-yellow-50 dark:border-yellow-900 dark:bg-yellow-950">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <AlertCircle className="h-6 w-6 text-yellow-600 mt-0.5" />
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-yellow-900 dark:text-yellow-100">
+                      Finalize Your Code First
+                    </h3>
+                    <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                      Your marketing links will be automatically generated once you finalize your tracking
+                      code. Click "Finalize & Generate Links" in the Overview tab to get started.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : integratedLinks.length === 0 ? (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <Link2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No Links Generated Yet</h3>
+                <p className="text-muted-foreground">
+                  Your marketing links are being generated. Please refresh the page in a moment.
                 </p>
-              </>
-            ) : (
-              <div className="flex justify-center items-center h-64 bg-muted rounded-lg">
-                <p className="text-sm text-muted-foreground">QR code not available</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Customization Form */}
-      {isEditing && !isFinalized && (
-        <Card className="border-primary">
-          <CardHeader>
-            <CardTitle>Customize Your Tracking Code</CardTitle>
-            <CardDescription>
-              Choose a memorable code. You can change it multiple times before finalizing.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="customCode">Custom Code</Label>
-              <Input
-                id="customCode"
-                value={customCode}
-                onChange={(e) => setCustomCode(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ''))}
-                placeholder="my-code"
-                maxLength={20}
-                disabled={isSaving}
-                className="font-mono"
-              />
-              <p className="text-xs text-muted-foreground">
-                3-20 characters: lowercase letters, numbers, hyphens, underscores
-              </p>
-            </div>
-
-            {/* Availability Status */}
-            {isChecking && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
-                Checking availability...
-              </div>
-            )}
-
-            {availability && !isChecking && (
-              <Alert variant={availability.available ? 'default' : 'destructive'}>
-                {availability.available ? (
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                ) : (
-                  <AlertCircle className="h-4 w-4" />
-                )}
-                <AlertDescription>
-                  {availability.available
-                    ? '✓ Code is available!'
-                    : availability.reason || 'Code is not available'}
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {/* Actions */}
-            <div className="flex gap-2">
-              <Button
-                onClick={handleSaveCustomCode}
-                disabled={!availability?.available || isSaving}
-                className="flex-1"
-              >
-                {isSaving ? 'Saving...' : 'Save Code'}
-              </Button>
-              <Button
-                onClick={() => {
-                  setIsEditing(false);
-                  setCustomCode('');
-                  setAvailability(null);
-                }}
-                variant="outline"
-                disabled={isSaving}
-              >
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Integrated Links Section (Only show after finalization) */}
-      {isFinalized && integratedLinks.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>All Your Tracking Links</CardTitle>
-            <CardDescription>
-              Your tracking code is automatically integrated into all these links
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {integratedLinks.map((link) => (
-                <div key={link.id} className="p-4 border rounded-lg space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      {getLinkIcon(link.targetPage)}
-                      <div>
-                        <h4 className="font-medium">{link.title || link.code}</h4>
-                        {link.description && (
-                          <p className="text-sm text-muted-foreground">{link.description}</p>
-                        )}
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-6">
+              {integratedLinks.map((link) => {
+                const linkInfo = getLinkInfo(link);
+                return (
+                  <Card
+                    key={link.id}
+                    className="overflow-hidden border-l-4"
+                    style={{ borderLeftColor: `rgb(${linkInfo.gradient.includes('blue') ? '59 130 246' : '34 197 94'})` }}
+                  >
+                    <CardHeader className={`bg-gradient-to-r ${linkInfo.gradient} bg-opacity-5 pb-4`}>
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                            {linkInfo.icon}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <CardTitle className="text-xl">{link.title || link.code}</CardTitle>
+                              <Badge className={linkInfo.badgeColor} variant="secondary">
+                                {linkInfo.badge}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{linkInfo.formType}</p>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    </CardHeader>
+                    <CardContent className="pt-6 space-y-6">
+                      {/* Description */}
+                      <p className="text-sm text-muted-foreground">{linkInfo.description}</p>
 
-                  <div className="flex items-center gap-2 p-2 bg-muted rounded-md text-sm">
-                    <code className="flex-1 truncate font-mono">{link.shortUrl || link.url}</code>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => copyToClipboard(link.shortUrl || link.url, `link-${link.id}`)}
-                    >
-                      {copied === `link-${link.id}` ? (
-                        <CheckCircle2 className="h-4 w-4 text-green-600" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
+                      {/* URLs */}
+                      <div className="space-y-3">
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-medium text-muted-foreground">
+                            Short URL (Best for sharing)
+                          </Label>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              value={link.shortUrl || link.url}
+                              readOnly
+                              className="font-mono text-sm"
+                            />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                copyToClipboard(link.shortUrl || link.url, `short-${link.id}`)
+                              }
+                            >
+                              {copied === `short-${link.id}` ? (
+                                <Check className="h-4 w-4" />
+                              ) : (
+                                <Copy className="h-4 w-4" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(link.shortUrl || link.url, '_blank')}
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
 
-                  {link.qrCodeImageUrl && (
-                    <div className="space-y-3">
-                      {/* QR Code Image Display */}
-                      <div className="flex justify-center p-4 bg-white rounded-lg border">
-                        <img
-                          src={link.qrCodeImageUrl}
-                          alt={`QR Code for ${link.title || link.code}`}
-                          className="w-48 h-48"
-                        />
+                        <div className="space-y-1.5">
+                          <Label className="text-xs font-medium text-muted-foreground">Full URL</Label>
+                          <div className="flex items-center gap-2">
+                            <Input value={link.url} readOnly className="font-mono text-xs" />
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => copyToClipboard(link.url, `full-${link.id}`)}
+                            >
+                              {copied === `full-${link.id}` ? (
+                                <Check className="h-4 w-4" />
+                              ) : (
+                                <Copy className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* Download Button */}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => downloadQRCode(link.qrCodeImageUrl!, `${link.code}-qr.png`)}
-                        className="w-full"
-                      >
-                        <Download className="h-4 w-4 mr-2" />
-                        Download QR Code
-                      </Button>
-
-                      {/* Click Stats */}
-                      {(link.clicks !== undefined || link.uniqueClicks !== undefined) && (
-                        <div className="flex gap-3 text-sm text-muted-foreground justify-center">
-                          {link.clicks !== undefined && <span>{link.clicks} clicks</span>}
-                          {link.uniqueClicks !== undefined && <span>{link.uniqueClicks} unique</span>}
+                      {/* Stats */}
+                      {(link.clicks || link.uniqueClicks || link.conversions) && (
+                        <div className="grid grid-cols-3 gap-4 p-4 bg-muted rounded-lg">
+                          <div className="text-center">
+                            <p className="text-2xl font-bold">{link.clicks || 0}</p>
+                            <p className="text-xs text-muted-foreground">Clicks</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-2xl font-bold">{link.uniqueClicks || 0}</p>
+                            <p className="text-xs text-muted-foreground">Unique</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-2xl font-bold">{link.conversions || 0}</p>
+                            <p className="text-xs text-muted-foreground">Conversions</p>
+                          </div>
                         </div>
                       )}
-                    </div>
-                  )}
+
+                      {/* QR Code */}
+                      {link.qrCodeImageUrl && (
+                        <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-muted rounded-lg">
+                          <div className="p-3 bg-white rounded-lg border">
+                            <img
+                              src={link.qrCodeImageUrl}
+                              alt={`QR Code for ${link.code}`}
+                              className="w-32 h-32"
+                            />
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <h4 className="font-medium">QR Code</h4>
+                            <p className="text-sm text-muted-foreground">
+                              Print this QR code on business cards, flyers, or display it at your office.
+                            </p>
+                            <Button
+                              onClick={() =>
+                                downloadQRCode(link.qrCodeImageUrl!, `${link.code}-qr.png`)
+                              }
+                              size="sm"
+                              variant="secondary"
+                            >
+                              <Download className="h-4 w-4 mr-2" />
+                              Download QR
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Branding Tab */}
+        <TabsContent value="settings" className="space-y-6">
+          {role === 'tax_preparer' && (
+            <LogoUploadCard
+              currentLogoUrl={trackingData.qrCodeLogoUrl || null}
+              onLogoUpdated={(newLogoUrl) => {
+                setTrackingData((prev) =>
+                  prev ? { ...prev, qrCodeLogoUrl: newLogoUrl } : null
+                );
+              }}
+              isFinalized={isFinalized}
+            />
+          )}
+
+          {/* Info Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>About QR Code Branding</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3 text-sm">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Custom Logo</p>
+                    <p className="text-muted-foreground">
+                      Upload your photo or business logo to appear in the center of all QR codes
+                    </p>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Usage Guide */}
-      <Card>
-        <CardHeader>
-          <CardTitle>How to Use</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="flex gap-3">
-              <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                <span className="text-sm font-bold text-primary">1</span>
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
+                  <div>
+                    <p className="font-medium">High Quality</p>
+                    <p className="text-muted-foreground">
+                      All QR codes are generated at 512x512px with high error correction
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Professional Appearance</p>
+                    <p className="text-muted-foreground">
+                      Stand out with branded QR codes that clients will trust and remember
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h4 className="font-medium">{isFinalized ? 'Use Your Links' : 'Customize Your Code'}</h4>
-                <p className="text-sm text-muted-foreground">
-                  {isFinalized
-                    ? 'All your forms and marketing materials include your tracking code automatically'
-                    : 'Edit your tracking code as many times as needed, then finalize when ready'}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                <span className="text-sm font-bold text-primary">2</span>
-              </div>
-              <div>
-                <h4 className="font-medium">{isFinalized ? 'Track Results' : 'Finalize Your Code'}</h4>
-                <p className="text-sm text-muted-foreground">
-                  {isFinalized
-                    ? 'Monitor clicks and conversions on all your integrated tracking links'
-                    : 'Once finalized, your code will be locked and integrated into all your links'}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                <span className="text-sm font-bold text-primary">3</span>
-              </div>
-              <div>
-                <h4 className="font-medium">Use QR Codes</h4>
-                <p className="text-sm text-muted-foreground">
-                  Print QR codes on business cards, flyers, and marketing materials
-                </p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

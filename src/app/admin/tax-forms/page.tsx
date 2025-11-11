@@ -136,6 +136,42 @@ export default function AdminTaxFormsPage() {
   const totalDownloads = forms.reduce((sum, form) => sum + form.downloadCount, 0);
   const totalSize = forms.reduce((sum, form) => sum + form.fileSize, 0);
 
+  const handleDownload = async (formId: string, formNumber: string) => {
+    try {
+      const response = await fetch(`/api/tax-forms/${formId}/download`);
+
+      if (!response.ok) {
+        throw new Error('Download failed');
+      }
+
+      // Get the blob from response
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${formNumber}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast({
+        title: 'Success',
+        description: `Form ${formNumber} downloaded successfully`,
+      });
+
+      // Refresh to update download count
+      fetchForms();
+    } catch (error) {
+      logger.error('Error downloading form:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to download form',
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -244,6 +280,7 @@ export default function AdminTaxFormsPage() {
                 <TableHead>Size</TableHead>
                 <TableHead>Downloads</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -263,6 +300,17 @@ export default function AdminTaxFormsPage() {
                     ) : (
                       <Badge variant="secondary">Inactive</Badge>
                     )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDownload(form.id, form.formNumber)}
+                      disabled={!canDownload || !form.isActive}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}

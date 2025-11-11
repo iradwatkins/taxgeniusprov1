@@ -9,6 +9,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { finalizeTrackingCode } from '@/lib/services/tracking-code.service';
+import { generateAffiliateStandardLinks } from '@/lib/services/affiliate-links.service';
+import { generateTaxPreparerStandardLinks } from '@/lib/services/tax-preparer-links.service';
 
 /**
  * POST: Finalize user's tracking code (permanently lock it)
@@ -42,6 +44,40 @@ export async function POST() {
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 });
+    }
+
+    // Auto-generate affiliate links if user is an affiliate
+    if (profile.role === 'affiliate') {
+      try {
+        logger.info('🎯 Generating affiliate standard links after finalization', {
+          profileId: profile.id,
+        });
+        await generateAffiliateStandardLinks(profile.id);
+        logger.info('✅ Affiliate links generated successfully');
+      } catch (error) {
+        // Don't fail the finalization if link generation fails
+        logger.error('⚠️ Failed to generate affiliate links, but finalization succeeded', {
+          error,
+          profileId: profile.id,
+        });
+      }
+    }
+
+    // Auto-generate tax preparer links if user is a tax preparer
+    if (profile.role === 'tax_preparer') {
+      try {
+        logger.info('🎯 Generating tax preparer standard links after finalization', {
+          profileId: profile.id,
+        });
+        await generateTaxPreparerStandardLinks(profile.id);
+        logger.info('✅ Tax preparer links generated successfully');
+      } catch (error) {
+        // Don't fail the finalization if link generation fails
+        logger.error('⚠️ Failed to generate tax preparer links, but finalization succeeded', {
+          error,
+          profileId: profile.id,
+        });
+      }
     }
 
     // Get updated profile data for response

@@ -6,7 +6,7 @@ services:
     image: postgres:16-alpine
     container_name: taxgeniuspro-postgres
     ports:
-      - '5436:5432'  # Blueprint port allocation
+      - '5438:5432'  # Blueprint port allocation (changed from 5436 due to conflict)
     environment:
       - POSTGRES_USER=taxgeniuspro_user
       - POSTGRES_PASSWORD=TaxGenius2024Secure

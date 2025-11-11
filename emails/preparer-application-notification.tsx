@@ -1,3 +1,4 @@
+import * as React from 'react';
 import {
   Html,
   Head,
@@ -8,6 +9,7 @@ import {
   Button,
   Section,
   Hr,
+  Img,
 } from '@react-email/components';
 
 interface PreparerApplicationNotificationProps {
@@ -50,6 +52,13 @@ export function PreparerApplicationNotification({
       <Head />
       <Body style={main}>
         <Container style={container}>
+          <Section style={logoSection}>
+            <Img
+              src="https://taxgeniuspro.tax/images/tax-genius-logo.png"
+              alt="Tax Genius Pro"
+              style={logo}
+            />
+          </Section>
           <Section style={header}>
             <Heading style={h1}>🎯 New Tax Preparer Application</Heading>
           </Section>
@@ -175,6 +184,18 @@ const container = {
   backgroundColor: '#ffffff',
   margin: '0 auto',
   maxWidth: '650px',
+};
+
+const logoSection = {
+  textAlign: 'center' as const,
+  padding: '20px 0',
+  backgroundColor: '#ffffff',
+};
+
+const logo = {
+  margin: '0 auto',
+  maxWidth: '180px',
+  height: 'auto',
 };
 
 const header = {

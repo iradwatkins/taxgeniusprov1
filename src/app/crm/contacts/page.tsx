@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { logger } from '@/lib/logger';
+import { useToast } from '@/hooks/use-toast';
 import {
   Search,
   Plus,
@@ -88,6 +89,8 @@ export default function CRMContactsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [stageFilter, setStageFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const { toast } = useToast();
 
   // Check permissions
   const role = user?.role as UserRole | undefined;
@@ -141,6 +144,47 @@ export default function CRMContactsPage() {
 
     fetchContacts();
   }, [isLoaded, user, searchTerm, stageFilter, typeFilter]);
+
+  const handleStatusChange = async (contactId: string, newStage: string) => {
+    try {
+      setUpdatingStatus(contactId);
+
+      const response = await fetch(`/api/crm/contacts/${contactId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stage: newStage }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Update the contact in the local state
+        setContacts((prev) =>
+          prev.map((c) => (c.id === contactId ? { ...c, stage: newStage } : c))
+        );
+
+        toast({
+          title: 'Success',
+          description: 'Contact status updated successfully',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: data.error || 'Failed to update contact status',
+          variant: 'destructive',
+        });
+      }
+    } catch (err: any) {
+      logger.error('Error updating contact status:', err);
+      toast({
+        title: 'Error',
+        description: 'Failed to update contact status',
+        variant: 'destructive',
+      });
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
 
   if (!isLoaded || loading) {
     return (
@@ -333,19 +377,55 @@ export default function CRMContactsPage() {
                       <Badge variant="outline">{contact.contactType}</Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        className={cn(
-                          contact.stage === 'NEW' && 'bg-blue-500',
-                          contact.stage === 'CONTACTED' && 'bg-purple-500',
-                          contact.stage === 'QUALIFIED' && 'bg-indigo-500',
-                          contact.stage === 'DOCUMENTS' && 'bg-yellow-500',
-                          contact.stage === 'FILED' && 'bg-orange-500',
-                          contact.stage === 'CLOSED' && 'bg-green-500',
-                          contact.stage === 'LOST' && 'bg-red-500'
-                        )}
-                      >
-                        {contact.stage}
-                      </Badge>
+                      {canEdit ? (
+                        <Select
+                          value={contact.stage}
+                          onValueChange={(value) => handleStatusChange(contact.id, value)}
+                          disabled={updatingStatus === contact.id}
+                        >
+                          <SelectTrigger
+                            className={cn(
+                              'w-[140px] h-7 text-xs',
+                              contact.stage === 'NEW' && 'border-blue-500 text-blue-700',
+                              contact.stage === 'CONTACTED' && 'border-purple-500 text-purple-700',
+                              contact.stage === 'QUALIFIED' && 'border-indigo-500 text-indigo-700',
+                              contact.stage === 'DOCUMENTS' && 'border-yellow-500 text-yellow-700',
+                              contact.stage === 'FILED' && 'border-orange-500 text-orange-700',
+                              contact.stage === 'CLOSED' && 'border-green-500 text-green-700',
+                              contact.stage === 'LOST' && 'border-red-500 text-red-700'
+                            )}
+                          >
+                            {updatingStatus === contact.id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <SelectValue />
+                            )}
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="NEW">🆕 New</SelectItem>
+                            <SelectItem value="CONTACTED">💬 Contacted</SelectItem>
+                            <SelectItem value="QUALIFIED">✅ Qualified</SelectItem>
+                            <SelectItem value="DOCUMENTS">📄 Documents</SelectItem>
+                            <SelectItem value="FILED">📋 Filed</SelectItem>
+                            <SelectItem value="CLOSED">🎉 Closed</SelectItem>
+                            <SelectItem value="LOST">❌ Lost</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Badge
+                          className={cn(
+                            contact.stage === 'NEW' && 'bg-blue-500',
+                            contact.stage === 'CONTACTED' && 'bg-purple-500',
+                            contact.stage === 'QUALIFIED' && 'bg-indigo-500',
+                            contact.stage === 'DOCUMENTS' && 'bg-yellow-500',
+                            contact.stage === 'FILED' && 'bg-orange-500',
+                            contact.stage === 'CLOSED' && 'bg-green-500',
+                            contact.stage === 'LOST' && 'bg-red-500'
+                          )}
+                        >
+                          {contact.stage}
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">

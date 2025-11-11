@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { trackJourneyStage } from '@/lib/services/journey-tracking.service';
 import { getUTMCookie } from '@/lib/utils/cookie-manager';
 import { getAttribution, saveTaxIntakeAttribution } from '@/lib/services/attribution.service';
+import { EmailService } from '@/lib/services/email.service';
 import { logger } from '@/lib/logger';
 
 export async function POST(req: NextRequest) {
@@ -10,6 +11,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     const {
+      // Personal Information & Address
       first_name,
       middle_name,
       last_name,
@@ -21,6 +23,27 @@ export async function POST(req: NextRequest) {
       city,
       state,
       zip_code,
+      // Complete Tax Information
+      date_of_birth,
+      ssn,
+      filing_status,
+      employment_type,
+      occupation,
+      claimed_as_dependent,
+      in_college,
+      has_dependents,
+      number_of_dependents,
+      dependents_under_24_student_or_disabled,
+      dependents_in_college,
+      child_care_provider,
+      has_mortgage,
+      denied_eitc,
+      has_irs_pin,
+      irs_pin,
+      wants_refund_advance,
+      drivers_license,
+      license_expiration,
+      full_form_data,
     } = body;
 
     // Validate required fields
@@ -28,8 +51,49 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Check if this is a complete tax intake (has SSN and other tax fields) or just basic contact
+    const isCompleteTaxIntake = Boolean(ssn && date_of_birth && filing_status);
+
+    // Check for ref parameter in URL
+    const refParam = req.nextUrl.searchParams.get('ref');
+    let refOverride = null;
+
+    if (refParam) {
+      // Look up the referrer by tracking code
+      const referrerProfile = await prisma.profile.findFirst({
+        where: {
+          OR: [
+            { trackingCode: refParam },
+            { customTrackingCode: refParam },
+            { shortLinkUsername: refParam },
+          ],
+        },
+        select: {
+          id: true,
+          role: true,
+          userId: true,
+        },
+      });
+
+      if (referrerProfile) {
+        refOverride = {
+          referrerUsername: refParam,
+          referrerType: referrerProfile.role,
+          attributionMethod: 'ref_param',
+        };
+        logger.info('Attribution from URL ref parameter', {
+          ref: refParam,
+          referrerRole: referrerProfile.role,
+          referrerId: referrerProfile.id,
+        });
+      }
+    }
+
     // EPIC 6: Get attribution (cookie → email → phone → direct)
-    const attributionResult = await getAttribution(email, phone);
+    // Use refOverride if available, otherwise use getAttribution
+    const attributionResult = refOverride
+      ? { attribution: refOverride, source: 'ref_param' }
+      : await getAttribution(email, phone);
 
     // CRITICAL: Determine lead assignment based on referrer role
     let assignedPreparerId: string | null = null;
@@ -47,23 +111,23 @@ export async function POST(req: NextRequest) {
         select: {
           id: true,
           role: true,
-          assignedPreparerId: true, // CLIENT's assigned preparer
+          userId: true,
         },
       });
 
       if (referrerProfile) {
         // Business Rule: Assign lead based on referrer role
         switch (referrerProfile.role) {
-          case 'CLIENT':
-            // CLIENT refers → Assign to THAT CLIENT'S tax preparer
-            assignedPreparerId = referrerProfile.assignedPreparerId;
-            logger.info(`Lead from CLIENT referral assigned to client's preparer`, {
+          case 'client':
+            // CLIENT refers → Assign to Tax Genius (null = corporate)
+            // TODO: Look up client's assigned preparer via CRMContact or ClientPreparer relation
+            assignedPreparerId = null;
+            logger.info(`Lead from CLIENT referral assigned to Tax Genius corporate`, {
               referrerId: referrerProfile.id,
-              preparerId: assignedPreparerId,
             });
             break;
 
-          case 'AFFILIATE':
+          case 'affiliate':
             // AFFILIATE refers → Assign to Tax Genius (null = corporate)
             assignedPreparerId = null;
             logger.info(`Lead from AFFILIATE referral assigned to Tax Genius corporate`, {
@@ -71,19 +135,11 @@ export async function POST(req: NextRequest) {
             });
             break;
 
-          case 'TAX_PREPARER':
+          case 'tax_preparer':
             // TAX_PREPARER refers → Assign to THAT tax preparer
-            assignedPreparerId = referrerProfile.id;
+            assignedPreparerId = referrerProfile.userId;
             logger.info(`Lead from TAX_PREPARER referral assigned to that preparer`, {
               preparerId: assignedPreparerId,
-            });
-            break;
-
-          case 'REFERRER':
-            // REFERRER refers → Assign to Tax Genius (null = corporate)
-            assignedPreparerId = null;
-            logger.info(`Lead from REFERRER assigned to Tax Genius corporate`, {
-              referrerId: referrerProfile.id,
             });
             break;
 
@@ -124,6 +180,8 @@ export async function POST(req: NextRequest) {
           attributionMethod: attributionResult.attribution.attributionMethod,
           // CRITICAL: Smart lead assignment
           assignedPreparerId: assignedPreparerId,
+          // Store complete tax intake data if provided
+          full_form_data: full_form_data || lead.full_form_data,
         },
       });
     } else {
@@ -147,7 +205,219 @@ export async function POST(req: NextRequest) {
           attributionMethod: attributionResult.attribution.attributionMethod,
           // CRITICAL: Smart lead assignment
           assignedPreparerId: assignedPreparerId,
+          // Store complete tax intake data if provided
+          full_form_data: full_form_data,
         },
+      });
+    }
+
+    // ========================================
+    // CRITICAL: CRM INTEGRATION
+    // Create/Update CRMContact for unified tracking
+    // ========================================
+    let crmContact;
+    try {
+      crmContact = await prisma.cRMContact.upsert({
+        where: { email: email.toLowerCase() },
+        create: {
+          contactType: 'LEAD',
+          firstName: first_name,
+          lastName: last_name,
+          email: email.toLowerCase(),
+          phone: phone,
+          stage: 'NEW',
+          source: 'tax_intake_form',
+          assignedPreparerId: assignedPreparerId,
+          referrerUsername: attributionResult.attribution.referrerUsername,
+          referrerType: attributionResult.attribution.referrerType,
+          attributionMethod: attributionResult.attribution.attributionMethod,
+          lastContactedAt: new Date(),
+          // Tax-specific fields from intake
+          filingStatus: filing_status,
+          dependents: number_of_dependents ? parseInt(number_of_dependents) : null,
+          taxYear: new Date().getFullYear(), // Current tax year
+        },
+        update: {
+          firstName: first_name,
+          lastName: last_name,
+          phone: phone,
+          assignedPreparerId: assignedPreparerId,
+          referrerUsername: attributionResult.attribution.referrerUsername,
+          referrerType: attributionResult.attribution.referrerType,
+          attributionMethod: attributionResult.attribution.attributionMethod,
+          lastContactedAt: new Date(),
+          // Update tax-specific fields
+          filingStatus: filing_status || undefined,
+          dependents: number_of_dependents ? parseInt(number_of_dependents) : undefined,
+        },
+      });
+
+      logger.info('CRM contact created/updated from tax intake', {
+        contactId: crmContact.id,
+        leadId: lead.id,
+        email: email,
+        isNew: !lead.id, // Was this a new lead?
+      });
+
+      // Create CRMInteraction to log the form submission
+      const interactionBody = isCompleteTaxIntake
+        ? `**Complete Tax Intake Form Submitted**
+
+**Personal Information:**
+- Name: ${first_name} ${middle_name || ''} ${last_name}
+- Email: ${email}
+- Phone: ${phone}
+- Date of Birth: ${date_of_birth || 'Not provided'}
+
+**Address:**
+${address_line_1 || 'Not provided'}
+${address_line_2 ? address_line_2 + '\n' : ''}${city}, ${state} ${zip_code}
+
+**Tax Filing Information:**
+- Filing Status: ${filing_status}
+- Employment Type: ${employment_type}
+- Occupation: ${occupation || 'Not specified'}
+- Dependents: ${has_dependents ? number_of_dependents : 'None'}
+- In College: ${in_college ? 'Yes' : 'No'}
+- Has Mortgage: ${has_mortgage ? 'Yes' : 'No'}
+
+**Attribution:**
+- Source: ${attributionResult.attribution.attributionMethod || 'Direct'}
+${attributionResult.attribution.referrerUsername ? `- Referrer: ${attributionResult.attribution.referrerUsername} (${attributionResult.attribution.referrerType})` : ''}
+
+**Lead ID:** ${lead.id}`
+        : `**Tax Intake Form Started** (Partial Submission)
+
+**Basic Information:**
+- Name: ${first_name} ${last_name}
+- Email: ${email}
+- Phone: ${phone}
+
+**Address:**
+${address_line_1 || 'Not provided'}
+${city ? `${city}, ${state} ${zip_code}` : 'Not provided'}
+
+**Status:** Lead saved partial information (Page 2/3 completed)
+
+**Attribution:**
+- Source: ${attributionResult.attribution.attributionMethod || 'Direct'}
+${attributionResult.attribution.referrerUsername ? `- Referrer: ${attributionResult.attribution.referrerUsername}` : ''}
+
+**Lead ID:** ${lead.id}`;
+
+      await prisma.cRMInteraction.create({
+        data: {
+          contactId: crmContact.id,
+          type: 'NOTE',
+          direction: 'INBOUND',
+          subject: isCompleteTaxIntake
+            ? '📋 Complete Tax Intake Form Submitted'
+            : '📝 Tax Intake Form Started (Partial)',
+          body: interactionBody,
+          occurredAt: new Date(),
+        },
+      });
+
+      logger.info('CRM interaction created for tax intake submission', {
+        contactId: crmContact.id,
+        leadId: lead.id,
+        isComplete: isCompleteTaxIntake,
+      });
+    } catch (crmError) {
+      // Log error but don't fail the request - lead was already saved
+      logger.error('Failed to create CRM contact/interaction', {
+        error: crmError,
+        leadId: lead.id,
+        email: email,
+      });
+    }
+
+    // Send email notification to assigned preparer (if assigned)
+    if (assignedPreparerId) {
+      try {
+        // Send comprehensive tax intake email if all tax details are provided
+        if (isCompleteTaxIntake) {
+          await EmailService.sendTaxIntakeCompleteEmail(assignedPreparerId, {
+            leadId: lead.id,
+            // Personal Information
+            firstName: first_name,
+            middleName: middle_name,
+            lastName: last_name,
+            email: email,
+            phone: phone,
+            countryCode: country_code || '+1',
+            dateOfBirth: date_of_birth,
+            ssn: ssn,
+            // Address
+            addressLine1: address_line_1,
+            addressLine2: address_line_2,
+            city: city,
+            state: state,
+            zipCode: zip_code,
+            // Tax Filing Details
+            filingStatus: filing_status,
+            employmentType: employment_type,
+            occupation: occupation,
+            claimedAsDependent: claimed_as_dependent,
+            // Education
+            inCollege: in_college,
+            // Dependents
+            hasDependents: has_dependents,
+            numberOfDependents: number_of_dependents,
+            dependentsUnder24StudentOrDisabled: dependents_under_24_student_or_disabled,
+            dependentsInCollege: dependents_in_college,
+            childCareProvider: child_care_provider,
+            // Property
+            hasMortgage: has_mortgage,
+            // Tax Credits
+            deniedEitc: denied_eitc,
+            // IRS Information
+            hasIrsPin: has_irs_pin,
+            irsPin: irs_pin,
+            // Refund Preferences
+            wantsRefundAdvance: wants_refund_advance,
+            // Identification
+            driversLicense: drivers_license,
+            licenseExpiration: license_expiration,
+            licenseFileUrl: undefined, // TODO: Add file upload handling
+            // Attribution
+            source: attributionResult.attribution.attributionMethod || 'direct',
+            referrerUsername: attributionResult.attribution.referrerUsername,
+            referrerType: attributionResult.attribution.referrerType,
+            attributionMethod: attributionResult.attribution.attributionMethod,
+          });
+          logger.info('Comprehensive tax intake email sent to preparer', {
+            leadId: lead.id,
+            preparerId: assignedPreparerId,
+          });
+        } else {
+          // Send basic lead notification for incomplete submissions
+          await EmailService.sendNewLeadNotificationEmail(assignedPreparerId, {
+            leadId: lead.id,
+            leadName: `${lead.first_name} ${lead.last_name}`,
+            leadEmail: lead.email,
+            leadPhone: lead.phone || undefined,
+            service: 'tax-intake', // Tax intake form submission
+            message: undefined, // No message field in tax intake
+            source: attributionResult.attribution.attributionMethod || 'direct',
+          });
+          logger.info('Basic lead notification email sent to preparer', {
+            leadId: lead.id,
+            preparerId: assignedPreparerId,
+          });
+        }
+      } catch (emailError) {
+        // Log error but don't fail the request
+        logger.error('Failed to send email notification', {
+          error: emailError,
+          leadId: lead.id,
+          preparerId: assignedPreparerId,
+          isCompleteTaxIntake,
+        });
+      }
+    } else {
+      logger.info('Lead assigned to Tax Genius corporate, no preparer notification sent', {
+        leadId: lead.id,
       });
     }
 

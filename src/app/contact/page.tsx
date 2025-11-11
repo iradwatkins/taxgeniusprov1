@@ -266,8 +266,9 @@ export default function ContactPage() {
                     <Phone className="w-6 h-6 text-primary mt-1" />
                     <div>
                       <h3 className="font-semibold mb-1">Phone</h3>
-                      <p className="text-muted-foreground">1-800-TAX-GENIUS</p>
-                      <p className="text-muted-foreground">(1-800-829-4364)</p>
+                      <a href="tel:+14046271015" className="text-muted-foreground hover:text-primary transition-colors">
+                        +1 404-627-1015
+                      </a>
                     </div>
                   </div>
 
@@ -275,22 +276,26 @@ export default function ContactPage() {
                     <Mail className="w-6 h-6 text-primary mt-1" />
                     <div>
                       <h3 className="font-semibold mb-1">Email</h3>
-                      <p className="text-muted-foreground">support@taxgeniuspro.tax</p>
-                      <p className="text-muted-foreground">support@taxgeniuspro.tax</p>
+                      <a href="mailto:taxgenius.tax@gmail.com" className="text-muted-foreground hover:text-primary transition-colors">
+                        taxgenius.tax@gmail.com
+                      </a>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-4">
                     <MapPin className="w-6 h-6 text-primary mt-1" />
                     <div>
-                      <h3 className="font-semibold mb-1">Headquarters</h3>
-                      <p className="text-muted-foreground">
-                        123 Tax Plaza, Suite 456
+                      <h3 className="font-semibold mb-1">Location</h3>
+                      <a
+                        href="https://maps.google.com/?q=1632+Jonesboro+Rd+SE+Atlanta+GA+30315"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        1632 Jonesboro Rd SE
                         <br />
-                        Financial District
-                        <br />
-                        New York, NY 10004
-                      </p>
+                        Atlanta, GA 30315
+                      </a>
                     </div>
                   </div>
 
@@ -299,12 +304,13 @@ export default function ContactPage() {
                     <div>
                       <h3 className="font-semibold mb-1">Business Hours</h3>
                       <div className="text-muted-foreground space-y-1">
-                        <p>Monday - Friday: 8:00 AM - 8:00 PM EST</p>
-                        <p>Saturday: 9:00 AM - 5:00 PM EST</p>
-                        <p>Sunday: 12:00 PM - 4:00 PM EST</p>
-                        <p className="text-primary font-medium">
-                          Extended hours during tax season!
-                        </p>
+                        <p>Monday: 9:00 AM - 7:00 PM</p>
+                        <p>Tuesday: 9:00 AM - 7:00 PM</p>
+                        <p>Wednesday: 9:00 AM - 7:00 PM</p>
+                        <p>Thursday: 9:00 AM - 7:00 PM</p>
+                        <p>Friday: 9:00 AM - 7:00 PM</p>
+                        <p>Saturday: 10:00 AM - 5:00 PM</p>
+                        <p>Sunday: Closed</p>
                       </div>
                     </div>
                   </div>

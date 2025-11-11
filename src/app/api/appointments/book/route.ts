@@ -6,6 +6,8 @@ import { AppointmentConfirmation } from '../../../../../emails/appointment-confi
 import { getAttribution } from '@/lib/services/attribution.service';
 import { trackJourneyStage } from '@/lib/services/journey-tracking.service';
 import { getUTMCookie } from '@/lib/utils/cookie-manager';
+import { AvailabilityService } from '@/lib/services/availability.service';
+import { addMinutes } from 'date-fns';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -28,6 +30,8 @@ export async function POST(req: NextRequest) {
       clientPhone,
       appointmentType = 'CONSULTATION',
       scheduledFor,
+      duration = 30, // Default 30 minutes
+      serviceId, // Optional: specific service being booked
       notes,
       timezone = 'America/New_York',
       source, // Where did they come from? 'tax_intake', 'preparer_app', 'affiliate_app', 'contact_form'
@@ -87,7 +91,7 @@ export async function POST(req: NextRequest) {
         select: {
           id: true,
           role: true,
-          assignedPreparerId: true, // CLIENT's assigned preparer
+          userId: true,
         },
       });
 
@@ -95,11 +99,11 @@ export async function POST(req: NextRequest) {
         // Business Rule: Assign lead based on referrer role
         switch (referrerProfile.role) {
           case 'CLIENT':
-            // CLIENT refers → Assign to THAT CLIENT'S tax preparer
-            assignedPreparerId = referrerProfile.assignedPreparerId;
-            logger.info(`Appointment from CLIENT referral assigned to client's preparer`, {
+            // CLIENT refers → Assign to Tax Genius (null = corporate)
+            // TODO: Look up client's assigned preparer via ClientPreparer relation
+            assignedPreparerId = null;
+            logger.info(`Appointment from CLIENT referral assigned to Tax Genius corporate`, {
               referrerId: referrerProfile.id,
-              preparerId: assignedPreparerId,
             });
             break;
 
@@ -187,6 +191,32 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         );
       }
+
+      // Fluid Booking: Validate slot availability if scheduledFor is provided
+      if (scheduledDate && assignedPreparerId) {
+        const validation = await AvailabilityService.validateBookingSlot(
+          assignedPreparerId,
+          scheduledDate,
+          duration,
+          serviceId
+        );
+
+        if (!validation.valid) {
+          return NextResponse.json(
+            {
+              error: validation.error || 'Selected time slot is not available',
+              suggestAlternative: true, // Frontend can fetch available slots
+            },
+            { status: 400 }
+          );
+        }
+
+        logger.info('Fluid Booking: Slot validation passed', {
+          preparerId: assignedPreparerId,
+          scheduledFor: scheduledDate.toISOString(),
+          duration,
+        });
+      }
     }
 
     // Find or create CRMContact
@@ -207,9 +237,9 @@ export async function POST(req: NextRequest) {
           email: clientEmail.toLowerCase(),
           phone: clientPhone,
           source: source || 'appointment_booking',
-          status: 'NEW',
-          lastContactDate: new Date(),
-          notes: notes ? `Appointment Request: ${notes}` : 'Requested appointment via website',
+          stage: 'NEW',
+          lastContactedAt: new Date(),
+          assignedPreparerId: assignedPreparerId,
         },
       });
 
@@ -239,6 +269,7 @@ export async function POST(req: NextRequest) {
         clientEmail: clientEmail.toLowerCase(),
         clientPhone,
         preparerId,
+        serviceId: serviceId || null,
         type: appointmentType as
           | 'PHONE_CALL'
           | 'VIDEO_CALL'
@@ -247,6 +278,8 @@ export async function POST(req: NextRequest) {
           | 'FOLLOW_UP',
         status: appointmentStatus,
         scheduledFor: scheduledDate,
+        scheduledEnd: scheduledDate ? addMinutes(scheduledDate, duration) : null,
+        duration,
         timezone,
         clientNotes: notes || null,
         subject: `${appointmentType.replace(/_/g, ' ')} - ${clientName}`,
@@ -285,6 +318,18 @@ export async function POST(req: NextRequest) {
     // Send confirmation email to client
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@taxgeniuspro.tax';
 
+    // Get preparer name for email
+    let preparerName: string | undefined;
+    if (assignedPreparerId) {
+      const assignedPreparer = await prisma.profile.findUnique({
+        where: { id: assignedPreparerId },
+        select: { firstName: true, lastName: true },
+      });
+      if (assignedPreparer) {
+        preparerName = `${assignedPreparer.firstName} ${assignedPreparer.lastName}`;
+      }
+    }
+
     try {
       if (process.env.NODE_ENV === 'development') {
         logger.info('Appointment confirmation email (Dev Mode)', {
@@ -304,9 +349,7 @@ export async function POST(req: NextRequest) {
             appointmentType,
             scheduledFor: scheduledDate || undefined,
             notes,
-            preparerName: defaultPreparer
-              ? `${defaultPreparer.firstName} ${defaultPreparer.lastName}`
-              : undefined,
+            preparerName,
           }),
         });
 

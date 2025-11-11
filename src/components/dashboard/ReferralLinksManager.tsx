@@ -68,8 +68,8 @@ interface TrackingCodeData {
 
 export function ReferralLinksManager() {
   const [loading, setLoading] = useState(true);
+  const [leadLink, setLeadLink] = useState<ReferralLink | null>(null);
   const [intakeLink, setIntakeLink] = useState<ReferralLink | null>(null);
-  const [appointmentLink, setAppointmentLink] = useState<ReferralLink | null>(null);
   const [trackingCode, setTrackingCode] = useState<TrackingCodeData | null>(null);
   const [showCustomizeDialog, setShowCustomizeDialog] = useState(false);
   const [customCode, setCustomCode] = useState('');
@@ -94,7 +94,12 @@ export function ReferralLinksManager() {
 
   const loadReferralLinks = async () => {
     try {
-      const response = await fetch('/api/links');
+      // Determine which API endpoint to use based on user role
+      const userRole = session?.user?.role;
+      const endpoint =
+        userRole === 'tax_preparer' ? '/api/tax-preparer/links' : '/api/affiliate/links';
+
+      const response = await fetch(endpoint);
 
       if (!response.ok) {
         // Don't throw error if we get redirected (auth issue)
@@ -108,12 +113,12 @@ export function ReferralLinksManager() {
       const data = await response.json();
       const links = data.links || [];
 
-      // Find the auto-generated links
+      // Find the two affiliate links
+      const lead = links.find((link: ReferralLink) => link.shortCode.endsWith('-lead'));
       const intake = links.find((link: ReferralLink) => link.shortCode.endsWith('-intake'));
-      const appointment = links.find((link: ReferralLink) => link.shortCode.endsWith('-appt'));
 
+      setLeadLink(lead || null);
       setIntakeLink(intake || null);
-      setAppointmentLink(appointment || null);
     } catch (error) {
       logger.error('Error loading referral links:', error);
       toast.error('Failed to load referral links');
@@ -215,23 +220,23 @@ export function ReferralLinksManager() {
     toast.success('QR code downloaded!');
   };
 
-  const renderLinkCard = (link: ReferralLink | null, type: 'intake' | 'appointment') => {
+  const renderLinkCard = (link: ReferralLink | null, type: 'lead' | 'intake') => {
     if (!link) {
       return (
         <Card className="border-dashed">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-muted-foreground">
-              {type === 'intake' ? (
-                <FileText className="h-5 w-5" />
+              {type === 'lead' ? (
+                <Users className="h-5 w-5" />
               ) : (
-                <Calendar className="h-5 w-5" />
+                <FileText className="h-5 w-5" />
               )}
-              {type === 'intake' ? 'Tax Filing Link' : 'Appointment Link'}
+              {type === 'lead' ? '📝 Lead Capture Form' : '📋 Tax Intake Form'}
             </CardTitle>
             <CardDescription>
-              {type === 'intake'
-                ? 'Direct your referrals to start their tax filing process'
-                : 'Let referrals book an appointment with a tax preparer'}
+              {type === 'lead'
+                ? 'Quick contact form for potential clients to submit their information'
+                : 'Complete tax intake form for clients ready to start their tax preparation'}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -254,14 +259,14 @@ export function ReferralLinksManager() {
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <CardTitle className="flex items-center gap-2">
-                {type === 'intake' ? (
-                  <FileText className="h-5 w-5" />
+                {type === 'lead' ? (
+                  <Users className="h-5 w-5" />
                 ) : (
-                  <Calendar className="h-5 w-5" />
+                  <FileText className="h-5 w-5" />
                 )}
                 {link.title}
               </CardTitle>
-              <CardDescription>{link.description || link.targetPage}</CardDescription>
+              <CardDescription>{link.description || link.destination}</CardDescription>
             </div>
             <Badge variant={link.isActive ? 'default' : 'secondary'}>
               {link.isActive ? 'Active' : 'Inactive'}
@@ -364,7 +369,9 @@ export function ReferralLinksManager() {
                 My Referral Links
               </CardTitle>
               <CardDescription>
-                Share these links to earn commissions. Every click is tracked automatically.
+                {session?.user?.role === 'tax_preparer'
+                  ? 'Share these links with your clients. Leads come directly to you.'
+                  : 'Share these links to earn commissions. Every click is tracked automatically.'}
               </CardDescription>
             </div>
             {trackingCode && trackingCode.canCustomize && (
@@ -419,8 +426,8 @@ export function ReferralLinksManager() {
                     <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">Your links will become:</p>
                       <div className="space-y-1 font-mono text-sm bg-muted p-3 rounded">
+                        <p>taxgeniuspro.tax/go/{customCode || 'yourname'}-lead</p>
                         <p>taxgeniuspro.tax/go/{customCode || 'yourname'}-intake</p>
-                        <p>taxgeniuspro.tax/go/{customCode || 'yourname'}-appt</p>
                       </div>
                     </div>
                   </div>
@@ -465,12 +472,12 @@ export function ReferralLinksManager() {
 
       {/* Links Grid */}
       <div className="grid md:grid-cols-2 gap-6">
+        {renderLinkCard(leadLink, 'lead')}
         {renderLinkCard(intakeLink, 'intake')}
-        {renderLinkCard(appointmentLink, 'appointment')}
       </div>
 
       {/* Quick Stats */}
-      {(intakeLink || appointmentLink) && (
+      {(leadLink || intakeLink) && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -483,19 +490,19 @@ export function ReferralLinksManager() {
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Total Clicks</p>
                 <p className="text-3xl font-bold">
-                  {(intakeLink?.clicks || 0) + (appointmentLink?.clicks || 0)}
+                  {(leadLink?.clicks || 0) + (intakeLink?.clicks || 0)}
                 </p>
               </div>
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Total Leads</p>
                 <p className="text-3xl font-bold">
-                  {(intakeLink?.leads || 0) + (appointmentLink?.leads || 0)}
+                  {(leadLink?.leads || 0) + (intakeLink?.leads || 0)}
                 </p>
               </div>
               <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">Total Returns</p>
                 <p className="text-3xl font-bold">
-                  {(intakeLink?.conversions || 0) + (appointmentLink?.conversions || 0)}
+                  {(leadLink?.conversions || 0) + (intakeLink?.conversions || 0)}
                 </p>
               </div>
             </div>

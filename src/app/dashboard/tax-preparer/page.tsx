@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, FileCheck, Sparkles, ShoppingCart, Palette, FileText } from 'lucide-react';
+import { BarChart3, FileCheck, Sparkles, ShoppingCart, Palette, FileText, Calendar } from 'lucide-react';
 import { AttributionStatsCard } from '@/components/dashboard/attribution-stats-card';
 import { RecentLeadsTable } from '@/components/dashboard/recent-leads-table';
 import { StatsGrid } from '@/components/dashboard/preparer/StatsGrid';
@@ -141,6 +141,22 @@ export default function PreparerDashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4">
+            <Button
+              variant="outline"
+              className="h-auto flex-col gap-2 sm:gap-3 py-4 sm:py-6 bg-white dark:bg-gray-950 hover:shadow-lg transition-all"
+              asChild
+            >
+              <a href="/dashboard/tax-preparer/calendar">
+                <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                  <Calendar className="h-6 w-6 sm:h-7 sm:w-7 text-blue-600" />
+                </div>
+                <div className="text-center">
+                  <p className="font-semibold text-xs sm:text-sm">My Calendar</p>
+                  <p className="text-xs text-muted-foreground mt-1 hidden sm:block">Appointments</p>
+                </div>
+              </a>
+            </Button>
+
             <Button
               variant="outline"
               className="h-auto flex-col gap-2 sm:gap-3 py-4 sm:py-6 bg-white dark:bg-gray-950 hover:shadow-lg transition-all"

@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { cache } from '@/lib/redis';
+import { prisma } from '@/lib/prisma';
 import { MagicLinkEmail } from '../../../emails/MagicLinkEmail';
 import { WelcomeEmail } from '../../../emails/WelcomeEmail';
 import { CommissionEmail } from '../../../emails/CommissionEmail';
@@ -9,6 +10,8 @@ import { ReturnFiledEmail } from '../../../emails/return-filed';
 import { ReferralInvitationEmail } from '../../../emails/referral-invitation';
 import { CertificationCompleteEmail } from '../../../emails/certification-complete';
 import { TaxPreparerWelcomeEmail } from '../../../emails/TaxPreparerWelcomeEmail';
+import { NewLeadNotification } from '../../../emails/new-lead-notification';
+import { TaxIntakeComplete } from '../../../emails/tax-intake-complete';
 import { logger } from '@/lib/logger';
 
 // Initialize Resend
@@ -33,6 +36,62 @@ interface EmailOptions {
 export class EmailService {
   private static fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@taxgeniuspro.tax';
   private static appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3005';
+
+  /**
+   * Get preparer's notification email address
+   * Returns professional email (@taxgeniuspro.tax) if they have one that's primary and active,
+   * otherwise returns their signup email
+   */
+  private static async getPreparerNotificationEmail(preparerId: string): Promise<string> {
+    try {
+      // Get preparer's user record
+      const user = await prisma.user.findUnique({
+        where: { id: preparerId },
+        select: {
+          email: true,
+          profile: {
+            select: {
+              professionalEmails: {
+                where: {
+                  isPrimary: true,
+                  status: 'ACTIVE',
+                },
+                select: {
+                  emailAddress: true,
+                },
+                take: 1,
+              },
+            },
+          },
+        },
+      });
+
+      if (!user) {
+        logger.error('User not found for preparer notification email', { preparerId });
+        throw new Error('User not found');
+      }
+
+      // If they have a professional email marked as primary and active, use it
+      const professionalEmail = user.profile?.professionalEmails?.[0]?.emailAddress;
+      if (professionalEmail) {
+        logger.info('Using professional email for preparer notification', {
+          preparerId,
+          email: professionalEmail,
+        });
+        return professionalEmail;
+      }
+
+      // Otherwise use their signup email
+      logger.info('Using signup email for preparer notification', {
+        preparerId,
+        email: user.email,
+      });
+      return user.email;
+    } catch (error) {
+      logger.error('Error getting preparer notification email', { preparerId, error });
+      throw error;
+    }
+  }
 
   /**
    * Send magic link email using Resend + React Email
@@ -1072,6 +1131,249 @@ export class EmailService {
       return true;
     } catch (error) {
       logger.error('Error sending tax forms email:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Send new lead notification to tax preparer
+   * Triggered when a lead is assigned to a preparer
+   */
+  static async sendNewLeadNotificationEmail(
+    preparerId: string,
+    leadData: {
+      leadId: string;
+      leadName: string;
+      leadEmail: string;
+      leadPhone?: string;
+      service: string;
+      message?: string;
+      source: string;
+    }
+  ): Promise<boolean> {
+    try {
+      // Get preparer's notification email (professional or signup email)
+      const preparerEmail = await this.getPreparerNotificationEmail(preparerId);
+
+      // Get preparer's name
+      const preparer = await prisma.user.findUnique({
+        where: { id: preparerId },
+        select: {
+          profile: {
+            select: {
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+      });
+
+      const preparerName = preparer?.profile?.firstName || 'Tax Preparer';
+      const dashboardUrl = `${this.appUrl}/dashboard/tax-preparer/leads`;
+
+      if (process.env.NODE_ENV === 'development') {
+        logger.info('New Lead Notification Email (Dev Mode):', {
+          to: preparerEmail,
+          preparerName,
+          leadData,
+        });
+        return true;
+      }
+
+      const { data, error } = await resend.emails.send({
+        from: this.fromEmail,
+        to: preparerEmail,
+        subject: `🎯 New Lead: ${leadData.service} - ${leadData.leadName}`,
+        react: NewLeadNotification({
+          preparerName,
+          leadName: leadData.leadName,
+          leadEmail: leadData.leadEmail,
+          leadPhone: leadData.leadPhone,
+          service: leadData.service,
+          message: leadData.message,
+          source: leadData.source,
+          dashboardUrl,
+          leadId: leadData.leadId,
+        }),
+      });
+
+      if (error) {
+        logger.error('Error sending new lead notification email:', error);
+        return false;
+      }
+
+      logger.info('New lead notification email sent:', {
+        emailId: data?.id,
+        preparerId,
+        preparerEmail,
+        leadId: leadData.leadId,
+      });
+      return true;
+    } catch (error) {
+      logger.error('Error sending new lead notification email:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Send comprehensive tax intake notification to tax preparer
+   * Triggered when a complete tax intake form is submitted
+   * Shows ALL tax details needed to start tax preparation
+   */
+  static async sendTaxIntakeCompleteEmail(
+    preparerId: string,
+    leadData: {
+      leadId: string;
+      // Personal Information
+      firstName: string;
+      middleName?: string;
+      lastName: string;
+      email: string;
+      phone: string;
+      countryCode: string;
+      dateOfBirth: string;
+      ssn: string;
+      // Address
+      addressLine1: string;
+      addressLine2?: string;
+      city: string;
+      state: string;
+      zipCode: string;
+      // Tax Filing Details
+      filingStatus: string;
+      employmentType: string;
+      occupation: string;
+      claimedAsDependent: string;
+      // Education
+      inCollege: string;
+      // Dependents
+      hasDependents: string;
+      numberOfDependents?: number;
+      dependentsUnder24StudentOrDisabled?: string;
+      dependentsInCollege?: string;
+      childCareProvider?: string;
+      // Property
+      hasMortgage: string;
+      // Tax Credits
+      deniedEitc: string;
+      // IRS Information
+      hasIrsPin: string;
+      irsPin?: string;
+      // Refund Preferences
+      wantsRefundAdvance: string;
+      // Identification
+      driversLicense: string;
+      licenseExpiration: string;
+      licenseFileUrl?: string;
+      // Attribution
+      source: string;
+      referrerUsername?: string;
+      referrerType?: string;
+      attributionMethod?: string;
+    }
+  ): Promise<boolean> {
+    try {
+      // Get preparer's notification email (professional or signup email)
+      const preparerEmail = await this.getPreparerNotificationEmail(preparerId);
+
+      // Get preparer's name
+      const preparer = await prisma.user.findUnique({
+        where: { id: preparerId },
+        select: {
+          profile: {
+            select: {
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+      });
+
+      const preparerName = preparer?.profile?.firstName || 'Tax Preparer';
+      const dashboardUrl = `${this.appUrl}/dashboard/tax-preparer/leads`;
+
+      if (process.env.NODE_ENV === 'development') {
+        logger.info('Tax Intake Complete Email (Dev Mode):', {
+          to: preparerEmail,
+          preparerName,
+          leadId: leadData.leadId,
+          leadName: `${leadData.firstName} ${leadData.lastName}`,
+        });
+        return true;
+      }
+
+      const { data, error } = await resend.emails.send({
+        from: this.fromEmail,
+        to: preparerEmail,
+        subject: `📋 Complete Tax Intake: ${leadData.firstName} ${leadData.lastName} - Ready for Preparation`,
+        react: TaxIntakeComplete({
+          preparerName,
+          leadId: leadData.leadId,
+          leadName: `${leadData.firstName} ${leadData.middleName ? leadData.middleName + ' ' : ''}${leadData.lastName}`,
+          leadEmail: leadData.email,
+          leadPhone: leadData.phone,
+          dashboardUrl,
+          // Personal Information
+          firstName: leadData.firstName,
+          middleName: leadData.middleName,
+          lastName: leadData.lastName,
+          dateOfBirth: leadData.dateOfBirth,
+          ssn: leadData.ssn,
+          countryCode: leadData.countryCode,
+          // Address
+          addressLine1: leadData.addressLine1,
+          addressLine2: leadData.addressLine2,
+          city: leadData.city,
+          state: leadData.state,
+          zipCode: leadData.zipCode,
+          // Tax Filing Details
+          filingStatus: leadData.filingStatus,
+          employmentType: leadData.employmentType,
+          occupation: leadData.occupation,
+          claimedAsDependent: leadData.claimedAsDependent,
+          // Education
+          inCollege: leadData.inCollege,
+          // Dependents
+          hasDependents: leadData.hasDependents,
+          numberOfDependents: leadData.numberOfDependents,
+          dependentsUnder24StudentOrDisabled: leadData.dependentsUnder24StudentOrDisabled,
+          dependentsInCollege: leadData.dependentsInCollege,
+          childCareProvider: leadData.childCareProvider,
+          // Property
+          hasMortgage: leadData.hasMortgage,
+          // Tax Credits
+          deniedEitc: leadData.deniedEitc,
+          // IRS Information
+          hasIrsPin: leadData.hasIrsPin,
+          irsPin: leadData.irsPin,
+          // Refund Preferences
+          wantsRefundAdvance: leadData.wantsRefundAdvance,
+          // Identification
+          driversLicense: leadData.driversLicense,
+          licenseExpiration: leadData.licenseExpiration,
+          licenseFileUrl: leadData.licenseFileUrl,
+          // Attribution
+          source: leadData.source,
+          referrerUsername: leadData.referrerUsername,
+          referrerType: leadData.referrerType,
+          attributionMethod: leadData.attributionMethod,
+        }),
+      });
+
+      if (error) {
+        logger.error('Error sending tax intake complete email:', error);
+        return false;
+      }
+
+      logger.info('Tax intake complete email sent:', {
+        emailId: data?.id,
+        preparerId,
+        preparerEmail,
+        leadId: leadData.leadId,
+      });
+      return true;
+    } catch (error) {
+      logger.error('Error sending tax intake complete email:', error);
       return false;
     }
   }

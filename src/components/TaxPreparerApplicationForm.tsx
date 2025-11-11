@@ -15,6 +15,7 @@ import {
 import { Calendar, CheckCircle, UserPlus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { logger } from '@/lib/logger';
+import FluidBookingWidget from '@/components/FluidBookingWidget';
 
 interface PreparerFormData {
   firstName: string;
@@ -37,6 +38,7 @@ export default function TaxPreparerApplicationForm({
 }: TaxPreparerApplicationFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [defaultPreparerId, setDefaultPreparerId] = useState<string>('cmh9ze4aj0002jx5kkpnnu3no'); // Ray Hamilton - Tax Genius Pro Team
   const [formData, setFormData] = useState<PreparerFormData>({
     firstName: '',
     middleName: '',
@@ -100,19 +102,7 @@ export default function TaxPreparerApplicationForm({
     );
   };
 
-  useEffect(() => {
-    if (showCalendar) {
-      // Load Calendly script
-      const script = document.createElement('script');
-      script.src = 'https://assets.calendly.com/assets/external/widget.js';
-      script.async = true;
-      document.body.appendChild(script);
-
-      return () => {
-        document.body.removeChild(script);
-      };
-    }
-  }, [showCalendar]);
+  // Fluid Booking: No external scripts needed anymore!
 
   if (showCalendar) {
     return (
@@ -123,7 +113,7 @@ export default function TaxPreparerApplicationForm({
           </div>
           <CardTitle className="text-2xl text-center">Application Received!</CardTitle>
           <CardDescription className="text-center text-base">
-            Schedule your interview appointment
+            We'll contact you soon about next steps
           </CardDescription>
         </CardHeader>
 
@@ -137,27 +127,41 @@ export default function TaxPreparerApplicationForm({
               <li>• Email: {formData.email}</li>
               <li>• Phone: {formData.phone}</li>
               <li>• Languages: {formData.languages}</li>
+              <li>• Experience: {formData.experienceLevel === 'NEW' ? 'New to Tax Preparation' : formData.experienceLevel === 'INTERMEDIATE' ? '1-3 Years' : '3+ Years (Seasoned)'}</li>
             </ul>
           </div>
 
-          {/* Calendar Booking Component */}
-          <div className="border-2 border-primary/20 rounded-lg p-6 bg-primary/5">
-            <div className="flex items-center gap-3 mb-4">
-              <Calendar className="w-6 h-6 text-primary" />
-              <h3 className="text-lg font-semibold">Book Your Interview</h3>
-            </div>
-
-            {/* Calendly Inline Widget */}
-            <div
-              className="calendly-inline-widget rounded-lg overflow-hidden"
-              data-url={`https://calendly.com/taxgenius/preparer-interview?name=${encodeURIComponent(formData.firstName + ' ' + formData.lastName)}&email=${encodeURIComponent(formData.email)}&a1=${encodeURIComponent(formData.phone)}`}
-              style={{ minWidth: '320px', height: '700px' }}
-            />
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg space-y-4">
+            <p className="font-semibold text-blue-900 dark:text-blue-100">
+              📅 Schedule Your Interview (Optional)
+            </p>
+            <p className="text-sm text-blue-800 dark:text-blue-200">
+              You can schedule your interview appointment now, or we'll contact you via email or phone to set one up.
+            </p>
           </div>
+
+          {/* Fluid Booking Widget - Replacement for Calendly */}
+          <FluidBookingWidget
+            preparerId={defaultPreparerId}
+            preparerName="Tax Genius Pro Team"
+            clientInfo={{
+              name: `${formData.firstName} ${formData.middleName} ${formData.lastName}`.trim(),
+              email: formData.email,
+              phone: formData.phone,
+            }}
+            appointmentType="CONSULTATION"
+            duration={30}
+            source="preparer_app"
+            customMessage="Schedule your preparer interview appointment. We're excited to learn more about you!"
+            onBookingComplete={(appointmentId) => {
+              logger.info('Interview appointment booked', { appointmentId });
+            }}
+          />
 
           <div className="text-sm text-center text-muted-foreground space-y-2">
             <p>📧 A confirmation email has been sent to {formData.email}</p>
             <p>📱 We'll text you at {formData.phone} with interview details</p>
+            <p className="text-xs pt-2">You can close this page. We'll be in touch soon!</p>
           </div>
         </CardContent>
       </Card>
@@ -377,7 +381,7 @@ export default function TaxPreparerApplicationForm({
             ) : (
               <>
                 <UserPlus className="w-5 h-5 mr-2" />
-                Submit Application & Book Interview
+                Submit Application
               </>
             )}
           </Button>

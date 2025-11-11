@@ -33,7 +33,7 @@ export function generateTaxGeniusOrganizationSchema() {
     logo: `${SITE_URL}/logo.png`,
     description:
       'Professional tax preparation and filing services. IRS-certified tax experts providing personal tax, business tax, tax planning, audit protection, and IRS resolution services nationwide.',
-    email: 'support@taxgeniuspro.tax',
+    email: 'taxgenius.tax@gmail.com',
     telephone: PHONE,
     address: {
       '@type': 'PostalAddress',
@@ -81,7 +81,7 @@ export function generateTaxGeniusLocalBusinessSchema(
     description: `Professional tax preparation services in ${cityName}, ${stateName}. Expert tax preparers, guaranteed accuracy, maximum refunds. Personal and business tax filing available.`,
     url: `${SITE_URL}/locations/${cityName.toLowerCase().replace(/\s+/g, '-')}-${stateCode.toLowerCase()}`,
     telephone: PHONE,
-    email: 'support@taxgeniuspro.tax',
+    email: 'taxgenius.tax@gmail.com',
     priceRange: '$$',
     address: {
       '@type': 'PostalAddress',

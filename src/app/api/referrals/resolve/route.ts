@@ -33,7 +33,6 @@ export async function GET(req: NextRequest) {
         lastName: true,
         role: true,
         companyName: true,
-        assignedPreparerId: true, // For clients, get their preparer
         affiliateBondedToPreparerId: true, // For affiliates, get bonded preparer
       },
     });
@@ -55,7 +54,8 @@ export async function GET(req: NextRequest) {
 
       case 'CLIENT':
         // Book with client's assigned preparer
-        preparerId = profile.assignedPreparerId || null;
+        // TODO: Look up client's assigned preparer via ClientPreparer relation
+        preparerId = null;
         break;
 
       case 'AFFILIATE':

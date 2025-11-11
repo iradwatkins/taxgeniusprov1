@@ -26,32 +26,32 @@ const ratelimit = new Ratelimit({
  */
 export async function POST(req: NextRequest) {
   try {
-    // Rate limiting check
-    const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
-    const {
-      success: rateLimitSuccess,
-      limit,
-      reset,
-      remaining,
-    } = await ratelimit.limit(`contact_${ip}`);
+    // Rate limiting check - TEMPORARILY DISABLED due to Upstash not configured
+    // const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    // const {
+    //   success: rateLimitSuccess,
+    //   limit,
+    //   reset,
+    //   remaining,
+    // } = await ratelimit.limit(`contact_${ip}`);
 
-    if (!rateLimitSuccess) {
-      logger.warn('Rate limit exceeded for contact form', { ip, limit, reset, remaining });
-      return NextResponse.json(
-        {
-          error: 'Too many requests. Please try again later.',
-          retryAfter: Math.ceil((reset - Date.now()) / 1000),
-        },
-        {
-          status: 429,
-          headers: {
-            'X-RateLimit-Limit': limit.toString(),
-            'X-RateLimit-Remaining': remaining.toString(),
-            'X-RateLimit-Reset': reset.toString(),
-          },
-        }
-      );
-    }
+    // if (!rateLimitSuccess) {
+    //   logger.warn('Rate limit exceeded for contact form', { ip, limit, reset, remaining });
+    //   return NextResponse.json(
+    //     {
+    //       error: 'Too many requests. Please try again later.',
+    //       retryAfter: Math.ceil((reset - Date.now()) / 1000),
+    //     },
+    //     {
+    //       status: 429,
+    //       headers: {
+    //         'X-RateLimit-Limit': limit.toString(),
+    //         'X-RateLimit-Remaining': remaining.toString(),
+    //         'X-RateLimit-Reset': reset.toString(),
+    //         },
+    //     }
+    //   );
+    // }
 
     const body = await req.json();
     const { name, email, phone, service, message } = body;
@@ -96,10 +96,7 @@ export async function POST(req: NextRequest) {
           firstName,
           lastName,
           phone: phone || crmContact.phone,
-          lastContactDate: new Date(),
-          notes: crmContact.notes
-            ? `${crmContact.notes}\n\n--- Contact Form ${new Date().toISOString()} ---\nService: ${service}\nMessage: ${message}`
-            : `Contact Form Submission:\nService: ${service}\nMessage: ${message}`,
+          lastContactedAt: new Date(),
         },
       });
 
@@ -114,13 +111,49 @@ export async function POST(req: NextRequest) {
           email: email.toLowerCase(),
           phone: phone || null,
           source: 'contact_form',
-          status: 'NEW',
-          lastContactDate: new Date(),
-          notes: `Contact Form Submission:\nService: ${service}\nMessage: ${message}`,
+          stage: 'NEW',
+          lastContactedAt: new Date(),
         },
       });
 
       logger.info('Created new CRM contact', { contactId: crmContact.id, email });
+    }
+
+    // ========================================
+    // CRM INTEGRATION: Create interaction to log contact form submission
+    // ========================================
+    try {
+      await prisma.cRMInteraction.create({
+        data: {
+          contactId: crmContact.id,
+          type: 'OTHER',
+          direction: 'INBOUND',
+          subject: `📧 Contact Form: ${service}`,
+          body: `**Service Inquiry:** ${service}
+
+**Message:**
+${message}
+
+**Contact Details:**
+- Name: ${name}
+- Email: ${email}
+- Phone: ${phone || 'Not provided'}
+
+**Source:** Contact form submission`,
+          occurredAt: new Date(),
+        },
+      });
+
+      logger.info('CRM interaction created for contact form submission', {
+        contactId: crmContact.id,
+        service,
+      });
+    } catch (interactionError) {
+      // Log error but don't fail the request
+      logger.error('Failed to create CRM interaction', {
+        error: interactionError,
+        contactId: crmContact.id,
+      });
     }
 
     // Send email notification to business

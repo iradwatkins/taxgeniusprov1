@@ -216,10 +216,10 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
           <p className="mb-2">
             Need help? Contact us at{' '}
             <a
-              href="mailto:support@taxgeniuspro.tax"
+              href="mailto:taxgenius.tax@gmail.com"
               className="font-medium text-blue-600 hover:underline"
             >
-              support@taxgeniuspro.tax
+              taxgenius.tax@gmail.com
             </a>
           </p>
           <p className="text-xs">Session ID: {sessionId}</p>

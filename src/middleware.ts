@@ -108,7 +108,8 @@ const isPublicApiRoute = (pathname: string): boolean => {
     '/api/contact',
     '/api/appointments',
     '/api/preparers',
-    '/api/referrals/resolve',
+    '/api/referrals', // All referral endpoints (signup, resolve, etc.)
+    '/api/leads', // All lead submission endpoints (preparer, affiliate, customer)
     '/api/journey',
     '/api/analytics/attribution',
     '/api/webhooks',

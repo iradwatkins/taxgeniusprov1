@@ -123,6 +123,10 @@ export function LeadDashboard({ preparerId, isAdmin = false }: LeadDashboardProp
   const [contactMethod, setContactMethod] = useState<string>('CALL');
   const [submitting, setSubmitting] = useState(false);
 
+  // Tax details dialog state
+  const [taxDetailsDialogOpen, setTaxDetailsDialogOpen] = useState(false);
+  const [taxDetailsLead, setTaxDetailsLead] = useState<TaxIntakeLead | null>(null);
+
   // Fetch leads
   useEffect(() => {
     fetchLeads();
@@ -444,6 +448,21 @@ export function LeadDashboard({ preparerId, isAdmin = false }: LeadDashboardProp
 
                         {/* Actions */}
                         <div className="flex flex-col gap-2 md:w-48">
+                          {lead.full_form_data && (
+                            <Button
+                              variant="default"
+                              size="sm"
+                              className="w-full bg-primary text-primary-foreground"
+                              onClick={() => {
+                                setTaxDetailsLead(lead);
+                                setTaxDetailsDialogOpen(true);
+                              }}
+                            >
+                              <FileText className="h-4 w-4 mr-2" />
+                              View Tax Details
+                            </Button>
+                          )}
+
                           <Button
                             variant="outline"
                             size="sm"
@@ -562,6 +581,216 @@ export function LeadDashboard({ preparerId, isAdmin = false }: LeadDashboardProp
                 'Save Note'
               )}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Tax Details Dialog */}
+      <Dialog open={taxDetailsDialogOpen} onOpenChange={setTaxDetailsDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Complete Tax Intake Details</DialogTitle>
+            <DialogDescription>
+              Full tax information for{' '}
+              {taxDetailsLead && `${taxDetailsLead.first_name} ${taxDetailsLead.last_name}`}
+            </DialogDescription>
+          </DialogHeader>
+
+          {taxDetailsLead?.full_form_data && (
+            <div className="space-y-4">
+              {/* Personal Information */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-semibold uppercase tracking-wide">
+                    Personal Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Full Name</p>
+                    <p className="font-medium">
+                      {taxDetailsLead.full_form_data.first_name}{' '}
+                      {taxDetailsLead.full_form_data.middle_name || ''}{' '}
+                      {taxDetailsLead.full_form_data.last_name}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Date of Birth</p>
+                    <p className="font-medium">{taxDetailsLead.full_form_data.date_of_birth || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">SSN</p>
+                    <p className="font-medium">{taxDetailsLead.full_form_data.ssn || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Phone</p>
+                    <p className="font-medium">
+                      {taxDetailsLead.full_form_data.country_code || '+1'} {taxDetailsLead.full_form_data.phone}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Address */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-semibold uppercase tracking-wide">Address</CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm space-y-1">
+                  <p className="font-medium">{taxDetailsLead.full_form_data.address_line_1}</p>
+                  {taxDetailsLead.full_form_data.address_line_2 && (
+                    <p className="font-medium">{taxDetailsLead.full_form_data.address_line_2}</p>
+                  )}
+                  <p className="font-medium">
+                    {taxDetailsLead.full_form_data.city}, {taxDetailsLead.full_form_data.state}{' '}
+                    {taxDetailsLead.full_form_data.zip_code}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Tax Filing */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-semibold uppercase tracking-wide">Tax Filing</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Filing Status</p>
+                    <p className="font-medium capitalize">
+                      {taxDetailsLead.full_form_data.filing_status?.replace(/_/g, ' ') || 'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Employment</p>
+                    <p className="font-medium">{taxDetailsLead.full_form_data.employment_type || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Occupation</p>
+                    <p className="font-medium">{taxDetailsLead.full_form_data.occupation || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Claimed as Dependent</p>
+                    <p className="font-medium">
+                      {taxDetailsLead.full_form_data.claimed_as_dependent === 'yes' ? 'Yes' : 'No'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Currently in College</p>
+                    <p className="font-medium">
+                      {taxDetailsLead.full_form_data.in_college === 'yes' ? 'Yes' : 'No'}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Dependents */}
+              {taxDetailsLead.full_form_data.has_dependents === 'yes' && (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-semibold uppercase tracking-wide">Dependents</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-muted-foreground">Number of Dependents</p>
+                      <p className="font-medium">{taxDetailsLead.full_form_data.number_of_dependents || 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Under 24 / Student / Disabled</p>
+                      <p className="font-medium">
+                        {taxDetailsLead.full_form_data.dependents_under_24_student_or_disabled === 'yes'
+                          ? 'Yes'
+                          : 'No'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">In College</p>
+                      <p className="font-medium">
+                        {taxDetailsLead.full_form_data.dependents_in_college === 'yes' ? 'Yes' : 'No'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Child Care Provider</p>
+                      <p className="font-medium">
+                        {taxDetailsLead.full_form_data.child_care_provider === 'yes' ? 'Yes' : 'No'}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Property & Credits */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-semibold uppercase tracking-wide">
+                    Property & Credits
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Has Mortgage</p>
+                    <p className="font-medium">
+                      {taxDetailsLead.full_form_data.has_mortgage === 'yes' ? 'Yes' : 'No'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Previously Denied EITC</p>
+                    <p className="font-medium">
+                      {taxDetailsLead.full_form_data.denied_eitc === 'yes' ? 'Yes' : 'No'}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* IRS & Refund */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-semibold uppercase tracking-wide">IRS & Refund</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Has IRS PIN</p>
+                    <p className="font-medium">
+                      {taxDetailsLead.full_form_data.has_irs_pin === 'yes'
+                        ? `Yes (${taxDetailsLead.full_form_data.irs_pin || 'N/A'})`
+                        : taxDetailsLead.full_form_data.has_irs_pin === 'yes_locate'
+                        ? 'Yes (Need to Locate)'
+                        : 'No'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Wants Refund Advance</p>
+                    <p className="font-medium">
+                      {taxDetailsLead.full_form_data.wants_refund_advance === 'yes' ? 'Yes' : 'No'}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Identification */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-semibold uppercase tracking-wide">
+                    Identification
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Driver's License</p>
+                    <p className="font-medium">{taxDetailsLead.full_form_data.drivers_license || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">License Expiration</p>
+                    <p className="font-medium">
+                      {taxDetailsLead.full_form_data.license_expiration || 'N/A'}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button onClick={() => setTaxDetailsDialogOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -158,6 +158,15 @@ model Profile {
   address     Json? // Encrypted JSON
   bankDetails Json? // Encrypted JSON for commission payments
 
+  // CRM Permissions (Admin-Controlled Access for Tax Preparers)
+  crmEmailAutomation     Boolean @default(false) // Can use email automation features
+  crmWorkflowAutomation  Boolean @default(false) // Can use workflow automation features
+  crmActivityTracking    Boolean @default(false) // Can view activity timeline
+  crmAdvancedAnalytics   Boolean @default(false) // Can view advanced analytics
+  crmTaskManagement      Boolean @default(false) // Can create and manage tasks
+  crmLeadScoring         Boolean @default(false) // Can view lead scores
+  crmBulkActions         Boolean @default(false) // Can perform bulk operations
+
   // Relations
   referrerReferrals   Referral[]           @relation("ReferrerReferrals")
   clientReferrals     Referral[]           @relation("ClientReferrals")
@@ -439,7 +448,7 @@ model PreparerApplication {
   firstName       String
   middleName      String?
   lastName        String
-  email           String            @unique
+  email           String            // Removed @unique to allow multiple applications
   phone           String
   languages       String
   smsConsent      Boolean           @default(false)
@@ -1399,6 +1408,20 @@ model TaxIntakeLead {
   taxReturn         TaxReturn? @relation(fields: [taxReturnId], references: [id], onDelete: SetNull)
   convertedAt       DateTime? // When conversion happened
 
+  // Lead Scoring & Urgency (CRM Enhancement)
+  leadScore         Int?      @default(0) // 0-100 calculated score
+  leadScoreUpdatedAt DateTime? // Last score calculation
+  urgency           LeadUrgency @default(NORMAL) // LOW, NORMAL, HIGH, URGENT
+
+  // Engagement Tracking
+  lastViewedAt      DateTime? // Last time details were viewed
+  emailOpens        Int       @default(0) // Email open count
+  emailClicks       Int       @default(0) // Email click count
+
+  // Relations
+  activities        LeadActivity[] // Activity timeline
+  tasks             LeadTask[]     // Task management
+
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
 
@@ -1412,7 +1435,205 @@ model TaxIntakeLead {
   @@index([profileId])
   @@index([convertedToClient])
   @@index([taxReturnId])
+  @@index([leadScore])
+  @@index([urgency])
+  @@index([lastViewedAt])
   @@map("tax_intake_leads")
+}
+
+// Lead Activity Types for Timeline
+enum ActivityType {
+  CONTACT_ATTEMPTED  // Preparer tried to reach lead
+  CONTACT_MADE       // Successful contact
+  EMAIL_SENT         // Email sent to lead
+  EMAIL_OPENED       // Lead opened email
+  EMAIL_CLICKED      // Lead clicked link in email
+  NOTE_ADDED         // Manual note added
+  STATUS_CHANGED     // Lead status/stage changed
+  TASK_CREATED       // Task created for lead
+  TASK_COMPLETED     // Task marked complete
+  FORM_VIEWED        // Lead viewed tax form/details
+  DOCUMENT_UPLOADED  // Lead uploaded document
+  MEETING_SCHEDULED  // Meeting/call scheduled
+  MEETING_COMPLETED  // Meeting/call completed
+  CONVERTED          // Lead converted to client
+  ASSIGNED           // Lead assigned to preparer
+}
+
+// Lead Urgency Levels
+enum LeadUrgency {
+  LOW      // Cold lead, low priority
+  NORMAL   // Standard lead
+  HIGH     // Hot lead, needs attention
+  URGENT   // Immediate action required
+}
+
+// Lead Activity Log (Timeline)
+model LeadActivity {
+  id            String       @id @default(cuid())
+  leadId        String
+  activityType  ActivityType
+
+  // Activity Details
+  title         String       // Brief description
+  description   String?      @db.Text // Full details
+  metadata      Json?        @db.JsonB // Additional data (email ID, task ID, etc.)
+
+  // Attribution
+  createdBy     String?      // Profile ID of who performed action
+  createdByName String?      // Name for display
+  automated     Boolean      @default(false) // Was this automated?
+
+  // Timestamps
+  createdAt     DateTime     @default(now())
+
+  // Relations
+  lead          TaxIntakeLead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId, createdAt(sort: Desc)])
+  @@index([activityType])
+  @@index([createdBy])
+  @@map("lead_activities")
+}
+
+// ============ CRM Task Management ============
+
+model LeadTask {
+  id            String       @id @default(cuid())
+  leadId        String
+
+  // Task Details
+  title         String       // Brief task description
+  description   String?      @db.Text // Full task details
+  status        TaskStatus   @default(TODO)
+  priority      TaskPriority @default(MEDIUM)
+
+  // Assignment
+  assignedTo    String?      // Profile ID
+  assignedToName String?     // Name for display
+  createdBy     String?      // Profile ID of creator
+  createdByName String?      // Name for display
+
+  // Dates
+  dueDate       DateTime?    // When task is due
+  completedAt   DateTime?    // When task was completed
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Relations
+  lead          TaxIntakeLead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId, status])
+  @@index([assignedTo, status])
+  @@index([dueDate])
+  @@index([status])
+  @@map("lead_tasks")
+}
+
+// ============ CRM Workflow Automation ============
+
+enum CRMWorkflowTrigger {
+  LEAD_CREATED         // When a new lead is created
+  LEAD_UPDATED         // When lead data changes
+  STATUS_CHANGED       // When lead status/stage changes
+  ASSIGNED             // When lead is assigned to preparer
+  EMAIL_OPENED         // When lead opens an email
+  EMAIL_CLICKED        // When lead clicks link in email
+  FORM_SUBMITTED       // When lead submits a form
+  TASK_COMPLETED       // When a task is marked complete
+  TIME_BASED           // Based on time conditions (e.g., 3 days after creation)
+  MANUAL               // Manually triggered
+}
+
+enum CRMWorkflowActionType {
+  SEND_EMAIL           // Send an email
+  CREATE_TASK          // Create a task
+  ASSIGN_TO_PREPARER   // Assign lead to preparer
+  UPDATE_STATUS        // Change lead status
+  ADD_TAG              // Add a tag to lead
+  UPDATE_FIELD         // Update a lead field
+  SEND_NOTIFICATION    // Send notification to user
+  WAIT                 // Wait for X time before next action
+}
+
+model CRMWorkflow {
+  id            String              @id @default(cuid())
+  name          String              // "Welcome New Leads", "Follow-up Reminder"
+  description   String?             @db.Text
+
+  // Trigger configuration
+  trigger       CRMWorkflowTrigger
+  triggerConditions Json?           @db.JsonB // Additional conditions for trigger
+
+  // Workflow settings
+  isActive      Boolean             @default(false)
+  priority      Int                 @default(0) // Higher priority workflows run first
+
+  // Actions to perform
+  actions       CRMWorkflowAction[]
+
+  // Statistics
+  executionCount Int                @default(0)
+  successCount  Int                 @default(0)
+  failureCount  Int                 @default(0)
+  lastExecutedAt DateTime?
+
+  // Creator & timestamps
+  createdBy     String?             // Profile ID
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([trigger, isActive])
+  @@index([isActive])
+  @@map("crm_workflows")
+}
+
+model CRMWorkflowAction {
+  id            String                 @id @default(cuid())
+  workflowId    String
+
+  // Action details
+  actionType    CRMWorkflowActionType
+  actionConfig  Json                   @db.JsonB // Configuration specific to action type
+  order         Int                    @default(0) // Execution order
+
+  // Conditional execution
+  conditions    Json?                  @db.JsonB // Conditions that must be met
+
+  // Delay before execution
+  delayMinutes  Int                    @default(0)
+
+  // Relations
+  workflow      CRMWorkflow            @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@index([workflowId, order])
+  @@map("crm_workflow_actions")
+}
+
+model CRMWorkflowExecution {
+  id            String    @id @default(cuid())
+  workflowId    String
+  leadId        String
+
+  // Execution details
+  status        String    // "pending", "running", "completed", "failed"
+  startedAt     DateTime  @default(now())
+  completedAt   DateTime?
+
+  // Results
+  actionsExecuted Int     @default(0)
+  actionsSucceeded Int    @default(0)
+  actionsFailed   Int     @default(0)
+
+  // Error tracking
+  errorMessage  String?   @db.Text
+  executionLog  Json?     @db.JsonB // Detailed log of execution
+
+  @@index([workflowId])
+  @@index([leadId])
+  @@index([status])
+  @@index([startedAt])
+  @@map("crm_workflow_executions")
 }
 
 // ============ Page Analytics & Performance Tracking ============

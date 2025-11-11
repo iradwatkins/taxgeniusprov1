@@ -1,5 +1,8 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
 import { getUserPermissions, UserRole, type UserPermissions } from '@/lib/permissions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,13 +16,14 @@ import {
   Phone,
   Users,
   Plus,
-  ChevronLeft,
-  ChevronRight,
   CalendarDays,
   User,
+  Mail,
+  Loader2,
 } from 'lucide-react';
-import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import CalendarView from '@/components/CalendarView';
+import AppointmentDialog from '@/components/AppointmentDialog';
 
 const statusColors: Record<string, string> = {
   REQUESTED: 'secondary',
@@ -39,40 +43,86 @@ const typeIcons: Record<string, React.ReactElement> = {
   FOLLOW_UP: <Clock className="w-4 h-4" />,
 };
 
-export default async function CalendarPage() {
-  const session = await auth(); const user = session?.user;
-  if (!user) redirect('/auth/signin');
+export default function CalendarPage() {
+  const { data: session, status } = useSession();
+  const user = session?.user;
+  const isLoaded = status !== 'loading';
+
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+  const [selectedRequestAppointment, setSelectedRequestAppointment] = useState<any>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const role = user?.role as UserRole | undefined;
-  const customPermissions = user?.permissions as
-    | Partial<UserPermissions>
-    | undefined;
+  const customPermissions = user?.permissions as Partial<UserPermissions> | undefined;
   const permissions = getUserPermissions(role || 'client', customPermissions);
 
-  // ✅ Check main permission for page access
-  if (!permissions.calendar) redirect('/forbidden');
+  // Check main permission for page access
+  useEffect(() => {
+    if (isLoaded && (!user || !permissions.calendar)) {
+      redirect('/forbidden');
+    }
+  }, [isLoaded, user, permissions]);
 
-  // 🎛️ Extract micro-permissions for calendar features
-  // Fallback to main permission for backward compatibility
+  // Extract micro-permissions for calendar features
   const canView = permissions.calendar_view ?? permissions.calendar;
   const canCreate = permissions.calendar_create ?? false;
   const canEdit = permissions.calendar_edit ?? false;
-  const canDelete = permissions.calendar_delete ?? false;
+  const canConfirm = role === 'tax_preparer' || role === 'admin' || role === 'super_admin';
 
   // Fetch appointments
-  type AppointmentWithUser = Awaited<ReturnType<typeof prisma.appointment.findMany>>[number];
-  let appointments: AppointmentWithUser[] = [];
+  useEffect(() => {
+    if (!isLoaded || !user) return;
 
-  try {
-    appointments = await prisma.appointment.findMany({
-      orderBy: {
-        scheduledFor: 'asc',
-      },
-      take: 50, // Limit for performance
-    });
-  } catch (error) {
-    logger.error('Error fetching appointments:', error);
-    // Continue with empty array - will show "No appointments scheduled" message
+    const fetchAppointments = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/appointments/list');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch appointments');
+        }
+
+        const data = await response.json();
+        setAppointments(data.appointments || []);
+      } catch (error) {
+        logger.error('Error fetching appointments:', error);
+        setAppointments([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAppointments();
+  }, [isLoaded, user, refreshKey]);
+
+  const handleSuccess = () => {
+    setRefreshKey((prev) => prev + 1);
+    setCreateDialogOpen(false);
+    setScheduleDialogOpen(false);
+    setSelectedRequestAppointment(null);
+  };
+
+  const handleScheduleClick = (appointment: any) => {
+    setSelectedRequestAppointment(appointment);
+    setScheduleDialogOpen(true);
+  };
+
+  const handleContactClick = (appointment: any) => {
+    // Open mailto link with pre-filled subject
+    const subject = `Re: Appointment Request - ${appointment.clientName}`;
+    const body = `Hello ${appointment.clientName},\n\nThank you for your appointment request...`;
+    window.location.href = `mailto:${appointment.clientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+
+  if (!isLoaded || loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
   // Get today's appointments
@@ -83,13 +133,15 @@ export default async function CalendarPage() {
 
   const todaysAppointments = appointments.filter((apt) => {
     if (!apt.scheduledFor) return false;
-    return apt.scheduledFor >= today && apt.scheduledFor < tomorrow;
+    const scheduled = new Date(apt.scheduledFor);
+    return scheduled >= today && scheduled < tomorrow;
   });
 
   // Get upcoming appointments
   const upcomingAppointments = appointments.filter((apt) => {
     if (!apt.scheduledFor) return false;
-    return apt.scheduledFor >= tomorrow;
+    const scheduled = new Date(apt.scheduledFor);
+    return scheduled >= tomorrow;
   });
 
   // Get requested appointments (need scheduling)
@@ -105,7 +157,7 @@ export default async function CalendarPage() {
               Calendar & Appointments
             </h1>
             {canCreate && (
-              <Button>
+              <Button onClick={() => setCreateDialogOpen(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 New Appointment
               </Button>
@@ -178,28 +230,16 @@ export default async function CalendarPage() {
           <TabsContent value="calendar">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Calendar</CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="icon">
-                      <ChevronLeft className="w-4 h-4" />
-                    </Button>
-                    <Button variant="outline">Today</Button>
-                    <Button variant="outline" size="icon">
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
+                <CardTitle>Calendar</CardTitle>
+                <CardDescription>Interactive calendar view of all appointments</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="border rounded-lg p-8">
-                  <div className="text-center text-muted-foreground">
-                    <Calendar className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                    <p className="text-lg font-medium">Calendar View</p>
-                    <p className="text-sm">Interactive calendar will be implemented here</p>
-                    <p className="text-sm mt-2">Integrate with FullCalendar or similar library</p>
-                  </div>
-                </div>
+                <CalendarView
+                  appointments={appointments}
+                  canCreate={canCreate}
+                  canEdit={canEdit}
+                  canConfirm={canConfirm}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -258,14 +298,13 @@ export default async function CalendarPage() {
                             )}
                           </div>
                           <div className="space-x-2">
-                            {canView && (
-                              <Button variant="outline" size="sm">
-                                View
-                              </Button>
-                            )}
-                            {canEdit && (
-                              <Button variant="outline" size="sm">
-                                Edit
+                            {apt.status === 'REQUESTED' && canCreate && (
+                              <Button
+                                variant="default"
+                                size="sm"
+                                onClick={() => handleScheduleClick(apt)}
+                              >
+                                Schedule
                               </Button>
                             )}
                           </div>
@@ -307,16 +346,30 @@ export default async function CalendarPage() {
                               {apt.clientNotes || 'No notes provided'}
                             </p>
                             <div className="flex items-center gap-4 text-sm">
-                              <span>{apt.clientEmail}</span>
-                              <span>{apt.clientPhone}</span>
+                              <div className="flex items-center gap-1">
+                                <Mail className="w-3 h-3" />
+                                {apt.clientEmail}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Phone className="w-3 h-3" />
+                                {apt.clientPhone}
+                              </div>
                             </div>
                             <p className="text-xs text-muted-foreground">
                               Requested: {new Date(apt.requestedAt).toLocaleString()}
                             </p>
                           </div>
                           <div className="space-x-2">
-                            {canCreate && <Button size="sm">Schedule</Button>}
-                            <Button size="sm" variant="outline">
+                            {canCreate && (
+                              <Button size="sm" onClick={() => handleScheduleClick(apt)}>
+                                Schedule
+                              </Button>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleContactClick(apt)}
+                            >
                               Contact
                             </Button>
                           </div>
@@ -329,6 +382,25 @@ export default async function CalendarPage() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Create Appointment Dialog */}
+        <AppointmentDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          onSuccess={handleSuccess}
+          mode="create"
+        />
+
+        {/* Schedule Appointment Dialog */}
+        {selectedRequestAppointment && (
+          <AppointmentDialog
+            open={scheduleDialogOpen}
+            onOpenChange={setScheduleDialogOpen}
+            onSuccess={handleSuccess}
+            appointment={selectedRequestAppointment}
+            mode="schedule"
+          />
+        )}
       </div>
     </div>
   );

@@ -1,18 +1,10 @@
-import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import {
   Select,
   SelectContent,
@@ -23,106 +15,83 @@ import {
 import {
   Users,
   Search,
-  Filter,
-  Eye,
-  UserPlus,
   CheckCircle2,
   Clock,
   XCircle,
-  Mail,
-  Phone,
   Calendar,
   DollarSign,
+  Loader2,
+  UserPlus,
 } from 'lucide-react';
+import { format } from 'date-fns';
 
-export const metadata = {
-  title: 'Leads | Tax Genius Pro',
-  description: 'Manage your affiliate leads',
-};
-
-async function isAffiliate() {
-  const session = await auth(); const user = session?.user;
-  if (!user) return false;
-  const role = user?.role;
-  return role === 'affiliate' || role === 'admin';
+interface AffiliateLead {
+  id: string;
+  first_name: string;
+  last_name: string;
+  fullName: string;
+  status: string;
+  referrerUsername: string;
+  attributionMethod: string;
+  convertedToClient: boolean;
+  created_at: string;
 }
 
-export default async function AffiliateLeadsPage() {
-  const userIsAffiliate = await isAffiliate();
+interface LeadStats {
+  total: number;
+  new: number;
+  contacted: number;
+  converted: number;
+  conversionRate: number;
+}
 
-  if (!userIsAffiliate) {
-    redirect('/forbidden');
-  }
+export default function AffiliateLeadsPage() {
+  const [leads, setLeads] = useState<AffiliateLead[]>([]);
+  const [stats, setStats] = useState<LeadStats>({
+    total: 0,
+    new: 0,
+    contacted: 0,
+    converted: 0,
+    conversionRate: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
-  // Mock leads data
-  const leads = [
-    {
-      id: '1',
-      name: 'Jennifer Williams',
-      email: 'jennifer.williams@email.com',
-      phone: '+1 (555) 123-4567',
-      status: 'Converted',
-      source: 'Blog Post',
-      signupDate: '2024-03-10',
-      conversionDate: '2024-03-15',
-      value: 350,
-    },
-    {
-      id: '2',
-      name: 'Daniel Brown',
-      email: 'daniel.brown@email.com',
-      phone: '+1 (555) 234-5678',
-      status: 'Contacted',
-      source: 'YouTube Video',
-      signupDate: '2024-03-12',
-      conversionDate: null,
-      value: 0,
-    },
-    {
-      id: '3',
-      name: 'Ashley Garcia',
-      email: 'ashley.garcia@email.com',
-      phone: '+1 (555) 345-6789',
-      status: 'Converted',
-      source: 'Newsletter',
-      signupDate: '2024-03-14',
-      conversionDate: '2024-03-18',
-      value: 450,
-    },
-    {
-      id: '4',
-      name: 'Christopher Lee',
-      email: 'christopher.lee@email.com',
-      phone: '+1 (555) 456-7890',
-      status: 'New',
-      source: 'Social Media',
-      signupDate: '2024-03-15',
-      conversionDate: null,
-      value: 0,
-    },
-    {
-      id: '5',
-      name: 'Michelle Taylor',
-      email: 'michelle.taylor@email.com',
-      phone: '+1 (555) 567-8901',
-      status: 'Lost',
-      source: 'Blog Post',
-      signupDate: '2024-03-08',
-      conversionDate: null,
-      value: 0,
-    },
-  ];
+  useEffect(() => {
+    fetchLeads();
+  }, [statusFilter]);
+
+  const fetchLeads = async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (statusFilter && statusFilter !== 'all') {
+        params.append('status', statusFilter);
+      }
+
+      const response = await fetch(`/api/affiliate/leads?${params.toString()}`);
+      const data = await response.json();
+
+      if (data.success) {
+        setLeads(data.leads || []);
+        setStats(data.stats || stats);
+      }
+    } catch (error) {
+      console.error('Error fetching leads:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Converted':
+      case 'converted':
         return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
-      case 'Contacted':
+      case 'contacted':
         return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
-      case 'New':
+      case 'new':
         return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
-      case 'Lost':
-        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
       default:
         return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300';
     }
@@ -130,22 +99,29 @@ export default async function AffiliateLeadsPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'Converted':
+      case 'converted':
         return <CheckCircle2 className="w-4 h-4 text-green-600" />;
-      case 'Contacted':
+      case 'contacted':
         return <Clock className="w-4 h-4 text-blue-600" />;
-      case 'New':
+      case 'new':
         return <UserPlus className="w-4 h-4 text-yellow-600" />;
-      case 'Lost':
-        return <XCircle className="w-4 h-4 text-red-600" />;
       default:
         return null;
     }
   };
 
-  const convertedLeads = leads.filter((l) => l.status === 'Converted');
-  const totalValue = convertedLeads.reduce((sum, l) => sum + l.value, 0);
-  const conversionRate = Math.round((convertedLeads.length / leads.length) * 100);
+  const filteredLeads = leads.filter((lead) =>
+    searchTerm === '' ||
+    lead.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (loading) {
+    return (
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -153,12 +129,8 @@ export default async function AffiliateLeadsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Lead Management</h1>
-          <p className="text-muted-foreground mt-1">Track and manage your affiliate leads</p>
+          <p className="text-muted-foreground mt-1">Track your referred leads</p>
         </div>
-        <Button>
-          <UserPlus className="w-4 h-4 mr-2" />
-          Add Lead Manually
-        </Button>
       </div>
 
       {/* Stats Cards */}
@@ -169,7 +141,7 @@ export default async function AffiliateLeadsPage() {
             <Users className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{leads.length}</div>
+            <div className="text-2xl font-bold">{stats.total}</div>
             <p className="text-xs text-muted-foreground">All time leads</p>
           </CardContent>
         </Card>
@@ -180,7 +152,7 @@ export default async function AffiliateLeadsPage() {
             <CheckCircle2 className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{convertedLeads.length}</div>
+            <div className="text-2xl font-bold">{stats.converted}</div>
             <p className="text-xs text-muted-foreground">Successful conversions</p>
           </CardContent>
         </Card>
@@ -191,19 +163,19 @@ export default async function AffiliateLeadsPage() {
             <Clock className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{conversionRate}%</div>
+            <div className="text-2xl font-bold">{stats.conversionRate}%</div>
             <p className="text-xs text-muted-foreground">Lead to customer rate</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Value</CardTitle>
-            <DollarSign className="h-4 w-4 text-green-600" />
+            <CardTitle className="text-sm font-medium">New Leads</CardTitle>
+            <UserPlus className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalValue}</div>
-            <p className="text-xs text-muted-foreground">From converted leads</p>
+            <div className="text-2xl font-bold">{stats.new}</div>
+            <p className="text-xs text-muted-foreground">Awaiting contact</p>
           </CardContent>
         </Card>
       </div>
@@ -214,14 +186,19 @@ export default async function AffiliateLeadsPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Lead List</CardTitle>
-              <CardDescription>All your affiliate leads</CardDescription>
+              <CardDescription>All your referred leads (names only for privacy)</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input placeholder="Search leads..." className="pl-9 w-64" />
+                <Input
+                  placeholder="Search leads..."
+                  className="pl-9 w-64"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
-              <Select defaultValue="all">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-40">
                   <SelectValue />
                 </SelectTrigger>
@@ -230,75 +207,58 @@ export default async function AffiliateLeadsPage() {
                   <SelectItem value="converted">Converted</SelectItem>
                   <SelectItem value="contacted">Contacted</SelectItem>
                   <SelectItem value="new">New</SelectItem>
-                  <SelectItem value="lost">Lost</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline" size="icon">
-                <Filter className="w-4 h-4" />
-              </Button>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Lead</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Source</TableHead>
-                <TableHead>Signup Date</TableHead>
-                <TableHead>Value</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {leads.map((lead) => (
-                <TableRow key={lead.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        <AvatarFallback>
-                          {lead.name
-                            .split(' ')
-                            .map((n) => n[0])
-                            .join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{lead.name}</p>
-                        {lead.conversionDate && (
-                          <p className="text-xs text-muted-foreground">
-                            Converted: {new Date(lead.conversionDate).toLocaleDateString()}
-                          </p>
+          {filteredLeads.length === 0 ? (
+            <div className="text-center py-12">
+              <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p className="text-muted-foreground">No leads found</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Share your tracking link to start referring clients
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredLeads.map((lead) => (
+                <Card key={lead.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <p className="font-semibold text-lg">{lead.fullName}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              {getStatusIcon(lead.status)}
+                              <Badge className={getStatusColor(lead.status)}>
+                                {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Calendar className="w-3 h-3" />
+                          {format(new Date(lead.created_at), 'MMM d, yyyy')}
+                        </div>
+                        {lead.convertedToClient && (
+                          <Badge className="mt-2 bg-green-600">
+                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                            Converted
+                          </Badge>
                         )}
                       </div>
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {getStatusIcon(lead.status)}
-                      <Badge className={getStatusColor(lead.status)}>{lead.status}</Badge>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{lead.source}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 text-sm">
-                      <Calendar className="w-3 h-3" />
-                      {new Date(lead.signupDate).toLocaleDateString()}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {lead.value > 0 ? (
-                      <p className="font-semibold text-green-600">${lead.value}</p>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">-</p>
-                    )}
-                  </TableCell>
-                </TableRow>
+                  </CardContent>
+                </Card>
               ))}
-            </TableBody>
-          </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -306,34 +266,8 @@ export default async function AffiliateLeadsPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Lead Sources</CardTitle>
-            <CardDescription>Where your leads come from</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {['Blog Post', 'YouTube Video', 'Newsletter', 'Social Media'].map((source) => {
-                const count = leads.filter((l) => l.source === source).length;
-                const percentage = (count / leads.length) * 100;
-                return (
-                  <div key={source} className="flex items-center justify-between">
-                    <span className="text-sm">{source}</span>
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
-                        <div className="h-full bg-primary" style={{ width: `${percentage}%` }} />
-                      </div>
-                      <Badge variant="outline">{count}</Badge>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Conversion Funnel</CardTitle>
-            <CardDescription>Lead journey stages</CardDescription>
+            <CardTitle>Lead Status Distribution</CardTitle>
+            <CardDescription>Current status of your leads</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -341,21 +275,17 @@ export default async function AffiliateLeadsPage() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">New Leads</span>
                   <span className="font-medium">
-                    {leads.filter((l) => l.status === 'New').length} (
-                    {Math.round(
-                      (leads.filter((l) => l.status === 'New').length / leads.length) * 100
-                    )}
-                    %)
+                    {stats.new} ({stats.total > 0 ? Math.round((stats.new / stats.total) * 100) : 0}%)
                   </span>
                 </div>
                 <div className="h-6 bg-muted rounded-lg overflow-hidden">
                   <div
                     className="h-full bg-yellow-600 flex items-center px-2 text-white text-xs font-medium"
                     style={{
-                      width: `${(leads.filter((l) => l.status === 'New').length / leads.length) * 100}%`,
+                      width: `${stats.total > 0 ? (stats.new / stats.total) * 100 : 0}%`,
                     }}
                   >
-                    {leads.filter((l) => l.status === 'New').length}
+                    {stats.new}
                   </div>
                 </div>
               </div>
@@ -364,21 +294,17 @@ export default async function AffiliateLeadsPage() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Contacted</span>
                   <span className="font-medium">
-                    {leads.filter((l) => l.status === 'Contacted').length} (
-                    {Math.round(
-                      (leads.filter((l) => l.status === 'Contacted').length / leads.length) * 100
-                    )}
-                    %)
+                    {stats.contacted} ({stats.total > 0 ? Math.round((stats.contacted / stats.total) * 100) : 0}%)
                   </span>
                 </div>
                 <div className="h-6 bg-muted rounded-lg overflow-hidden">
                   <div
                     className="h-full bg-blue-600 flex items-center px-2 text-white text-xs font-medium"
                     style={{
-                      width: `${(leads.filter((l) => l.status === 'Contacted').length / leads.length) * 100}%`,
+                      width: `${stats.total > 0 ? (stats.contacted / stats.total) * 100 : 0}%`,
                     }}
                   >
-                    {leads.filter((l) => l.status === 'Contacted').length}
+                    {stats.contacted}
                   </div>
                 </div>
               </div>
@@ -387,17 +313,51 @@ export default async function AffiliateLeadsPage() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Converted</span>
                   <span className="font-medium">
-                    {convertedLeads.length} ({conversionRate}%)
+                    {stats.converted} ({stats.conversionRate}%)
                   </span>
                 </div>
                 <div className="h-6 bg-muted rounded-lg overflow-hidden">
                   <div
                     className="h-full bg-green-600 flex items-center px-2 text-white text-xs font-medium"
-                    style={{ width: `${conversionRate}%` }}
+                    style={{ width: `${stats.conversionRate}%` }}
                   >
-                    {convertedLeads.length}
+                    {stats.converted}
                   </div>
                 </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Performance Summary</CardTitle>
+            <CardDescription>Your referral success</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-blue-600" />
+                  <span className="font-medium">Total Referrals</span>
+                </div>
+                <span className="text-2xl font-bold">{stats.total}</span>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  <span className="font-medium">Successful</span>
+                </div>
+                <span className="text-2xl font-bold text-green-600">{stats.converted}</span>
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-yellow-600" />
+                  <span className="font-medium">In Progress</span>
+                </div>
+                <span className="text-2xl font-bold text-yellow-600">{stats.new + stats.contacted}</span>
               </div>
             </div>
           </CardContent>

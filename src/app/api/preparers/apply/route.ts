@@ -49,22 +49,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Check if application already exists for this email
-    const existingApplication = await prisma.preparerApplication.findUnique({
-      where: { email: email.toLowerCase() },
-    });
-
-    if (existingApplication) {
-      return NextResponse.json(
-        {
-          error:
-            'An application with this email already exists. Please check your email for updates.',
-        },
-        { status: 409 }
-      );
-    }
-
-    // Create preparer application
+    // Create preparer application (allow multiple submissions)
     const application = await prisma.preparerApplication.create({
       data: {
         firstName,
@@ -85,6 +70,80 @@ export async function POST(req: NextRequest) {
       email: application.email,
       experienceLevel: application.experienceLevel,
     });
+
+    // ========================================
+    // CRM INTEGRATION: Create CRM contact and interaction
+    // ========================================
+    try {
+      const crmContact = await prisma.cRMContact.upsert({
+        where: { email: email.toLowerCase() },
+        create: {
+          contactType: 'PREPARER',
+          firstName,
+          lastName,
+          email: email.toLowerCase(),
+          phone,
+          stage: 'NEW',
+          source: 'preparer_application',
+          lastContactedAt: new Date(),
+        },
+        update: {
+          firstName,
+          lastName,
+          phone,
+          lastContactedAt: new Date(),
+        },
+      });
+
+      logger.info('CRM contact created/updated from preparer application', {
+        contactId: crmContact.id,
+        applicationId: application.id,
+        email,
+      });
+
+      // Create CRMInteraction to log the application
+      const softwareList = taxSoftware && Array.isArray(taxSoftware) && taxSoftware.length > 0
+        ? taxSoftware.join(', ')
+        : 'Not specified';
+
+      await prisma.cRMInteraction.create({
+        data: {
+          contactId: crmContact.id,
+          type: 'NOTE',
+          direction: 'INBOUND',
+          subject: '👔 Tax Preparer Application Submitted',
+          body: `**Tax Preparer Application Received**
+
+**Applicant Information:**
+- Name: ${firstName} ${middleName ? middleName + ' ' : ''}${lastName}
+- Email: ${email}
+- Phone: ${phone}
+- Languages: ${languages}
+
+**Experience & Skills:**
+- Experience Level: ${experienceLevel || 'Not specified'}
+- Tax Software: ${softwareList}
+- SMS Consent: ${smsConsent ? 'Yes' : 'No'}
+
+**Application Status:** PENDING Review
+
+**Application ID:** ${application.id}`,
+          occurredAt: new Date(),
+        },
+      });
+
+      logger.info('CRM interaction created for preparer application', {
+        contactId: crmContact.id,
+        applicationId: application.id,
+      });
+    } catch (crmError) {
+      // Log error but don't fail the request
+      logger.error('Failed to create CRM contact/interaction', {
+        error: crmError,
+        applicationId: application.id,
+        email,
+      });
+    }
 
     // Send emails
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@taxgeniuspro.tax';
@@ -118,28 +177,39 @@ export async function POST(req: NextRequest) {
           logger.info('Applicant confirmation email sent', { emailId: confirmData?.id });
         }
 
-        // 2. Send notification email to hiring team
-        const { data: notifyData, error: notifyError } = await resend.emails.send({
-          from: fromEmail,
-          to: 'taxgenius.tax+hire@gmail.com',
-          subject: `New Tax Preparer Application: ${firstName} ${lastName}`,
-          react: PreparerApplicationNotification({
-            firstName,
-            middleName,
-            lastName,
-            email,
-            phone,
-            languages,
-            experienceLevel,
-            taxSoftware,
-            applicationId: application.id,
-          }),
-        });
+        // 2. Send notification emails to hiring team (both addresses)
+        const hiringEmails = ['taxgenius.tax@gmail.com', 'Taxgenius.taxes@gmail.com'];
 
-        if (notifyError) {
-          logger.error('Failed to send hiring team notification email', notifyError);
-        } else {
-          logger.info('Hiring team notification email sent', { emailId: notifyData?.id });
+        for (let i = 0; i < hiringEmails.length; i++) {
+          const hiringEmail = hiringEmails[i];
+
+          // Add delay between emails to respect rate limits (2 emails/sec)
+          if (i > 0) {
+            await new Promise(resolve => setTimeout(resolve, 600)); // 600ms delay
+          }
+
+          const { data: notifyData, error: notifyError } = await resend.emails.send({
+            from: fromEmail,
+            to: hiringEmail,
+            subject: `New Tax Preparer Application: ${firstName} ${lastName}`,
+            react: PreparerApplicationNotification({
+              firstName,
+              middleName,
+              lastName,
+              email,
+              phone,
+              languages,
+              experienceLevel,
+              taxSoftware,
+              applicationId: application.id,
+            }),
+          });
+
+          if (notifyError) {
+            logger.error(`Failed to send hiring team notification to ${hiringEmail}`, notifyError);
+          } else {
+            logger.info(`Hiring team notification sent to ${hiringEmail}`, { emailId: notifyData?.id });
+          }
         }
       }
     } catch (emailError) {

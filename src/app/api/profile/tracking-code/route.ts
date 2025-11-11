@@ -61,6 +61,7 @@ export async function GET() {
         trackingCodeChanged: true,
         trackingCodeFinalized: true,
         trackingCodeQRUrl: true,
+        qrCodeLogoUrl: true,
       },
     });
 
@@ -72,6 +73,7 @@ export async function GET() {
         trackingCodeChanged: profileData?.trackingCodeChanged || false,
         trackingCodeFinalized: profileData?.trackingCodeFinalized || false,
         trackingCodeQRUrl: profileData?.trackingCodeQRUrl,
+        qrCodeLogoUrl: profileData?.qrCodeLogoUrl,
         canCustomize: !profileData?.trackingCodeFinalized,
         activeCode: trackingData.code,
         trackingUrl: trackingData.trackingUrl,

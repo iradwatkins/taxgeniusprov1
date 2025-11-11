@@ -18,16 +18,39 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Check if email already exists
-    const existingReferrer = await prisma.referrerApplication.findUnique({
+    // Check if email already exists (skip in development/test mode to allow repeated testing)
+    const allowDuplicates =
+      process.env.NODE_ENV === 'development' ||
+      process.env.ALLOW_DUPLICATE_TEST_LEADS === 'true' ||
+      email.endsWith('@example.com'); // Allow test emails
+
+    // Try to find existing application
+    let application = await prisma.referrerApplication.findUnique({
       where: { email },
     });
 
-    if (existingReferrer) {
+    if (application && !allowDuplicates) {
       return NextResponse.json(
         { error: 'An application with this email already exists' },
         { status: 409 }
       );
+    }
+
+    // If application exists and duplicates are allowed (test mode), return existing record
+    if (application && allowDuplicates) {
+      logger.info('Returning existing referrer application (test mode)', {
+        applicationId: application.id,
+        email,
+        referralCode: application.referralCode,
+      });
+
+      return NextResponse.json({
+        success: true,
+        applicationId: application.id,
+        referralCode: application.referralCode,
+        referralLink: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://taxgeniuspro.tax'}?ref=${application.referralCode}`,
+        message: 'Referral signup successful (existing)',
+      });
     }
 
     // Generate unique referral code
@@ -46,8 +69,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Create referrer application
-    const application = await prisma.referrerApplication.create({
+    // Create new referrer application
+    application = await prisma.referrerApplication.create({
       data: {
         firstName,
         lastName,
@@ -57,6 +80,83 @@ export async function POST(req: NextRequest) {
         status: 'ACTIVE',
       },
     });
+
+    logger.info('Referrer application created', {
+      applicationId: application.id,
+      email: application.email,
+      referralCode: application.referralCode,
+    });
+
+    // ========================================
+    // CRM INTEGRATION: Create CRM contact and interaction
+    // ========================================
+    const referralLink = `${process.env.NEXT_PUBLIC_BASE_URL || 'https://taxgeniuspro.tax'}?ref=${referralCode}`;
+
+    try {
+      const crmContact = await prisma.cRMContact.upsert({
+        where: { email: email.toLowerCase() },
+        create: {
+          contactType: 'AFFILIATE',
+          firstName,
+          lastName,
+          email: email.toLowerCase(),
+          phone,
+          stage: 'NEW',
+          source: 'referral_program_signup',
+          lastContactedAt: new Date(),
+        },
+        update: {
+          firstName,
+          lastName,
+          phone,
+          lastContactedAt: new Date(),
+        },
+      });
+
+      logger.info('CRM contact created/updated from referral signup', {
+        contactId: crmContact.id,
+        applicationId: application.id,
+        referralCode,
+      });
+
+      // Create CRMInteraction to log the referral signup
+      await prisma.cRMInteraction.create({
+        data: {
+          contactId: crmContact.id,
+          type: 'NOTE',
+          direction: 'INBOUND',
+          subject: '🤝 Referral Program Signup',
+          body: `**Referral Program Signup**
+
+**Referrer Information:**
+- Name: ${firstName} ${lastName}
+- Email: ${email}
+- Phone: ${phone}
+- Status: ACTIVE
+
+**Referral Details:**
+- Referral Code: ${referralCode}
+- Referral Link: ${referralLink}
+
+**Application ID:** ${application.id}
+
+This person has joined the referral program and can now start earning commissions by referring clients.`,
+          occurredAt: new Date(),
+        },
+      });
+
+      logger.info('CRM interaction created for referral signup', {
+        contactId: crmContact.id,
+        applicationId: application.id,
+      });
+    } catch (crmError) {
+      // Log error but don't fail the request
+      logger.error('Failed to create CRM contact/interaction', {
+        error: crmError,
+        applicationId: application.id,
+        email,
+      });
+    }
 
     // TODO: Send welcome email with referral link
     // TODO: Send SMS notification

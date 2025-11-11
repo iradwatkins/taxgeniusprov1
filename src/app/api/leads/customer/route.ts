@@ -14,6 +14,7 @@ import {
 import { getAttribution, saveLeadAttribution } from '@/lib/services/attribution.service';
 import { checkLeadFraud, addFraudMetadata } from '@/lib/middleware/fraud-check.middleware';
 import { trackLeadSubmission } from '@/lib/analytics/ga4';
+import { logger } from '@/lib/logger';
 
 // Validation schema
 const customerLeadSchema = z.object({
@@ -83,19 +84,21 @@ export async function POST(request: NextRequest) {
       data: leadDataWithFraud,
     });
 
-    // EPIC 7: Auto-create CRM contact for real-time visibility
+    // ========================================
+    // CRM INTEGRATION: Create CRM contact and interaction
+    // ========================================
     try {
-      await prisma.cRMContact.create({
-        data: {
-          userId: null, // Lead doesn't have user account yet
-          userId: null,
+      const crmContact = await prisma.cRMContact.upsert({
+        where: { email: lead.email.toLowerCase() },
+        create: {
           contactType: 'LEAD',
           firstName: lead.firstName,
           lastName: lead.lastName,
-          email: lead.email,
+          email: lead.email.toLowerCase(),
           phone: lead.phone,
           stage: 'NEW',
-          source: lead.source,
+          source: lead.source || 'customer_lead_form',
+          lastContactedAt: new Date(),
           // Epic 6 Attribution Integration
           referrerUsername: lead.referrerUsername,
           referrerType: lead.referrerType,
@@ -104,10 +107,64 @@ export async function POST(request: NextRequest) {
           attributionMethod: lead.attributionMethod,
           attributionConfidence: lead.attributionConfidence,
         },
+        update: {
+          firstName: lead.firstName,
+          lastName: lead.lastName,
+          phone: lead.phone,
+          lastContactedAt: new Date(),
+          // Update attribution if changed
+          referrerUsername: lead.referrerUsername,
+          referrerType: lead.referrerType,
+          attributionMethod: lead.attributionMethod,
+        },
+      });
+
+      logger.info('CRM contact created/updated from customer lead', {
+        contactId: crmContact.id,
+        leadId: lead.id,
+        email: lead.email,
+      });
+
+      // Create CRMInteraction to log the lead submission
+      await prisma.cRMInteraction.create({
+        data: {
+          contactId: crmContact.id,
+          type: 'NOTE',
+          direction: 'INBOUND',
+          subject: '💼 Customer Lead Inquiry',
+          body: `**Customer Lead Submitted**
+
+**Contact Information:**
+- Name: ${lead.firstName} ${lead.lastName}
+- Email: ${lead.email}
+- Phone: ${lead.phone}
+
+**Tax Information:**
+- Tax Situation: ${validatedData.taxSituation || 'Not specified'}
+- Estimated Income: ${validatedData.estimatedIncome || 'Not specified'}
+
+**Attribution:**
+- Method: ${attributionResult.attribution.attributionMethod || 'Direct'}
+${attributionResult.attribution.referrerUsername ? `- Referrer: ${attributionResult.attribution.referrerUsername} (${attributionResult.attribution.referrerType})` : ''}
+- Source: ${lead.source || 'Unknown'}
+
+**UTM Parameters:**
+${utmSource ? `- Source: ${utmSource}` : ''}
+${utmMedium ? `- Medium: ${utmMedium}` : ''}
+${utmCampaign ? `- Campaign: ${utmCampaign}` : ''}
+
+**Lead ID:** ${lead.id}`,
+          occurredAt: new Date(),
+        },
+      });
+
+      logger.info('CRM interaction created for customer lead', {
+        contactId: crmContact.id,
+        leadId: lead.id,
       });
     } catch (error: any) {
       // Log error but don't fail lead creation - CRM is supplementary
-      logger.error('[Lead API] Failed to create CRM contact', {
+      logger.error('[Lead API] Failed to create CRM contact/interaction', {
         leadId: lead.id,
         error: error.message,
       });

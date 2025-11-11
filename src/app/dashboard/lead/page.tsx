@@ -161,10 +161,10 @@ export default function LeadDashboard() {
                     <p className="text-sm">
                       <strong>Email:</strong>{' '}
                       <a
-                        href="mailto:support@taxgeniuspro.tax"
+                        href="mailto:taxgenius.tax@gmail.com"
                         className="text-primary hover:underline"
                       >
-                        support@taxgeniuspro.tax
+                        taxgenius.tax@gmail.com
                       </a>
                     </p>
                   </div>

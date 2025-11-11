@@ -207,8 +207,8 @@ export default function PrivacyPage() {
               </li>
               <li>
                 <strong>Support:</strong>{' '}
-                <a href="mailto:support@taxgeniuspro.tax" className="text-primary hover:underline">
-                  support@taxgeniuspro.tax
+                <a href="mailto:taxgenius.tax@gmail.com" className="text-primary hover:underline">
+                  taxgenius.tax@gmail.com
                 </a>
               </li>
               <li>

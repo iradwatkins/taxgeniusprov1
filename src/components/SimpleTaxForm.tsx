@@ -235,6 +235,7 @@ export default function SimpleTaxForm({ preparer: initialPreparer }: SimpleTaxFo
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          // Personal Information & Address
           first_name: formData.first_name,
           middle_name: formData.middle_name,
           last_name: formData.last_name,
@@ -246,6 +247,28 @@ export default function SimpleTaxForm({ preparer: initialPreparer }: SimpleTaxFo
           city: formData.city,
           state: formData.state,
           zip_code: formData.zip_code,
+          // Complete Tax Information
+          date_of_birth: formData.date_of_birth,
+          ssn: formData.ssn,
+          filing_status: formData.filing_status,
+          employment_type: formData.employment_type,
+          occupation: formData.occupation,
+          claimed_as_dependent: formData.claimed_as_dependent,
+          in_college: formData.in_college,
+          has_dependents: formData.has_dependents,
+          number_of_dependents: formData.number_of_dependents,
+          dependents_under_24_student_or_disabled: formData.dependents_under_24_student_or_disabled,
+          dependents_in_college: formData.dependents_in_college,
+          child_care_provider: formData.child_care_provider,
+          has_mortgage: formData.has_mortgage,
+          denied_eitc: formData.denied_eitc,
+          has_irs_pin: formData.has_irs_pin,
+          irs_pin: formData.irs_pin,
+          wants_refund_advance: formData.wants_refund_advance,
+          drivers_license: formData.drivers_license,
+          license_expiration: formData.license_expiration,
+          // Full form data as JSON for any additional fields
+          full_form_data: formData,
         }),
       });
 
