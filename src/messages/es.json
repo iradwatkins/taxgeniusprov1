@@ -141,5 +141,184 @@
     "scheduled": "Programado",
     "confirmed": "Confirmado",
     "requested": "Solicitado"
+  },
+  "forms": {
+    "taxIntake": {
+      "title": "Formulario de Admisión de Impuestos",
+      "progressStep": "Paso {current} de {total}",
+      "page1": {
+        "title": "Bienvenido",
+        "subtitle": "Comencemos con su declaración de impuestos",
+        "description": "Le guiaremos a través de un proceso simple para recopilar la información que necesitamos para preparar sus impuestos con precisión y maximizar su reembolso.",
+        "startButton": "Comenzar su Declaración de Impuestos"
+      },
+      "page2": {
+        "title": "Información Personal",
+        "subtitle": "Cuéntenos sobre usted",
+        "firstName": "Nombre",
+        "middleName": "Segundo Nombre",
+        "lastName": "Apellido",
+        "email": "Correo Electrónico",
+        "phone": "Número de Teléfono",
+        "countryCode": "Código de País",
+        "firstNamePlaceholder": "Juan",
+        "middleNamePlaceholder": "M.",
+        "lastNamePlaceholder": "Pérez",
+        "emailPlaceholder": "juan.perez@ejemplo.com",
+        "phonePlaceholder": "(555) 123-4567"
+      },
+      "page3": {
+        "title": "Dirección",
+        "subtitle": "¿Dónde vive?",
+        "addressLine1": "Dirección",
+        "addressLine2": "Apartamento, Suite, etc.",
+        "city": "Ciudad",
+        "state": "Estado",
+        "zipCode": "Código Postal",
+        "addressLine1Placeholder": "123 Calle Principal",
+        "addressLine2Placeholder": "Apto 4B",
+        "cityPlaceholder": "Nueva York",
+        "statePlaceholder": "Seleccione su estado",
+        "zipCodePlaceholder": "10001"
+      },
+      "page4": {
+        "title": "Información de Identidad",
+        "subtitle": "Necesitamos esto para presentar sus impuestos",
+        "dateOfBirth": "Fecha de Nacimiento",
+        "ssn": "Número de Seguro Social",
+        "dateOfBirthPlaceholder": "MM/DD/AAAA",
+        "ssnPlaceholder": "XXX-XX-XXXX",
+        "ssnHint": "Su SSN se mantiene seguro y encriptado"
+      },
+      "page5": {
+        "title": "Estado de Dependiente",
+        "subtitle": "¿Alguien puede reclamarlo como dependiente?",
+        "claimedAsDependent": "¿Alguien puede reclamarlo como dependiente en su declaración de impuestos?",
+        "yes": "Sí",
+        "no": "No"
+      },
+      "page6": {
+        "title": "Empleo y Estado Civil",
+        "subtitle": "Cuéntenos sobre su trabajo y estado civil",
+        "filingStatus": "Estado Civil",
+        "filingStatusPlaceholder": "Seleccione su estado civil",
+        "filingStatusSingle": "Soltero(a)",
+        "filingStatusMarriedJoint": "Casado(a) Declarando Conjuntamente",
+        "filingStatusMarriedSeparate": "Casado(a) Declarando Por Separado",
+        "filingStatusHOH": "Jefe de Familia",
+        "filingStatusQualifyingWidow": "Viudo(a) Calificado(a)",
+        "employmentType": "Tipo de Empleo",
+        "employmentW2": "Empleado W-2",
+        "employment1099": "Contratista 1099",
+        "employmentBoth": "Ambos W-2 y 1099",
+        "occupation": "Ocupación",
+        "occupationPlaceholder": "ej., Ingeniero de Software"
+      },
+      "page7": {
+        "title": "Educación",
+        "subtitle": "¿Está actualmente en la universidad?",
+        "inCollege": "¿Está actualmente inscrito en la universidad?",
+        "yes": "Sí",
+        "no": "No"
+      },
+      "page8": {
+        "title": "Dependientes",
+        "subtitle": "¿Tiene dependientes?",
+        "hasDependents": "¿Tiene dependientes?",
+        "none": "Sin dependientes",
+        "yes": "Sí, tengo dependientes",
+        "numberOfDependents": "Número de Dependientes",
+        "numberOfDependentsPlaceholder": "ej., 2",
+        "under24StudentOrDisabled": "¿Algún dependiente menor de 24 años que sea estudiante o discapacitado?",
+        "dependentsInCollege": "¿Algún dependiente en la universidad?",
+        "childCareProvider": "¿Pagó por cuidado de niños?",
+        "yesOption": "Sí",
+        "noOption": "No"
+      },
+      "page9": {
+        "title": "Propiedad",
+        "subtitle": "¿Es propietario de una vivienda?",
+        "hasMortgage": "¿Tiene una hipoteca o paga impuestos sobre la propiedad?",
+        "yes": "Sí",
+        "no": "No"
+      },
+      "page10": {
+        "title": "Créditos Fiscales",
+        "subtitle": "Información importante sobre créditos fiscales",
+        "deniedEITC": "¿Le han negado el Crédito por Ingreso del Trabajo (EITC) en el pasado?",
+        "yes": "Sí",
+        "no": "No",
+        "eitcInfo": "EITC es un beneficio para personas trabajadoras con ingresos bajos a moderados"
+      },
+      "page11": {
+        "title": "PIN del IRS",
+        "subtitle": "¿Tiene un PIN de Protección de Identidad del IRS?",
+        "hasIRSPin": "¿Tiene un PIN de IP del IRS?",
+        "no": "No",
+        "yes": "Sí, lo tengo",
+        "yesLocate": "Sí, pero necesito localizarlo",
+        "irsPinNumber": "PIN de IP del IRS",
+        "irsPinPlaceholder": "Ingrese su PIN de 6 dígitos",
+        "irsPinInfo": "Un PIN de IP es un número de 6 dígitos que evita que alguien más presente una declaración de impuestos usando su SSN"
+      },
+      "page12": {
+        "title": "Anticipo de Reembolso",
+        "subtitle": "¿Le gustaría recibir su reembolso más rápido?",
+        "wantsRefundAdvance": "¿Está interesado en un anticipo de reembolso?",
+        "yes": "Sí",
+        "no": "No",
+        "refundAdvanceInfo": "Reciba su reembolso en tan solo 24 horas (pueden aplicar tarifas)"
+      },
+      "page13": {
+        "title": "Documentos de Identificación",
+        "subtitle": "Suba su licencia de conducir o identificación estatal",
+        "driversLicense": "Número de Licencia de Conducir / ID Estatal",
+        "driversLicensePlaceholder": "ej., D1234567",
+        "licenseExpiration": "Fecha de Vencimiento",
+        "licenseExpirationPlaceholder": "MM/DD/AAAA",
+        "uploadLicense": "Subir Foto de Licencia",
+        "uploadInstructions": "Por favor suba una foto clara del frente de su licencia de conducir o identificación estatal",
+        "fileFormatInfo": "Formatos aceptados: JPG, PNG, PDF (máx. 5MB)",
+        "chooseFile": "Elegir Archivo",
+        "noFileChosen": "Ningún archivo elegido"
+      },
+      "thankYou": {
+        "title": "¡Gracias!",
+        "subtitle": "Su formulario de admisión de impuestos se ha enviado exitosamente",
+        "message": "Hemos recibido su información y nos pondremos en contacto pronto.",
+        "preparerAssigned": "Su preparador de impuestos asignado:",
+        "nextSteps": "Próximos Pasos:",
+        "step1": "Revisar su información",
+        "step2": "Reunir documentos requeridos",
+        "step3": "Programar una consulta",
+        "backToDashboard": "Volver al Panel de Control",
+        "scheduleConsultation": "Programar Consulta"
+      },
+      "errors": {
+        "submissionFailed": "Error al enviar el formulario. Por favor intente de nuevo.",
+        "uploadFailed": "Error al subir el archivo. Por favor intente de nuevo.",
+        "invalidFile": "Tipo de archivo inválido. Por favor suba un JPG, PNG o PDF.",
+        "fileTooLarge": "El archivo es demasiado grande. El tamaño máximo es 5MB."
+      }
+    },
+    "preparerApplication": {
+      "title": "Solicitud de Preparador de Impuestos",
+      "subtitle": "Únase a nuestra red de preparadores de impuestos profesionales"
+    },
+    "affiliateApplication": {
+      "title": "Solicitud de Afiliado",
+      "subtitle": "Asóciese con nosotros y gane comisiones"
+    },
+    "contact": {
+      "title": "Contáctenos",
+      "subtitle": "Póngase en contacto con nuestro equipo",
+      "name": "Nombre Completo",
+      "email": "Correo Electrónico",
+      "phone": "Número de Teléfono",
+      "subject": "Asunto",
+      "message": "Mensaje",
+      "sendMessage": "Enviar Mensaje",
+      "successMessage": "¡Gracias! Nos pondremos en contacto pronto."
+    }
   }
 }

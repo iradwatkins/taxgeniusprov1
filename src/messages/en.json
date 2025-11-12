@@ -141,5 +141,184 @@
     "scheduled": "Scheduled",
     "confirmed": "Confirmed",
     "requested": "Requested"
+  },
+  "forms": {
+    "taxIntake": {
+      "title": "Tax Intake Form",
+      "progressStep": "Step {current} of {total}",
+      "page1": {
+        "title": "Welcome",
+        "subtitle": "Let's get started with your tax filing",
+        "description": "We'll guide you through a simple process to gather the information we need to prepare your taxes accurately and maximize your refund.",
+        "startButton": "Start Your Tax Filing"
+      },
+      "page2": {
+        "title": "Personal Information",
+        "subtitle": "Tell us about yourself",
+        "firstName": "First Name",
+        "middleName": "Middle Name",
+        "lastName": "Last Name",
+        "email": "Email Address",
+        "phone": "Phone Number",
+        "countryCode": "Country Code",
+        "firstNamePlaceholder": "John",
+        "middleNamePlaceholder": "M.",
+        "lastNamePlaceholder": "Doe",
+        "emailPlaceholder": "john.doe@example.com",
+        "phonePlaceholder": "(555) 123-4567"
+      },
+      "page3": {
+        "title": "Address",
+        "subtitle": "Where do you live?",
+        "addressLine1": "Street Address",
+        "addressLine2": "Apartment, Suite, etc.",
+        "city": "City",
+        "state": "State",
+        "zipCode": "ZIP Code",
+        "addressLine1Placeholder": "123 Main Street",
+        "addressLine2Placeholder": "Apt 4B",
+        "cityPlaceholder": "New York",
+        "statePlaceholder": "Select your state",
+        "zipCodePlaceholder": "10001"
+      },
+      "page4": {
+        "title": "Identity Information",
+        "subtitle": "We need this to file your taxes",
+        "dateOfBirth": "Date of Birth",
+        "ssn": "Social Security Number",
+        "dateOfBirthPlaceholder": "MM/DD/YYYY",
+        "ssnPlaceholder": "XXX-XX-XXXX",
+        "ssnHint": "Your SSN is kept secure and encrypted"
+      },
+      "page5": {
+        "title": "Dependent Status",
+        "subtitle": "Can anyone claim you as a dependent?",
+        "claimedAsDependent": "Can anyone claim you as a dependent on their tax return?",
+        "yes": "Yes",
+        "no": "No"
+      },
+      "page6": {
+        "title": "Employment & Filing Status",
+        "subtitle": "Tell us about your work and filing status",
+        "filingStatus": "Filing Status",
+        "filingStatusPlaceholder": "Select your filing status",
+        "filingStatusSingle": "Single",
+        "filingStatusMarriedJoint": "Married Filing Jointly",
+        "filingStatusMarriedSeparate": "Married Filing Separately",
+        "filingStatusHOH": "Head of Household",
+        "filingStatusQualifyingWidow": "Qualifying Widow(er)",
+        "employmentType": "Employment Type",
+        "employmentW2": "W-2 Employee",
+        "employment1099": "1099 Contractor",
+        "employmentBoth": "Both W-2 and 1099",
+        "occupation": "Occupation",
+        "occupationPlaceholder": "e.g., Software Engineer"
+      },
+      "page7": {
+        "title": "Education",
+        "subtitle": "Are you currently in college?",
+        "inCollege": "Are you currently enrolled in college?",
+        "yes": "Yes",
+        "no": "No"
+      },
+      "page8": {
+        "title": "Dependents",
+        "subtitle": "Do you have any dependents?",
+        "hasDependents": "Do you have any dependents?",
+        "none": "No dependents",
+        "yes": "Yes, I have dependents",
+        "numberOfDependents": "Number of Dependents",
+        "numberOfDependentsPlaceholder": "e.g., 2",
+        "under24StudentOrDisabled": "Any dependents under 24 who are students or disabled?",
+        "dependentsInCollege": "Any dependents in college?",
+        "childCareProvider": "Did you pay for child care?",
+        "yesOption": "Yes",
+        "noOption": "No"
+      },
+      "page9": {
+        "title": "Property",
+        "subtitle": "Do you own a home?",
+        "hasMortgage": "Do you have a mortgage or pay property taxes?",
+        "yes": "Yes",
+        "no": "No"
+      },
+      "page10": {
+        "title": "Tax Credits",
+        "subtitle": "Important information about tax credits",
+        "deniedEITC": "Have you been denied Earned Income Tax Credit (EITC) in the past?",
+        "yes": "Yes",
+        "no": "No",
+        "eitcInfo": "EITC is a benefit for working people with low to moderate income"
+      },
+      "page11": {
+        "title": "IRS PIN",
+        "subtitle": "Do you have an IRS Identity Protection PIN?",
+        "hasIRSPin": "Do you have an IRS IP PIN?",
+        "no": "No",
+        "yes": "Yes, I have it",
+        "yesLocate": "Yes, but I need to locate it",
+        "irsPinNumber": "IRS IP PIN",
+        "irsPinPlaceholder": "Enter your 6-digit PIN",
+        "irsPinInfo": "An IP PIN is a 6-digit number that prevents someone else from filing a tax return using your SSN"
+      },
+      "page12": {
+        "title": "Refund Advance",
+        "subtitle": "Would you like to receive your refund faster?",
+        "wantsRefundAdvance": "Are you interested in a refund advance?",
+        "yes": "Yes",
+        "no": "No",
+        "refundAdvanceInfo": "Get your refund in as little as 24 hours (fees may apply)"
+      },
+      "page13": {
+        "title": "Identification Documents",
+        "subtitle": "Upload your driver's license or state ID",
+        "driversLicense": "Driver's License / State ID Number",
+        "driversLicensePlaceholder": "e.g., D1234567",
+        "licenseExpiration": "Expiration Date",
+        "licenseExpirationPlaceholder": "MM/DD/YYYY",
+        "uploadLicense": "Upload Photo of License",
+        "uploadInstructions": "Please upload a clear photo of the front of your driver's license or state ID",
+        "fileFormatInfo": "Accepted formats: JPG, PNG, PDF (max 5MB)",
+        "chooseFile": "Choose File",
+        "noFileChosen": "No file chosen"
+      },
+      "thankYou": {
+        "title": "Thank You!",
+        "subtitle": "Your tax intake form has been submitted successfully",
+        "message": "We've received your information and will be in touch shortly.",
+        "preparerAssigned": "Your assigned tax preparer:",
+        "nextSteps": "Next Steps:",
+        "step1": "Review your information",
+        "step2": "Gather required documents",
+        "step3": "Schedule a consultation",
+        "backToDashboard": "Back to Dashboard",
+        "scheduleConsultation": "Schedule Consultation"
+      },
+      "errors": {
+        "submissionFailed": "Failed to submit form. Please try again.",
+        "uploadFailed": "Failed to upload file. Please try again.",
+        "invalidFile": "Invalid file type. Please upload a JPG, PNG, or PDF.",
+        "fileTooLarge": "File is too large. Maximum size is 5MB."
+      }
+    },
+    "preparerApplication": {
+      "title": "Tax Preparer Application",
+      "subtitle": "Join our network of professional tax preparers"
+    },
+    "affiliateApplication": {
+      "title": "Affiliate Application",
+      "subtitle": "Partner with us and earn commissions"
+    },
+    "contact": {
+      "title": "Contact Us",
+      "subtitle": "Get in touch with our team",
+      "name": "Full Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "subject": "Subject",
+      "message": "Message",
+      "sendMessage": "Send Message",
+      "successMessage": "Thank you! We'll be in touch soon."
+    }
   }
 }
