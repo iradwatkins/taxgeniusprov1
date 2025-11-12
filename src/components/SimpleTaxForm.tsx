@@ -27,6 +27,7 @@ import {
 import { PreparerCard } from '@/components/PreparerCard';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 
 // Tax intake form data structure
 interface TaxFormData {
@@ -120,6 +121,8 @@ interface SimpleTaxFormProps {
 }
 
 export default function SimpleTaxForm({ preparer: initialPreparer }: SimpleTaxFormProps = {}) {
+  const t = useTranslations('forms.taxIntake');
+  const tCommon = useTranslations('common');
   const { data: session, status } = useSession(); const user = session?.user; const isLoaded = status !== 'loading';
   const [page, setPage] = useState(1);
   const [isDesktop, setIsDesktop] = useState(false);
@@ -554,10 +557,10 @@ export default function SimpleTaxForm({ preparer: initialPreparer }: SimpleTaxFo
           <CardHeader>
             <div className="flex items-center justify-between mb-2">
               <Badge variant="secondary" className="text-sm">
-                Page {page} of {totalPages}
+                {t('progressStep', { current: page, total: totalPages })}
               </Badge>
               <span className="text-sm text-muted-foreground">
-                {Math.round(((page - 1) / (totalPages - 1)) * 100)}% Complete
+                {Math.round(((page - 1) / (totalPages - 1)) * 100)}% {tCommon('status')}
               </span>
             </div>
             <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
@@ -583,7 +586,7 @@ export default function SimpleTaxForm({ preparer: initialPreparer }: SimpleTaxFo
                 onClick={handleBack}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
+                {tCommon('back')}
               </Button>
               <Button
                 type="button"
@@ -592,7 +595,7 @@ export default function SimpleTaxForm({ preparer: initialPreparer }: SimpleTaxFo
                 onClick={handleNext}
                 disabled={!isPageValid() || isSaving}
               >
-                {isSaving ? 'Saving...' : 'Next'}
+                {isSaving ? tCommon('loading') : tCommon('next')}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
@@ -606,6 +609,8 @@ export default function SimpleTaxForm({ preparer: initialPreparer }: SimpleTaxFo
 // Individual Page Components
 
 function ThankYouPage() {
+  const t = useTranslations('forms.taxIntake.thankYou');
+
   useEffect(() => {
     // Auto-redirect to client dashboard after 3 seconds
     const timer = setTimeout(() => {
@@ -621,23 +626,24 @@ function ThankYouPage() {
         <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" />
       </div>
       <div className="space-y-4">
-        <h2 className="text-3xl font-bold">Thank You!</h2>
+        <h2 className="text-3xl font-bold">{t('title')}</h2>
         <p className="text-xl text-muted-foreground">
-          Your tax information has been submitted successfully.
+          {t('subtitle')}
         </p>
         <p className="text-lg">
-          Get your referral link and start earning money by referring friends!
+          {t('message')}
         </p>
       </div>
       <div className="flex items-center justify-center gap-2 text-muted-foreground">
         <Loader2 className="w-5 h-5 animate-spin" />
-        <span className="text-sm">Please wait</span>
+        <span className="text-sm">{useTranslations('common')('loading')}</span>
       </div>
     </div>
   );
 }
 
 function WelcomePage({ onNext, preparer }: { onNext: () => void; preparer?: PreparerInfo | null }) {
+  const t = useTranslations('forms.taxIntake.page1');
   const preparerName = preparer
     ? `${preparer.firstName || ''} ${preparer.lastName || ''}`.trim()
     : null;
@@ -686,27 +692,16 @@ function WelcomePage({ onNext, preparer }: { onNext: () => void; preparer?: Prep
         )}
       </div>
       <div className="space-y-4">
-        {preparer && preparerName ? (
-          <>
-            <h2 className="text-3xl font-bold">Hi! I'm {preparerName}</h2>
-            <p className="text-xl text-muted-foreground">
-              Your licensed tax professional, ready to help you maximize your returns.
-            </p>
-          </>
-        ) : (
-          <>
-            <h2 className="text-3xl font-bold">Hi! I'm Oliver</h2>
-            <p className="text-xl text-muted-foreground">
-              Your trusted Tax Genius, ready to help you maximize your returns.
-            </p>
-          </>
-        )}
+        <h2 className="text-3xl font-bold">{t('title')}</h2>
+        <p className="text-xl text-muted-foreground">
+          {t('subtitle')}
+        </p>
         <div className="max-w-md mx-auto pt-4">
-          <p className="text-lg">Let's start with the basic questions and we will do the rest.</p>
+          <p className="text-lg">{t('description')}</p>
         </div>
       </div>
       <Button size="lg" onClick={onNext} className="mt-8">
-        Get Started
+        {t('startButton')}
         <ArrowRight className="ml-2 w-5 h-5" />
       </Button>
     </div>
@@ -714,16 +709,18 @@ function WelcomePage({ onNext, preparer }: { onNext: () => void; preparer?: Prep
 }
 
 function PersonalInfoPage({ formData, handleInputChange, setFormData }: FormPageProps) {
+  const t = useTranslations('forms.taxIntake.page2');
+
   return (
     <div className="space-y-6">
       <div>
-        <CardTitle className="text-2xl mb-2">Personal Information</CardTitle>
-        <p className="text-muted-foreground">Let's start with your basic details</p>
+        <CardTitle className="text-2xl mb-2">{t('title')}</CardTitle>
+        <p className="text-muted-foreground">{t('subtitle')}</p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="first_name">First Name *</Label>
+          <Label htmlFor="first_name">{t('firstName')} *</Label>
           <Input
             id="first_name"
             name="first_name"
@@ -731,20 +728,22 @@ function PersonalInfoPage({ formData, handleInputChange, setFormData }: FormPage
             onChange={handleInputChange}
             required
             className="text-lg p-6"
+            placeholder={t('firstNamePlaceholder')}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="middle_name">Middle Name</Label>
+          <Label htmlFor="middle_name">{t('middleName')}</Label>
           <Input
             id="middle_name"
             name="middle_name"
             value={formData.middle_name}
             onChange={handleInputChange}
             className="text-lg p-6"
+            placeholder={t('middleNamePlaceholder')}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="last_name">Last Name *</Label>
+          <Label htmlFor="last_name">{t('lastName')} *</Label>
           <Input
             id="last_name"
             name="last_name"
@@ -752,12 +751,13 @@ function PersonalInfoPage({ formData, handleInputChange, setFormData }: FormPage
             onChange={handleInputChange}
             required
             className="text-lg p-6"
+            placeholder={t('lastNamePlaceholder')}
           />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="email">Email *</Label>
+        <Label htmlFor="email">{t('email')} *</Label>
         <Input
           id="email"
           name="email"
@@ -766,12 +766,12 @@ function PersonalInfoPage({ formData, handleInputChange, setFormData }: FormPage
           onChange={handleInputChange}
           required
           className="text-lg p-6"
-          placeholder="your@email.com"
+          placeholder={t('emailPlaceholder')}
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="phone">Phone/Mobile (USA) *</Label>
+        <Label htmlFor="phone">{t('phone')} *</Label>
         <Input
           id="phone"
           name="phone"
@@ -780,7 +780,7 @@ function PersonalInfoPage({ formData, handleInputChange, setFormData }: FormPage
           onChange={handleInputChange}
           required
           className="text-lg p-6"
-          placeholder="(555) 123-4567"
+          placeholder={t('phonePlaceholder')}
         />
       </div>
     </div>
@@ -788,15 +788,17 @@ function PersonalInfoPage({ formData, handleInputChange, setFormData }: FormPage
 }
 
 function AddressPage({ formData, handleInputChange }: Omit<FormPageProps, 'setFormData'>) {
+  const t = useTranslations('forms.taxIntake.page3');
+
   return (
     <div className="space-y-6">
       <div>
-        <CardTitle className="text-2xl mb-2">Address</CardTitle>
-        <p className="text-muted-foreground">Where do you currently live?</p>
+        <CardTitle className="text-2xl mb-2">{t('title')}</CardTitle>
+        <p className="text-muted-foreground">{t('subtitle')}</p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="address_line_1">Address Line 1 *</Label>
+        <Label htmlFor="address_line_1">{t('addressLine1')} *</Label>
         <Input
           id="address_line_1"
           name="address_line_1"
@@ -804,25 +806,25 @@ function AddressPage({ formData, handleInputChange }: Omit<FormPageProps, 'setFo
           onChange={handleInputChange}
           required
           className="text-lg p-6"
-          placeholder="123 Main Street"
+          placeholder={t('addressLine1Placeholder')}
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="address_line_2">Address Line 2</Label>
+        <Label htmlFor="address_line_2">{t('addressLine2')}</Label>
         <Input
           id="address_line_2"
           name="address_line_2"
           value={formData.address_line_2}
           onChange={handleInputChange}
           className="text-lg p-6"
-          placeholder="Apt 4B, Suite 100, etc."
+          placeholder={t('addressLine2Placeholder')}
         />
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="city">City *</Label>
+          <Label htmlFor="city">{t('city')} *</Label>
           <Input
             id="city"
             name="city"
@@ -830,10 +832,11 @@ function AddressPage({ formData, handleInputChange }: Omit<FormPageProps, 'setFo
             onChange={handleInputChange}
             required
             className="text-lg p-6"
+            placeholder={t('cityPlaceholder')}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="state">State *</Label>
+          <Label htmlFor="state">{t('state')} *</Label>
           <Input
             id="state"
             name="state"
@@ -841,11 +844,11 @@ function AddressPage({ formData, handleInputChange }: Omit<FormPageProps, 'setFo
             onChange={handleInputChange}
             required
             className="text-lg p-6"
-            placeholder="GA"
+            placeholder={t('statePlaceholder')}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="zip_code">Zip Code *</Label>
+          <Label htmlFor="zip_code">{t('zipCode')} *</Label>
           <Input
             id="zip_code"
             name="zip_code"
@@ -853,7 +856,7 @@ function AddressPage({ formData, handleInputChange }: Omit<FormPageProps, 'setFo
             onChange={handleInputChange}
             required
             className="text-lg p-6"
-            placeholder="30315"
+            placeholder={t('zipCodePlaceholder')}
           />
         </div>
       </div>
@@ -878,15 +881,17 @@ function PersonalAndAddressPage({ formData, handleInputChange, setFormData }: Fo
 }
 
 function IdentityPage({ formData, handleInputChange }: Omit<FormPageProps, 'setFormData'>) {
+  const t = useTranslations('forms.taxIntake.page4');
+
   return (
     <div className="space-y-6">
       <div>
-        <CardTitle className="text-2xl mb-2">Identity Information</CardTitle>
-        <p className="text-muted-foreground">We need this to file your taxes securely</p>
+        <CardTitle className="text-2xl mb-2">{t('title')}</CardTitle>
+        <p className="text-muted-foreground">{t('subtitle')}</p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="date_of_birth">Date Of Birth *</Label>
+        <Label htmlFor="date_of_birth">{t('dateOfBirth')} *</Label>
         <Input
           id="date_of_birth"
           name="date_of_birth"
@@ -895,11 +900,12 @@ function IdentityPage({ formData, handleInputChange }: Omit<FormPageProps, 'setF
           onChange={handleInputChange}
           required
           className="text-lg p-6"
+          placeholder={t('dateOfBirthPlaceholder')}
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="ssn">Social Security Number *</Label>
+        <Label htmlFor="ssn">{t('ssn')} *</Label>
         <Input
           id="ssn"
           name="ssn"
@@ -909,25 +915,28 @@ function IdentityPage({ formData, handleInputChange }: Omit<FormPageProps, 'setF
           onChange={handleInputChange}
           required
           className="text-lg p-6"
-          placeholder="XXX-XX-XXXX"
+          placeholder={t('ssnPlaceholder')}
         />
-        <p className="text-xs text-muted-foreground">Your information is encrypted and secure</p>
+        <p className="text-xs text-muted-foreground">{t('ssnHint')}</p>
       </div>
     </div>
   );
 }
 
 function DependentStatusPage({ formData, setFormData }: Omit<FormPageProps, 'handleInputChange'>) {
+  const t = useTranslations('forms.taxIntake.page5');
+  const tCommon = useTranslations('common');
+
   return (
     <div className="space-y-6">
       <div>
-        <CardTitle className="text-2xl mb-2">Dependent Status</CardTitle>
-        <p className="text-muted-foreground">Let us know about your filing situation</p>
+        <CardTitle className="text-2xl mb-2">{t('title')}</CardTitle>
+        <p className="text-muted-foreground">{t('subtitle')}</p>
       </div>
 
       <div className="space-y-3">
         <Label className="text-base">
-          Will anyone be claiming you or plans on claiming you as their Dependent this Tax season? *
+          {t('claimedAsDependent')} *
         </Label>
         <Select
           value={formData.claimed_as_dependent}
@@ -936,11 +945,11 @@ function DependentStatusPage({ formData, setFormData }: Omit<FormPageProps, 'han
           }
         >
           <SelectTrigger className="text-lg p-6 h-auto">
-            <SelectValue placeholder="Select an option" />
+            <SelectValue placeholder={tCommon('selectOption')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="no">No</SelectItem>
-            <SelectItem value="yes">Yes</SelectItem>
+            <SelectItem value="no">{t('no')}</SelectItem>
+            <SelectItem value="yes">{t('yes')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -949,53 +958,56 @@ function DependentStatusPage({ formData, setFormData }: Omit<FormPageProps, 'han
 }
 
 function FilingStatusPage({ formData, handleInputChange, setFormData }: FormPageProps) {
+  const t = useTranslations('forms.taxIntake.page6');
+  const tCommon = useTranslations('common');
+
   return (
     <div className="space-y-6">
       <div>
-        <CardTitle className="text-2xl mb-2">Employment & Filing Status</CardTitle>
-        <p className="text-muted-foreground">Tell us about your work situation</p>
+        <CardTitle className="text-2xl mb-2">{t('title')}</CardTitle>
+        <p className="text-muted-foreground">{t('subtitle')}</p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="filing_status">What Is Your Filing Status? *</Label>
+        <Label htmlFor="filing_status">{t('filingStatus')} *</Label>
         <Select
           value={formData.filing_status}
           onValueChange={(value) => setFormData({ ...formData, filing_status: value })}
         >
           <SelectTrigger className="text-lg p-6 h-auto">
-            <SelectValue placeholder="Select filing status" />
+            <SelectValue placeholder={t('filingStatusPlaceholder')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Single">Single</SelectItem>
-            <SelectItem value="Married filing separately">Married filing separately</SelectItem>
-            <SelectItem value="Married filing jointly">Married filing jointly</SelectItem>
-            <SelectItem value="Head of House Hold">Head of House Hold</SelectItem>
+            <SelectItem value="Single">{t('filingStatusSingle')}</SelectItem>
+            <SelectItem value="Married filing separately">{t('filingStatusMarriedSeparate')}</SelectItem>
+            <SelectItem value="Married filing jointly">{t('filingStatusMarriedJoint')}</SelectItem>
+            <SelectItem value="Head of House Hold">{t('filingStatusHOH')}</SelectItem>
             <SelectItem value="Qualifying widow(er) with dependent child">
-              Qualifying widow(er) with dependent child
+              {t('filingStatusQualifyingWidow')}
             </SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base">Are you filing as Employee or Self Employed? *</Label>
+        <Label className="text-base">{t('employmentType')} *</Label>
         <Select
           value={formData.employment_type}
           onValueChange={(value) => setFormData({ ...formData, employment_type: value as any })}
         >
           <SelectTrigger className="text-lg p-6 h-auto">
-            <SelectValue placeholder="Select employment type" />
+            <SelectValue placeholder={tCommon('selectOption')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="W2">W2 (Company Employee)</SelectItem>
-            <SelectItem value="1099">1099 (freelancers, gig workers)</SelectItem>
-            <SelectItem value="Both">Both Employee & Self Employed</SelectItem>
+            <SelectItem value="W2">{t('employmentW2')}</SelectItem>
+            <SelectItem value="1099">{t('employment1099')}</SelectItem>
+            <SelectItem value="Both">{t('employmentBoth')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="occupation">What is Your Current Occupation? *</Label>
+        <Label htmlFor="occupation">{t('occupation')} *</Label>
         <Input
           id="occupation"
           name="occupation"
@@ -1003,7 +1015,7 @@ function FilingStatusPage({ formData, handleInputChange, setFormData }: FormPage
           onChange={handleInputChange}
           required
           className="text-lg p-6"
-          placeholder="what do you do for a living Currently"
+          placeholder={t('occupationPlaceholder')}
         />
       </div>
     </div>
@@ -1027,25 +1039,28 @@ function DependentAndFilingPage({ formData, handleInputChange, setFormData }: Fo
 }
 
 function EducationPage({ formData, setFormData }: Omit<FormPageProps, 'handleInputChange'>) {
+  const t = useTranslations('forms.taxIntake.page7');
+  const tCommon = useTranslations('common');
+
   return (
     <div className="space-y-6">
       <div>
-        <CardTitle className="text-2xl mb-2">Education</CardTitle>
-        <p className="text-muted-foreground">This can affect your tax credits</p>
+        <CardTitle className="text-2xl mb-2">{t('title')}</CardTitle>
+        <p className="text-muted-foreground">{t('subtitle')}</p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base">Are you in College? *</Label>
+        <Label className="text-base">{t('inCollege')} *</Label>
         <Select
           value={formData.in_college}
           onValueChange={(value) => setFormData({ ...formData, in_college: value as any })}
         >
           <SelectTrigger className="text-lg p-6 h-auto">
-            <SelectValue placeholder="Select an option" />
+            <SelectValue placeholder={tCommon('selectOption')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="no">No</SelectItem>
-            <SelectItem value="yes">Yes</SelectItem>
+            <SelectItem value="no">{t('no')}</SelectItem>
+            <SelectItem value="yes">{t('yes')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -1054,32 +1069,35 @@ function EducationPage({ formData, setFormData }: Omit<FormPageProps, 'handleInp
 }
 
 function DependentsPage({ formData, setFormData }: Omit<FormPageProps, 'handleInputChange'>) {
+  const t = useTranslations('forms.taxIntake.page8');
+  const tCommon = useTranslations('common');
+
   return (
     <div className="space-y-6">
       <div>
-        <CardTitle className="text-2xl mb-2">Dependents</CardTitle>
-        <p className="text-muted-foreground">Information about people you support</p>
+        <CardTitle className="text-2xl mb-2">{t('title')}</CardTitle>
+        <p className="text-muted-foreground">{t('subtitle')}</p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base">Do You Have Dependents? *</Label>
+        <Label className="text-base">{t('hasDependents')} *</Label>
         <Select
           value={formData.has_dependents}
           onValueChange={(value) => setFormData({ ...formData, has_dependents: value as any })}
         >
           <SelectTrigger className="text-lg p-6 h-auto">
-            <SelectValue placeholder="Select an option" />
+            <SelectValue placeholder={tCommon('selectOption')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none">None</SelectItem>
-            <SelectItem value="yes">Yes</SelectItem>
+            <SelectItem value="none">{t('none')}</SelectItem>
+            <SelectItem value="yes">{t('yes')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {formData.has_dependents === 'yes' && (
         <div className="space-y-2">
-          <Label htmlFor="number_of_dependents">Number of Dependents *</Label>
+          <Label htmlFor="number_of_dependents">{t('numberOfDependents')} *</Label>
           <Input
             id="number_of_dependents"
             name="number_of_dependents"
@@ -1089,15 +1107,14 @@ function DependentsPage({ formData, setFormData }: Omit<FormPageProps, 'handleIn
             onChange={handleInputChange}
             required
             className="text-lg p-6"
-            placeholder="How many dependents?"
+            placeholder={t('numberOfDependentsPlaceholder')}
           />
         </div>
       )}
 
       <div className="space-y-3">
         <Label className="text-base">
-          Are any/all of your dependents under 24 and a full-time student, or any age and disabled?
-          *
+          {t('under24StudentOrDisabled')} *
         </Label>
         <Select
           value={formData.dependents_under_24_student_or_disabled}
@@ -1106,17 +1123,17 @@ function DependentsPage({ formData, setFormData }: Omit<FormPageProps, 'handleIn
           }
         >
           <SelectTrigger className="text-lg p-6 h-auto">
-            <SelectValue placeholder="Select an option" />
+            <SelectValue placeholder={tCommon('selectOption')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="no">No</SelectItem>
-            <SelectItem value="yes">Yes</SelectItem>
+            <SelectItem value="no">{t('noOption')}</SelectItem>
+            <SelectItem value="yes">{t('yesOption')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base">Are Your Dependents in College? *</Label>
+        <Label className="text-base">{t('dependentsInCollege')} *</Label>
         <Select
           value={formData.dependents_in_college}
           onValueChange={(value) =>
@@ -1124,29 +1141,29 @@ function DependentsPage({ formData, setFormData }: Omit<FormPageProps, 'handleIn
           }
         >
           <SelectTrigger className="text-lg p-6 h-auto">
-            <SelectValue placeholder="Select an option" />
+            <SelectValue placeholder={tCommon('selectOption')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="no">No</SelectItem>
-            <SelectItem value="yes">Yes</SelectItem>
+            <SelectItem value="no">{t('noOption')}</SelectItem>
+            <SelectItem value="yes">{t('yesOption')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-3">
         <Label className="text-base">
-          Did A Person or Organizations (Company) Provide Child Care? *
+          {t('childCareProvider')} *
         </Label>
         <Select
           value={formData.child_care_provider}
           onValueChange={(value) => setFormData({ ...formData, child_care_provider: value as any })}
         >
           <SelectTrigger className="text-lg p-6 h-auto">
-            <SelectValue placeholder="Select an option" />
+            <SelectValue placeholder={tCommon('selectOption')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="no">No</SelectItem>
-            <SelectItem value="yes">Yes</SelectItem>
+            <SelectItem value="no">{t('noOption')}</SelectItem>
+            <SelectItem value="yes">{t('yesOption')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -1167,25 +1184,28 @@ function EducationAndDependentsPage({ formData, handleInputChange, setFormData }
 }
 
 function MortgagePage({ formData, setFormData }: Omit<FormPageProps, 'handleInputChange'>) {
+  const t = useTranslations('forms.taxIntake.page9');
+  const tCommon = useTranslations('common');
+
   return (
     <div className="space-y-6">
       <div>
-        <CardTitle className="text-2xl mb-2">Property</CardTitle>
-        <p className="text-muted-foreground">Tell us about your home</p>
+        <CardTitle className="text-2xl mb-2">{t('title')}</CardTitle>
+        <p className="text-muted-foreground">{t('subtitle')}</p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base">Do you have a Mortgage? *</Label>
+        <Label className="text-base">{t('hasMortgage')} *</Label>
         <Select
           value={formData.has_mortgage}
           onValueChange={(value) => setFormData({ ...formData, has_mortgage: value as any })}
         >
           <SelectTrigger className="text-lg p-6 h-auto">
-            <SelectValue placeholder="Select an option" />
+            <SelectValue placeholder={tCommon('selectOption')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="no">No</SelectItem>
-            <SelectItem value="yes">Yes</SelectItem>
+            <SelectItem value="no">{t('no')}</SelectItem>
+            <SelectItem value="yes">{t('yes')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -1194,34 +1214,35 @@ function MortgagePage({ formData, setFormData }: Omit<FormPageProps, 'handleInpu
 }
 
 function TaxCreditsPage({ formData, setFormData }: Omit<FormPageProps, 'handleInputChange'>) {
+  const t = useTranslations('forms.taxIntake.page10');
+  const tCommon = useTranslations('common');
+
   return (
     <div className="space-y-6">
       <div>
-        <CardTitle className="text-2xl mb-2">Tax Credits</CardTitle>
-        <p className="text-muted-foreground">Important information for your return</p>
+        <CardTitle className="text-2xl mb-2">{t('title')}</CardTitle>
+        <p className="text-muted-foreground">{t('subtitle')}</p>
       </div>
 
       <div className="space-y-3">
         <Label className="text-base">
-          Have you ever been denied the Earned Income Tax Credit? *
+          {t('deniedEITC')} *
         </Label>
         <Select
           value={formData.denied_eitc}
           onValueChange={(value) => setFormData({ ...formData, denied_eitc: value as any })}
         >
           <SelectTrigger className="text-lg p-6 h-auto">
-            <SelectValue placeholder="Select an option" />
+            <SelectValue placeholder={tCommon('selectOption')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="no">No</SelectItem>
-            <SelectItem value="yes">Yes</SelectItem>
+            <SelectItem value="no">{t('no')}</SelectItem>
+            <SelectItem value="yes">{t('yes')}</SelectItem>
           </SelectContent>
         </Select>
         <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-4">
           <p className="text-sm text-blue-900 dark:text-blue-100">
-            <strong>Note:</strong> If the IRS rejected one or more of these credits: EITC, CTC, ACTC
-            or AOTC, you may have received a letter stating that the credit was disallowed. Keep
-            filling out the forms and we will see what can be done to fix this issue.
+            {t('eitcInfo')}
           </p>
         </div>
       </div>
@@ -1230,33 +1251,41 @@ function TaxCreditsPage({ formData, setFormData }: Omit<FormPageProps, 'handleIn
 }
 
 function IrsPinPage({ formData, handleInputChange, setFormData }: FormPageProps) {
+  const t = useTranslations('forms.taxIntake.page11');
+  const tCommon = useTranslations('common');
+
   return (
     <div className="space-y-6">
       <div>
-        <CardTitle className="text-2xl mb-2">IRS PIN</CardTitle>
-        <p className="text-muted-foreground">Identity protection PIN from the IRS</p>
+        <CardTitle className="text-2xl mb-2">{t('title')}</CardTitle>
+        <p className="text-muted-foreground">{t('subtitle')}</p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base">Do you have an IRS PIN? *</Label>
+        <Label className="text-base">{t('hasIRSPin')} *</Label>
         <Select
           value={formData.has_irs_pin}
           onValueChange={(value) => setFormData({ ...formData, has_irs_pin: value as any })}
         >
           <SelectTrigger className="text-lg p-6 h-auto">
-            <SelectValue placeholder="Select an option" />
+            <SelectValue placeholder={tCommon('selectOption')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="no">No</SelectItem>
-            <SelectItem value="yes">Yes</SelectItem>
-            <SelectItem value="yes_locate">Yes but I have to locate it</SelectItem>
+            <SelectItem value="no">{t('no')}</SelectItem>
+            <SelectItem value="yes">{t('yes')}</SelectItem>
+            <SelectItem value="yes_locate">{t('yesLocate')}</SelectItem>
           </SelectContent>
         </Select>
+        <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-4">
+          <p className="text-sm text-blue-900 dark:text-blue-100">
+            {t('irsPinInfo')}
+          </p>
+        </div>
       </div>
 
       {formData.has_irs_pin === 'yes' && (
         <div className="space-y-2">
-          <Label htmlFor="irs_pin">IRS PIN</Label>
+          <Label htmlFor="irs_pin">{t('irsPinNumber')}</Label>
           <Input
             id="irs_pin"
             name="irs_pin"
@@ -1265,7 +1294,7 @@ function IrsPinPage({ formData, handleInputChange, setFormData }: FormPageProps)
             value={formData.irs_pin}
             onChange={handleInputChange}
             className="text-lg p-6"
-            placeholder="Enter your 6-digit IRS PIN"
+            placeholder={t('irsPinPlaceholder')}
           />
         </div>
       )}
@@ -1290,15 +1319,18 @@ function TaxCreditsAndPinPage({ formData, handleInputChange, setFormData }: Form
 }
 
 function RefundAdvancePage({ formData, setFormData }: Omit<FormPageProps, 'handleInputChange'>) {
+  const t = useTranslations('forms.taxIntake.page12');
+  const tCommon = useTranslations('common');
+
   return (
     <div className="space-y-6">
       <div>
-        <CardTitle className="text-2xl mb-2">Refund Advance</CardTitle>
-        <p className="text-muted-foreground">Get your money faster</p>
+        <CardTitle className="text-2xl mb-2">{t('title')}</CardTitle>
+        <p className="text-muted-foreground">{t('subtitle')}</p>
       </div>
 
       <div className="space-y-3">
-        <Label className="text-base">Would You Like Refund Cash Advance? *</Label>
+        <Label className="text-base">{t('wantsRefundAdvance')} *</Label>
         <Select
           value={formData.wants_refund_advance}
           onValueChange={(value) =>
@@ -1306,13 +1338,18 @@ function RefundAdvancePage({ formData, setFormData }: Omit<FormPageProps, 'handl
           }
         >
           <SelectTrigger className="text-lg p-6 h-auto">
-            <SelectValue placeholder="Select an option" />
+            <SelectValue placeholder={tCommon('selectOption')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="no">No</SelectItem>
-            <SelectItem value="yes">Yes</SelectItem>
+            <SelectItem value="no">{t('no')}</SelectItem>
+            <SelectItem value="yes">{t('yes')}</SelectItem>
           </SelectContent>
         </Select>
+        <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-4">
+          <p className="text-sm text-blue-900 dark:text-blue-100">
+            {t('refundAdvanceInfo')}
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -1323,15 +1360,17 @@ function IdDocumentsPage({
   handleInputChange,
   handleFileChange,
 }: Omit<FormPageWithFileProps, 'setFormData'>) {
+  const t = useTranslations('forms.taxIntake.page13');
+
   return (
     <div className="space-y-6">
       <div>
-        <CardTitle className="text-2xl mb-2">Identification Documents</CardTitle>
-        <p className="text-muted-foreground">We need a copy of your ID to verify your identity</p>
+        <CardTitle className="text-2xl mb-2">{t('title')}</CardTitle>
+        <p className="text-muted-foreground">{t('subtitle')}</p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="drivers_license">Driver's license or State ID Number *</Label>
+        <Label htmlFor="drivers_license">{t('driversLicense')} *</Label>
         <Input
           id="drivers_license"
           name="drivers_license"
@@ -1339,12 +1378,12 @@ function IdDocumentsPage({
           onChange={handleInputChange}
           required
           className="text-lg p-6"
-          placeholder="DL123456789"
+          placeholder={t('driversLicensePlaceholder')}
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="license_expiration">Expiration Date *</Label>
+        <Label htmlFor="license_expiration">{t('licenseExpiration')} *</Label>
         <Input
           id="license_expiration"
           name="license_expiration"
@@ -1353,13 +1392,15 @@ function IdDocumentsPage({
           onChange={handleInputChange}
           required
           className="text-lg p-6"
+          placeholder={t('licenseExpirationPlaceholder')}
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="license_file">Upload Drivers License or State ID</Label>
+        <Label htmlFor="license_file">{t('uploadLicense')}</Label>
         <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors">
           <FileUp className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground mb-4">{t('uploadInstructions')}</p>
           <Input
             id="license_file"
             name="license_file"
@@ -1371,7 +1412,7 @@ function IdDocumentsPage({
           {formData.license_file && (
             <p className="text-sm text-green-600 mt-2">✓ {formData.license_file.name}</p>
           )}
-          <p className="text-xs text-muted-foreground mt-2">JPG, PNG or PDF (max 10MB)</p>
+          <p className="text-xs text-muted-foreground mt-2">{t('fileFormatInfo')}</p>
         </div>
       </div>
     </div>
@@ -1379,6 +1420,8 @@ function IdDocumentsPage({
 }
 
 function CongratulationsPage({ handleSubmit }: SubmitPageProps) {
+  const tCommon = useTranslations('common');
+
   return (
     <div className="space-y-8 text-center py-8">
       <div className="w-32 h-32 bg-gradient-to-br from-success/20 to-success/10 rounded-full mx-auto flex items-center justify-center">
@@ -1404,7 +1447,7 @@ function CongratulationsPage({ handleSubmit }: SubmitPageProps) {
           <div className="pt-4">
             <Button size="lg" variant="outline" asChild>
               <a href="/referral">
-                Learn More About Referrals
+                {tCommon('learnMore')}
                 <ArrowRight className="ml-2 w-5 h-5" />
               </a>
             </Button>
@@ -1413,7 +1456,7 @@ function CongratulationsPage({ handleSubmit }: SubmitPageProps) {
       </div>
 
       <Button size="lg" onClick={handleSubmit} className="mt-8">
-        Complete & Upload Documents
+        {tCommon('submit')}
         <Upload className="ml-2 w-5 h-5" />
       </Button>
     </div>
