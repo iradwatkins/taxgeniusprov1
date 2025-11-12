@@ -10,6 +10,15 @@ import {
 } from '@/middleware/attribution-tracking';
 import { getEffectiveRole } from '@/lib/utils/role-switcher';
 import { logger } from '@/lib/logger';
+import createMiddleware from 'next-intl/middleware';
+import { locales, defaultLocale } from './i18n';
+
+// Create i18n middleware
+const intlMiddleware = createMiddleware({
+  locales,
+  defaultLocale,
+  localePrefix: 'always',
+});
 
 const isPublicRoute = (pathname: string): boolean => {
   const publicRoutes = [
@@ -92,7 +101,7 @@ const isPublicRoute = (pathname: string): boolean => {
 
   // Check if pathname starts with any public route
   return publicRoutes.some((route) => {
-    if (route.endsWith('(.*)')|| route.endsWith('/(.*)')) {
+    if (route.endsWith('(.*)') || route.endsWith('/(.*)')) {
       const baseRoute = route.replace(/\(\.\*\)|\(\*\)/g, '');
       return pathname.startsWith(baseRoute);
     }
@@ -131,11 +140,27 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const pathname = req.nextUrl.pathname;
+  let pathname = req.nextUrl.pathname;
+
+  // Handle i18n routing: Check if path includes locale prefix
+  const pathnameHasLocale = locales.some(
+    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  );
+
+  // Extract pathname without locale for route matching
+  let pathnameWithoutLocale = pathname;
+  if (pathnameHasLocale) {
+    // Remove locale prefix (e.g., /en/dashboard -> /dashboard)
+    const segments = pathname.split('/');
+    pathnameWithoutLocale = '/' + segments.slice(2).join('/');
+    if (!pathnameWithoutLocale || pathnameWithoutLocale === '/') {
+      pathnameWithoutLocale = '/';
+    }
+  }
 
   // EPIC 6: Check for attribution short links FIRST (before auth)
   // This must run before any auth checks so public links work
-  if (isShortLinkRequest(pathname)) {
+  if (isShortLinkRequest(pathnameWithoutLocale)) {
     const attributionResponse = await attributionTrackingMiddleware(req);
     if (attributionResponse) {
       return attributionResponse; // Returns redirect with attribution cookie
@@ -146,7 +171,7 @@ export async function middleware(req: NextRequest) {
   // Example: taxgeniuspro.tax/username?book=true → /book?ref=username
   if (req.nextUrl.searchParams.get('book') === 'true') {
     // Extract username from path (e.g., /irawatkins → irawatkins)
-    const username = pathname.slice(1); // Remove leading slash
+    const username = pathnameWithoutLocale.slice(1); // Remove leading slash
 
     // Only redirect if it looks like a username (single path segment, no slashes)
     if (username && !username.includes('/') && username !== '') {
@@ -175,7 +200,7 @@ export async function middleware(req: NextRequest) {
   const userId = session?.user?.id;
 
   // If user is not signed in and trying to access protected route, redirect to signin
-  if (!userId && !isPublicRoute(pathname) && !isPublicApiRoute(pathname)) {
+  if (!userId && !isPublicRoute(pathnameWithoutLocale) && !isPublicApiRoute(pathnameWithoutLocale)) {
     const signInUrl = req.nextUrl.clone();
     signInUrl.pathname = '/auth/signin';
     // Use pathname + search instead of full URL to avoid capturing 0.0.0.0 or localhost
@@ -223,11 +248,11 @@ export async function middleware(req: NextRequest) {
     }
 
     // Special bypass for /setup-admin - only accessible by support@taxgeniuspro.tax
-    if (pathname === '/setup-admin') {
+    if (pathnameWithoutLocale === '/setup-admin') {
       const userEmail = session.user.email;
 
       if (userEmail === 'support@taxgeniuspro.tax') {
-        return NextResponse.next(); // Allow access
+        return intlMiddleware(req); // Apply i18n middleware
       }
 
       const forbiddenUrl = req.nextUrl.clone();
@@ -236,7 +261,7 @@ export async function middleware(req: NextRequest) {
     }
 
     // Restrict /admin routes with granular permission checks
-    if (pathname.startsWith('/admin') || pathname.startsWith('/dashboard/admin')) {
+    if (pathnameWithoutLocale.startsWith('/admin') || pathnameWithoutLocale.startsWith('/dashboard/admin')) {
       // Define which /admin routes tax_preparers can access (still requires permissions)
       const taxPreparerAllowedAdminRoutes = [
         '/admin/calendar',
@@ -248,28 +273,28 @@ export async function middleware(req: NextRequest) {
       if (role === 'tax_preparer') {
         // Tax preparers can only access specific admin routes
         const isAllowedRoute = taxPreparerAllowedAdminRoutes.some((route) =>
-          pathname.startsWith(route)
+          pathnameWithoutLocale.startsWith(route)
         );
         if (!isAllowedRoute) {
           const forbiddenUrl = req.nextUrl.clone();
-      forbiddenUrl.pathname = '/forbidden';
-      return NextResponse.redirect(forbiddenUrl);
+          forbiddenUrl.pathname = '/forbidden';
+          return NextResponse.redirect(forbiddenUrl);
         }
         // Continue to permission checks below for allowed routes
       } else if (role !== 'admin' && role !== 'super_admin') {
         // Block all other non-admin roles from /admin routes
         const forbiddenUrl = req.nextUrl.clone();
-      forbiddenUrl.pathname = '/forbidden';
-      return NextResponse.redirect(forbiddenUrl);
+        forbiddenUrl.pathname = '/forbidden';
+        return NextResponse.redirect(forbiddenUrl);
       }
 
       // SUPER ADMIN ONLY routes - extra protection for sensitive pages
       const superAdminOnlyRoutes = ['/admin/permissions', '/admin/database'];
-      if (superAdminOnlyRoutes.some((route) => pathname.startsWith(route))) {
+      if (superAdminOnlyRoutes.some((route) => pathnameWithoutLocale.startsWith(route))) {
         if (role !== 'super_admin') {
           const forbiddenUrl = req.nextUrl.clone();
-      forbiddenUrl.pathname = '/forbidden';
-      return NextResponse.redirect(forbiddenUrl);
+          forbiddenUrl.pathname = '/forbidden';
+          return NextResponse.redirect(forbiddenUrl);
         }
       }
 
@@ -293,11 +318,11 @@ export async function middleware(req: NextRequest) {
 
         // Check if current path requires a specific permission
         for (const [route, permission] of Object.entries(routePermissions)) {
-          if (pathname.startsWith(route)) {
+          if (pathnameWithoutLocale.startsWith(route)) {
             if (!permissions[permission]) {
               const forbiddenUrl = req.nextUrl.clone();
-      forbiddenUrl.pathname = '/forbidden';
-      return NextResponse.redirect(forbiddenUrl);
+              forbiddenUrl.pathname = '/forbidden';
+              return NextResponse.redirect(forbiddenUrl);
             }
             break;
           }
@@ -309,7 +334,7 @@ export async function middleware(req: NextRequest) {
 
     // Restrict /store access to tax_preparer, affiliate, admin, and super_admin only
     // Use effectiveRole so admins can preview store as other roles
-    if (pathname.startsWith('/store')) {
+    if (pathnameWithoutLocale.startsWith('/store')) {
       if (
         !effectiveRole ||
         (effectiveRole !== 'tax_preparer' &&
@@ -318,14 +343,14 @@ export async function middleware(req: NextRequest) {
           effectiveRole !== 'super_admin')
       ) {
         const forbiddenUrl = req.nextUrl.clone();
-      forbiddenUrl.pathname = '/forbidden';
-      return NextResponse.redirect(forbiddenUrl);
+        forbiddenUrl.pathname = '/forbidden';
+        return NextResponse.redirect(forbiddenUrl);
       }
     }
 
     // Restrict /app/academy access to tax_preparer, admin, and super_admin only
     // Use effectiveRole so admins can preview academy as other roles
-    if (pathname.startsWith('/app/academy')) {
+    if (pathnameWithoutLocale.startsWith('/app/academy')) {
       if (
         !effectiveRole ||
         (effectiveRole !== 'tax_preparer' &&
@@ -333,27 +358,27 @@ export async function middleware(req: NextRequest) {
           effectiveRole !== 'super_admin')
       ) {
         const forbiddenUrl = req.nextUrl.clone();
-      forbiddenUrl.pathname = '/forbidden';
-      return NextResponse.redirect(forbiddenUrl);
+        forbiddenUrl.pathname = '/forbidden';
+        return NextResponse.redirect(forbiddenUrl);
       }
     }
 
     if (!isValidRole) {
       // If trying to access admin routes without admin role, block immediately
-      if (pathname.startsWith('/admin') || pathname.startsWith('/dashboard/admin')) {
+      if (pathnameWithoutLocale.startsWith('/admin') || pathnameWithoutLocale.startsWith('/dashboard/admin')) {
         const forbiddenUrl = req.nextUrl.clone();
-      forbiddenUrl.pathname = '/forbidden';
-      return NextResponse.redirect(forbiddenUrl);
+        forbiddenUrl.pathname = '/forbidden';
+        return NextResponse.redirect(forbiddenUrl);
       }
 
       // If trying to access debug page, allow it without auto-assignment
-      if (pathname === '/debug-role') {
-        return NextResponse.next();
+      if (pathnameWithoutLocale === '/debug-role') {
+        return intlMiddleware(req);
       }
 
       // Allow users without roles to access setup-admin page
-      if (pathname === '/setup-admin') {
-        return NextResponse.next();
+      if (pathnameWithoutLocale === '/setup-admin') {
+        return intlMiddleware(req);
       }
 
       // For users without a valid role, redirect to dashboard
@@ -361,13 +386,13 @@ export async function middleware(req: NextRequest) {
       logger.info(`⚠️  User ${userId} has no valid role, redirecting to dashboard`);
 
       // If they're on a public route, let them through
-      if (isPublicRoute(pathname)) {
-        return NextResponse.next();
+      if (isPublicRoute(pathnameWithoutLocale)) {
+        return intlMiddleware(req);
       }
 
       // If already on dashboard or select-role page, let them through to avoid loops
-      if (pathname === '/dashboard' || pathname === '/auth/select-role') {
-        return NextResponse.next();
+      if (pathnameWithoutLocale === '/dashboard' || pathnameWithoutLocale === '/auth/select-role') {
+        return intlMiddleware(req);
       }
 
       // Otherwise redirect to dashboard - it will handle role setup
@@ -378,7 +403,7 @@ export async function middleware(req: NextRequest) {
 
     // If user has a role and tries to access /dashboard, redirect to role-specific dashboard
     // Use effectiveRole so admins viewing as another role get redirected to that role's dashboard
-    if (isValidRole && pathname === '/dashboard') {
+    if (isValidRole && pathnameWithoutLocale === '/dashboard') {
       const dashboardUrls: Record<string, string> = {
         super_admin: '/dashboard/admin',
         admin: '/dashboard/admin',
@@ -402,8 +427,16 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Return response with all tracking cookies set (UTM + ref)
-  return response;
+  // Apply i18n middleware for locale handling
+  const i18nResponse = intlMiddleware(req);
+
+  // Merge tracking cookies from previous middlewares
+  response.cookies.getAll().forEach((cookie) => {
+    i18nResponse.cookies.set(cookie.name, cookie.value, cookie);
+  });
+
+  // Return response with all tracking cookies and i18n handling
+  return i18nResponse;
 }
 
 export const config = {
