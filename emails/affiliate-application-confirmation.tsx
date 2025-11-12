@@ -11,6 +11,7 @@ import {
   Hr,
   Img,
 } from '@react-email/components';
+import { t, type Locale, affiliateConfirmationTranslations as trans, commonTranslations } from './translations';
 
 interface AffiliateApplicationConfirmationProps {
   firstName: string;
@@ -21,6 +22,7 @@ interface AffiliateApplicationConfirmationProps {
   audience?: string;
   platforms?: string[];
   website?: string;
+  locale?: Locale;
 }
 
 export function AffiliateApplicationConfirmation({
@@ -32,6 +34,7 @@ export function AffiliateApplicationConfirmation({
   audience,
   platforms,
   website,
+  locale = 'en',
 }: AffiliateApplicationConfirmationProps) {
   return (
     <Html>
@@ -46,95 +49,95 @@ export function AffiliateApplicationConfirmation({
             />
           </Section>
           <Section style={header}>
-            <Heading style={h1}>Application Received!</Heading>
+            <Heading style={h1}>{t(trans.title, locale)}</Heading>
           </Section>
 
           <Section style={content}>
             <Heading style={h2}>
-              Thank You for Applying, {firstName}!
+              {t(trans.greeting, locale).replace('TaxGeniusPro', firstName)}
             </Heading>
 
             <Text style={text}>
-              We&apos;ve received your application to join the Tax Genius Pro Affiliate Program.
-              Our team will review your application and get back to you shortly.
+              {t(trans.receivedMessage, locale)}
             </Text>
 
             <Section style={highlightBox}>
-              <Text style={highlightTitle}>📋 Application Summary</Text>
+              <Text style={highlightTitle}>{t(trans.applicationSummary, locale)}</Text>
               <Hr style={hr} />
               <Text style={detailText}>
-                <strong>Name:</strong> {firstName} {lastName}
+                <strong>{t(commonTranslations.name, locale)}:</strong> {firstName} {lastName}
               </Text>
               <Text style={detailText}>
-                <strong>Email:</strong> {email}
+                <strong>{t(commonTranslations.email, locale)}:</strong> {email}
               </Text>
               <Text style={detailText}>
-                <strong>Phone:</strong> {phone}
+                <strong>{t(commonTranslations.phone, locale)}:</strong> {phone}
               </Text>
               {experience && (
                 <Text style={detailText}>
-                  <strong>Marketing Experience:</strong> {experience}
+                  <strong>{locale === 'es' ? 'Experiencia en Marketing' : 'Marketing Experience'}:</strong> {experience}
                 </Text>
               )}
               {audience && (
                 <Text style={detailText}>
-                  <strong>Target Audience:</strong> {audience}
+                  <strong>{locale === 'es' ? 'Audiencia Objetivo' : 'Target Audience'}:</strong> {audience}
                 </Text>
               )}
               {platforms && platforms.length > 0 && (
                 <Text style={detailText}>
-                  <strong>Platforms:</strong> {platforms.join(', ')}
+                  <strong>{locale === 'es' ? 'Plataformas' : 'Platforms'}:</strong> {platforms.join(', ')}
                 </Text>
               )}
               {website && (
                 <Text style={detailText}>
-                  <strong>Website:</strong> {website}
+                  <strong>{locale === 'es' ? 'Sitio Web' : 'Website'}:</strong> {website}
                 </Text>
               )}
             </Section>
 
-            <Heading style={h3}>What Happens Next?</Heading>
+            <Heading style={h3}>{t(trans.whatHappensNext, locale)}</Heading>
             <ul style={list}>
               <li style={listItem}>
-                <strong>Step 1:</strong> Our affiliate team will review your application (1-2 business days)
+                <strong>{locale === 'es' ? 'Paso 1' : 'Step 1'}:</strong> {t(trans.step1, locale)}
               </li>
               <li style={listItem}>
-                <strong>Step 2:</strong> If approved, you&apos;ll receive your unique affiliate link and dashboard access
+                <strong>{locale === 'es' ? 'Paso 2' : 'Step 2'}:</strong> {t(trans.step2, locale)}
               </li>
               <li style={listItem}>
-                <strong>Step 3:</strong> Access marketing materials and tracking tools
+                <strong>{locale === 'es' ? 'Paso 3' : 'Step 3'}:</strong> {t(trans.step3, locale)}
               </li>
               <li style={listItem}>
-                <strong>Step 4:</strong> Start earning commissions on every referral!
+                <strong>{locale === 'es' ? 'Paso 4' : 'Step 4'}:</strong> {t(trans.step4, locale)}
               </li>
             </ul>
 
             <Section style={infoBox}>
               <Text style={infoText}>
-                💡 <strong>Tip:</strong> Check your email regularly (including spam folder) for updates
-                from our affiliate team.
+                💡 <strong>{locale === 'es' ? 'Consejo' : 'Tip'}:</strong> {locale === 'es'
+                  ? 'Revise su correo regularmente (incluyendo carpeta de spam) para actualizaciones de nuestro equipo de afiliados.'
+                  : 'Check your email regularly (including spam folder) for updates from our affiliate team.'}
               </Text>
             </Section>
 
             <Section style={highlightBox}>
-              <Text style={highlightTitle}>💰 Commission Structure</Text>
+              <Text style={highlightTitle}>{locale === 'es' ? '💰 Estructura de Comisiones' : '💰 Commission Structure'}</Text>
               <Hr style={hr} />
               <ul style={commissionList}>
-                <li style={commissionItem}>✓ Earn up to 20% commission on every referral</li>
-                <li style={commissionItem}>✓ Recurring commissions for subscription products</li>
-                <li style={commissionItem}>✓ Monthly payouts via direct deposit</li>
-                <li style={commissionItem}>✓ Real-time tracking dashboard</li>
+                <li style={commissionItem}>✓ {locale === 'es' ? 'Gane hasta 20% de comisión en cada referido' : 'Earn up to 20% commission on every referral'}</li>
+                <li style={commissionItem}>✓ {locale === 'es' ? 'Comisiones recurrentes para productos de suscripción' : 'Recurring commissions for subscription products'}</li>
+                <li style={commissionItem}>✓ {locale === 'es' ? 'Pagos mensuales vía depósito directo' : 'Monthly payouts via direct deposit'}</li>
+                <li style={commissionItem}>✓ {locale === 'es' ? 'Panel de seguimiento en tiempo real' : 'Real-time tracking dashboard'}</li>
               </ul>
             </Section>
 
             <Text style={text}>
-              If you have any questions about your application, please reply to this email or call us at
+              {t(trans.contactUs, locale)} {locale === 'es' ? 'responda a este correo o llámenos al' : 'reply to this email or call us at'}
               <strong> +1 404-627-1015</strong>.
             </Text>
           </Section>
 
           <Section style={footerSection}>
-            <Text style={copyright}>© 2025 TaxGeniusPro. All rights reserved.</Text>
+            <Text style={copyright}>{t(trans.copyright, locale)}</Text>
             <Text style={copyright}>1632 Jonesboro Rd SE, Atlanta, GA 30315</Text>
           </Section>
         </Container>

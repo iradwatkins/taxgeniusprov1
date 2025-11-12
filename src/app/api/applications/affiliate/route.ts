@@ -351,7 +351,7 @@ async function queueAdminNotification(lead: any, bondedPreparerId: string | null
         await new Promise((resolve) => setTimeout(resolve, 600)); // 600ms delay
       }
 
-      const { data: notifyData, error: notifyError } = await resend.emails.send({
+      const { data: notifyData, error: notifyError} = await resend.emails.send({
         from: fromEmail,
         to: hiringEmail,
         subject: `🌐 New Affiliate Application: ${lead.firstName} ${lead.lastName}${bondedPreparerId ? ' (Bonding Request)' : ''}`,
@@ -368,6 +368,7 @@ async function queueAdminNotification(lead: any, bondedPreparerId: string | null
           message: originalMessage,
           bondedPreparerId,
           leadId: lead.id,
+          locale: (locale as 'en' | 'es') || 'en',
         }),
       });
 
@@ -406,7 +407,9 @@ async function queueConfirmationEmail(lead: any) {
     const { data: confirmData, error: confirmError } = await resend.emails.send({
       from: fromEmail,
       to: lead.email,
-      subject: 'Your Affiliate Application Has Been Received',
+      subject: locale === 'es'
+        ? 'Su Solicitud de Afiliado Ha Sido Recibida'
+        : 'Your Affiliate Application Has Been Received',
       react: AffiliateApplicationConfirmation({
         firstName: lead.firstName,
         lastName: lead.lastName,
@@ -416,6 +419,7 @@ async function queueConfirmationEmail(lead: any) {
         audience: lead.audience,
         platforms,
         website,
+        locale: (locale as 'en' | 'es') || 'en',
       }),
     });
 

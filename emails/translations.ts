@@ -410,3 +410,377 @@ export const newLeadTranslations = {
     es: 'ID de Cliente: {id}',
   },
 };
+
+/**
+ * Affiliate Application Notification Translations
+ */
+export const affiliateApplicationTranslations = {
+  title: {
+    en: '🎯 New Affiliate Application',
+    es: '🎯 Nueva Solicitud de Afiliado',
+  },
+  urgentBanner: {
+    en: '⏰ New application requires review - Please respond within 1-2 business days',
+    es: '⏰ Nueva solicitud requiere revisión - Por favor responda en 1-2 días hábiles',
+  },
+  bondingBadge: {
+    en: '🔗 Bonding Request',
+    es: '🔗 Solicitud de Vinculación',
+  },
+  contactInformation: {
+    en: '📞 Contact Information',
+    es: '📞 Información de Contacto',
+  },
+  marketingProfile: {
+    en: '💼 Marketing Profile',
+    es: '💼 Perfil de Marketing',
+  },
+  experience: {
+    en: 'Experience',
+    es: 'Experiencia',
+  },
+  targetAudience: {
+    en: 'Target Audience',
+    es: 'Audiencia Objetivo',
+  },
+  marketingPlatforms: {
+    en: '📱 Marketing Platforms',
+    es: '📱 Plataformas de Marketing',
+  },
+  onlinePresence: {
+    en: '🌐 Online Presence',
+    es: '🌐 Presencia en Línea',
+  },
+  website: {
+    en: 'Website',
+    es: 'Sitio Web',
+  },
+  socialMedia: {
+    en: 'Social Media',
+    es: 'Redes Sociales',
+  },
+  additionalMessage: {
+    en: '💬 Additional Message',
+    es: '💬 Mensaje Adicional',
+  },
+  bondingRequestDetails: {
+    en: '🔗 Bonding Request Details',
+    es: '🔗 Detalles de Solicitud de Vinculación',
+  },
+  bondingText1: {
+    en: 'This applicant has requested to be bonded with Tax Preparer ID:',
+    es: 'Este solicitante ha pedido ser vinculado con el Preparador de Impuestos ID:',
+  },
+  bondingText2: {
+    en: 'Please coordinate with the tax preparer to confirm the bonding arrangement.',
+    es: 'Por favor coordine con el preparador de impuestos para confirmar el acuerdo de vinculación.',
+  },
+  applicationDetails: {
+    en: '🔍 Application Details',
+    es: '🔍 Detalles de Solicitud',
+  },
+  leadId: {
+    en: 'Lead ID',
+    es: 'ID de Cliente Potencial',
+  },
+  submitted: {
+    en: 'Submitted',
+    es: 'Enviado',
+  },
+  nextSteps: {
+    en: '⚡ Next Steps',
+    es: '⚡ Próximos Pasos',
+  },
+  step1: {
+    en: 'Review marketing profile and online presence',
+    es: 'Revisar perfil de marketing y presencia en línea',
+  },
+  step2: {
+    en: 'Verify platforms and audience reach',
+    es: 'Verificar plataformas y alcance de audiencia',
+  },
+  step3: {
+    en: 'Contact applicant at {phone} or {email}',
+    es: 'Contactar solicitante al {phone} o {email}',
+  },
+  step4: {
+    en: 'Coordinate with tax preparer for bonding approval',
+    es: 'Coordinar con preparador de impuestos para aprobación de vinculación',
+  },
+  step5: {
+    en: 'Approve or schedule interview if qualified',
+    es: 'Aprobar o programar entrevista si está calificado',
+  },
+  viewInAdminDashboard: {
+    en: 'View in Admin Dashboard',
+    es: 'Ver en Panel de Administración',
+  },
+  quickReplyTemplates: {
+    en: '📧 Quick Reply Templates',
+    es: '📧 Plantillas de Respuesta Rápida',
+  },
+  toApproveApplication: {
+    en: 'To Approve Application',
+    es: 'Para Aprobar Solicitud',
+  },
+  approvalTemplate: {
+    en: 'Congratulations! Your affiliate application has been approved. Here\'s your unique affiliate link...',
+    es: '¡Felicitaciones! Su solicitud de afiliado ha sido aprobada. Aquí está su enlace de afiliado único...',
+  },
+  toRequestMoreInfo: {
+    en: 'To Request More Info',
+    es: 'Para Solicitar Más Información',
+  },
+  moreInfoTemplate: {
+    en: 'Thank you for your application. We\'d like to learn more about your marketing strategy...',
+    es: 'Gracias por su solicitud. Nos gustaría aprender más sobre su estrategia de marketing...',
+  },
+  copyright: {
+    en: '© 2025 TaxGeniusPro Affiliate Team',
+    es: '© 2025 Equipo de Afiliados TaxGeniusPro',
+  },
+  emailSentTo: {
+    en: 'This email was sent to taxgenius.tax@gmail.com',
+    es: 'Este correo fue enviado a taxgenius.tax@gmail.com',
+  },
+};
+
+/**
+ * Affiliate Application Confirmation Translations (sent to applicant)
+ */
+export const affiliateConfirmationTranslations = {
+  title: {
+    en: '🎉 Application Received!',
+    es: '🎉 ¡Solicitud Recibida!',
+  },
+  greeting: {
+    en: 'Thank you for your interest in the TaxGeniusPro Affiliate Program!',
+    es: '¡Gracias por su interés en el Programa de Afiliados de TaxGeniusPro!',
+  },
+  receivedMessage: {
+    en: 'We\'ve received your affiliate application and our team will review it shortly.',
+    es: 'Hemos recibido su solicitud de afiliado y nuestro equipo la revisará pronto.',
+  },
+  whatHappensNext: {
+    en: 'What Happens Next?',
+    es: '¿Qué Sigue Ahora?',
+  },
+  step1: {
+    en: 'Our affiliate team will review your application within 1-2 business days',
+    es: 'Nuestro equipo de afiliados revisará su solicitud en 1-2 días hábiles',
+  },
+  step2: {
+    en: 'We\'ll verify your marketing platforms and audience reach',
+    es: 'Verificaremos sus plataformas de marketing y alcance de audiencia',
+  },
+  step3: {
+    en: 'If approved, you\'ll receive your unique affiliate link and marketing materials',
+    es: 'Si es aprobado, recibirá su enlace de afiliado único y materiales de marketing',
+  },
+  step4: {
+    en: 'Start earning commissions by referring clients to TaxGeniusPro!',
+    es: '¡Comience a ganar comisiones refiriendo clientes a TaxGeniusPro!',
+  },
+  applicationSummary: {
+    en: 'Application Summary',
+    es: 'Resumen de Solicitud',
+  },
+  needHelp: {
+    en: 'Need Help?',
+    es: '¿Necesita Ayuda?',
+  },
+  contactUs: {
+    en: 'If you have any questions, feel free to contact us at:',
+    es: 'Si tiene alguna pregunta, no dude en contactarnos a:',
+  },
+  copyright: {
+    en: '© 2025 TaxGeniusPro',
+    es: '© 2025 TaxGeniusPro',
+  },
+};
+
+/**
+ * Tax Preparer Application Notification Translations
+ */
+export const preparerApplicationTranslations = {
+  title: {
+    en: '👨‍💼 New Tax Preparer Application',
+    es: '👨‍💼 Nueva Solicitud de Preparador de Impuestos',
+  },
+  urgentBanner: {
+    en: '⏰ New preparer application requires review - Please respond within 1-2 business days',
+    es: '⏰ Nueva solicitud de preparador requiere revisión - Por favor responda en 1-2 días hábiles',
+  },
+  contactInformation: {
+    en: '📞 Contact Information',
+    es: '📞 Información de Contacto',
+  },
+  fullName: {
+    en: 'Full Name',
+    es: 'Nombre Completo',
+  },
+  professionalProfile: {
+    en: '💼 Professional Profile',
+    es: '💼 Perfil Profesional',
+  },
+  languages: {
+    en: 'Languages',
+    es: 'Idiomas',
+  },
+  experienceLevel: {
+    en: 'Experience Level',
+    es: 'Nivel de Experiencia',
+  },
+  experienceLevels: {
+    NEW: {
+      en: 'New (0-2 years)',
+      es: 'Nuevo (0-2 años)',
+    },
+    INTERMEDIATE: {
+      en: 'Intermediate (3-5 years)',
+      es: 'Intermedio (3-5 años)',
+    },
+    SEASONED: {
+      en: 'Seasoned (5+ years)',
+      es: 'Experimentado (5+ años)',
+    },
+  },
+  taxSoftware: {
+    en: 'Tax Software Experience',
+    es: 'Experiencia con Software de Impuestos',
+  },
+  smsConsent: {
+    en: 'SMS Consent',
+    es: 'Consentimiento de SMS',
+  },
+  agreed: {
+    en: 'Agreed',
+    es: 'Aceptado',
+  },
+  notProvided: {
+    en: 'Not Provided',
+    es: 'No Proporcionado',
+  },
+  applicationDetails: {
+    en: '🔍 Application Details',
+    es: '🔍 Detalles de Solicitud',
+  },
+  applicationId: {
+    en: 'Application ID',
+    es: 'ID de Solicitud',
+  },
+  submitted: {
+    en: 'Submitted',
+    es: 'Enviado',
+  },
+  nextSteps: {
+    en: '⚡ Next Steps',
+    es: '⚡ Próximos Pasos',
+  },
+  step1: {
+    en: 'Review professional qualifications and experience',
+    es: 'Revisar calificaciones profesionales y experiencia',
+  },
+  step2: {
+    en: 'Verify tax software proficiency',
+    es: 'Verificar competencia con software de impuestos',
+  },
+  step3: {
+    en: 'Contact applicant at {phone} or {email}',
+    es: 'Contactar solicitante al {phone} o {email}',
+  },
+  step4: {
+    en: 'Schedule interview and skills assessment',
+    es: 'Programar entrevista y evaluación de habilidades',
+  },
+  step5: {
+    en: 'Complete background check and onboarding if approved',
+    es: 'Completar verificación de antecedentes e incorporación si es aprobado',
+  },
+  viewInAdminDashboard: {
+    en: 'View in Admin Dashboard',
+    es: 'Ver en Panel de Administración',
+  },
+  quickReplyTemplates: {
+    en: '📧 Quick Reply Templates',
+    es: '📧 Plantillas de Respuesta Rápida',
+  },
+  toScheduleInterview: {
+    en: 'To Schedule Interview',
+    es: 'Para Programar Entrevista',
+  },
+  interviewTemplate: {
+    en: 'Thank you for applying! We\'d like to schedule an interview to discuss your experience and qualifications...',
+    es: 'Gracias por aplicar! Nos gustaría programar una entrevista para discutir su experiencia y calificaciones...',
+  },
+  toRequestDocuments: {
+    en: 'To Request Documents',
+    es: 'Para Solicitar Documentos',
+  },
+  documentsTemplate: {
+    en: 'Thank you for your application. Please provide the following documents for review...',
+    es: 'Gracias por su solicitud. Por favor proporcione los siguientes documentos para revisión...',
+  },
+  copyright: {
+    en: '© 2025 TaxGeniusPro HR Team',
+    es: '© 2025 Equipo de RRHH TaxGeniusPro',
+  },
+  emailSentTo: {
+    en: 'This email was sent to taxgenius.tax@gmail.com',
+    es: 'Este correo fue enviado a taxgenius.tax@gmail.com',
+  },
+};
+
+/**
+ * Tax Preparer Application Confirmation Translations (sent to applicant)
+ */
+export const preparerConfirmationTranslations = {
+  title: {
+    en: '🎉 Application Received!',
+    es: '🎉 ¡Solicitud Recibida!',
+  },
+  greeting: {
+    en: 'Thank you for your interest in joining the TaxGeniusPro team!',
+    es: '¡Gracias por su interés en unirse al equipo de TaxGeniusPro!',
+  },
+  receivedMessage: {
+    en: 'We\'ve received your tax preparer application and our team will review it shortly.',
+    es: 'Hemos recibido su solicitud de preparador de impuestos y nuestro equipo la revisará pronto.',
+  },
+  whatHappensNext: {
+    en: 'What Happens Next?',
+    es: '¿Qué Sigue Ahora?',
+  },
+  step1: {
+    en: 'Our HR team will review your application within 1-2 business days',
+    es: 'Nuestro equipo de RRHH revisará su solicitud en 1-2 días hábiles',
+  },
+  step2: {
+    en: 'We\'ll verify your experience and qualifications',
+    es: 'Verificaremos su experiencia y calificaciones',
+  },
+  step3: {
+    en: 'If qualified, we\'ll schedule an interview and skills assessment',
+    es: 'Si está calificado, programaremos una entrevista y evaluación de habilidades',
+  },
+  step4: {
+    en: 'Upon approval, we\'ll conduct a background check and begin onboarding',
+    es: 'Una vez aprobado, realizaremos verificación de antecedentes y comenzaremos la incorporación',
+  },
+  applicationSummary: {
+    en: 'Application Summary',
+    es: 'Resumen de Solicitud',
+  },
+  needHelp: {
+    en: 'Need Help?',
+    es: '¿Necesita Ayuda?',
+  },
+  contactUs: {
+    en: 'If you have any questions, feel free to contact us at:',
+    es: 'Si tiene alguna pregunta, no dude en contactarnos a:',
+  },
+  copyright: {
+    en: '© 2025 TaxGeniusPro',
+    es: '© 2025 TaxGeniusPro',
+  },
+};

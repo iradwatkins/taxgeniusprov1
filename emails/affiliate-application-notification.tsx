@@ -11,6 +11,7 @@ import {
   Hr,
   Img,
 } from '@react-email/components';
+import { t, type Locale, affiliateApplicationTranslations as trans, commonTranslations } from './translations';
 
 interface AffiliateApplicationNotificationProps {
   firstName: string;
@@ -31,6 +32,7 @@ interface AffiliateApplicationNotificationProps {
   message?: string;
   bondedPreparerId?: string | null;
   leadId: string;
+  locale?: Locale;
 }
 
 export function AffiliateApplicationNotification({
@@ -46,6 +48,7 @@ export function AffiliateApplicationNotification({
   message,
   bondedPreparerId,
   leadId,
+  locale = 'en',
 }: AffiliateApplicationNotificationProps) {
   const hasSocialMedia = socialMedia && Object.values(socialMedia).some((v) => v);
 
@@ -62,44 +65,44 @@ export function AffiliateApplicationNotification({
             />
           </Section>
           <Section style={header}>
-            <Heading style={h1}>🎯 New Affiliate Application</Heading>
+            <Heading style={h1}>{t(trans.title, locale)}</Heading>
           </Section>
 
           <Section style={content}>
             <Section style={urgentBanner}>
               <Text style={urgentText}>
-                ⏰ New application requires review - Please respond within 1-2 business days
+                {t(trans.urgentBanner, locale)}
               </Text>
             </Section>
 
             <Heading style={h2}>
               {firstName} {lastName}
-              {bondedPreparerId && <Text style={bondingBadge}>🔗 Bonding Request</Text>}
+              {bondedPreparerId && <Text style={bondingBadge}>{t(trans.bondingBadge, locale)}</Text>}
             </Heading>
 
             <Section style={highlightBox}>
-              <Text style={sectionTitle}>📞 Contact Information</Text>
+              <Text style={sectionTitle}>{t(trans.contactInformation, locale)}</Text>
               <Hr style={hr} />
               <Text style={detailText}>
-                <strong>Email:</strong> <a href={`mailto:${email}`} style={link}>{email}</a>
+                <strong>{t(commonTranslations.email, locale)}:</strong> <a href={`mailto:${email}`} style={link}>{email}</a>
               </Text>
               <Text style={detailText}>
-                <strong>Phone:</strong> <a href={`tel:${phone}`} style={link}>{phone}</a>
+                <strong>{t(commonTranslations.phone, locale)}:</strong> <a href={`tel:${phone}`} style={link}>{phone}</a>
               </Text>
             </Section>
 
             {(experience || audience) && (
               <Section style={highlightBox}>
-                <Text style={sectionTitle}>💼 Marketing Profile</Text>
+                <Text style={sectionTitle}>{t(trans.marketingProfile, locale)}</Text>
                 <Hr style={hr} />
                 {experience && (
                   <Text style={detailText}>
-                    <strong>Experience:</strong> {experience}
+                    <strong>{t(trans.experience, locale)}:</strong> {experience}
                   </Text>
                 )}
                 {audience && (
                   <Text style={detailText}>
-                    <strong>Target Audience:</strong> {audience}
+                    <strong>{t(trans.targetAudience, locale)}:</strong> {audience}
                   </Text>
                 )}
               </Section>
@@ -107,7 +110,7 @@ export function AffiliateApplicationNotification({
 
             {platforms && platforms.length > 0 && (
               <Section style={highlightBox}>
-                <Text style={sectionTitle}>📱 Marketing Platforms</Text>
+                <Text style={sectionTitle}>{t(trans.marketingPlatforms, locale)}</Text>
                 <Hr style={hr} />
                 <ul style={platformList}>
                   {platforms.map((platform, index) => (
@@ -121,11 +124,11 @@ export function AffiliateApplicationNotification({
 
             {(website || hasSocialMedia) && (
               <Section style={highlightBox}>
-                <Text style={sectionTitle}>🌐 Online Presence</Text>
+                <Text style={sectionTitle}>{t(trans.onlinePresence, locale)}</Text>
                 <Hr style={hr} />
                 {website && (
                   <Text style={detailText}>
-                    <strong>Website:</strong>{' '}
+                    <strong>{t(trans.website, locale)}:</strong>{' '}
                     <a href={website} style={link} target="_blank" rel="noopener noreferrer">
                       {website}
                     </a>
@@ -134,7 +137,7 @@ export function AffiliateApplicationNotification({
                 {hasSocialMedia && (
                   <div style={{ marginTop: '10px' }}>
                     <Text style={detailText}>
-                      <strong>Social Media:</strong>
+                      <strong>{t(trans.socialMedia, locale)}:</strong>
                     </Text>
                     {socialMedia?.facebook && (
                       <Text style={socialText}>
@@ -183,7 +186,7 @@ export function AffiliateApplicationNotification({
 
             {message && (
               <Section style={highlightBox}>
-                <Text style={sectionTitle}>💬 Additional Message</Text>
+                <Text style={sectionTitle}>{t(trans.additionalMessage, locale)}</Text>
                 <Hr style={hr} />
                 <Text style={messageText}>{message}</Text>
               </Section>
@@ -191,27 +194,27 @@ export function AffiliateApplicationNotification({
 
             {bondedPreparerId && (
               <Section style={bondingBox}>
-                <Text style={bondingTitle}>🔗 Bonding Request Details</Text>
+                <Text style={bondingTitle}>{t(trans.bondingRequestDetails, locale)}</Text>
                 <Hr style={hr} />
                 <Text style={bondingText}>
-                  This applicant has requested to be bonded with Tax Preparer ID:{' '}
+                  {t(trans.bondingText1, locale)}{' '}
                   <strong>{bondedPreparerId}</strong>
                 </Text>
                 <Text style={bondingText}>
-                  Please coordinate with the tax preparer to confirm the bonding arrangement.
+                  {t(trans.bondingText2, locale)}
                 </Text>
               </Section>
             )}
 
             <Section style={highlightBox}>
-              <Text style={sectionTitle}>🔍 Application Details</Text>
+              <Text style={sectionTitle}>{t(trans.applicationDetails, locale)}</Text>
               <Hr style={hr} />
               <Text style={detailText}>
-                <strong>Lead ID:</strong> {leadId}
+                <strong>{t(trans.leadId, locale)}:</strong> {leadId}
               </Text>
               <Text style={detailText}>
-                <strong>Submitted:</strong>{' '}
-                {new Date().toLocaleString('en-US', {
+                <strong>{t(trans.submitted, locale)}:</strong>{' '}
+                {new Date().toLocaleString(locale === 'es' ? 'es-US' : 'en-US', {
                   dateStyle: 'full',
                   timeStyle: 'short',
                 })}
@@ -219,46 +222,46 @@ export function AffiliateApplicationNotification({
             </Section>
 
             <Section style={actionBox}>
-              <Text style={actionTitle}>⚡ Next Steps</Text>
+              <Text style={actionTitle}>{t(trans.nextSteps, locale)}</Text>
               <ul style={actionList}>
-                <li style={actionItem}>Review marketing profile and online presence</li>
-                <li style={actionItem}>Verify platforms and audience reach</li>
+                <li style={actionItem}>{t(trans.step1, locale)}</li>
+                <li style={actionItem}>{t(trans.step2, locale)}</li>
                 <li style={actionItem}>
-                  Contact applicant at {phone} or {email}
+                  {t(trans.step3, locale).replace('{phone}', phone).replace('{email}', email)}
                 </li>
                 {bondedPreparerId && (
-                  <li style={actionItem}>Coordinate with tax preparer for bonding approval</li>
+                  <li style={actionItem}>{t(trans.step4, locale)}</li>
                 )}
-                <li style={actionItem}>Approve or schedule interview if qualified</li>
+                <li style={actionItem}>{t(trans.step5, locale)}</li>
               </ul>
               <Section style={buttonContainer}>
                 <Button
                   style={button}
                   href={`${process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax'}/admin/database?search=${email}`}
                 >
-                  View in Admin Dashboard
+                  {t(trans.viewInAdminDashboard, locale)}
                 </Button>
               </Section>
             </Section>
 
             <Section style={quickReply}>
-              <Text style={quickReplyTitle}>📧 Quick Reply Templates</Text>
+              <Text style={quickReplyTitle}>{t(trans.quickReplyTemplates, locale)}</Text>
               <Text style={quickReplyText}>
-                <strong>To Approve Application:</strong>
+                <strong>{t(trans.toApproveApplication, locale)}:</strong>
                 <br />
-                &quot;Congratulations! Your affiliate application has been approved. Here&apos;s your unique affiliate link...&quot;
+                &quot;{t(trans.approvalTemplate, locale)}&quot;
               </Text>
               <Text style={quickReplyText}>
-                <strong>To Request More Info:</strong>
+                <strong>{t(trans.toRequestMoreInfo, locale)}:</strong>
                 <br />
-                &quot;Thank you for your application. We&apos;d like to learn more about your marketing strategy...&quot;
+                &quot;{t(trans.moreInfoTemplate, locale)}&quot;
               </Text>
             </Section>
           </Section>
 
           <Section style={footerSection}>
-            <Text style={copyright}>© 2025 TaxGeniusPro Affiliate Team</Text>
-            <Text style={copyright}>This email was sent to taxgenius.tax@gmail.com</Text>
+            <Text style={copyright}>{t(trans.copyright, locale)}</Text>
+            <Text style={copyright}>{t(trans.emailSentTo, locale)}</Text>
           </Section>
         </Container>
       </Body>
