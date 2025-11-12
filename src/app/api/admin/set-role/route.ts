@@ -1,27 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+
+// Authorized emails that can upgrade users to tax_preparer or affiliate
+const AUTHORIZED_ADMIN_EMAILS = [
+  'taxgeniuses.tax@gmail.com',
+  'taxgenius.tax@gmail.com',
+  'iradwatkins@gmail.com',
+  'goldenprotaxes@gmail.com',
+];
 
 /**
  * API endpoint to set admin role for a user
- * RESTRICTED TO SUPER_ADMIN ONLY
+ * RESTRICTED TO SUPER_ADMIN or AUTHORIZED ADMINS
  * POST /api/admin/set-role
  * Body: { email: string, role: string }
  */
 export async function POST(request: NextRequest) {
   try {
     // Authentication check
-    const currentUserData = await auth();
+    const session = await auth();
 
-    if (!currentUserData) {
+    if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized - You must be logged in' }, { status: 401 });
     }
 
-    // Authorization check - only super_admin can change roles
-    const currentUserRole = currentUserData.publicMetadata?.role as string;
-    if (currentUserRole !== 'super_admin') {
+    // Authorization check
+    const currentUserRole = session.user.role;
+    const currentUserEmail = session.user.email.toLowerCase();
+    const isSuperAdmin = currentUserRole === 'super_admin';
+    const isAuthorizedAdmin = AUTHORIZED_ADMIN_EMAILS.includes(currentUserEmail);
+
+    if (!isSuperAdmin && !isAuthorizedAdmin) {
       return NextResponse.json(
-        { error: 'Forbidden - Only super admins can change user roles' },
+        { error: 'Forbidden - Only super admins or authorized administrators can change user roles' },
         { status: 403 }
       );
     }
@@ -38,6 +51,16 @@ export async function POST(request: NextRequest) {
         { error: `Invalid role. Must be one of: ${validRoles.join(', ')}` },
         { status: 400 }
       );
+    }
+
+    // Authorized admins (non-super admins) can only assign tax_preparer or affiliate roles
+    if (isAuthorizedAdmin && !isSuperAdmin) {
+      if (role !== 'tax_preparer' && role !== 'affiliate') {
+        return NextResponse.json(
+          { error: 'Authorized admins can only assign tax_preparer or affiliate roles. Contact a super admin for other role assignments.' },
+          { status: 403 }
+        );
+      }
     }
 
     logger.info(`🔍 Looking for user with email: ${email}`);

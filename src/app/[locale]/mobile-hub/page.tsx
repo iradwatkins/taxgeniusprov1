@@ -20,13 +20,18 @@ export default async function MobileHubPage() {
   const role = (user?.role as UserRole) || 'client';
   const permissions = getUserPermissions(role, user?.permissions as any);
 
+  // Parse name into firstName and lastName
+  const nameParts = user.name?.split(' ') || [];
+  const firstName = nameParts[0] || '';
+  const lastName = nameParts.slice(1).join(' ') || '';
+
   // Get user profile data
   const userProfile = {
     id: user.id,
-    firstName: user.firstName || '',
-    lastName: user.lastName || '',
-    email: user.emailAddresses[0]?.emailAddress || '',
-    imageUrl: user.imageUrl,
+    firstName,
+    lastName,
+    email: user.email || '',
+    imageUrl: user.image || undefined,
     role,
   };
 

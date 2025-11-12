@@ -23,7 +23,7 @@ export default async function DebugRolePage() {
 
           <div>
             <p className="text-sm text-muted-foreground">Email</p>
-            <p className="font-mono">{user.emailAddresses[0]?.emailAddress}</p>
+            <p className="font-mono">{user.email}</p>
           </div>
 
           <div>
@@ -55,16 +55,19 @@ export default async function DebugRolePage() {
         </div>
 
         <div className="mt-8 space-y-4">
-          <h2 className="text-xl font-bold">Instructions to Set Admin Role:</h2>
+          <h2 className="text-xl font-bold">Instructions to Change Role:</h2>
           <ol className="list-decimal list-inside space-y-2 text-sm">
-            <li>Go to https://dashboard.clerk.com</li>
-            <li>Select your project</li>
-            <li>Go to "Users" in left sidebar</li>
-            <li>Click on your user email: {user.emailAddresses[0]?.emailAddress}</li>
-            <li>Scroll to "Public metadata" section</li>
-            <li>Click "Edit" and add: {`{ "role": "admin" }`}</li>
-            <li>Click "Save"</li>
-            <li>Refresh this page to see the change</li>
+            <li>Contact an authorized administrator:</li>
+            <ul className="list-disc list-inside ml-6 mt-2">
+              <li>taxgeniuses.tax@gmail.com</li>
+              <li>taxgenius.tax@gmail.com</li>
+              <li>iradwatkins@gmail.com</li>
+              <li>goldenprotaxes@gmail.com</li>
+            </ul>
+            <li>Provide your email: {user.email}</li>
+            <li>Request the desired role (tax_preparer or affiliate)</li>
+            <li>Admin will update your role using the admin set-role API</li>
+            <li>Sign out completely and sign back in to see the change</li>
           </ol>
         </div>
       </div>

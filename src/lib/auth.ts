@@ -1,10 +1,17 @@
 /**
  * NextAuth.js v5 Configuration
  * Complete authentication system for Tax Genius Pro
+ *
+ * Supports:
+ * - Google OAuth (Gmail login)
+ * - Magic Link (Email-based passwordless login)
+ * - Credentials (Email/Password)
  */
 import NextAuth, { type DefaultSession, type User as NextAuthUser } from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import Credentials from 'next-auth/providers/credentials';
+import Google from 'next-auth/providers/google';
+import Resend from 'next-auth/providers/resend';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { UserRole } from '@prisma/client';
@@ -44,9 +51,31 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: '/auth/signin',
     signOut: '/auth/signout',
     error: '/auth/error',
+    verifyRequest: '/auth/verify', // Magic link verification page
     newUser: '/auth/select-role', // Redirect new users to select their role
   },
   providers: [
+    // Google OAuth Provider (Gmail Login)
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+      allowDangerousEmailAccountLinking: true, // Allow linking accounts with same email
+      authorization: {
+        params: {
+          prompt: 'consent',
+          access_type: 'offline',
+          response_type: 'code',
+        },
+      },
+    }),
+
+    // Magic Link Provider (Email-based passwordless login)
+    Resend({
+      apiKey: process.env.RESEND_API_KEY || '',
+      from: process.env.RESEND_FROM_EMAIL || 'noreply@taxgeniuspro.tax',
+    }),
+
+    // Credentials Provider (Email/Password)
     Credentials({
       name: 'credentials',
       credentials: {
@@ -125,7 +154,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // Log sign in events
       console.log(`User signed in: ${user.email} (${user.id})`);
 
-      // If new user, create a profile with default lead role
+      // If new user, create a profile with default client role
+      // (Note: tax_preparer and affiliate roles require manual admin upgrade)
       if (isNewUser) {
         // Parse name into firstName, middleName, lastName
         const nameParts = user.name?.split(' ').filter(part => part.length > 0) || [];
@@ -151,7 +181,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         await prisma.profile.create({
           data: {
             userId: user.id,
-            role: 'lead',
+            role: 'client',
             firstName,
             middleName,
             lastName,
