@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +30,7 @@ import { ServiceFAQSection } from '@/components/services/ServiceFAQSection';
 import { taxPlanningFAQs } from '@/lib/seo-llm/1-core-seo/data/service-faqs';
 
 export default function TaxPlanningPage() {
+  const t = useTranslations('taxPlanning');
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -45,35 +47,34 @@ export default function TaxPlanningPage() {
             >
               <Badge className="bg-primary/10 text-primary px-4 py-2">
                 <Target className="w-4 h-4 mr-2" />
-                Strategic Tax Planning
+                {t('hero.badge')}
               </Badge>
 
               <h1 className="text-4xl lg:text-6xl font-bold">
-                Proactive Tax Planning & <span className="text-primary">Advisory Services</span>
+                {t('hero.title')} <span className="text-primary">{t('hero.titleHighlight')}</span>
               </h1>
 
               <p className="text-xl text-muted-foreground leading-relaxed">
-                Don't wait until April. Year-round strategic planning to minimize your tax burden
-                and maximize wealth preservation.
+                {t('hero.subtitle')}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button variant="professional" size="lg" asChild>
-                  <Link href="/start-filing/form">Schedule Strategy Session</Link>
+                  <Link href="/start-filing/form">{t('hero.ctaButton')}</Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <Link href="tel:+14046271015">
                     <Phone className="mr-2 w-5 h-5" />
-                    (404) 627-1015
+                    {t('hero.ctaPhone')}
                   </Link>
                 </Button>
               </div>
 
               <div className="flex flex-wrap gap-6 pt-4">
                 {[
-                  { icon: Clock, text: 'Year-Round Support' },
-                  { icon: DollarSign, text: 'Save 20-40% on Taxes' },
-                  { icon: Award, text: 'CPA Tax Strategists' },
+                  { icon: Clock, text: t('hero.feature1') },
+                  { icon: DollarSign, text: t('hero.feature2') },
+                  { icon: Award, text: t('hero.feature3') },
                 ].map((item, i) => (
                   <motion.div
                     key={i}
@@ -98,7 +99,7 @@ export default function TaxPlanningPage() {
               <div className="relative rounded-lg overflow-hidden shadow-2xl">
                 <Image
                   src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80"
-                  alt="Financial planning consultation"
+                  alt={t('hero.imageAlt')}
                   width={800}
                   height={600}
                   className="object-cover w-full h-full"
@@ -114,8 +115,8 @@ export default function TaxPlanningPage() {
                       <TrendingUp className="w-6 h-6 text-success" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold">35%</p>
-                      <p className="text-sm text-muted-foreground">Avg. Tax Savings</p>
+                      <p className="text-2xl font-bold">{t('hero.statNumber')}</p>
+                      <p className="text-sm text-muted-foreground">{t('hero.statLabel')}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -134,10 +135,9 @@ export default function TaxPlanningPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Why Year-Round Planning Matters</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('whyPlan.title')}</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Tax planning isn't just for April. Strategic decisions throughout the year can save
-              you thousands.
+              {t('whyPlan.subtitle')}
             </p>
           </motion.div>
 
@@ -145,26 +145,26 @@ export default function TaxPlanningPage() {
             {[
               {
                 icon: Calendar,
-                title: 'Quarterly Reviews',
-                desc: 'Regular check-ins to optimize tax position throughout the year',
+                title: t('whyPlan.card1Title'),
+                desc: t('whyPlan.card1Description'),
                 delay: 0,
               },
               {
                 icon: Lightbulb,
-                title: 'Strategic Decisions',
-                desc: 'Make informed choices about investments, business expenses, retirement',
+                title: t('whyPlan.card2Title'),
+                desc: t('whyPlan.card2Description'),
                 delay: 0.1,
               },
               {
                 icon: DollarSign,
-                title: 'Maximize Deductions',
-                desc: 'Identify opportunities before year-end to reduce taxable income',
+                title: t('whyPlan.card3Title'),
+                desc: t('whyPlan.card3Description'),
                 delay: 0.2,
               },
               {
                 icon: Shield,
-                title: 'Risk Management',
-                desc: 'Avoid penalties, estimated tax issues, and surprise tax bills',
+                title: t('whyPlan.card4Title'),
+                desc: t('whyPlan.card4Description'),
                 delay: 0.3,
               },
             ].map((item, i) => (
@@ -202,39 +202,39 @@ export default function TaxPlanningPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Our Planning Process</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('process.title')}</h2>
             <p className="text-lg text-muted-foreground">
-              A systematic approach to minimizing your tax liability
+              {t('process.subtitle')}
             </p>
           </motion.div>
 
           <div className="max-w-4xl mx-auto space-y-8">
             {[
               {
-                step: '1',
-                title: 'Initial Discovery',
-                desc: 'Deep dive into your financial situation, goals, and current tax position',
+                step: t('process.step1'),
+                title: t('process.step1Title'),
+                desc: t('process.step1Description'),
                 icon: Users,
                 color: 'bg-blue-500',
               },
               {
-                step: '2',
-                title: 'Strategy Development',
-                desc: 'Create customized tax plan with specific action items and timelines',
+                step: t('process.step2'),
+                title: t('process.step2Title'),
+                desc: t('process.step2Description'),
                 icon: Target,
                 color: 'bg-green-500',
               },
               {
-                step: '3',
-                title: 'Implementation',
-                desc: 'Execute strategies with guidance on timing, documentation, and compliance',
+                step: t('process.step3'),
+                title: t('process.step3Title'),
+                desc: t('process.step3Description'),
                 icon: CheckCircle,
                 color: 'bg-purple-500',
               },
               {
-                step: '4',
-                title: 'Ongoing Monitoring',
-                desc: 'Quarterly reviews and adjustments based on life changes and tax law updates',
+                step: t('process.step4'),
+                title: t('process.step4Title'),
+                desc: t('process.step4Description'),
                 icon: BarChart3,
                 color: 'bg-orange-500',
               },
@@ -280,9 +280,9 @@ export default function TaxPlanningPage() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-8">
               <div>
-                <h2 className="text-3xl lg:text-4xl font-bold mb-4">Planning Services We Offer</h2>
+                <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('services.title')}</h2>
                 <p className="text-lg text-muted-foreground">
-                  Comprehensive advisory covering all aspects of tax optimization
+                  {t('services.subtitle')}
                 </p>
               </div>
 
@@ -290,33 +290,33 @@ export default function TaxPlanningPage() {
                 {[
                   {
                     icon: PiggyBank,
-                    title: 'Retirement Planning',
-                    desc: 'IRA, 401(k), SEP, Solo 401(k) strategies to reduce current taxes',
+                    title: t('services.service1Title'),
+                    desc: t('services.service1Description'),
                   },
                   {
                     icon: Home,
-                    title: 'Real Estate Strategies',
-                    desc: '1031 exchanges, rental property optimization, vacation home rules',
+                    title: t('services.service2Title'),
+                    desc: t('services.service2Description'),
                   },
                   {
                     icon: TrendingUp,
-                    title: 'Investment Tax Planning',
-                    desc: 'Capital gains harvesting, qualified dividend strategies, wash sales',
+                    title: t('services.service3Title'),
+                    desc: t('services.service3Description'),
                   },
                   {
                     icon: Users,
-                    title: 'Estate & Gift Planning',
-                    desc: 'Minimize estate taxes, optimize gifting, trust structures',
+                    title: t('services.service4Title'),
+                    desc: t('services.service4Description'),
                   },
                   {
                     icon: FileText,
-                    title: 'Business Entity Selection',
-                    desc: 'LLC vs S-Corp vs C-Corp analysis for optimal tax treatment',
+                    title: t('services.service5Title'),
+                    desc: t('services.service5Description'),
                   },
                   {
                     icon: Shield,
-                    title: 'Multi-State Planning',
-                    desc: 'Domicile strategy, state tax minimization for high earners',
+                    title: t('services.service6Title'),
+                    desc: t('services.service6Description'),
                   },
                 ].map((service, i) => (
                   <motion.div
@@ -351,7 +351,7 @@ export default function TaxPlanningPage() {
               <div className="relative rounded-lg overflow-hidden shadow-2xl group">
                 <Image
                   src="https://images.unsplash.com/photo-1579532536935-619928decd08?w=700&q=80"
-                  alt="Strategic planning session"
+                  alt={t('services.imageAlt')}
                   width={700}
                   height={900}
                   className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
@@ -367,53 +367,54 @@ export default function TaxPlanningPage() {
       <section className="py-24 bg-muted/30">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Planning Packages</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('pricing.title')}</h2>
             <p className="text-lg text-muted-foreground">
-              Choose the level of support that fits your needs
+              {t('pricing.subtitle')}
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
               {
-                name: 'Essentials',
-                price: '$500',
-                period: '/quarter',
+                name: t('pricing.essentials.name'),
+                price: t('pricing.essentials.price'),
+                period: t('pricing.essentials.period'),
                 features: [
-                  'Quarterly tax planning calls',
-                  'Estimated tax calculations',
-                  'Basic strategy recommendations',
-                  'Email support',
+                  t('pricing.essentials.feature1'),
+                  t('pricing.essentials.feature2'),
+                  t('pricing.essentials.feature3'),
+                  t('pricing.essentials.feature4'),
                 ],
-                cta: 'Get Started',
+                cta: t('pricing.essentials.cta'),
               },
               {
-                name: 'Professional',
-                price: '$1,200',
-                period: '/quarter',
+                name: t('pricing.professional.name'),
+                price: t('pricing.professional.price'),
+                period: t('pricing.professional.period'),
                 features: [
-                  'Monthly strategy sessions',
-                  'Comprehensive tax modeling',
-                  'Business & personal planning',
-                  'Priority phone/email support',
-                  'Year-end planning session',
+                  t('pricing.professional.feature1'),
+                  t('pricing.professional.feature2'),
+                  t('pricing.professional.feature3'),
+                  t('pricing.professional.feature4'),
+                  t('pricing.professional.feature5'),
                 ],
                 popular: true,
-                cta: 'Most Popular',
+                cta: t('pricing.professional.cta'),
+                badge: t('pricing.professional.badge'),
               },
               {
-                name: 'Executive',
-                price: '$2,500',
-                period: '/quarter',
+                name: t('pricing.executive.name'),
+                price: t('pricing.executive.price'),
+                period: t('pricing.executive.period'),
                 features: [
-                  'Unlimited CPA access',
-                  'Multi-entity planning',
-                  'Estate & succession planning',
-                  'Investment strategy review',
-                  'Dedicated tax strategist',
-                  'Same-day response',
+                  t('pricing.executive.feature1'),
+                  t('pricing.executive.feature2'),
+                  t('pricing.executive.feature3'),
+                  t('pricing.executive.feature4'),
+                  t('pricing.executive.feature5'),
+                  t('pricing.executive.feature6'),
                 ],
-                cta: 'Premium Support',
+                cta: t('pricing.executive.cta'),
               },
             ].map((plan, i) => (
               <motion.div
@@ -428,9 +429,9 @@ export default function TaxPlanningPage() {
                   className={`h-full ${plan.popular ? 'border-2 border-primary shadow-xl scale-105' : ''}`}
                 >
                   <CardHeader>
-                    {plan.popular && (
+                    {plan.popular && plan.badge && (
                       <Badge className="w-fit mb-2 bg-primary text-primary-foreground">
-                        Most Popular
+                        {plan.badge}
                       </Badge>
                     )}
                     <CardTitle className="text-2xl">{plan.name}</CardTitle>
@@ -468,7 +469,7 @@ export default function TaxPlanningPage() {
             className="text-center mt-12"
           >
             <p className="text-muted-foreground">
-              All packages include tax return preparation at no additional cost
+              {t('pricing.footnote')}
             </p>
           </motion.div>
         </div>
@@ -486,21 +487,20 @@ export default function TaxPlanningPage() {
             viewport={{ once: true }}
             className="text-center max-w-3xl mx-auto space-y-8"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold">Stop Overpaying on Taxes</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold">{t('cta.title')}</h2>
             <p className="text-lg text-muted-foreground">
-              Schedule your free tax strategy consultation today and discover how much you could be
-              saving
+              {t('cta.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="professional" size="lg" asChild>
                 <Link href="/start-filing/form">
-                  Schedule Free Consultation <ArrowRight className="ml-2 w-5 h-5" />
+                  {t('cta.ctaButton')} <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
                 <Link href="tel:+14046271015">
                   <Phone className="mr-2 w-5 h-5" />
-                  (404) 627-1015
+                  {t('cta.ctaPhone')}
                 </Link>
               </Button>
             </div>

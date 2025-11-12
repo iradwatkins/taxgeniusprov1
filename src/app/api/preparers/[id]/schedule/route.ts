@@ -6,8 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { AvailabilityService } from '@/lib/services/availability.service';
 import { parseISO, startOfMonth, endOfMonth, addMonths } from 'date-fns';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(
@@ -15,7 +14,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

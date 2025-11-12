@@ -26,6 +26,7 @@ import Image from 'next/image';
 import { useRef, useState, useEffect } from 'react';
 import { ServiceFAQSection } from '@/components/services/ServiceFAQSection';
 import { auditProtectionFAQs } from '@/lib/seo-llm/1-core-seo/data/service-faqs';
+import { useTranslations } from 'next-intl';
 
 // Animated counter component
 function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
@@ -63,6 +64,8 @@ function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: strin
 }
 
 export default function AuditProtectionPage() {
+  const t = useTranslations('auditProtection');
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -88,35 +91,34 @@ export default function AuditProtectionPage() {
             >
               <Badge className="bg-primary/10 text-primary px-4 py-2">
                 <Shield className="w-4 h-4 mr-2" />
-                Complete Audit Protection
+                {t('hero.badge')}
               </Badge>
 
               <h1 className="text-4xl lg:text-6xl font-bold">
-                IRS Audit Protection & <span className="text-primary">Defense Services</span>
+                {t('hero.title')} <span className="text-primary">{t('hero.titleHighlight')}</span>
               </h1>
 
               <p className="text-xl text-muted-foreground leading-relaxed">
-                Comprehensive audit representation included with every tax return. If the IRS calls,
-                we handle everything.
+                {t('hero.subtitle')}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button variant="professional" size="lg" asChild>
-                  <Link href="/start-filing/form">Get Protected Today</Link>
+                  <Link href="/start-filing/form">{t('hero.ctaProtect')}</Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <Link href="tel:+14046271015">
                     <Phone className="mr-2 w-5 h-5" />
-                    (404) 627-1015
+                    {t('hero.ctaPhone')}
                   </Link>
                 </Button>
               </div>
 
               <div className="grid grid-cols-3 gap-6 pt-8">
                 {[
-                  { icon: Shield, label: '100% Coverage' },
-                  { icon: Users, label: 'CPA Representation' },
-                  { icon: Award, label: '98% Success Rate' },
+                  { icon: Shield, label: t('hero.feature1') },
+                  { icon: Users, label: t('hero.feature2') },
+                  { icon: Award, label: t('hero.feature3') },
                 ].map((item, i) => (
                   <motion.div
                     key={i}
@@ -143,7 +145,7 @@ export default function AuditProtectionPage() {
               <div className="relative rounded-lg overflow-hidden shadow-2xl">
                 <Image
                   src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&q=80"
-                  alt="Professional reviewing documents"
+                  alt={t('hero.imageAlt')}
                   width={800}
                   height={600}
                   className="object-cover w-full h-full"
@@ -170,10 +172,10 @@ export default function AuditProtectionPage() {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8 max-w-5xl mx-auto">
             {[
-              { value: 98, suffix: '%', label: 'Audits Resolved Favorably' },
-              { value: 5000, suffix: '+', label: 'Clients Protected' },
-              { value: 3, suffix: ' Days', label: 'Avg. Response Time' },
-              { value: 0, suffix: '$', label: 'Out-of-Pocket Costs' },
+              { value: 98, suffix: '%', label: t('stats.auditsResolved') },
+              { value: 5000, suffix: '+', label: t('stats.clientsProtected') },
+              { value: 3, suffix: t('stats.days'), label: t('stats.avgResponseTime') },
+              { value: 0, suffix: '$', label: t('stats.outOfPocketCosts') },
             ].map((stat, i) => (
               <motion.div
                 key={i}
@@ -202,9 +204,9 @@ export default function AuditProtectionPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">What We Cover</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('coverage.title')}</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Complete protection for all types of IRS examinations
+              {t('coverage.subtitle')}
             </p>
           </motion.div>
 
@@ -212,38 +214,38 @@ export default function AuditProtectionPage() {
             {[
               {
                 icon: Mail,
-                title: 'Correspondence Audits',
-                desc: 'IRS letters requesting documentation or clarification',
+                title: t('coverage.correspondence.title'),
+                desc: t('coverage.correspondence.description'),
                 color: 'text-blue-500',
               },
               {
                 icon: FileText,
-                title: 'Office Audits',
-                desc: 'In-person meetings at IRS office with full representation',
+                title: t('coverage.office.title'),
+                desc: t('coverage.office.description'),
                 color: 'text-green-500',
               },
               {
                 icon: BookOpen,
-                title: 'Field Audits',
-                desc: 'IRS visits to your business with CPA present',
+                title: t('coverage.field.title'),
+                desc: t('coverage.field.description'),
                 color: 'text-purple-500',
               },
               {
                 icon: AlertTriangle,
-                title: 'CP2000 Notices',
-                desc: 'Income discrepancy notices and automated adjustments',
+                title: t('coverage.cp2000.title'),
+                desc: t('coverage.cp2000.description'),
                 color: 'text-orange-500',
               },
               {
                 icon: Clock,
-                title: 'Amended Returns',
-                desc: 'Defense of amended returns and prior year adjustments',
+                title: t('coverage.amended.title'),
+                desc: t('coverage.amended.description'),
                 color: 'text-pink-500',
               },
               {
                 icon: Scale,
-                title: 'Appeals Process',
-                desc: 'Representation through IRS appeals if needed',
+                title: t('coverage.appeals.title'),
+                desc: t('coverage.appeals.description'),
                 color: 'text-indigo-500',
               },
             ].map((item, i) => (
@@ -270,7 +272,7 @@ export default function AuditProtectionPage() {
                     <p className="text-muted-foreground">{item.desc}</p>
                     <div className="mt-4 flex items-center gap-2 text-sm text-success">
                       <CheckCircle className="w-4 h-4" />
-                      <span>Fully Covered</span>
+                      <span>{t('coverage.fullyCovered')}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -289,8 +291,8 @@ export default function AuditProtectionPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">How We Protect You</h2>
-            <p className="text-lg text-muted-foreground">Our step-by-step audit defense process</p>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('process.title')}</h2>
+            <p className="text-lg text-muted-foreground">{t('process.subtitle')}</p>
           </motion.div>
 
           <div className="max-w-4xl mx-auto">
@@ -302,32 +304,32 @@ export default function AuditProtectionPage() {
                 {[
                   {
                     step: '1',
-                    title: 'Immediate Notification',
-                    desc: 'You forward the IRS notice to us. We acknowledge receipt within 24 hours.',
+                    title: t('process.step1.title'),
+                    desc: t('process.step1.description'),
                     icon: Mail,
                   },
                   {
                     step: '2',
-                    title: 'Case Assessment',
-                    desc: 'CPA reviews your return and IRS inquiry to develop defense strategy.',
+                    title: t('process.step2.title'),
+                    desc: t('process.step2.description'),
                     icon: BookOpen,
                   },
                   {
                     step: '3',
-                    title: 'Document Gathering',
-                    desc: 'We request and organize all supporting documentation needed.',
+                    title: t('process.step3.title'),
+                    desc: t('process.step3.description'),
                     icon: FileText,
                   },
                   {
                     step: '4',
-                    title: 'IRS Response',
-                    desc: 'CPA handles all communication with IRS on your behalf.',
+                    title: t('process.step4.title'),
+                    desc: t('process.step4.description'),
                     icon: Users,
                   },
                   {
                     step: '5',
-                    title: 'Resolution',
-                    desc: 'We negotiate the best outcome and close the audit.',
+                    title: t('process.step5.title'),
+                    desc: t('process.step5.description'),
                     icon: CheckCircle,
                   },
                 ].map((phase, i) => (
@@ -378,7 +380,7 @@ export default function AuditProtectionPage() {
             >
               <Image
                 src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=700&q=80"
-                alt="Happy family feeling secure"
+                alt={t('peaceOfMind.imageAlt')}
                 width={700}
                 height={500}
                 className="rounded-lg shadow-xl object-cover"
@@ -387,9 +389,9 @@ export default function AuditProtectionPage() {
 
             <div className="space-y-8">
               <div>
-                <h2 className="text-3xl lg:text-4xl font-bold mb-4">Complete Peace of Mind</h2>
+                <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('peaceOfMind.title')}</h2>
                 <p className="text-lg text-muted-foreground">
-                  With audit protection, you'll never face the IRS alone
+                  {t('peaceOfMind.subtitle')}
                 </p>
               </div>
 
@@ -397,23 +399,23 @@ export default function AuditProtectionPage() {
                 {[
                   {
                     icon: Lock,
-                    title: 'No Out-of-Pocket Costs',
-                    desc: 'Audit defense included with your tax return - no extra fees if audited',
+                    title: t('peaceOfMind.benefit1.title'),
+                    desc: t('peaceOfMind.benefit1.description'),
                   },
                   {
                     icon: Users,
-                    title: 'Expert CPA Representation',
-                    desc: 'Licensed professionals with years of IRS audit experience handle your case',
+                    title: t('peaceOfMind.benefit2.title'),
+                    desc: t('peaceOfMind.benefit2.description'),
                   },
                   {
                     icon: Clock,
-                    title: 'We Handle Everything',
-                    desc: "You don't talk to the IRS. We manage all correspondence and meetings.",
+                    title: t('peaceOfMind.benefit3.title'),
+                    desc: t('peaceOfMind.benefit3.description'),
                   },
                   {
                     icon: TrendingUp,
-                    title: '98% Success Rate',
-                    desc: 'Proven track record of favorable outcomes for our clients',
+                    title: t('peaceOfMind.benefit4.title'),
+                    desc: t('peaceOfMind.benefit4.description'),
                   },
                 ].map((benefit, i) => (
                   <motion.div
@@ -440,7 +442,7 @@ export default function AuditProtectionPage() {
               <div className="pt-4">
                 <Button variant="professional" size="lg" asChild>
                   <Link href="/start-filing/form">
-                    Get Protected Now <ArrowRight className="ml-2 w-5 h-5" />
+                    {t('peaceOfMind.ctaProtect')} <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>
                 </Button>
               </div>
@@ -464,20 +466,20 @@ export default function AuditProtectionPage() {
             <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
               <Shield className="w-10 h-10 text-primary" />
             </div>
-            <h2 className="text-3xl lg:text-4xl font-bold">File Your Taxes with Confidence</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold">{t('finalCta.title')}</h2>
             <p className="text-lg text-muted-foreground">
-              Get complete audit protection included with your tax return at no extra cost
+              {t('finalCta.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="professional" size="lg" asChild>
                 <Link href="/start-filing/form">
-                  Get Started Today <ArrowRight className="ml-2 w-5 h-5" />
+                  {t('finalCta.ctaStart')} <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
                 <Link href="tel:+14046271015">
                   <Phone className="mr-2 w-5 h-5" />
-                  (404) 627-1015
+                  {t('finalCta.ctaPhone')}
                 </Link>
               </Button>
             </div>

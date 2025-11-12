@@ -2,6 +2,7 @@
 
 import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 /**
  * Legacy /auth/login route - Redirects to /auth/signin
@@ -12,6 +13,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 function LoginRedirectContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations('auth.login');
 
   useEffect(() => {
     // Preserve all query parameters when redirecting
@@ -25,7 +27,20 @@ function LoginRedirectContent() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-muted-foreground">Redirecting to sign in...</p>
+        <p className="text-muted-foreground">{t('redirecting')}</p>
+      </div>
+    </div>
+  );
+}
+
+function LoginRedirectFallback() {
+  const t = useTranslations('auth.login');
+
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-muted-foreground">{t('loading')}</p>
       </div>
     </div>
   );
@@ -33,16 +48,7 @@ function LoginRedirectContent() {
 
 export default function LoginRedirectPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading...</p>
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<LoginRedirectFallback />}>
       <LoginRedirectContent />
     </Suspense>
   );

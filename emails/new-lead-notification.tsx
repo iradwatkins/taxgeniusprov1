@@ -8,7 +8,9 @@ import {
   Button,
   Section,
   Hr,
+  Img,
 } from '@react-email/components';
+import { t, commonTranslations, newLeadTranslations, type Locale } from './translations';
 
 interface NewLeadNotificationProps {
   preparerName: string;
@@ -20,6 +22,7 @@ interface NewLeadNotificationProps {
   source: string;
   dashboardUrl: string;
   leadId: string;
+  locale?: Locale;
 }
 
 export function NewLeadNotification({
@@ -32,61 +35,79 @@ export function NewLeadNotification({
   source,
   dashboardUrl,
   leadId,
+  locale = 'en',
 }: NewLeadNotificationProps) {
-  const serviceLabels: Record<string, string> = {
-    individual: 'Individual Tax Return',
-    business: 'Business Tax Return',
-    'real-estate': 'Real Estate Professional',
-    'audit-defense': 'Audit Defense',
-    'tax-planning': 'Tax Planning',
-    'tax-consultation': 'Tax Consultation',
-    'tax-intake': 'Tax Intake',
+  // Get translated service label
+  const getServiceLabel = (svc: string) => {
+    const serviceKey = svc as keyof typeof commonTranslations.services;
+    return commonTranslations.services[serviceKey]
+      ? t(commonTranslations.services[serviceKey], locale)
+      : svc;
   };
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax';
+  const logoUrl = `${appUrl}/og-image.png`;
 
   return (
     <Html>
-      <Head />
+      <Head>
+        <meta property="og:title" content={t(newLeadTranslations.title, locale)} />
+        <meta property="og:description" content={`${t(newLeadTranslations.greeting, locale).replace('{name}', preparerName)} - ${leadName}`} />
+        <meta property="og:image" content={logoUrl} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content={logoUrl} />
+      </Head>
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
-            <Heading style={h1}>New Lead Assigned</Heading>
+            <Img
+              src={logoUrl}
+              alt="Tax Genius Pro"
+              width="60"
+              height="60"
+              style={{ margin: '0 auto 20px', display: 'block' }}
+            />
+            <Heading style={h1}>{t(newLeadTranslations.title, locale)}</Heading>
           </Section>
 
           <Section style={content}>
-            <Text style={greeting}>Hi {preparerName},</Text>
+            <Text style={greeting}>
+              {t(newLeadTranslations.greeting, locale).replace('{name}', preparerName)}
+            </Text>
 
             <Section style={serviceBox}>
-              <Text style={serviceBadge}>{serviceLabels[service] || service}</Text>
+              <Text style={serviceBadge}>{getServiceLabel(service)}</Text>
             </Section>
 
             <Section style={infoBox}>
-              <Text style={label}>Contact Information</Text>
+              <Text style={label}>{t(newLeadTranslations.contactInformation, locale)}</Text>
               <Hr style={hr} />
               <Text style={detail}>
-                <strong>Name:</strong> {leadName}
+                <strong>{t(commonTranslations.name, locale)}:</strong> {leadName}
               </Text>
               <Text style={detail}>
-                <strong>Email:</strong>{' '}
+                <strong>{t(commonTranslations.email, locale)}:</strong>{' '}
                 <a href={`mailto:${leadEmail}`} style={link}>
                   {leadEmail}
                 </a>
               </Text>
               {leadPhone && (
                 <Text style={detail}>
-                  <strong>Phone:</strong>{' '}
+                  <strong>{t(commonTranslations.phone, locale)}:</strong>{' '}
                   <a href={`tel:${leadPhone}`} style={link}>
                     {leadPhone}
                   </a>
                 </Text>
               )}
               <Text style={detail}>
-                <strong>Source:</strong> {source}
+                <strong>{t(commonTranslations.source, locale)}:</strong> {source}
               </Text>
             </Section>
 
             {message && (
               <Section style={messageBox}>
-                <Text style={label}>Message</Text>
+                <Text style={label}>{t(newLeadTranslations.messageLabel, locale)}</Text>
                 <Hr style={hr} />
                 <Text style={messageText}>&quot;{message}&quot;</Text>
               </Section>
@@ -94,19 +115,19 @@ export function NewLeadNotification({
 
             <Section style={actionBox}>
               <Button style={btnPrimary} href={dashboardUrl}>
-                View Dashboard
+                {t(commonTranslations.viewDashboard, locale)}
               </Button>
               <Button style={btnSecondary} href={`mailto:${leadEmail}`}>
-                Email Client
+                {t(commonTranslations.emailClient, locale)}
               </Button>
               {leadPhone && (
                 <Button style={btnTertiary} href={`tel:${leadPhone}`}>
-                  Call Client
+                  {t(commonTranslations.callClient, locale)}
                 </Button>
               )}
             </Section>
 
-            <Text style={footer}>Lead ID: {leadId}</Text>
+            <Text style={footer}>{t(newLeadTranslations.leadId, locale).replace('{id}', leadId)}</Text>
           </Section>
         </Container>
       </Body>

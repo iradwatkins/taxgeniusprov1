@@ -10,10 +10,13 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 // Using NextAuth SessionProvider;
 import { ConditionalFooter } from '@/components/ConditionalFooter';
 import { GoogleAnalytics } from '@/components/GoogleAnalytics';
+import { WebVitals } from '@/components/WebVitals';
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
+  display: 'swap',
+  preload: true,
 });
 
 export const viewport: Viewport = {
@@ -49,18 +52,30 @@ export const metadata: Metadata = {
     description: 'Streamline your tax preparation process with our comprehensive platform',
     type: 'website',
   },
+  // Search engine verification tags
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '',
+    other: {
+      'msvalidate.01': process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION || '',
+      'facebook-domain-verification': process.env.NEXT_PUBLIC_FACEBOOK_DOMAIN_VERIFICATION || '',
+    },
+  },
 };
 
 export default function RootLayout({
   children,
-  params,
 }: Readonly<{
   children: React.ReactNode;
-  params: Promise<{ locale: string }>;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html suppressHydrationWarning>
       <head>
+        {/* Preconnect to external domains for better performance */}
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
         <GoogleAnalytics />
       </head>
       <body className={`${inter.variable} font-sans antialiased min-h-screen`}>
@@ -73,6 +88,7 @@ export default function RootLayout({
           <Providers>
             <ErrorBoundary>
               <TooltipProvider>
+                <WebVitals />
                 {children}
                 <ConditionalFooter />
                 <Toaster />

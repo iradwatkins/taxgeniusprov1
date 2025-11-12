@@ -13,6 +13,7 @@ export interface PageMetadata {
   url?: string;
   type?: 'website' | 'article' | 'product' | 'product.group';
   noindex?: boolean;
+  locale?: 'en' | 'es'; // Add locale support for hreflang tags
 }
 
 /**
@@ -26,10 +27,18 @@ export function generateMetadata({
   url,
   type = 'website',
   noindex = false,
+  locale = 'en',
 }: PageMetadata): Metadata {
   const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
-  const fullUrl = url ? `${SITE_URL}${url}` : SITE_URL;
+
+  // Build URL with locale support
+  const urlPath = url || '';
+  const fullUrl = `${SITE_URL}/${locale}${urlPath}`;
   const ogImage = image || `${SITE_URL}/og-image.png`;
+
+  // Generate language alternates for hreflang tags
+  const enUrl = `${SITE_URL}/en${urlPath}`;
+  const esUrl = `${SITE_URL}/es${urlPath}`;
 
   return {
     title: fullTitle,
@@ -46,6 +55,7 @@ export function generateMetadata({
       description,
       url: fullUrl,
       siteName: SITE_NAME,
+      locale: locale === 'en' ? 'en_US' : 'es_ES',
       images: [
         {
           url: ogImage,
@@ -64,6 +74,11 @@ export function generateMetadata({
     },
     alternates: {
       canonical: fullUrl,
+      languages: {
+        'en': enUrl,
+        'es': esUrl,
+        'x-default': enUrl, // Default to English for unknown locales
+      },
     },
   };
 }

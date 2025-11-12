@@ -15,6 +15,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -41,6 +42,8 @@ const PLATFORMS = [
 
 // Component that uses searchParams - must be wrapped in Suspense
 function AffiliateApplicationForm() {
+  const t = useTranslations('forms.affiliateApplication');
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const preparerUsername = searchParams?.get('preparer');
 
@@ -89,7 +92,10 @@ function AffiliateApplicationForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          locale: locale, // Pass locale for language-based email routing
+        }),
       });
 
       const data = await response.json();
@@ -117,30 +123,30 @@ function AffiliateApplicationForm() {
             <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
             </div>
-            <CardTitle className="text-2xl">Application Submitted!</CardTitle>
+            <CardTitle className="text-2xl">{t('successTitle')}</CardTitle>
             <CardDescription>
               {preparerUsername
-                ? 'Your bonding request has been sent to the tax preparer for review.'
-                : "We'll review your application and get back to you within 24-48 hours."}
+                ? t('successSubtitleBonded')
+                : t('successSubtitleDefault')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Alert>
               <AlertDescription>
-                <p className="font-medium mb-2">What happens next?</p>
+                <p className="font-medium mb-2">{t('whatHappensNext')}</p>
                 <ul className="list-disc list-inside space-y-1 text-sm">
-                  <li>Check your email for a confirmation message</li>
-                  <li>Our team will review your application</li>
-                  {preparerUsername && <li>The tax preparer will review your bonding request</li>}
-                  <li>You'll receive login credentials once approved</li>
-                  <li>Access to marketing materials and your custom links</li>
+                  <li>{t('nextStep1')}</li>
+                  <li>{t('nextStep2')}</li>
+                  {preparerUsername && <li>{t('nextStep3Bonded')}</li>}
+                  <li>{t('nextStep4')}</li>
+                  <li>{t('nextStep5')}</li>
                 </ul>
               </AlertDescription>
             </Alert>
 
             <div className="flex justify-center gap-4">
               <Button variant="outline" onClick={() => (window.location.href = '/')}>
-                Back to Home
+                {t('backToHome')}
               </Button>
             </div>
           </CardContent>
@@ -155,9 +161,9 @@ function AffiliateApplicationForm() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold tracking-tight mb-2">Become an Affiliate Partner</h1>
+          <h1 className="text-4xl font-bold tracking-tight mb-2">{t('pageTitle')}</h1>
           <p className="text-lg text-muted-foreground">
-            Join our network and earn commissions for every referral
+            {t('pageSubtitle')}
           </p>
         </div>
 
@@ -166,11 +172,9 @@ function AffiliateApplicationForm() {
           <Alert className="mb-6 border-primary">
             <UserCheck className="h-4 w-4" />
             <AlertDescription>
-              <p className="font-medium">Bonding with Tax Preparer</p>
+              <p className="font-medium">{t('bondingBanner')}</p>
               <p className="text-sm mt-1">
-                You're applying to work with <Badge className="font-mono">{preparerUsername}</Badge>
-                . This creates a partnership where you earn custom commission rates set by this
-                preparer.
+                {t('bondingDescription', { username: <Badge className="font-mono">{preparerUsername}</Badge> })}
               </p>
             </AlertDescription>
           </Alert>
@@ -180,13 +184,13 @@ function AffiliateApplicationForm() {
           {/* Personal Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
-              <CardDescription>Tell us about yourself</CardDescription>
+              <CardTitle>{t('personalInfoTitle')}</CardTitle>
+              <CardDescription>{t('personalInfoSubtitle')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name *</Label>
+                  <Label htmlFor="firstName">{t('firstName')} *</Label>
                   <Input
                     id="firstName"
                     value={formData.firstName}
@@ -195,7 +199,7 @@ function AffiliateApplicationForm() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Label htmlFor="lastName">{t('lastName')} *</Label>
                   <Input
                     id="lastName"
                     value={formData.lastName}
@@ -207,7 +211,7 @@ function AffiliateApplicationForm() {
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address *</Label>
+                  <Label htmlFor="email">{t('email')} *</Label>
                   <Input
                     id="email"
                     type="email"
@@ -217,7 +221,7 @@ function AffiliateApplicationForm() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number *</Label>
+                  <Label htmlFor="phone">{t('phone')} *</Label>
                   <Input
                     id="phone"
                     type="tel"
@@ -233,34 +237,34 @@ function AffiliateApplicationForm() {
           {/* Marketing Experience */}
           <Card>
             <CardHeader>
-              <CardTitle>Marketing Experience</CardTitle>
-              <CardDescription>Tell us about your audience and platforms</CardDescription>
+              <CardTitle>{t('marketingExpTitle')}</CardTitle>
+              <CardDescription>{t('marketingExpSubtitle')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="experience">Marketing Experience</Label>
+                <Label htmlFor="experience">{t('experience')}</Label>
                 <Textarea
                   id="experience"
                   value={formData.experience}
                   onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
-                  placeholder="Describe your experience in marketing, affiliate programs, or relevant fields..."
+                  placeholder={t('experiencePlaceholder')}
                   rows={3}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="audience">Target Audience</Label>
+                <Label htmlFor="audience">{t('audience')}</Label>
                 <Textarea
                   id="audience"
                   value={formData.audience}
                   onChange={(e) => setFormData({ ...formData, audience: e.target.value })}
-                  placeholder="Who is your audience? (e.g., small business owners, freelancers, families)"
+                  placeholder={t('audiencePlaceholder')}
                   rows={3}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>Platforms (Select all that apply)</Label>
+                <Label>{t('platformsLabel')}</Label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {PLATFORMS.map((platform) => (
                     <div key={platform} className="flex items-center space-x-2">
@@ -285,24 +289,24 @@ function AffiliateApplicationForm() {
           {/* Online Presence */}
           <Card>
             <CardHeader>
-              <CardTitle>Online Presence</CardTitle>
-              <CardDescription>Share your website and social media profiles</CardDescription>
+              <CardTitle>{t('onlinePresenceTitle')}</CardTitle>
+              <CardDescription>{t('onlinePresenceSubtitle')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="website">Website/Blog (Optional)</Label>
+                <Label htmlFor="website">{t('website')}</Label>
                 <Input
                   id="website"
                   type="url"
                   value={formData.website}
                   onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                  placeholder="https://yourblog.com"
+                  placeholder={t('websitePlaceholder')}
                 />
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="facebook">Facebook Profile/Page</Label>
+                  <Label htmlFor="facebook">{t('facebook')}</Label>
                   <Input
                     id="facebook"
                     value={formData.socialMedia.facebook}
@@ -312,11 +316,11 @@ function AffiliateApplicationForm() {
                         socialMedia: { ...formData.socialMedia, facebook: e.target.value },
                       })
                     }
-                    placeholder="facebook.com/yourpage"
+                    placeholder={t('facebookPlaceholder')}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="instagram">Instagram Handle</Label>
+                  <Label htmlFor="instagram">{t('instagram')}</Label>
                   <Input
                     id="instagram"
                     value={formData.socialMedia.instagram}
@@ -326,11 +330,11 @@ function AffiliateApplicationForm() {
                         socialMedia: { ...formData.socialMedia, instagram: e.target.value },
                       })
                     }
-                    placeholder="@yourusername"
+                    placeholder={t('instagramPlaceholder')}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="twitter">Twitter/X Handle</Label>
+                  <Label htmlFor="twitter">{t('twitter')}</Label>
                   <Input
                     id="twitter"
                     value={formData.socialMedia.twitter}
@@ -340,11 +344,11 @@ function AffiliateApplicationForm() {
                         socialMedia: { ...formData.socialMedia, twitter: e.target.value },
                       })
                     }
-                    placeholder="@yourusername"
+                    placeholder={t('twitterPlaceholder')}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="youtube">YouTube Channel</Label>
+                  <Label htmlFor="youtube">{t('youtube')}</Label>
                   <Input
                     id="youtube"
                     value={formData.socialMedia.youtube}
@@ -354,7 +358,7 @@ function AffiliateApplicationForm() {
                         socialMedia: { ...formData.socialMedia, youtube: e.target.value },
                       })
                     }
-                    placeholder="youtube.com/@yourchannel"
+                    placeholder={t('youtubePlaceholder')}
                   />
                 </div>
               </div>
@@ -364,16 +368,16 @@ function AffiliateApplicationForm() {
           {/* Additional Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Additional Information</CardTitle>
+              <CardTitle>{t('additionalInfoTitle')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="message">Why do you want to become an affiliate?</Label>
+                <Label htmlFor="message">{t('whyAffiliate')}</Label>
                 <Textarea
                   id="message"
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  placeholder="Tell us why you're interested in our affiliate program..."
+                  placeholder={t('whyAffiliatePlaceholder')}
                   rows={4}
                 />
               </div>
@@ -391,16 +395,10 @@ function AffiliateApplicationForm() {
                   htmlFor="terms"
                   className="text-sm leading-relaxed peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
-                  I agree to the{' '}
-                  <a href="/terms" className="text-primary hover:underline" target="_blank">
-                    Terms and Conditions
-                  </a>{' '}
-                  and{' '}
-                  <a href="/privacy" className="text-primary hover:underline" target="_blank">
-                    Privacy Policy
-                  </a>
-                  . I understand that my application will be reviewed and I'll receive login
-                  credentials once approved.
+                  {t('agreeToTerms', {
+                    termsLink: <a href="/terms" className="text-primary hover:underline" target="_blank">{t('termsAndConditions')}</a>,
+                    privacyLink: <a href="/privacy" className="text-primary hover:underline" target="_blank">{t('privacyPolicy')}</a>
+                  })}
                 </label>
               </div>
             </CardContent>
@@ -424,10 +422,10 @@ function AffiliateApplicationForm() {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
+                  {t('submitting')}
                 </>
               ) : (
-                'Submit Application'
+                t('submitButton')
               )}
             </Button>
           </div>
@@ -445,7 +443,7 @@ export default function AffiliateApplicationPage() {
         <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 flex items-center justify-center">
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
-            <p className="text-muted-foreground">Loading application form...</p>
+            <p className="text-muted-foreground">{/* Loading message will be shown while translations load */}</p>
           </div>
         </div>
       }

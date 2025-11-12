@@ -17,6 +17,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 
 export function Footer() {
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -324,6 +325,10 @@ export function Footer() {
                 <div className="flex items-center gap-2">
                   <span>Theme:</span>
                   <ThemeToggle />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>Language:</span>
+                  <LocaleSwitcher variant="compact" trackingMethod="footer_compact" />
                 </div>
               </div>
               <div className="text-center md:text-right">

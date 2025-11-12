@@ -7,60 +7,52 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ArrowRight, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-
-const opportunities = [
-  {
-    image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=700&q=80',
-    alt: 'Professional working on laptop',
-    badge: '$45-75 per return',
-    badgeColor: 'bg-primary text-primary-foreground',
-    categoryBadge: 'Career Opportunity',
-    categoryColor: 'bg-primary/10 text-primary border-primary/20',
-    title: 'Become a Tax Preparer',
-    description:
-      'Join our network of professional tax preparers. Earn $45-75 per return with flexible hours and remote work.',
-    benefits: [
-      'Flexible schedule - work when you want',
-      '100% remote - work from anywhere',
-      'Professional E&O insurance included',
-    ],
-    link: '/preparer/start',
-    buttonText: 'Apply Now',
-    buttonColor: 'bg-primary hover:bg-primary/90',
-    checkColor: 'text-primary',
-    delay: 0,
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=700&q=80',
-    alt: 'People celebrating success',
-    badge: 'Up to $50 per referral',
-    badgeColor: 'bg-yellow-500 text-yellow-950',
-    categoryBadge: 'Earn Extra Cash',
-    categoryColor: 'bg-yellow-400/20 text-yellow-700 dark:text-yellow-400 border-yellow-400/30',
-    title: 'Affiliate Program',
-    description:
-      'Earn commissions for each client you refer. Perfect for marketers and influencers with unlimited earning potential.',
-    benefits: [
-      'Earn commission per successful referral',
-      'Marketing materials provided',
-      'Real-time tracking dashboard',
-    ],
-    link: '/affiliate/apply',
-    buttonText: 'Join Now',
-    buttonColor: 'bg-yellow-500 hover:bg-yellow-600 text-yellow-950',
-    checkColor: 'text-yellow-600 dark:text-yellow-400',
-    delay: 0.2,
-  },
-];
+import { useTranslations } from 'next-intl';
 
 export function OpportunitiesSection() {
+  const t = useTranslations('home.opportunities');
+
+  const opportunities = [
+    {
+      image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=700&q=80',
+      altKey: 'preparer.alt',
+      badgeKey: 'preparer.badge',
+      badgeColor: 'bg-primary text-primary-foreground',
+      categoryBadgeKey: 'preparer.categoryBadge',
+      categoryColor: 'bg-primary/10 text-primary border-primary/20',
+      titleKey: 'preparer.title',
+      descriptionKey: 'preparer.description',
+      benefitKeys: ['preparer.benefit1', 'preparer.benefit2', 'preparer.benefit3'],
+      link: '/preparer/start',
+      buttonTextKey: 'preparer.buttonText',
+      buttonColor: 'bg-primary hover:bg-primary/90',
+      checkColor: 'text-primary',
+      delay: 0,
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=700&q=80',
+      altKey: 'affiliate.alt',
+      badgeKey: 'affiliate.badge',
+      badgeColor: 'bg-yellow-500 text-yellow-950',
+      categoryBadgeKey: 'affiliate.categoryBadge',
+      categoryColor: 'bg-yellow-400/20 text-yellow-700 dark:text-yellow-400 border-yellow-400/30',
+      titleKey: 'affiliate.title',
+      descriptionKey: 'affiliate.description',
+      benefitKeys: ['affiliate.benefit1', 'affiliate.benefit2', 'affiliate.benefit3'],
+      link: '/affiliate/apply',
+      buttonTextKey: 'affiliate.buttonText',
+      buttonColor: 'bg-yellow-500 hover:bg-yellow-600 text-yellow-950',
+      checkColor: 'text-yellow-600 dark:text-yellow-400',
+      delay: 0.2,
+    },
+  ];
   return (
     <section className="py-20 bg-muted/30">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-5xl font-bold mb-4">Join Our Team</h2>
+          <h2 className="text-3xl lg:text-5xl font-bold mb-4">{t('sectionTitle')}</h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Looking for career opportunities or want to earn extra income?
+            {t('sectionSubtitle')}
           </p>
         </div>
 
@@ -77,7 +69,7 @@ export function OpportunitiesSection() {
                 <div className="relative h-64 overflow-hidden">
                   <Image
                     src={opportunity.image}
-                    alt={opportunity.alt}
+                    alt={t(opportunity.altKey)}
                     width={700}
                     height={400}
                     className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500"
@@ -85,31 +77,31 @@ export function OpportunitiesSection() {
                   <div className="absolute inset-0 bg-black/30" />
                   <div className="absolute bottom-4 left-4">
                     <Badge className={`${opportunity.badgeColor} text-sm px-3 py-1`}>
-                      {opportunity.badge}
+                      {t(opportunity.badgeKey)}
                     </Badge>
                   </div>
                 </div>
                 <CardHeader>
                   <Badge className={`w-fit ${opportunity.categoryColor} mb-2`}>
-                    {opportunity.categoryBadge}
+                    {t(opportunity.categoryBadgeKey)}
                   </Badge>
-                  <CardTitle className="text-2xl">{opportunity.title}</CardTitle>
-                  <CardDescription className="text-base">{opportunity.description}</CardDescription>
+                  <CardTitle className="text-2xl">{t(opportunity.titleKey)}</CardTitle>
+                  <CardDescription className="text-base">{t(opportunity.descriptionKey)}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2 mb-6">
-                    {opportunity.benefits.map((benefit, benefitIndex) => (
+                    {opportunity.benefitKeys.map((benefitKey, benefitIndex) => (
                       <li key={benefitIndex} className="flex items-start text-sm">
                         <CheckCircle
                           className={`w-4 h-4 mr-2 ${opportunity.checkColor} mt-0.5 flex-shrink-0`}
                         />
-                        <span>{benefit}</span>
+                        <span>{t(benefitKey)}</span>
                       </li>
                     ))}
                   </ul>
                   <Link href={opportunity.link}>
                     <Button className={`w-full ${opportunity.buttonColor}`}>
-                      {opportunity.buttonText} <ArrowRight className="ml-2 w-4 h-4" />
+                      {t(opportunity.buttonTextKey)} <ArrowRight className="ml-2 w-4 h-4" />
                     </Button>
                   </Link>
                 </CardContent>

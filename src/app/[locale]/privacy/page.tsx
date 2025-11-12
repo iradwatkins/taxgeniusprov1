@@ -1,226 +1,250 @@
-export const metadata = {
-  title: 'Privacy Policy | Tax Genius Pro',
-  description: 'Tax Genius Pro Privacy Policy - How we collect, use, and protect your information',
-};
+import { getTranslations } from 'next-intl/server';
 
-export default function PrivacyPage() {
+export async function generateMetadata({ params }: { params: { locale: string } }) {
+  const t = await getTranslations({ locale: params.locale, namespace: 'privacy.metadata' });
+
+  return {
+    title: t('title'),
+    description: t('description'),
+  };
+}
+
+export default async function PrivacyPage({ params }: { params: { locale: string } }) {
+  const t = await getTranslations({ locale: params.locale, namespace: 'privacy' });
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-16 max-w-4xl">
-        <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
+        <h1 className="text-4xl font-bold mb-8">{t('title')}</h1>
 
         <p className="text-muted-foreground mb-8">
-          <strong>Last Updated:</strong> October 10, 2025
+          <strong>{t('lastUpdated')}</strong> {t('lastUpdatedDate')}
         </p>
 
         <div className="prose prose-gray max-w-none space-y-8">
+          {/* Section 1: Information We Collect */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">1. Information We Collect</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              1. {t('sections.informationWeCollect.title')}
+            </h2>
 
-            <h3 className="text-xl font-semibold mb-2">1.1 Personal Information</h3>
+            <h3 className="text-xl font-semibold mb-2">
+              1.1 {t('sections.informationWeCollect.personalInfo.title')}
+            </h3>
+            <p className="mb-4">{t('sections.informationWeCollect.personalInfo.description')}</p>
+            <ul className="list-disc pl-6 space-y-2 mb-4">
+              <li>{t('sections.informationWeCollect.personalInfo.items.item1')}</li>
+              <li>{t('sections.informationWeCollect.personalInfo.items.item2')}</li>
+              <li>{t('sections.informationWeCollect.personalInfo.items.item3')}</li>
+              <li>{t('sections.informationWeCollect.personalInfo.items.item4')}</li>
+              <li>{t('sections.informationWeCollect.personalInfo.items.item5')}</li>
+            </ul>
+
+            <h3 className="text-xl font-semibold mb-2">
+              1.2 {t('sections.informationWeCollect.automaticInfo.title')}
+            </h3>
+            <p className="mb-4">{t('sections.informationWeCollect.automaticInfo.description')}</p>
+            <ul className="list-disc pl-6 space-y-2 mb-4">
+              <li>{t('sections.informationWeCollect.automaticInfo.items.item1')}</li>
+              <li>{t('sections.informationWeCollect.automaticInfo.items.item2')}</li>
+              <li>{t('sections.informationWeCollect.automaticInfo.items.item3')}</li>
+              <li>{t('sections.informationWeCollect.automaticInfo.items.item4')}</li>
+            </ul>
+          </section>
+
+          {/* Section 2: How We Use Your Information */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">2. {t('sections.howWeUseInfo.title')}</h2>
+            <p className="mb-4">{t('sections.howWeUseInfo.description')}</p>
+            <ul className="list-disc pl-6 space-y-2 mb-4">
+              <li>{t('sections.howWeUseInfo.items.item1')}</li>
+              <li>{t('sections.howWeUseInfo.items.item2')}</li>
+              <li>{t('sections.howWeUseInfo.items.item3')}</li>
+              <li>{t('sections.howWeUseInfo.items.item4')}</li>
+              <li>{t('sections.howWeUseInfo.items.item5')}</li>
+              <li>{t('sections.howWeUseInfo.items.item6')}</li>
+            </ul>
+          </section>
+
+          {/* Section 3: Information Sharing */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">3. {t('sections.informationSharing.title')}</h2>
+            <p className="mb-4">{t('sections.informationSharing.description')}</p>
+            <ul className="list-disc pl-6 space-y-2 mb-4">
+              <li>
+                <strong>{t('sections.informationSharing.items.item1.title')}</strong>{' '}
+                {t('sections.informationSharing.items.item1.description')}
+              </li>
+              <li>
+                <strong>{t('sections.informationSharing.items.item2.title')}</strong>{' '}
+                {t('sections.informationSharing.items.item2.description')}
+              </li>
+              <li>
+                <strong>{t('sections.informationSharing.items.item3.title')}</strong>{' '}
+                {t('sections.informationSharing.items.item3.description')}
+              </li>
+              <li>
+                <strong>{t('sections.informationSharing.items.item4.title')}</strong>{' '}
+                {t('sections.informationSharing.items.item4.description')}
+              </li>
+              <li>
+                <strong>{t('sections.informationSharing.items.item5.title')}</strong>{' '}
+                {t('sections.informationSharing.items.item5.description')}
+              </li>
+            </ul>
+          </section>
+
+          {/* Section 4: Data Security */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">4. {t('sections.dataSecurity.title')}</h2>
+            <p className="mb-4">{t('sections.dataSecurity.description')}</p>
+            <ul className="list-disc pl-6 space-y-2 mb-4">
+              <li>{t('sections.dataSecurity.items.item1')}</li>
+              <li>{t('sections.dataSecurity.items.item2')}</li>
+              <li>{t('sections.dataSecurity.items.item3')}</li>
+              <li>{t('sections.dataSecurity.items.item4')}</li>
+              <li>{t('sections.dataSecurity.items.item5')}</li>
+              <li>{t('sections.dataSecurity.items.item6')}</li>
+            </ul>
+          </section>
+
+          {/* Section 5: Data Retention */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">5. {t('sections.dataRetention.title')}</h2>
+            <p className="mb-4">{t('sections.dataRetention.description')}</p>
+            <ul className="list-disc pl-6 space-y-2 mb-4">
+              <li>{t('sections.dataRetention.items.item1')}</li>
+              <li>{t('sections.dataRetention.items.item2')}</li>
+              <li>{t('sections.dataRetention.items.item3')}</li>
+              <li>{t('sections.dataRetention.items.item4')}</li>
+            </ul>
+          </section>
+
+          {/* Section 6: Your Rights */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">6. {t('sections.yourRights.title')}</h2>
+            <p className="mb-4">{t('sections.yourRights.description')}</p>
+            <ul className="list-disc pl-6 space-y-2 mb-4">
+              <li>{t('sections.yourRights.items.item1')}</li>
+              <li>{t('sections.yourRights.items.item2')}</li>
+              <li>{t('sections.yourRights.items.item3')}</li>
+              <li>{t('sections.yourRights.items.item4')}</li>
+              <li>{t('sections.yourRights.items.item5')}</li>
+            </ul>
             <p className="mb-4">
-              We collect information that you provide directly to us, including:
-            </p>
-            <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Name, email address, phone number</li>
-              <li>Tax identification information (SSN, EIN)</li>
-              <li>Financial information (income, deductions, expenses)</li>
-              <li>Payment information (processed securely through Square)</li>
-              <li>Tax documents (W2, 1099, receipts, etc.)</li>
-            </ul>
-
-            <h3 className="text-xl font-semibold mb-2">1.2 Automatically Collected Information</h3>
-            <p className="mb-4">When you use our service, we automatically collect:</p>
-            <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>IP address and device information</li>
-              <li>Browser type and version</li>
-              <li>Pages visited and time spent</li>
-              <li>Referral source</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">2. How We Use Your Information</h2>
-            <p className="mb-4">We use your information to:</p>
-            <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Prepare and file your tax returns</li>
-              <li>Process payments and commissions</li>
-              <li>Communicate with you about your tax filing status</li>
-              <li>Improve our services and user experience</li>
-              <li>Comply with legal and regulatory requirements</li>
-              <li>Prevent fraud and ensure platform security</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">3. Information Sharing</h2>
-            <p className="mb-4">
-              We do not sell or rent your personal information. We may share your information with:
-            </p>
-            <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>
-                <strong>Assigned Tax Preparers:</strong> To complete your tax return
-              </li>
-              <li>
-                <strong>Payment Processors:</strong> Square for payment processing
-              </li>
-              <li>
-                <strong>Email Service:</strong> Resend for transactional emails
-              </li>
-              <li>
-                <strong>Authentication Provider:</strong> Clerk for secure login
-              </li>
-              <li>
-                <strong>Legal Authorities:</strong> When required by law or to protect our rights
-              </li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">4. Data Security</h2>
-            <p className="mb-4">
-              We implement industry-standard security measures to protect your information:
-            </p>
-            <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>SSL/TLS encryption for data in transit</li>
-              <li>Secure authentication via Clerk</li>
-              <li>Role-based access control</li>
-              <li>Time-limited document access (signed URLs expire in 15 minutes)</li>
-              <li>Rate limiting to prevent abuse</li>
-              <li>Regular security audits</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">5. Data Retention</h2>
-            <p className="mb-4">We retain your information for as long as necessary to:</p>
-            <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Provide our services</li>
-              <li>Comply with IRS record-keeping requirements (minimum 7 years)</li>
-              <li>Resolve disputes and enforce agreements</li>
-              <li>Comply with legal obligations</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">6. Your Rights</h2>
-            <p className="mb-4">You have the right to:</p>
-            <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Access your personal information</li>
-              <li>Correct inaccurate information</li>
-              <li>
-                Request deletion of your information (subject to legal retention requirements)
-              </li>
-              <li>Opt out of marketing communications</li>
-              <li>Export your data</li>
-            </ul>
-            <p className="mb-4">
-              To exercise these rights, contact us at{' '}
-              <a href="mailto:privacy@taxgeniuspro.tax" className="text-primary hover:underline">
-                privacy@taxgeniuspro.tax
+              {t('sections.yourRights.contact')}{' '}
+              <a href={`mailto:${t('sections.yourRights.email')}`} className="text-primary hover:underline">
+                {t('sections.yourRights.email')}
               </a>
             </p>
           </section>
 
+          {/* Section 7: Cookies and Tracking */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">7. Cookies and Tracking</h2>
-            <p className="mb-4">We use cookies and similar technologies to:</p>
+            <h2 className="text-2xl font-semibold mb-4">7. {t('sections.cookiesTracking.title')}</h2>
+            <p className="mb-4">{t('sections.cookiesTracking.description')}</p>
             <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Maintain your session</li>
-              <li>Remember your preferences</li>
-              <li>Track referral sources</li>
-              <li>Analyze platform usage</li>
+              <li>{t('sections.cookiesTracking.items.item1')}</li>
+              <li>{t('sections.cookiesTracking.items.item2')}</li>
+              <li>{t('sections.cookiesTracking.items.item3')}</li>
+              <li>{t('sections.cookiesTracking.items.item4')}</li>
             </ul>
-            <p className="mb-4">You can control cookies through your browser settings.</p>
+            <p className="mb-4">{t('sections.cookiesTracking.browserControl')}</p>
           </section>
 
+          {/* Section 8: Third-Party Services */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">8. Third-Party Services</h2>
-            <p className="mb-4">Our service integrates with:</p>
+            <h2 className="text-2xl font-semibold mb-4">8. {t('sections.thirdPartyServices.title')}</h2>
+            <p className="mb-4">{t('sections.thirdPartyServices.description')}</p>
             <ul className="list-disc pl-6 space-y-2 mb-4">
               <li>
-                <strong>Clerk:</strong> Authentication (
+                <strong>{t('sections.thirdPartyServices.items.clerk.name')}</strong>{' '}
+                {t('sections.thirdPartyServices.items.clerk.description')} (
                 <a
                   href="https://clerk.com/privacy"
                   className="text-primary hover:underline"
                   target="_blank"
                   rel="noopener"
                 >
-                  Privacy Policy
+                  {t('sections.thirdPartyServices.items.clerk.linkText')}
                 </a>
                 )
               </li>
               <li>
-                <strong>Square:</strong> Payment processing (
+                <strong>{t('sections.thirdPartyServices.items.square.name')}</strong>{' '}
+                {t('sections.thirdPartyServices.items.square.description')} (
                 <a
                   href="https://squareup.com/us/en/legal/general/privacy"
                   className="text-primary hover:underline"
                   target="_blank"
                   rel="noopener"
                 >
-                  Privacy Policy
+                  {t('sections.thirdPartyServices.items.square.linkText')}
                 </a>
                 )
               </li>
               <li>
-                <strong>Resend:</strong> Email delivery (
+                <strong>{t('sections.thirdPartyServices.items.resend.name')}</strong>{' '}
+                {t('sections.thirdPartyServices.items.resend.description')} (
                 <a
                   href="https://resend.com/legal/privacy-policy"
                   className="text-primary hover:underline"
                   target="_blank"
                   rel="noopener"
                 >
-                  Privacy Policy
+                  {t('sections.thirdPartyServices.items.resend.linkText')}
                 </a>
                 )
               </li>
             </ul>
           </section>
 
+          {/* Section 9: Children's Privacy */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">9. Children's Privacy</h2>
-            <p className="mb-4">
-              Our service is not intended for individuals under 18 years of age. We do not knowingly
-              collect information from children.
-            </p>
+            <h2 className="text-2xl font-semibold mb-4">9. {t('sections.childrensPrivacy.title')}</h2>
+            <p className="mb-4">{t('sections.childrensPrivacy.description')}</p>
           </section>
 
+          {/* Section 10: Changes to This Policy */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">10. Changes to This Policy</h2>
-            <p className="mb-4">
-              We may update this Privacy Policy from time to time. We will notify you of significant
-              changes by email or through our platform.
-            </p>
+            <h2 className="text-2xl font-semibold mb-4">10. {t('sections.policyChanges.title')}</h2>
+            <p className="mb-4">{t('sections.policyChanges.description')}</p>
           </section>
 
+          {/* Section 11: Contact Us */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">11. Contact Us</h2>
-            <p className="mb-4">
-              If you have questions about this Privacy Policy, please contact us:
-            </p>
+            <h2 className="text-2xl font-semibold mb-4">11. {t('sections.contactUs.title')}</h2>
+            <p className="mb-4">{t('sections.contactUs.description')}</p>
             <ul className="list-none space-y-2 mb-4">
               <li>
-                <strong>Email:</strong>{' '}
-                <a href="mailto:privacy@taxgeniuspro.tax" className="text-primary hover:underline">
-                  privacy@taxgeniuspro.tax
+                <strong>{t('sections.contactUs.email.label')}</strong>{' '}
+                <a
+                  href={`mailto:${t('sections.contactUs.email.value')}`}
+                  className="text-primary hover:underline"
+                >
+                  {t('sections.contactUs.email.value')}
                 </a>
               </li>
               <li>
-                <strong>Support:</strong>{' '}
-                <a href="mailto:taxgenius.tax@gmail.com" className="text-primary hover:underline">
-                  taxgenius.tax@gmail.com
+                <strong>{t('sections.contactUs.support.label')}</strong>{' '}
+                <a
+                  href={`mailto:${t('sections.contactUs.support.value')}`}
+                  className="text-primary hover:underline"
+                >
+                  {t('sections.contactUs.support.value')}
                 </a>
               </li>
               <li>
-                <strong>Address:</strong> [Company Address - To be added]
+                <strong>{t('sections.contactUs.address.label')}</strong>{' '}
+                {t('sections.contactUs.address.value')}
               </li>
             </ul>
           </section>
 
+          {/* Disclaimer */}
           <section className="mt-12 p-6 bg-muted rounded-lg">
             <p className="text-sm text-muted-foreground">
-              <strong>Note:</strong> This privacy policy is effective as of October 10, 2025. By
-              using Tax Genius Pro, you agree to this Privacy Policy.
+              <strong>{t('disclaimer.note')}</strong> {t('disclaimer.text')}
             </p>
           </section>
         </div>

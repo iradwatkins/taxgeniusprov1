@@ -24,125 +24,143 @@ import {
 import Link from 'next/link';
 import { Header } from '@/components/header';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 
-const blogPosts = [
-  {
-    id: 1,
-    title: '10 Tax Deductions You Might Be Missing in 2024',
-    excerpt:
-      'Discover often-overlooked deductions that could save you thousands on your tax return this year.',
-    category: 'Deductions',
-    author: 'Sarah Johnson, CPA',
-    date: 'Jan 15, 2025',
-    readTime: '8 min read',
-    image: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=600&q=80',
-    featured: true,
-    tags: ['Deductions', 'Tax Tips', 'Personal Tax'],
-  },
-  {
-    id: 2,
-    title: 'Self-Employment Tax Guide: What You Need to Know',
-    excerpt:
-      'Complete guide to understanding and managing self-employment taxes, including quarterly estimates.',
-    category: 'Business Tax',
-    author: 'Michael Chen, EA',
-    date: 'Jan 12, 2025',
-    readTime: '10 min read',
-    image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600&q=80',
-    featured: true,
-    tags: ['Self-Employment', 'Business Tax', 'Quarterly Taxes'],
-  },
-  {
-    id: 3,
-    title: 'Home Office Deduction: Complete 2024 Guide',
-    excerpt:
-      'How to calculate and claim the home office deduction for remote workers and business owners.',
-    category: 'Deductions',
-    author: 'Lisa Martinez, CPA',
-    date: 'Jan 10, 2025',
-    readTime: '7 min read',
-    image: 'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=600&q=80',
-    featured: true,
-    tags: ['Home Office', 'Deductions', 'Remote Work'],
-  },
-  {
-    id: 4,
-    title: 'Crypto Tax Reporting: Everything You Need to Know',
-    excerpt: 'Navigate cryptocurrency tax reporting requirements and avoid common mistakes.',
-    category: 'Investments',
-    author: 'David Kim, CPA',
-    date: 'Jan 8, 2025',
-    readTime: '12 min read',
-    image: 'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=600&q=80',
-    tags: ['Cryptocurrency', 'Investments', 'Tax Law'],
-  },
-  {
-    id: 5,
-    title: 'Maximize Your Retirement Contributions for Tax Savings',
-    excerpt: 'Strategic guide to 401(k), IRA, and other retirement account contributions.',
-    category: 'Retirement',
-    author: 'Sarah Johnson, CPA',
-    date: 'Jan 5, 2025',
-    readTime: '9 min read',
-    image: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=600&q=80',
-    tags: ['Retirement', 'Tax Planning', '401k'],
-  },
-  {
-    id: 6,
-    title: 'Small Business Tax Deadlines: 2024 Calendar',
-    excerpt: 'Never miss a deadline with our comprehensive small business tax calendar.',
-    category: 'Business Tax',
-    author: 'Michael Chen, EA',
-    date: 'Jan 3, 2025',
-    readTime: '6 min read',
-    image: 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=600&q=80',
-    tags: ['Business Tax', 'Deadlines', 'Small Business'],
-  },
-  {
-    id: 7,
-    title: 'Real Estate Investment Tax Strategies',
-    excerpt:
-      'Learn how to minimize taxes on rental properties, flips, and real estate investments.',
-    category: 'Investments',
-    author: 'Lisa Martinez, CPA',
-    date: 'Dec 28, 2024',
-    readTime: '11 min read',
-    image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80',
-    tags: ['Real Estate', 'Investments', 'Tax Strategy'],
-  },
-  {
-    id: 8,
-    title: 'Child Tax Credit Changes for 2024',
-    excerpt: 'What parents need to know about claiming the Child Tax Credit this year.',
-    category: 'Credits',
-    author: 'David Kim, CPA',
-    date: 'Dec 22, 2024',
-    readTime: '5 min read',
-    image: 'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=600&q=80',
-    tags: ['Credits', 'Child Tax Credit', 'Family Tax'],
-  },
-  {
-    id: 9,
-    title: 'Electric Vehicle Tax Credits Explained',
-    excerpt: 'Guide to federal and state tax credits for electric and hybrid vehicle purchases.',
-    category: 'Credits',
-    author: 'Sarah Johnson, CPA',
-    date: 'Dec 18, 2024',
-    readTime: '8 min read',
-    image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=600&q=80',
-    tags: ['Credits', 'EV Tax Credit', 'Green Energy'],
-  },
+const blogPostsImages = [
+  'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=600&q=80',
+  'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600&q=80',
+  'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=600&q=80',
+  'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=600&q=80',
+  'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=600&q=80',
+  'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=600&q=80',
+  'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80',
+  'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=600&q=80',
+  'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=600&q=80',
 ];
 
-const categories = [
-  { name: 'All Posts', icon: BookOpen, count: 9 },
-  { name: 'Business Tax', icon: Briefcase, count: 3 },
-  { name: 'Deductions', icon: DollarSign, count: 2 },
-  { name: 'Investments', icon: TrendingUp, count: 2 },
-  { name: 'Credits', icon: Award, count: 2 },
+const categoriesIcons = [
+  { icon: BookOpen, count: 9 },
+  { icon: Briefcase, count: 3 },
+  { icon: DollarSign, count: 2 },
+  { icon: TrendingUp, count: 2 },
+  { icon: Award, count: 2 },
 ];
 
 export default function BlogPage() {
+  const t = useTranslations('blog');
+
+  const blogPosts = [
+    {
+      id: 1,
+      title: t('posts.post1.title'),
+      excerpt: t('posts.post1.excerpt'),
+      category: t('posts.post1.category'),
+      author: t('posts.post1.author'),
+      date: t('posts.post1.date'),
+      readTime: t('posts.post1.readTime'),
+      image: blogPostsImages[0],
+      featured: true,
+      tags: [t('categories.deductions'), 'Tax Tips', 'Personal Tax'],
+    },
+    {
+      id: 2,
+      title: t('posts.post2.title'),
+      excerpt: t('posts.post2.excerpt'),
+      category: t('posts.post2.category'),
+      author: t('posts.post2.author'),
+      date: t('posts.post2.date'),
+      readTime: t('posts.post2.readTime'),
+      image: blogPostsImages[1],
+      featured: true,
+      tags: ['Self-Employment', t('categories.businessTax'), 'Quarterly Taxes'],
+    },
+    {
+      id: 3,
+      title: t('posts.post3.title'),
+      excerpt: t('posts.post3.excerpt'),
+      category: t('posts.post3.category'),
+      author: t('posts.post3.author'),
+      date: t('posts.post3.date'),
+      readTime: t('posts.post3.readTime'),
+      image: blogPostsImages[2],
+      featured: true,
+      tags: ['Home Office', t('categories.deductions'), 'Remote Work'],
+    },
+    {
+      id: 4,
+      title: t('posts.post4.title'),
+      excerpt: t('posts.post4.excerpt'),
+      category: t('posts.post4.category'),
+      author: t('posts.post4.author'),
+      date: t('posts.post4.date'),
+      readTime: t('posts.post4.readTime'),
+      image: blogPostsImages[3],
+      tags: ['Cryptocurrency', t('categories.investments'), 'Tax Law'],
+    },
+    {
+      id: 5,
+      title: t('posts.post5.title'),
+      excerpt: t('posts.post5.excerpt'),
+      category: t('posts.post5.category'),
+      author: t('posts.post5.author'),
+      date: t('posts.post5.date'),
+      readTime: t('posts.post5.readTime'),
+      image: blogPostsImages[4],
+      tags: ['Retirement', 'Tax Planning', '401k'],
+    },
+    {
+      id: 6,
+      title: t('posts.post6.title'),
+      excerpt: t('posts.post6.excerpt'),
+      category: t('posts.post6.category'),
+      author: t('posts.post6.author'),
+      date: t('posts.post6.date'),
+      readTime: t('posts.post6.readTime'),
+      image: blogPostsImages[5],
+      tags: [t('categories.businessTax'), 'Deadlines', 'Small Business'],
+    },
+    {
+      id: 7,
+      title: t('posts.post7.title'),
+      excerpt: t('posts.post7.excerpt'),
+      category: t('posts.post7.category'),
+      author: t('posts.post7.author'),
+      date: t('posts.post7.date'),
+      readTime: t('posts.post7.readTime'),
+      image: blogPostsImages[6],
+      tags: ['Real Estate', t('categories.investments'), 'Tax Strategy'],
+    },
+    {
+      id: 8,
+      title: t('posts.post8.title'),
+      excerpt: t('posts.post8.excerpt'),
+      category: t('posts.post8.category'),
+      author: t('posts.post8.author'),
+      date: t('posts.post8.date'),
+      readTime: t('posts.post8.readTime'),
+      image: blogPostsImages[7],
+      tags: [t('categories.credits'), 'Child Tax Credit', 'Family Tax'],
+    },
+    {
+      id: 9,
+      title: t('posts.post9.title'),
+      excerpt: t('posts.post9.excerpt'),
+      category: t('posts.post9.category'),
+      author: t('posts.post9.author'),
+      date: t('posts.post9.date'),
+      readTime: t('posts.post9.readTime'),
+      image: blogPostsImages[8],
+      tags: [t('categories.credits'), 'EV Tax Credit', 'Green Energy'],
+    },
+  ];
+
+  const categories = [
+    { name: t('categories.allPosts'), icon: categoriesIcons[0].icon, count: 9 },
+    { name: t('categories.businessTax'), icon: categoriesIcons[1].icon, count: 3 },
+    { name: t('categories.deductions'), icon: categoriesIcons[2].icon, count: 2 },
+    { name: t('categories.investments'), icon: categoriesIcons[3].icon, count: 2 },
+    { name: t('categories.credits'), icon: categoriesIcons[4].icon, count: 2 },
+  ];
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -158,16 +176,15 @@ export default function BlogPage() {
           >
             <Badge className="bg-primary/10 text-primary px-4 py-2">
               <BookOpen className="w-4 h-4 mr-2" />
-              Tax Blog & Resources
+              {t('hero.badge')}
             </Badge>
 
             <h1 className="text-4xl lg:text-6xl font-bold">
-              Tax Tips & <span className="text-primary">Expert Insights</span>
+              {t('hero.title')} <span className="text-primary">{t('hero.titleHighlight')}</span>
             </h1>
 
             <p className="text-xl text-muted-foreground leading-relaxed">
-              Stay informed with the latest tax news, strategies, and advice from our team of
-              licensed CPAs.
+              {t('hero.subtitle')}
             </p>
 
             {/* Search Bar */}
@@ -176,7 +193,7 @@ export default function BlogPage() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="Search tax topics..."
+                  placeholder={t('hero.searchPlaceholder')}
                   className="pl-12 h-14 text-lg"
                 />
               </div>
@@ -222,7 +239,7 @@ export default function BlogPage() {
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-3xl font-bold flex items-center gap-3">
                 <TrendingUp className="w-8 h-8 text-primary" />
-                Featured Articles
+                {t('featuredSection.title')}
               </h2>
             </div>
           </motion.div>
@@ -303,8 +320,8 @@ export default function BlogPage() {
             viewport={{ once: true }}
             className="mb-12"
           >
-            <h2 className="text-3xl font-bold mb-4">Latest Articles</h2>
-            <p className="text-muted-foreground">Expert tax advice and strategies</p>
+            <h2 className="text-3xl font-bold mb-4">{t('latestSection.title')}</h2>
+            <p className="text-muted-foreground">{t('latestSection.subtitle')}</p>
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
@@ -365,7 +382,7 @@ export default function BlogPage() {
             className="text-center mt-12"
           >
             <Button variant="outline" size="lg">
-              Load More Articles
+              {t('loadMore')}
             </Button>
           </motion.div>
         </div>
@@ -384,7 +401,7 @@ export default function BlogPage() {
                 <div className="relative h-64 md:h-auto">
                   <Image
                     src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&q=80"
-                    alt="Newsletter signup"
+                    alt={t('newsletter.imageAlt')}
                     width={600}
                     height={400}
                     className="object-cover w-full h-full"
@@ -398,18 +415,18 @@ export default function BlogPage() {
                 </div>
 
                 <CardContent className="p-8 md:p-12 flex flex-col justify-center">
-                  <h3 className="text-2xl font-bold mb-3">Get Tax Tips in Your Inbox</h3>
+                  <h3 className="text-2xl font-bold mb-3">{t('newsletter.title')}</h3>
                   <p className="text-muted-foreground mb-6">
-                    Join 10,000+ subscribers getting weekly tax tips, strategies, and updates.
+                    {t('newsletter.subtitle')}
                   </p>
 
                   <div className="space-y-3">
-                    <Input placeholder="Your email address" type="email" className="h-12" />
+                    <Input placeholder={t('newsletter.placeholder')} type="email" className="h-12" />
                     <Button variant="professional" className="w-full h-12">
-                      Subscribe Free
+                      {t('newsletter.button')}
                     </Button>
                     <p className="text-xs text-muted-foreground text-center">
-                      No spam. Unsubscribe anytime.
+                      {t('newsletter.disclaimer')}
                     </p>
                   </div>
                 </CardContent>
@@ -428,19 +445,18 @@ export default function BlogPage() {
             viewport={{ once: true }}
             className="text-center max-w-3xl mx-auto space-y-8"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold">Need Professional Tax Help?</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold">{t('cta.title')}</h2>
             <p className="text-lg text-muted-foreground">
-              Reading is great, but nothing beats working with a licensed CPA who knows your
-              situation.
+              {t('cta.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="professional" size="lg" asChild>
                 <Link href="/start-filing">
-                  Work with a CPA <ArrowRight className="ml-2 w-5 h-5" />
+                  {t('cta.buttonCPA')} <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="/contact">Contact Us</Link>
+                <Link href="/contact">{t('cta.buttonContact')}</Link>
               </Button>
             </div>
           </motion.div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 // IRS E-File Badge
 const IRSBadge = () => (
@@ -52,14 +53,15 @@ const NATPBadge = () => (
   </svg>
 );
 
-const badges = [
-  { name: 'IRS E-File', Component: IRSBadge, description: 'IRS Authorized E-File Provider' },
-  { name: 'BBB Accredited', Component: BBBBadge, description: 'Better Business Bureau A+ Rating' },
-  { name: 'State CPA Board', Component: CPABadge, description: 'State Licensed CPAs' },
-  { name: 'NATP Member', Component: NATPBadge, description: 'Professional Tax Association' },
-];
-
 export function TrustLogosBar() {
+  const t = useTranslations('home.trustBadges');
+
+  const badges = [
+    { name: 'IRS E-File', Component: IRSBadge, descriptionKey: 'irsEfile' },
+    { name: 'BBB Accredited', Component: BBBBadge, descriptionKey: 'bbbAccredited' },
+    { name: 'State CPA Board', Component: CPABadge, descriptionKey: 'cpaBoardCertified' },
+    { name: 'NATP Member', Component: NATPBadge, descriptionKey: 'natpMember' },
+  ];
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
@@ -78,13 +80,13 @@ export function TrustLogosBar() {
               viewport={{ once: true }}
               transition={{ duration: 0.3, delay: index * 0.1 }}
               className="group relative"
-              title={badge.description}
+              title={t(badge.descriptionKey)}
             >
               <div className="transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
                 <badge.Component />
               </div>
               <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-popover text-popover-foreground text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                {badge.description}
+                {t(badge.descriptionKey)}
               </span>
             </motion.div>
           ))}

@@ -1,6 +1,8 @@
 'use client';
 
 import Script from 'next/script';
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 /**
  * Google Analytics 4 Integration Component
@@ -9,6 +11,7 @@ import Script from 'next/script';
  * - Custom dimensions for tracking codes
  * - Event tracking for referrals and conversions
  * - User-level tracking attribution
+ * - Conditional loading (skips dashboard pages for performance)
  */
 
 export interface GoogleAnalyticsProps {
@@ -17,10 +20,21 @@ export interface GoogleAnalyticsProps {
 }
 
 export function GoogleAnalytics({ userId, trackingCode }: GoogleAnalyticsProps = {}) {
+  const pathname = usePathname();
+  const [shouldLoad, setShouldLoad] = useState(false);
   const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
-  // Only load GA if measurement ID is configured
-  if (!measurementId) {
+  useEffect(() => {
+    // Don't load GA on dashboard pages for better performance
+    const isDashboard = pathname?.startsWith('/dashboard') ||
+                        pathname?.includes('/dashboard') ||
+                        pathname?.startsWith('/en/dashboard') ||
+                        pathname?.startsWith('/es/dashboard');
+    setShouldLoad(!isDashboard);
+  }, [pathname]);
+
+  // Only load GA if measurement ID is configured and not on dashboard
+  if (!measurementId || !shouldLoad) {
     return null;
   }
 

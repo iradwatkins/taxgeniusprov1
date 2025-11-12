@@ -1,283 +1,306 @@
-export const metadata = {
-  title: 'Terms of Service | Tax Genius Pro',
-  description: 'Tax Genius Pro Terms of Service - Legal agreement for using our platform',
-};
+import { getTranslations } from 'next-intl/server';
 
-export default function TermsPage() {
+export async function generateMetadata({ params }: { params: { locale: string } }) {
+  const t = await getTranslations({ locale: params.locale, namespace: 'terms.metadata' });
+
+  return {
+    title: t('title'),
+    description: t('description'),
+  };
+}
+
+export default async function TermsPage({ params }: { params: { locale: string } }) {
+  const t = await getTranslations({ locale: params.locale, namespace: 'terms' });
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-16 max-w-4xl">
-        <h1 className="text-4xl font-bold mb-8">Terms of Service</h1>
+        <h1 className="text-4xl font-bold mb-8">{t('title')}</h1>
 
         <p className="text-muted-foreground mb-8">
-          <strong>Last Updated:</strong> October 10, 2025
+          <strong>{t('lastUpdated')}</strong> {t('lastUpdatedDate')}
         </p>
 
         <div className="prose prose-gray max-w-none space-y-8">
+          {/* Section 1: Acceptance of Terms */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
-            <p className="mb-4">
-              By accessing or using Tax Genius Pro ("Service"), you agree to be bound by these Terms
-              of Service ("Terms"). If you do not agree to these Terms, you may not use the Service.
-            </p>
+            <h2 className="text-2xl font-semibold mb-4">1. {t('sections.acceptance.title')}</h2>
+            <p className="mb-4">{t('sections.acceptance.description')}</p>
           </section>
 
+          {/* Section 2: Service Description */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">2. Service Description</h2>
-            <p className="mb-4">Tax Genius Pro provides:</p>
+            <h2 className="text-2xl font-semibold mb-4">2. {t('sections.serviceDescription.title')}</h2>
+            <p className="mb-4">{t('sections.serviceDescription.description')}</p>
             <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Tax preparation and filing services</li>
-              <li>Connection to qualified tax preparers</li>
-              <li>Referral program for earning commissions</li>
-              <li>E-commerce store for tax-related products</li>
-              <li>Tax preparer training and certification</li>
+              <li>{t('sections.serviceDescription.items.item1')}</li>
+              <li>{t('sections.serviceDescription.items.item2')}</li>
+              <li>{t('sections.serviceDescription.items.item3')}</li>
+              <li>{t('sections.serviceDescription.items.item4')}</li>
+              <li>{t('sections.serviceDescription.items.item5')}</li>
             </ul>
           </section>
 
+          {/* Section 3: User Accounts */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">3. User Accounts</h2>
+            <h2 className="text-2xl font-semibold mb-4">3. {t('sections.userAccounts.title')}</h2>
 
-            <h3 className="text-xl font-semibold mb-2">3.1 Registration</h3>
-            <p className="mb-4">You must create an account to use our Service. You agree to:</p>
+            <h3 className="text-xl font-semibold mb-2">
+              3.1 {t('sections.userAccounts.registration.title')}
+            </h3>
+            <p className="mb-4">{t('sections.userAccounts.registration.description')}</p>
             <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Provide accurate, current information</li>
-              <li>Maintain the security of your account credentials</li>
-              <li>Notify us immediately of unauthorized access</li>
-              <li>Be responsible for all activities under your account</li>
+              <li>{t('sections.userAccounts.registration.items.item1')}</li>
+              <li>{t('sections.userAccounts.registration.items.item2')}</li>
+              <li>{t('sections.userAccounts.registration.items.item3')}</li>
+              <li>{t('sections.userAccounts.registration.items.item4')}</li>
             </ul>
 
-            <h3 className="text-xl font-semibold mb-2">3.2 Account Types</h3>
+            <h3 className="text-xl font-semibold mb-2">
+              3.2 {t('sections.userAccounts.accountTypes.title')}
+            </h3>
             <ul className="list-disc pl-6 space-y-2 mb-4">
               <li>
-                <strong>Client:</strong> File tax returns
+                <strong>{t('sections.userAccounts.accountTypes.items.client.label')}</strong>{' '}
+                {t('sections.userAccounts.accountTypes.items.client.description')}
               </li>
               <li>
-                <strong>Referrer:</strong> Earn commissions by referring clients
+                <strong>{t('sections.userAccounts.accountTypes.items.referrer.label')}</strong>{' '}
+                {t('sections.userAccounts.accountTypes.items.referrer.description')}
               </li>
               <li>
-                <strong>Tax Preparer:</strong> Prepare and file tax returns (requires certification)
+                <strong>{t('sections.userAccounts.accountTypes.items.taxPreparer.label')}</strong>{' '}
+                {t('sections.userAccounts.accountTypes.items.taxPreparer.description')}
               </li>
               <li>
-                <strong>Admin:</strong> Platform management (invitation only)
+                <strong>{t('sections.userAccounts.accountTypes.items.admin.label')}</strong>{' '}
+                {t('sections.userAccounts.accountTypes.items.admin.description')}
               </li>
             </ul>
           </section>
 
+          {/* Section 4: Tax Filing Services */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">4. Tax Filing Services</h2>
+            <h2 className="text-2xl font-semibold mb-4">4. {t('sections.taxFilingServices.title')}</h2>
 
-            <h3 className="text-xl font-semibold mb-2">4.1 Accuracy Guarantee</h3>
-            <p className="mb-4">
-              We guarantee 100% accuracy on tax calculations. If the IRS determines errors were
-              made, we will:
-            </p>
+            <h3 className="text-xl font-semibold mb-2">
+              4.1 {t('sections.taxFilingServices.accuracyGuarantee.title')}
+            </h3>
+            <p className="mb-4">{t('sections.taxFilingServices.accuracyGuarantee.description')}</p>
             <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>File an amended return at no charge</li>
-              <li>Pay any penalties resulting from our errors</li>
-              <li>Provide additional support to resolve the issue</li>
+              <li>{t('sections.taxFilingServices.accuracyGuarantee.items.item1')}</li>
+              <li>{t('sections.taxFilingServices.accuracyGuarantee.items.item2')}</li>
+              <li>{t('sections.taxFilingServices.accuracyGuarantee.items.item3')}</li>
             </ul>
-            <p className="mb-4">
-              This guarantee does not cover penalties from incorrect information you provide.
-            </p>
+            <p className="mb-4">{t('sections.taxFilingServices.accuracyGuarantee.disclaimer')}</p>
 
-            <h3 className="text-xl font-semibold mb-2">4.2 Maximum Refund Guarantee</h3>
-            <p className="mb-4">
-              We guarantee you receive the maximum refund you're entitled to under current tax law.
-            </p>
+            <h3 className="text-xl font-semibold mb-2">
+              4.2 {t('sections.taxFilingServices.maxRefundGuarantee.title')}
+            </h3>
+            <p className="mb-4">{t('sections.taxFilingServices.maxRefundGuarantee.description')}</p>
 
-            <h3 className="text-xl font-semibold mb-2">4.3 Your Responsibilities</h3>
-            <p className="mb-4">You are responsible for:</p>
+            <h3 className="text-xl font-semibold mb-2">
+              4.3 {t('sections.taxFilingServices.yourResponsibilities.title')}
+            </h3>
+            <p className="mb-4">{t('sections.taxFilingServices.yourResponsibilities.description')}</p>
             <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Providing complete and accurate information</li>
-              <li>Uploading all required documents</li>
-              <li>Reviewing your return before filing</li>
-              <li>Responding to preparer questions promptly</li>
+              <li>{t('sections.taxFilingServices.yourResponsibilities.items.item1')}</li>
+              <li>{t('sections.taxFilingServices.yourResponsibilities.items.item2')}</li>
+              <li>{t('sections.taxFilingServices.yourResponsibilities.items.item3')}</li>
+              <li>{t('sections.taxFilingServices.yourResponsibilities.items.item4')}</li>
             </ul>
           </section>
 
+          {/* Section 5: Referral Program */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">5. Referral Program</h2>
+            <h2 className="text-2xl font-semibold mb-4">5. {t('sections.referralProgram.title')}</h2>
 
-            <h3 className="text-xl font-semibold mb-2">5.1 Eligibility</h3>
-            <p className="mb-4">To participate in the referral program, you must:</p>
+            <h3 className="text-xl font-semibold mb-2">
+              5.1 {t('sections.referralProgram.eligibility.title')}
+            </h3>
+            <p className="mb-4">{t('sections.referralProgram.eligibility.description')}</p>
             <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Be 18 years or older</li>
-              <li>Maintain an active account in good standing</li>
-              <li>Comply with all program terms</li>
+              <li>{t('sections.referralProgram.eligibility.items.item1')}</li>
+              <li>{t('sections.referralProgram.eligibility.items.item2')}</li>
+              <li>{t('sections.referralProgram.eligibility.items.item3')}</li>
             </ul>
 
-            <h3 className="text-xl font-semibold mb-2">5.2 Commission Structure</h3>
+            <h3 className="text-xl font-semibold mb-2">
+              5.2 {t('sections.referralProgram.commissionStructure.title')}
+            </h3>
             <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Basic Package: $25 per completed return</li>
-              <li>Standard Package: $35 per completed return</li>
-              <li>Premium Package: $50 per completed return</li>
-              <li>Deluxe Package: $75 per completed return</li>
+              <li>{t('sections.referralProgram.commissionStructure.items.basic')}</li>
+              <li>{t('sections.referralProgram.commissionStructure.items.standard')}</li>
+              <li>{t('sections.referralProgram.commissionStructure.items.premium')}</li>
+              <li>{t('sections.referralProgram.commissionStructure.items.deluxe')}</li>
             </ul>
 
-            <h3 className="text-xl font-semibold mb-2">5.3 Commission Payment</h3>
-            <p className="mb-4">Commissions are:</p>
+            <h3 className="text-xl font-semibold mb-2">
+              5.3 {t('sections.referralProgram.commissionPayment.title')}
+            </h3>
+            <p className="mb-4">{t('sections.referralProgram.commissionPayment.description')}</p>
             <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Created automatically when a referred client's return is filed</li>
-              <li>Paid out when you request payment (minimum $50)</li>
-              <li>Processed within 5-7 business days of approval</li>
-              <li>Paid via bank transfer, PayPal, Square Cash, or Venmo</li>
+              <li>{t('sections.referralProgram.commissionPayment.items.item1')}</li>
+              <li>{t('sections.referralProgram.commissionPayment.items.item2')}</li>
+              <li>{t('sections.referralProgram.commissionPayment.items.item3')}</li>
+              <li>{t('sections.referralProgram.commissionPayment.items.item4')}</li>
             </ul>
 
-            <h3 className="text-xl font-semibold mb-2">5.4 Prohibited Activities</h3>
-            <p className="mb-4">You may not:</p>
+            <h3 className="text-xl font-semibold mb-2">
+              5.4 {t('sections.referralProgram.prohibitedActivities.title')}
+            </h3>
+            <p className="mb-4">{t('sections.referralProgram.prohibitedActivities.description')}</p>
             <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Use misleading or deceptive marketing</li>
-              <li>Spam or send unsolicited emails</li>
-              <li>Create fake accounts or referrals</li>
-              <li>Violate any laws or regulations</li>
-              <li>Impersonate Tax Genius Pro or its employees</li>
+              <li>{t('sections.referralProgram.prohibitedActivities.items.item1')}</li>
+              <li>{t('sections.referralProgram.prohibitedActivities.items.item2')}</li>
+              <li>{t('sections.referralProgram.prohibitedActivities.items.item3')}</li>
+              <li>{t('sections.referralProgram.prohibitedActivities.items.item4')}</li>
+              <li>{t('sections.referralProgram.prohibitedActivities.items.item5')}</li>
             </ul>
-            <p className="mb-4">
-              Violation may result in account termination and forfeiture of unpaid commissions.
-            </p>
+            <p className="mb-4">{t('sections.referralProgram.prohibitedActivities.violation')}</p>
           </section>
 
+          {/* Section 6: Tax Preparer Terms */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">6. Tax Preparer Terms</h2>
+            <h2 className="text-2xl font-semibold mb-4">6. {t('sections.taxPreparerTerms.title')}</h2>
 
-            <h3 className="text-xl font-semibold mb-2">6.1 Certification</h3>
-            <p className="mb-4">Tax preparers must:</p>
+            <h3 className="text-xl font-semibold mb-2">
+              6.1 {t('sections.taxPreparerTerms.certification.title')}
+            </h3>
+            <p className="mb-4">{t('sections.taxPreparerTerms.certification.description')}</p>
             <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Complete required training</li>
-              <li>Pass certification exam</li>
-              <li>Maintain active credentials (CPA, EA, or equivalent)</li>
-              <li>Complete annual continuing education</li>
+              <li>{t('sections.taxPreparerTerms.certification.items.item1')}</li>
+              <li>{t('sections.taxPreparerTerms.certification.items.item2')}</li>
+              <li>{t('sections.taxPreparerTerms.certification.items.item3')}</li>
+              <li>{t('sections.taxPreparerTerms.certification.items.item4')}</li>
             </ul>
 
-            <h3 className="text-xl font-semibold mb-2">6.2 Professional Standards</h3>
-            <p className="mb-4">Preparers agree to:</p>
+            <h3 className="text-xl font-semibold mb-2">
+              6.2 {t('sections.taxPreparerTerms.professionalStandards.title')}
+            </h3>
+            <p className="mb-4">{t('sections.taxPreparerTerms.professionalStandards.description')}</p>
             <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Follow IRS circular 230 guidelines</li>
-              <li>Maintain client confidentiality</li>
-              <li>Provide accurate, timely service</li>
-              <li>Communicate professionally with clients</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">7. Payments and Refunds</h2>
-
-            <h3 className="text-xl font-semibold mb-2">7.1 Payment Processing</h3>
-            <p className="mb-4">
-              All payments are processed securely through Square. We do not store credit card
-              information.
-            </p>
-
-            <h3 className="text-xl font-semibold mb-2">7.2 Pricing</h3>
-            <p className="mb-4">
-              Prices for tax filing services are based on complexity and package selected. All
-              prices are clearly displayed before purchase.
-            </p>
-
-            <h3 className="text-xl font-semibold mb-2">7.3 Refund Policy</h3>
-            <p className="mb-4">Refunds are available:</p>
-            <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Before your return is filed: Full refund</li>
-              <li>After filing, due to our error: Full refund</li>
-              <li>After filing, for other reasons: Case-by-case basis</li>
-            </ul>
-            <p className="mb-4">Store purchases (products) are non-refundable unless defective.</p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">8. Intellectual Property</h2>
-            <p className="mb-4">
-              All content on the Service, including text, graphics, logos, and software, is the
-              property of Tax Genius Pro and protected by copyright, trademark, and other
-              intellectual property laws.
-            </p>
-            <p className="mb-4">
-              You may not copy, modify, distribute, or create derivative works without our written
-              permission.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">9. Limitation of Liability</h2>
-            <p className="mb-4">To the maximum extent permitted by law:</p>
-            <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Tax Genius Pro is provided "as is" without warranties</li>
-              <li>We are not liable for indirect, incidental, or consequential damages</li>
-              <li>
-                Our total liability is limited to the amount you paid us in the past 12 months
-              </li>
-              <li>We are not liable for IRS penalties resulting from information you provide</li>
+              <li>{t('sections.taxPreparerTerms.professionalStandards.items.item1')}</li>
+              <li>{t('sections.taxPreparerTerms.professionalStandards.items.item2')}</li>
+              <li>{t('sections.taxPreparerTerms.professionalStandards.items.item3')}</li>
+              <li>{t('sections.taxPreparerTerms.professionalStandards.items.item4')}</li>
             </ul>
           </section>
 
+          {/* Section 7: Payments and Refunds */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">10. Indemnification</h2>
-            <p className="mb-4">
-              You agree to indemnify and hold harmless Tax Genius Pro from any claims, damages,
-              losses, or expenses arising from:
-            </p>
+            <h2 className="text-2xl font-semibold mb-4">7. {t('sections.paymentsRefunds.title')}</h2>
+
+            <h3 className="text-xl font-semibold mb-2">
+              7.1 {t('sections.paymentsRefunds.paymentProcessing.title')}
+            </h3>
+            <p className="mb-4">{t('sections.paymentsRefunds.paymentProcessing.description')}</p>
+
+            <h3 className="text-xl font-semibold mb-2">7.2 {t('sections.paymentsRefunds.pricing.title')}</h3>
+            <p className="mb-4">{t('sections.paymentsRefunds.pricing.description')}</p>
+
+            <h3 className="text-xl font-semibold mb-2">
+              7.3 {t('sections.paymentsRefunds.refundPolicy.title')}
+            </h3>
+            <p className="mb-4">{t('sections.paymentsRefunds.refundPolicy.description')}</p>
             <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Your use of the Service</li>
-              <li>Your violation of these Terms</li>
-              <li>Your violation of any third-party rights</li>
-              <li>Information you provide to us</li>
+              <li>{t('sections.paymentsRefunds.refundPolicy.items.item1')}</li>
+              <li>{t('sections.paymentsRefunds.refundPolicy.items.item2')}</li>
+              <li>{t('sections.paymentsRefunds.refundPolicy.items.item3')}</li>
+            </ul>
+            <p className="mb-4">{t('sections.paymentsRefunds.refundPolicy.storePolicy')}</p>
+          </section>
+
+          {/* Section 8: Intellectual Property */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">8. {t('sections.intellectualProperty.title')}</h2>
+            <p className="mb-4">{t('sections.intellectualProperty.description')}</p>
+            <p className="mb-4">{t('sections.intellectualProperty.disclaimer')}</p>
+          </section>
+
+          {/* Section 9: Limitation of Liability */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">9. {t('sections.limitationOfLiability.title')}</h2>
+            <p className="mb-4">{t('sections.limitationOfLiability.description')}</p>
+            <ul className="list-disc pl-6 space-y-2 mb-4">
+              <li>{t('sections.limitationOfLiability.items.item1')}</li>
+              <li>{t('sections.limitationOfLiability.items.item2')}</li>
+              <li>{t('sections.limitationOfLiability.items.item3')}</li>
+              <li>{t('sections.limitationOfLiability.items.item4')}</li>
             </ul>
           </section>
 
+          {/* Section 10: Indemnification */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">11. Termination</h2>
-            <p className="mb-4">We may terminate or suspend your account at any time for:</p>
+            <h2 className="text-2xl font-semibold mb-4">10. {t('sections.indemnification.title')}</h2>
+            <p className="mb-4">{t('sections.indemnification.description')}</p>
             <ul className="list-disc pl-6 space-y-2 mb-4">
-              <li>Violation of these Terms</li>
-              <li>Fraudulent activity</li>
-              <li>Non-payment</li>
-              <li>Any reason at our discretion</li>
+              <li>{t('sections.indemnification.items.item1')}</li>
+              <li>{t('sections.indemnification.items.item2')}</li>
+              <li>{t('sections.indemnification.items.item3')}</li>
+              <li>{t('sections.indemnification.items.item4')}</li>
             </ul>
-            <p className="mb-4">You may terminate your account at any time by contacting us.</p>
           </section>
 
+          {/* Section 11: Termination */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">12. Governing Law</h2>
-            <p className="mb-4">
-              These Terms are governed by the laws of [State], without regard to conflict of law
-              principles. Any disputes will be resolved in the courts of [County, State].
-            </p>
+            <h2 className="text-2xl font-semibold mb-4">11. {t('sections.termination.title')}</h2>
+            <p className="mb-4">{t('sections.termination.description')}</p>
+            <ul className="list-disc pl-6 space-y-2 mb-4">
+              <li>{t('sections.termination.items.item1')}</li>
+              <li>{t('sections.termination.items.item2')}</li>
+              <li>{t('sections.termination.items.item3')}</li>
+              <li>{t('sections.termination.items.item4')}</li>
+            </ul>
+            <p className="mb-4">{t('sections.termination.userTermination')}</p>
           </section>
 
+          {/* Section 12: Governing Law */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">13. Changes to Terms</h2>
-            <p className="mb-4">
-              We may modify these Terms at any time. We will notify you of significant changes by
-              email or through the Service. Continued use after changes constitutes acceptance.
-            </p>
+            <h2 className="text-2xl font-semibold mb-4">12. {t('sections.governingLaw.title')}</h2>
+            <p className="mb-4">{t('sections.governingLaw.description')}</p>
           </section>
 
+          {/* Section 13: Changes to Terms */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">14. Contact Us</h2>
-            <p className="mb-4">Questions about these Terms? Contact us:</p>
+            <h2 className="text-2xl font-semibold mb-4">13. {t('sections.changesToTerms.title')}</h2>
+            <p className="mb-4">{t('sections.changesToTerms.description')}</p>
+          </section>
+
+          {/* Section 14: Contact Us */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">14. {t('sections.contactUs.title')}</h2>
+            <p className="mb-4">{t('sections.contactUs.description')}</p>
             <ul className="list-none space-y-2 mb-4">
               <li>
-                <strong>Email:</strong>{' '}
-                <a href="mailto:legal@taxgeniuspro.tax" className="text-primary hover:underline">
-                  legal@taxgeniuspro.tax
+                <strong>{t('sections.contactUs.email.label')}</strong>{' '}
+                <a
+                  href={`mailto:${t('sections.contactUs.email.value')}`}
+                  className="text-primary hover:underline"
+                >
+                  {t('sections.contactUs.email.value')}
                 </a>
               </li>
               <li>
-                <strong>Support:</strong>{' '}
-                <a href="mailto:taxgenius.tax@gmail.com" className="text-primary hover:underline">
-                  taxgenius.tax@gmail.com
+                <strong>{t('sections.contactUs.support.label')}</strong>{' '}
+                <a
+                  href={`mailto:${t('sections.contactUs.support.value')}`}
+                  className="text-primary hover:underline"
+                >
+                  {t('sections.contactUs.support.value')}
                 </a>
               </li>
               <li>
-                <strong>Address:</strong> [Company Address - To be added]
+                <strong>{t('sections.contactUs.address.label')}</strong>{' '}
+                {t('sections.contactUs.address.value')}
               </li>
             </ul>
           </section>
 
+          {/* Disclaimer */}
           <section className="mt-12 p-6 bg-muted rounded-lg">
             <p className="text-sm text-muted-foreground">
-              <strong>Note:</strong> By using Tax Genius Pro, you acknowledge that you have read,
-              understood, and agree to be bound by these Terms of Service.
+              <strong>{t('disclaimer.note')}</strong> {t('disclaimer.text')}
             </p>
           </section>
         </div>

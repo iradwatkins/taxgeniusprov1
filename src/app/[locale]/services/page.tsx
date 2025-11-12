@@ -24,8 +24,10 @@ import Link from 'next/link';
 import { Header } from '@/components/header';
 import { ServiceFAQSection } from '@/components/services/ServiceFAQSection';
 import { servicesOverviewFAQs } from '@/lib/seo-llm/1-core-seo/data/service-faqs';
+import { useTranslations } from 'next-intl';
 
 export default function ServicesPage() {
+  const t = useTranslations('services.overview');
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -35,14 +37,13 @@ export default function ServicesPage() {
         <div className="container mx-auto px-4 lg:px-8 relative">
           <div className="text-center max-w-4xl mx-auto">
             <Badge className="mb-6 bg-primary/10 text-primary border-primary/20">
-              Professional Tax Services
+              {t('badge')}
             </Badge>
             <h1 className="text-4xl lg:text-6xl font-bold text-foreground mb-6">
-              Complete Tax <span className="text-primary">Solutions</span>
+              {t('title')} <span className="text-primary">{t('titleHighlight')}</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              From individual returns to complex business filings, our certified professionals
-              handle all your tax needs with precision and care.
+              {t('subtitle')}
             </p>
           </div>
         </div>
@@ -56,34 +57,34 @@ export default function ServicesPage() {
             <Card className="relative overflow-hidden group hover:shadow-xl transition-all">
               <CardHeader>
                 <FileText className="w-12 h-12 text-primary mb-4" />
-                <CardTitle className="text-xl">Individual Tax Returns</CardTitle>
+                <CardTitle className="text-xl">{t('individual.title')}</CardTitle>
                 <CardDescription>
-                  Personal tax preparation for individuals and families
+                  {t('individual.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-primary" />
-                    <span className="text-sm">Standard & Itemized Deductions</span>
+                    <span className="text-sm">{t('individual.feature1')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-primary" />
-                    <span className="text-sm">Multiple Income Sources</span>
+                    <span className="text-sm">{t('individual.feature2')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-primary" />
-                    <span className="text-sm">Investment & Retirement Planning</span>
+                    <span className="text-sm">{t('individual.feature3')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-primary" />
-                    <span className="text-sm">Education Credits & Deductions</span>
+                    <span className="text-sm">{t('individual.feature4')}</span>
                   </div>
                 </div>
                 <div className="pt-4">
-                  <p className="text-2xl font-bold text-primary mb-2">Starting at $149</p>
+                  <p className="text-2xl font-bold text-primary mb-2">{t('individual.price')}</p>
                   <Button className="w-full" asChild>
-                    <Link href="/start-filing/form">Start Filing</Link>
+                    <Link href="/start-filing/form">{t('individual.cta')}</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -93,34 +94,34 @@ export default function ServicesPage() {
             <Card className="relative overflow-hidden group hover:shadow-xl transition-all">
               <CardHeader>
                 <Building className="w-12 h-12 text-primary mb-4" />
-                <CardTitle className="text-xl">Business Tax Returns</CardTitle>
+                <CardTitle className="text-xl">{t('business.title')}</CardTitle>
                 <CardDescription>
-                  Comprehensive business tax services for all entity types
+                  {t('business.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-primary" />
-                    <span className="text-sm">LLC, Corp, Partnership Returns</span>
+                    <span className="text-sm">{t('business.feature1')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-primary" />
-                    <span className="text-sm">Self-Employment Tax</span>
+                    <span className="text-sm">{t('business.feature2')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-primary" />
-                    <span className="text-sm">Quarterly Estimated Payments</span>
+                    <span className="text-sm">{t('business.feature3')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-primary" />
-                    <span className="text-sm">Business Deduction Optimization</span>
+                    <span className="text-sm">{t('business.feature4')}</span>
                   </div>
                 </div>
                 <div className="pt-4">
-                  <p className="text-2xl font-bold text-primary mb-2">Starting at $299</p>
+                  <p className="text-2xl font-bold text-primary mb-2">{t('business.price')}</p>
                   <Button className="w-full" asChild>
-                    <Link href="/start-filing/form">Start Filing</Link>
+                    <Link href="/start-filing/form">{t('business.cta')}</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -130,34 +131,34 @@ export default function ServicesPage() {
             <Card className="relative overflow-hidden group hover:shadow-xl transition-all">
               <CardHeader>
                 <Home className="w-12 h-12 text-primary mb-4" />
-                <CardTitle className="text-xl">Real Estate Professional</CardTitle>
+                <CardTitle className="text-xl">{t('realEstate.title')}</CardTitle>
                 <CardDescription>
-                  Specialized services for real estate agents and investors
+                  {t('realEstate.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-primary" />
-                    <span className="text-sm">Real Estate Professional Status</span>
+                    <span className="text-sm">{t('realEstate.feature1')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-primary" />
-                    <span className="text-sm">Rental Property Optimization</span>
+                    <span className="text-sm">{t('realEstate.feature2')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-primary" />
-                    <span className="text-sm">1031 Exchange Planning</span>
+                    <span className="text-sm">{t('realEstate.feature3')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-primary" />
-                    <span className="text-sm">Depreciation Strategies</span>
+                    <span className="text-sm">{t('realEstate.feature4')}</span>
                   </div>
                 </div>
                 <div className="pt-4">
-                  <p className="text-2xl font-bold text-primary mb-2">Starting at $399</p>
+                  <p className="text-2xl font-bold text-primary mb-2">{t('realEstate.price')}</p>
                   <Button className="w-full" asChild>
-                    <Link href="/start-filing/form">Start Filing</Link>
+                    <Link href="/start-filing/form">{t('realEstate.cta')}</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -171,10 +172,10 @@ export default function ServicesPage() {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-6">
-              Additional Services
+              {t('additionalServices.title')}
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Comprehensive tax solutions to meet all your needs
+              {t('additionalServices.subtitle')}
             </p>
           </div>
 
@@ -182,9 +183,9 @@ export default function ServicesPage() {
             <Card className="text-center hover:shadow-lg transition-all">
               <CardContent className="pt-6">
                 <DollarSign className="w-10 h-10 text-primary mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Tax Advance Loans</h3>
+                <h3 className="font-semibold mb-2">{t('additionalServices.taxAdvance.title')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Get your refund faster with our advance loan program
+                  {t('additionalServices.taxAdvance.description')}
                 </p>
               </CardContent>
             </Card>
@@ -192,9 +193,9 @@ export default function ServicesPage() {
             <Card className="text-center hover:shadow-lg transition-all">
               <CardContent className="pt-6">
                 <Shield className="w-10 h-10 text-primary mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Audit Protection</h3>
+                <h3 className="font-semibold mb-2">{t('additionalServices.auditProtection.title')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Full audit defense and IRS representation services
+                  {t('additionalServices.auditProtection.description')}
                 </p>
               </CardContent>
             </Card>
@@ -202,9 +203,9 @@ export default function ServicesPage() {
             <Card className="text-center hover:shadow-lg transition-all">
               <CardContent className="pt-6">
                 <Calculator className="w-10 h-10 text-primary mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Tax Planning</h3>
+                <h3 className="font-semibold mb-2">{t('additionalServices.taxPlanning.title')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Year-round tax planning and strategy sessions
+                  {t('additionalServices.taxPlanning.description')}
                 </p>
               </CardContent>
             </Card>
@@ -212,9 +213,9 @@ export default function ServicesPage() {
             <Card className="text-center hover:shadow-lg transition-all">
               <CardContent className="pt-6">
                 <Clock className="w-10 h-10 text-primary mx-auto mb-4" />
-                <h3 className="font-semibold mb-2">Prior Year Returns</h3>
+                <h3 className="font-semibold mb-2">{t('additionalServices.priorYear.title')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Amended returns and back-filing services
+                  {t('additionalServices.priorYear.description')}
                 </p>
               </CardContent>
             </Card>
@@ -226,9 +227,9 @@ export default function ServicesPage() {
       <section className="py-20">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-6">How It Works</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-6">{t('process.title')}</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Our streamlined process makes tax preparation simple and stress-free
+              {t('process.subtitle')}
             </p>
           </div>
 
@@ -237,9 +238,9 @@ export default function ServicesPage() {
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl font-bold text-primary">1</span>
               </div>
-              <h3 className="text-xl font-semibold mb-4">Upload Documents</h3>
+              <h3 className="text-xl font-semibold mb-4">{t('process.step1.title')}</h3>
               <p className="text-muted-foreground">
-                Securely upload your tax documents through our encrypted portal
+                {t('process.step1.description')}
               </p>
             </div>
 
@@ -247,9 +248,9 @@ export default function ServicesPage() {
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl font-bold text-primary">2</span>
               </div>
-              <h3 className="text-xl font-semibold mb-4">Expert Review</h3>
+              <h3 className="text-xl font-semibold mb-4">{t('process.step2.title')}</h3>
               <p className="text-muted-foreground">
-                Our certified professionals review and prepare your return
+                {t('process.step2.description')}
               </p>
             </div>
 
@@ -257,9 +258,9 @@ export default function ServicesPage() {
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl font-bold text-primary">3</span>
               </div>
-              <h3 className="text-xl font-semibold mb-4">Quality Check</h3>
+              <h3 className="text-xl font-semibold mb-4">{t('process.step3.title')}</h3>
               <p className="text-muted-foreground">
-                Multiple quality checks ensure accuracy and maximum refund
+                {t('process.step3.description')}
               </p>
             </div>
 
@@ -267,9 +268,9 @@ export default function ServicesPage() {
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl font-bold text-primary">4</span>
               </div>
-              <h3 className="text-xl font-semibold mb-4">E-File & Track</h3>
+              <h3 className="text-xl font-semibold mb-4">{t('process.step4.title')}</h3>
               <p className="text-muted-foreground">
-                E-file your return and track your refund status in real-time
+                {t('process.step4.description')}
               </p>
             </div>
           </div>
@@ -282,42 +283,42 @@ export default function ServicesPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-6">
-                Why Choose Tax Genius Pro?
+                {t('whyChoose.title')}
               </h2>
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <Award className="w-6 h-6 text-primary mt-1 flex-shrink-0" />
                   <div>
-                    <h3 className="font-semibold mb-2">Certified Professionals</h3>
+                    <h3 className="font-semibold mb-2">{t('whyChoose.benefit1.title')}</h3>
                     <p className="text-muted-foreground">
-                      Our team includes CPAs, EAs, and tax experts with decades of experience
+                      {t('whyChoose.benefit1.description')}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
                   <TrendingUp className="w-6 h-6 text-primary mt-1 flex-shrink-0" />
                   <div>
-                    <h3 className="font-semibold mb-2">Maximum Refund Guarantee</h3>
+                    <h3 className="font-semibold mb-2">{t('whyChoose.benefit2.title')}</h3>
                     <p className="text-muted-foreground">
-                      We find every deduction and credit you're entitled to
+                      {t('whyChoose.benefit2.description')}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
                   <Zap className="w-6 h-6 text-primary mt-1 flex-shrink-0" />
                   <div>
-                    <h3 className="font-semibold mb-2">Fast & Accurate</h3>
+                    <h3 className="font-semibold mb-2">{t('whyChoose.benefit3.title')}</h3>
                     <p className="text-muted-foreground">
-                      Quick turnaround times with 99.9% accuracy rate
+                      {t('whyChoose.benefit3.description')}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
                   <Shield className="w-6 h-6 text-primary mt-1 flex-shrink-0" />
                   <div>
-                    <h3 className="font-semibold mb-2">Audit Protection</h3>
+                    <h3 className="font-semibold mb-2">{t('whyChoose.benefit4.title')}</h3>
                     <p className="text-muted-foreground">
-                      Full audit defense included with every return we prepare
+                      {t('whyChoose.benefit4.description')}
                     </p>
                   </div>
                 </div>
@@ -325,11 +326,12 @@ export default function ServicesPage() {
             </div>
             <div className="relative">
               <Image
-                src="/images/wordpress-assets/tax-pro-illustration-4-5-star-rating.png"
-                alt="Tax professional"
+                src="/images/wordpress-assets/tax-pro-illustration-4-5-star-rating.webp"
+                alt={t('whyChoose.imageAlt')}
                 width={500}
                 height={400}
                 className="rounded-lg shadow-lg"
+                sizes="(max-width: 768px) 100vw, 500px"
               />
             </div>
           </div>
@@ -344,17 +346,17 @@ export default function ServicesPage() {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-6">
-              Ready to Maximize Your Refund?
+              {t('finalCTA.title')}
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
-              Join thousands who trust Tax Genius Pro for their tax needs
+              {t('finalCTA.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="bg-primary hover:bg-primary/90">
-                Start Your Return <ArrowRight className="ml-2 w-4 h-4" />
+                {t('finalCTA.ctaStart')} <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
               <Button size="lg" variant="outline">
-                <Link href="/contact">Get Free Quote</Link>
+                <Link href="/contact">{t('finalCTA.ctaQuote')}</Link>
               </Button>
             </div>
           </div>

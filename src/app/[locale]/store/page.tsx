@@ -4,12 +4,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sparkles, Package, QrCode, FileText, MessageSquare, TrendingUp } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 
-export const metadata = {
-  title: 'Marketing Store - Tax Genius Pro',
-  description:
-    'Purchase marketing materials, landing pages, and subscriptions to grow your business',
-};
+export async function generateMetadata({ params }: { params: { locale: string } }) {
+  const t = await getTranslations({ locale: params.locale, namespace: 'store.metadata' });
+
+  return {
+    title: t('title'),
+    description: t('description'),
+  };
+}
 
 async function getProducts() {
   const products = await prisma.product.findMany({
@@ -28,9 +32,10 @@ async function getProducts() {
   }));
 }
 
-export default async function StorePage() {
+export default async function StorePage({ params }: { params: { locale: string } }) {
   // Authentication and access control handled in layout.tsx
   const products = await getProducts();
+  const t = await getTranslations({ locale: params.locale, namespace: 'store' });
 
   // Group products by category
   const landingPages = products.filter((p) => p.type === 'LANDING_PAGE');
@@ -42,44 +47,43 @@ export default async function StorePage() {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Marketing Store</h1>
-        <p className="text-muted-foreground text-lg">
-          Professional marketing materials and tools to grow your tax business
-        </p>
+        <h1 className="text-4xl font-bold mb-2">{t('header.title')}</h1>
+        <p className="text-muted-foreground text-lg">{t('header.subtitle')}</p>
       </div>
 
       {/* Featured Subscription Plans */}
       <div className="mb-12">
         <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
           <Sparkles className="h-6 w-6" />
-          Landing Page Subscriptions
+          {t('subscriptions.title')}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Free Plan */}
           <Card className="border-2">
             <CardHeader>
               <div className="flex items-center justify-between mb-2">
-                <CardTitle>Free</CardTitle>
-                <Badge variant="secondary">Basic</Badge>
+                <CardTitle>{t('subscriptions.free.name')}</CardTitle>
+                <Badge variant="secondary">{t('subscriptions.free.badge')}</Badge>
               </div>
-              <CardDescription>Get started with lead generation</CardDescription>
+              <CardDescription>{t('subscriptions.free.description')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="mb-4">
-                <span className="text-3xl font-bold">$0</span>
-                <span className="text-muted-foreground">/month</span>
+                <span className="text-3xl font-bold">{t('subscriptions.free.price')}</span>
+                <span className="text-muted-foreground">{t('subscriptions.free.priceUnit')}</span>
               </div>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-green-500" />1 Landing Page
+                  <TrendingUp className="h-4 w-4 text-green-500" />
+                  {t('subscriptions.free.feature1')}
                 </li>
                 <li className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-green-500" />
-                  Basic Analytics
+                  {t('subscriptions.free.feature2')}
                 </li>
                 <li className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-green-500" />
-                  Generic Branding
+                  {t('subscriptions.free.feature3')}
                 </li>
               </ul>
             </CardContent>
@@ -88,35 +92,36 @@ export default async function StorePage() {
           {/* Monthly Plan */}
           <Card className="border-2 border-primary shadow-lg relative">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-              <Badge className="px-4">Most Popular</Badge>
+              <Badge className="px-4">{t('subscriptions.monthly.badge')}</Badge>
             </div>
             <CardHeader>
               <div className="flex items-center justify-between mb-2">
-                <CardTitle>Monthly</CardTitle>
-                <Badge>Professional</Badge>
+                <CardTitle>{t('subscriptions.monthly.name')}</CardTitle>
+                <Badge>{t('subscriptions.monthly.badgeProfessional')}</Badge>
               </div>
-              <CardDescription>Perfect for active marketers</CardDescription>
+              <CardDescription>{t('subscriptions.monthly.description')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="mb-4">
-                <span className="text-3xl font-bold">$49</span>
-                <span className="text-muted-foreground">/month</span>
+                <span className="text-3xl font-bold">{t('subscriptions.monthly.price')}</span>
+                <span className="text-muted-foreground">{t('subscriptions.monthly.priceUnit')}</span>
               </div>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-green-500" />5 Landing Pages
+                  <TrendingUp className="h-4 w-4 text-green-500" />
+                  {t('subscriptions.monthly.feature1')}
                 </li>
                 <li className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-green-500" />
-                  Advanced Analytics
+                  {t('subscriptions.monthly.feature2')}
                 </li>
                 <li className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-green-500" />
-                  Custom Branding (Tax Preparers)
+                  {t('subscriptions.monthly.feature3')}
                 </li>
                 <li className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-green-500" />
-                  A/B Testing
+                  {t('subscriptions.monthly.feature4')}
                 </li>
               </ul>
             </CardContent>
@@ -126,33 +131,35 @@ export default async function StorePage() {
           <Card className="border-2">
             <CardHeader>
               <div className="flex items-center justify-between mb-2">
-                <CardTitle>Annual</CardTitle>
-                <Badge variant="secondary">Best Value</Badge>
+                <CardTitle>{t('subscriptions.annual.name')}</CardTitle>
+                <Badge variant="secondary">{t('subscriptions.annual.badge')}</Badge>
               </div>
-              <CardDescription>Save 41% with annual billing</CardDescription>
+              <CardDescription>{t('subscriptions.annual.description')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="mb-4">
-                <span className="text-3xl font-bold">$29</span>
-                <span className="text-muted-foreground">/month</span>
-                <p className="text-xs text-muted-foreground">Billed annually at $348</p>
+                <span className="text-3xl font-bold">{t('subscriptions.annual.price')}</span>
+                <span className="text-muted-foreground">{t('subscriptions.annual.priceUnit')}</span>
+                <p className="text-xs text-muted-foreground">
+                  {t('subscriptions.annual.priceBilledAnnually')}
+                </p>
               </div>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-green-500" />
-                  Unlimited Landing Pages
+                  {t('subscriptions.annual.feature1')}
                 </li>
                 <li className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-green-500" />
-                  Premium Analytics
+                  {t('subscriptions.annual.feature2')}
                 </li>
                 <li className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-green-500" />
-                  Priority Support
+                  {t('subscriptions.annual.feature3')}
                 </li>
                 <li className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-green-500" />
-                  All Professional Features
+                  {t('subscriptions.annual.feature4')}
                 </li>
               </ul>
             </CardContent>
@@ -163,11 +170,11 @@ export default async function StorePage() {
       {/* Product Categories */}
       <Tabs defaultValue="all" className="space-y-6">
         <TabsList className="grid w-full grid-cols-5 lg:w-auto">
-          <TabsTrigger value="all">All Products</TabsTrigger>
-          <TabsTrigger value="materials">Marketing Materials</TabsTrigger>
-          <TabsTrigger value="digital">Digital Assets</TabsTrigger>
-          <TabsTrigger value="qr">QR Codes</TabsTrigger>
-          <TabsTrigger value="email">Email Addresses</TabsTrigger>
+          <TabsTrigger value="all">{t('tabs.all')}</TabsTrigger>
+          <TabsTrigger value="materials">{t('tabs.materials')}</TabsTrigger>
+          <TabsTrigger value="digital">{t('tabs.digital')}</TabsTrigger>
+          <TabsTrigger value="qr">{t('tabs.qr')}</TabsTrigger>
+          <TabsTrigger value="email">{t('tabs.email')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all">
@@ -180,9 +187,7 @@ export default async function StorePage() {
           ) : (
             <div className="text-center py-12">
               <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <p className="text-muted-foreground text-lg">
-                No products available at the moment. Check back soon!
-              </p>
+              <p className="text-muted-foreground text-lg">{t('empty.noProducts')}</p>
             </div>
           )}
         </TabsContent>
@@ -196,7 +201,7 @@ export default async function StorePage() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No marketing materials available</p>
+              <p className="text-muted-foreground">{t('empty.noMaterials')}</p>
             </div>
           )}
         </TabsContent>
@@ -210,7 +215,7 @@ export default async function StorePage() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No digital assets available</p>
+              <p className="text-muted-foreground">{t('empty.noDigitalAssets')}</p>
             </div>
           )}
         </TabsContent>
@@ -218,9 +223,7 @@ export default async function StorePage() {
         <TabsContent value="qr">
           <div className="text-center py-12">
             <QrCode className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <p className="text-muted-foreground">
-              QR codes are generated automatically with your campaigns
-            </p>
+            <p className="text-muted-foreground">{t('empty.qrCodesInfo')}</p>
           </div>
         </TabsContent>
 
@@ -234,7 +237,7 @@ export default async function StorePage() {
           ) : (
             <div className="text-center py-12">
               <MessageSquare className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-              <p className="text-muted-foreground">Professional email addresses coming soon</p>
+              <p className="text-muted-foreground">{t('empty.emailAddressesComingSoon')}</p>
             </div>
           )}
         </TabsContent>

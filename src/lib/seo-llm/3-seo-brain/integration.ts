@@ -519,3 +519,6 @@ export class N8NIntegration {
     );
   }
 }
+
+// Export seoBrain instance for backward compatibility with existing API routes
+export const seoBrain = N8NIntegration;

@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +25,7 @@ import { ServiceFAQSection } from '@/components/services/ServiceFAQSection';
 import { personalTaxFAQs } from '@/lib/seo-llm/1-core-seo/data/service-faqs';
 
 export default function PersonalTaxFilingPage() {
+  const t = useTranslations('personalTaxFiling');
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -36,24 +38,23 @@ export default function PersonalTaxFilingPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center max-w-4xl mx-auto"
           >
-            <Badge className="mb-4 bg-primary/10 text-primary">Professional Tax Preparation</Badge>
+            <Badge className="mb-4 bg-primary/10 text-primary">{t('hero.badge')}</Badge>
             <h1 className="text-5xl lg:text-6xl font-bold mb-6">
-              Personal Tax <span className="text-primary">Filing Made Simple</span>
+              {t('hero.title')} <span className="text-primary">{t('hero.titleHighlight')}</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              Expert CPAs handle your personal tax return from start to finish. Maximum refund
-              guaranteed.
+              {t('hero.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild>
                 <Link href="/start-filing/form">
-                  Start Filing Online <ArrowRight className="ml-2 w-5 h-5" />
+                  {t('hero.ctaStart')} <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
                 <Link href="/book-appointment">
                   <Phone className="mr-2 w-5 h-5" />
-                  Schedule Consultation
+                  {t('hero.ctaSchedule')}
                 </Link>
               </Button>
             </div>
@@ -64,15 +65,15 @@ export default function PersonalTaxFilingPage() {
       {/* Services Grid */}
       <section className="py-20">
         <div className="container mx-auto px-4 lg:px-8">
-          <h2 className="text-3xl font-bold text-center mb-12">What's Included</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">{t('whatsIncluded.title')}</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {[
-              { icon: FileText, title: 'Simple Returns', desc: 'W-2 income, standard deduction' },
-              { icon: Home, title: 'Homeowners', desc: 'Mortgage interest, property taxes' },
-              { icon: Users, title: 'Families', desc: 'Child tax credit, dependent care' },
-              { icon: DollarSign, title: 'Investments', desc: 'Stocks, bonds, dividends' },
-              { icon: TrendingUp, title: 'Retirement', desc: 'IRA, 401(k), Social Security' },
-              { icon: Shield, title: 'Audit Protection', desc: 'Full IRS audit defense included' },
+              { icon: FileText, title: t('whatsIncluded.service1Title'), desc: t('whatsIncluded.service1Description') },
+              { icon: Home, title: t('whatsIncluded.service2Title'), desc: t('whatsIncluded.service2Description') },
+              { icon: Users, title: t('whatsIncluded.service3Title'), desc: t('whatsIncluded.service3Description') },
+              { icon: DollarSign, title: t('whatsIncluded.service4Title'), desc: t('whatsIncluded.service4Description') },
+              { icon: TrendingUp, title: t('whatsIncluded.service5Title'), desc: t('whatsIncluded.service5Description') },
+              { icon: Shield, title: t('whatsIncluded.service6Title'), desc: t('whatsIncluded.service6Description') },
             ].map((item, i) => (
               <Card key={i} className="hover:shadow-lg transition-all">
                 <CardHeader>
@@ -92,28 +93,28 @@ export default function PersonalTaxFilingPage() {
       <section className="py-20 bg-muted/50">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-6">Transparent Pricing</h2>
+            <h2 className="text-3xl font-bold mb-6">{t('pricing.title')}</h2>
             <div className="grid md:grid-cols-3 gap-6 mt-12">
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-sm text-muted-foreground mb-2">Basic</p>
-                  <p className="text-4xl font-bold text-primary mb-2">$149</p>
-                  <p className="text-sm">Simple W-2 returns</p>
+                  <p className="text-sm text-muted-foreground mb-2">{t('pricing.basicLabel')}</p>
+                  <p className="text-4xl font-bold text-primary mb-2">{t('pricing.basicPrice')}</p>
+                  <p className="text-sm">{t('pricing.basicDescription')}</p>
                 </CardContent>
               </Card>
               <Card className="border-2 border-primary">
                 <CardContent className="pt-6">
-                  <Badge className="mb-2">Most Popular</Badge>
-                  <p className="text-sm text-muted-foreground mb-2">Standard</p>
-                  <p className="text-4xl font-bold text-primary mb-2">$249</p>
-                  <p className="text-sm">Itemized deductions, credits</p>
+                  <Badge className="mb-2">{t('pricing.standardBadge')}</Badge>
+                  <p className="text-sm text-muted-foreground mb-2">{t('pricing.standardLabel')}</p>
+                  <p className="text-4xl font-bold text-primary mb-2">{t('pricing.standardPrice')}</p>
+                  <p className="text-sm">{t('pricing.standardDescription')}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-sm text-muted-foreground mb-2">Complex</p>
-                  <p className="text-4xl font-bold text-primary mb-2">$399+</p>
-                  <p className="text-sm">Investments, rental property</p>
+                  <p className="text-sm text-muted-foreground mb-2">{t('pricing.complexLabel')}</p>
+                  <p className="text-4xl font-bold text-primary mb-2">{t('pricing.complexPrice')}</p>
+                  <p className="text-sm">{t('pricing.complexDescription')}</p>
                 </CardContent>
               </Card>
             </div>
@@ -128,13 +129,13 @@ export default function PersonalTaxFilingPage() {
       <section className="py-20">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold mb-6">Ready to File Your Taxes?</h2>
+            <h2 className="text-3xl font-bold mb-6">{t('cta.title')}</h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Join 100,000+ satisfied clients. File with confidence.
+              {t('cta.subtitle')}
             </p>
             <Button size="lg" asChild>
               <Link href="/start-filing/form">
-                Start Your Return <ArrowRight className="ml-2 w-5 h-5" />
+                {t('cta.ctaButton')} <ArrowRight className="ml-2 w-5 h-5" />
               </Link>
             </Button>
           </div>

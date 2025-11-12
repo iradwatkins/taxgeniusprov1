@@ -4,6 +4,7 @@ import { logger } from '@/lib/logger';
 import { Resend } from 'resend';
 import { PreparerApplicationConfirmation } from '../../../../../emails/preparer-application-confirmation';
 import { PreparerApplicationNotification } from '../../../../../emails/preparer-application-notification';
+import { getEmailRecipients } from '@/config/email-routing';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -22,6 +23,7 @@ export async function POST(req: NextRequest) {
       smsConsent,
       experienceLevel,
       taxSoftware,
+      locale, // Language/Locale for email routing
     } = body;
 
     // Validate required fields
@@ -177,8 +179,19 @@ export async function POST(req: NextRequest) {
           logger.info('Applicant confirmation email sent', { emailId: confirmData?.id });
         }
 
-        // 2. Send notification emails to hiring team (both addresses)
-        const hiringEmails = ['taxgenius.tax@gmail.com', 'Taxgenius.taxes@gmail.com'];
+        // 2. Send notification emails to hiring team
+        // Language-based routing using centralized config:
+        // Spanish → Goldenprotaxes@gmail.com (Ale Hamilton) + CC to taxgenius.tax@gmail.com (Owliver Owl)
+        // English → taxgenius.taxes@gmail.com (Ray Hamilton) + CC to taxgenius.tax@gmail.com (Owliver Owl)
+        const recipients = getEmailRecipients((locale as 'en' | 'es') || 'en');
+
+        logger.info('Preparer application language-based routing', {
+          locale: locale || 'en',
+          primaryRecipient: recipients.primary,
+          ccRecipient: recipients.cc,
+        });
+
+        const hiringEmails = [recipients.primary, recipients.cc];
 
         for (let i = 0; i < hiringEmails.length; i++) {
           const hiringEmail = hiringEmails[i];
@@ -191,7 +204,7 @@ export async function POST(req: NextRequest) {
           const { data: notifyData, error: notifyError } = await resend.emails.send({
             from: fromEmail,
             to: hiringEmail,
-            subject: `New Tax Preparer Application: ${firstName} ${lastName}`,
+            subject: `🌐 New Tax Preparer Application: ${firstName} ${lastName}`,
             react: PreparerApplicationNotification({
               firstName,
               middleName,

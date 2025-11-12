@@ -15,6 +15,7 @@ import { logger } from '@/lib/logger';
 import { Resend } from 'resend';
 import { AffiliateApplicationConfirmation } from '../../../../../emails/affiliate-application-confirmation';
 import { AffiliateApplicationNotification } from '../../../../../emails/affiliate-application-notification';
+import { getEmailRecipients } from '@/config/email-routing';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -53,8 +54,11 @@ const affiliateApplicationSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  let locale: string | undefined; // Declare locale in function scope for email routing
+
   try {
     const body = await request.json();
+    locale = body.locale; // Extract locale for language-based routing
 
     // Validate input
     const validatedData = affiliateApplicationSchema.parse(body);
@@ -325,8 +329,19 @@ async function queueAdminNotification(lead: any, bondedPreparerId: string | null
       ? undefined
       : messageParts[0];
 
-    // Send notification emails to hiring team (both addresses)
-    const hiringEmails = ['taxgenius.tax@gmail.com', 'Taxgenius.taxes@gmail.com'];
+    // Send notification emails to hiring team
+    // Language-based routing using centralized config:
+    // Spanish → Goldenprotaxes@gmail.com (Ale Hamilton) + CC to taxgenius.tax@gmail.com (Owliver Owl)
+    // English → taxgenius.taxes@gmail.com (Ray Hamilton) + CC to taxgenius.tax@gmail.com (Owliver Owl)
+    const recipients = getEmailRecipients((locale as 'en' | 'es') || 'en');
+
+    logger.info('Affiliate application language-based routing', {
+      locale: locale || 'en',
+      primaryRecipient: recipients.primary,
+      ccRecipient: recipients.cc,
+    });
+
+    const hiringEmails = [recipients.primary, recipients.cc];
 
     for (let i = 0; i < hiringEmails.length; i++) {
       const hiringEmail = hiringEmails[i];
@@ -339,7 +354,7 @@ async function queueAdminNotification(lead: any, bondedPreparerId: string | null
       const { data: notifyData, error: notifyError } = await resend.emails.send({
         from: fromEmail,
         to: hiringEmail,
-        subject: `New Affiliate Application: ${lead.firstName} ${lead.lastName}${bondedPreparerId ? ' (Bonding Request)' : ''}`,
+        subject: `🌐 New Affiliate Application: ${lead.firstName} ${lead.lastName}${bondedPreparerId ? ' (Bonding Request)' : ''}`,
         react: AffiliateApplicationNotification({
           firstName: lead.firstName,
           lastName: lead.lastName,

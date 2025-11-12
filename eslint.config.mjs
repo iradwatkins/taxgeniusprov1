@@ -26,6 +26,8 @@ export default [
       "**/*.spec.{js,ts,tsx}",
       "scripts/**",
       "prisma/**",
+      "Ira folder/**", // Third-party plugins
+      "vendor/**", // Third-party vendor code
     ],
   },
   ...tseslint.configs.recommended,

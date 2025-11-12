@@ -25,8 +25,10 @@ import { Header } from '@/components/header';
 import Image from 'next/image';
 import { ServiceFAQSection } from '@/components/services/ServiceFAQSection';
 import { businessTaxFAQs } from '@/lib/seo-llm/1-core-seo/data/service-faqs';
+import { useTranslations } from 'next-intl';
 
 export default function BusinessTaxPage() {
+  const t = useTranslations('businessTax');
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -43,35 +45,34 @@ export default function BusinessTaxPage() {
             >
               <Badge className="bg-primary/10 text-primary px-4 py-2">
                 <Building2 className="w-4 h-4 mr-2" />
-                Business Tax Services
+                {t('hero.badge')}
               </Badge>
 
               <h1 className="text-4xl lg:text-6xl font-bold">
-                Expert Tax Solutions for <span className="text-primary">Your Business</span>
+                {t('hero.title')} <span className="text-primary">{t('hero.titleHighlight')}</span>
               </h1>
 
               <p className="text-xl text-muted-foreground leading-relaxed">
-                Comprehensive tax preparation and planning for small businesses, startups, and
-                growing companies. Maximize deductions, minimize liability.
+                {t('hero.subtitle')}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button variant="professional" size="lg" asChild>
-                  <Link href="/start-filing/form">Schedule Business Consultation</Link>
+                  <Link href="/start-filing/form">{t('hero.ctaConsultation')}</Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <Link href="tel:+14046271015">
                     <Phone className="mr-2 w-5 h-5" />
-                    (404) 627-1015
+                    {t('hero.ctaPhone')}
                   </Link>
                 </Button>
               </div>
 
               <div className="flex flex-wrap gap-6 pt-4">
                 {[
-                  { icon: CheckCircle, text: '500+ Businesses Served' },
-                  { icon: Award, text: 'IRS Authorized' },
-                  { icon: Shield, text: 'Audit Protection Included' },
+                  { icon: CheckCircle, text: t('hero.stat1') },
+                  { icon: Award, text: t('hero.stat2') },
+                  { icon: Shield, text: t('hero.stat3') },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
                     <item.icon className="w-5 h-5 text-success" />
@@ -90,7 +91,7 @@ export default function BusinessTaxPage() {
               <div className="relative rounded-lg overflow-hidden shadow-2xl">
                 <Image
                   src="https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&q=80"
-                  alt="Business professionals in modern office"
+                  alt={t('hero.imageAlt')}
                   width={800}
                   height={600}
                   className="object-cover w-full h-full"
@@ -106,8 +107,8 @@ export default function BusinessTaxPage() {
                       <TrendingUp className="w-6 h-6 text-success" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold">$25K+</p>
-                      <p className="text-sm text-muted-foreground">Avg. Tax Savings</p>
+                      <p className="text-2xl font-bold">{t('hero.savingsAmount')}</p>
+                      <p className="text-sm text-muted-foreground">{t('hero.savingsLabel')}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -126,9 +127,9 @@ export default function BusinessTaxPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">We Serve All Business Types</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('businessTypes.title')}</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Expert tax preparation for every business structure
+              {t('businessTypes.subtitle')}
             </p>
           </motion.div>
 
@@ -136,29 +137,29 @@ export default function BusinessTaxPage() {
             {[
               {
                 icon: Users,
-                title: 'Sole Proprietor',
-                desc: 'Schedule C filing, self-employment tax optimization',
+                title: t('businessTypes.soleProprietor.title'),
+                desc: t('businessTypes.soleProprietor.description'),
                 color: 'text-blue-500',
                 delay: 0,
               },
               {
                 icon: Briefcase,
-                title: 'LLC',
-                desc: 'Single & multi-member LLC returns, entity election strategy',
+                title: t('businessTypes.llc.title'),
+                desc: t('businessTypes.llc.description'),
                 color: 'text-green-500',
                 delay: 0.1,
               },
               {
                 icon: Building2,
-                title: 'S-Corporation',
-                desc: 'Form 1120-S, reasonable compensation, K-1 distributions',
+                title: t('businessTypes.sCorp.title'),
+                desc: t('businessTypes.sCorp.description'),
                 color: 'text-purple-500',
                 delay: 0.2,
               },
               {
                 icon: TrendingUp,
-                title: 'C-Corporation',
-                desc: 'Form 1120, corporate tax planning, profit optimization',
+                title: t('businessTypes.cCorp.title'),
+                desc: t('businessTypes.cCorp.description'),
                 color: 'text-orange-500',
                 delay: 0.3,
               },
@@ -202,7 +203,7 @@ export default function BusinessTaxPage() {
             >
               <Image
                 src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=700&q=80"
-                alt="Tax professional analyzing business documents"
+                alt={t('servicesIncluded.imageAlt')}
                 width={700}
                 height={500}
                 className="rounded-lg shadow-xl object-cover"
@@ -211,9 +212,9 @@ export default function BusinessTaxPage() {
 
             <div className="space-y-8">
               <div>
-                <h2 className="text-3xl lg:text-4xl font-bold mb-4">What's Included</h2>
+                <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('servicesIncluded.title')}</h2>
                 <p className="text-lg text-muted-foreground">
-                  Comprehensive tax services tailored to your business needs
+                  {t('servicesIncluded.subtitle')}
                 </p>
               </div>
 
@@ -221,33 +222,33 @@ export default function BusinessTaxPage() {
                 {[
                   {
                     icon: FileText,
-                    title: 'Federal & State Tax Returns',
-                    desc: 'Complete preparation and e-filing for all entities',
+                    title: t('servicesIncluded.service1Title'),
+                    desc: t('servicesIncluded.service1Description'),
                   },
                   {
                     icon: Calculator,
-                    title: 'Tax Planning & Strategy',
-                    desc: 'Year-round guidance to minimize tax liability',
+                    title: t('servicesIncluded.service2Title'),
+                    desc: t('servicesIncluded.service2Description'),
                   },
                   {
                     icon: PieChart,
-                    title: 'Quarterly Estimated Taxes',
-                    desc: 'Calculate and file quarterly payments to avoid penalties',
+                    title: t('servicesIncluded.service3Title'),
+                    desc: t('servicesIncluded.service3Description'),
                   },
                   {
                     icon: Shield,
-                    title: 'Audit Protection',
-                    desc: 'Full representation if IRS selects your return',
+                    title: t('servicesIncluded.service4Title'),
+                    desc: t('servicesIncluded.service4Description'),
                   },
                   {
                     icon: DollarSign,
-                    title: 'Deduction Maximization',
-                    desc: 'Identify all eligible business write-offs',
+                    title: t('servicesIncluded.service5Title'),
+                    desc: t('servicesIncluded.service5Description'),
                   },
                   {
                     icon: Clock,
-                    title: 'Year-Round Support',
-                    desc: 'Ongoing access to your CPA team',
+                    title: t('servicesIncluded.service6Title'),
+                    desc: t('servicesIncluded.service6Description'),
                   },
                 ].map((item, i) => (
                   <motion.div
@@ -284,36 +285,36 @@ export default function BusinessTaxPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Industry Expertise</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('industryExpertise.title')}</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              We understand the unique tax challenges of your industry
+              {t('industryExpertise.subtitle')}
             </p>
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {[
               {
-                name: 'E-Commerce & Online Retail',
+                name: t('industryExpertise.ecommerce'),
                 image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80',
               },
               {
-                name: 'Professional Services',
+                name: t('industryExpertise.professionalServices'),
                 image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&q=80',
               },
               {
-                name: 'Real Estate',
+                name: t('industryExpertise.realEstate'),
                 image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80',
               },
               {
-                name: 'Healthcare',
+                name: t('industryExpertise.healthcare'),
                 image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=600&q=80',
               },
               {
-                name: 'Construction & Contractors',
+                name: t('industryExpertise.construction'),
                 image: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=600&q=80',
               },
               {
-                name: 'Restaurants & Hospitality',
+                name: t('industryExpertise.hospitality'),
                 image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80',
               },
             ].map((industry, i) => (
@@ -350,44 +351,44 @@ export default function BusinessTaxPage() {
       <section className="py-24 bg-muted/30">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Business Tax Pricing</h2>
-            <p className="text-lg text-muted-foreground">Transparent pricing with no hidden fees</p>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('pricing.title')}</h2>
+            <p className="text-lg text-muted-foreground">{t('pricing.subtitle')}</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
               {
-                name: 'Sole Proprietor',
-                price: '$299',
+                name: t('pricing.soleProprietor.name'),
+                price: t('pricing.soleProprietor.price'),
                 features: [
-                  'Schedule C filing',
-                  'Self-employment tax',
-                  'Basic deductions',
-                  'E-file included',
+                  t('pricing.soleProprietor.feature1'),
+                  t('pricing.soleProprietor.feature2'),
+                  t('pricing.soleProprietor.feature3'),
+                  t('pricing.soleProprietor.feature4'),
                 ],
                 popular: false,
               },
               {
-                name: 'LLC / S-Corp',
-                price: '$799',
+                name: t('pricing.llcSCorp.name'),
+                price: t('pricing.llcSCorp.price'),
                 features: [
-                  'Form 1065/1120-S',
-                  'K-1 preparation',
-                  'Payroll tax review',
-                  'Quarterly estimates',
-                  'Audit protection',
+                  t('pricing.llcSCorp.feature1'),
+                  t('pricing.llcSCorp.feature2'),
+                  t('pricing.llcSCorp.feature3'),
+                  t('pricing.llcSCorp.feature4'),
+                  t('pricing.llcSCorp.feature5'),
                 ],
                 popular: true,
               },
               {
-                name: 'C-Corporation',
-                price: '$1,299',
+                name: t('pricing.cCorp.name'),
+                price: t('pricing.cCorp.price'),
                 features: [
-                  'Form 1120',
-                  'Corporate tax planning',
-                  'Multi-state filing',
-                  'Tax strategy consulting',
-                  'Priority support',
+                  t('pricing.cCorp.feature1'),
+                  t('pricing.cCorp.feature2'),
+                  t('pricing.cCorp.feature3'),
+                  t('pricing.cCorp.feature4'),
+                  t('pricing.cCorp.feature5'),
                 ],
                 popular: false,
               },
@@ -406,12 +407,12 @@ export default function BusinessTaxPage() {
                   <CardHeader>
                     {plan.popular && (
                       <Badge className="w-fit mb-2 bg-primary text-primary-foreground">
-                        Most Popular
+                        {t('pricing.llcSCorp.popularBadge')}
                       </Badge>
                     )}
                     <CardTitle className="text-2xl">{plan.name}</CardTitle>
                     <div className="text-4xl font-bold text-primary mt-4">{plan.price}</div>
-                    <p className="text-sm text-muted-foreground">Starting price</p>
+                    <p className="text-sm text-muted-foreground">{t('pricing.soleProprietor.startingPrice')}</p>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <ul className="space-y-3">
@@ -427,7 +428,7 @@ export default function BusinessTaxPage() {
                       className="w-full"
                       asChild
                     >
-                      <Link href="/start-filing/form">Get Started</Link>
+                      <Link href="/start-filing/form">{t('pricing.ctaGetStarted')}</Link>
                     </Button>
                   </CardContent>
                 </Card>
@@ -450,21 +451,21 @@ export default function BusinessTaxPage() {
             className="text-center max-w-3xl mx-auto space-y-8"
           >
             <h2 className="text-3xl lg:text-4xl font-bold">
-              Ready to Optimize Your Business Taxes?
+              {t('cta.title')}
             </h2>
             <p className="text-lg text-muted-foreground">
-              Schedule a free consultation with a business tax specialist today
+              {t('cta.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button variant="professional" size="lg" asChild>
                 <Link href="/start-filing/form">
-                  Schedule Consultation <ArrowRight className="ml-2 w-5 h-5" />
+                  {t('cta.ctaConsultation')} <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
                 <Link href="tel:+14046271015">
                   <Phone className="mr-2 w-5 h-5" />
-                  Call Now
+                  {t('cta.ctaCall')}
                 </Link>
               </Button>
             </div>

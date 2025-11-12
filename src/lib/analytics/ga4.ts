@@ -10,7 +10,7 @@
 import { logger } from '@/lib/logger';
 
 // GA4 Measurement ID from environment
-export const GA4_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID || '';
+export const GA4_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '';
 
 /**
  * Check if GA4 is properly configured
@@ -719,5 +719,74 @@ export function trackCRMExportCSV(data: {
     logger.info('GA4 CRM export CSV tracked', data);
   } catch (error) {
     logger.error('GA4 CRM export CSV tracking failed', { error });
+  }
+}
+
+// ============================================================
+// I18N / LANGUAGE TRACKING FUNCTIONS
+// ============================================================
+
+/**
+ * Track language switch
+ * Fired when user changes site language
+ */
+export function trackLanguageSwitch(data: {
+  fromLocale: string;
+  toLocale: string;
+  currentPage: string;
+  switchMethod: 'header_dropdown' | 'mobile_menu' | 'footer_compact' | 'custom';
+  userAuthenticated?: boolean;
+  userRole?: string;
+}) {
+  if (!isGA4Enabled()) return;
+
+  try {
+    const gtag = (window as any).gtag;
+
+    gtag('event', 'language_switch', {
+      event_category: 'Localization',
+      event_label: `${data.fromLocale} → ${data.toLocale}`,
+      from_locale: data.fromLocale,
+      to_locale: data.toLocale,
+      current_page: data.currentPage,
+      switch_method: data.switchMethod,
+      ...(data.userAuthenticated !== undefined && {
+        user_authenticated: data.userAuthenticated,
+      }),
+      ...(data.userRole && { user_role: data.userRole }),
+      value: 1,
+    });
+
+    logger.info('GA4 language switch tracked', data);
+  } catch (error) {
+    logger.error('GA4 language switch tracking failed', { error });
+  }
+}
+
+/**
+ * Track language preference
+ * Fired when language preference is detected or set
+ */
+export function trackLanguagePreference(data: {
+  preferredLocale: string;
+  detectionMethod: 'browser' | 'cookie' | 'user_selection' | 'default';
+  browserLanguage?: string;
+}) {
+  if (!isGA4Enabled()) return;
+
+  try {
+    const gtag = (window as any).gtag;
+
+    gtag('event', 'language_preference', {
+      event_category: 'Localization',
+      event_label: data.preferredLocale,
+      preferred_locale: data.preferredLocale,
+      detection_method: data.detectionMethod,
+      ...(data.browserLanguage && { browser_language: data.browserLanguage }),
+    });
+
+    logger.info('GA4 language preference tracked', data);
+  } catch (error) {
+    logger.error('GA4 language preference tracking failed', { error });
   }
 }

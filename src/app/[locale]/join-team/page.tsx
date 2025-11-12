@@ -40,28 +40,28 @@ export default function JoinTeamPage() {
       name: 'Gelisa White',
       title: '1st Year Tax Genius',
       followers: '15.7k',
-      image: '/wordpress-assets/gelisa.png',
+      image: '/wordpress-assets/gelisa.webp',
       quote: 'I was really getting tired of doing hair...Tax Genius give me the tools i needed to be very successful',
     },
     {
       name: 'Yaumar Williams',
       title: '2nd Year Tax Genius',
       followers: '11.7k',
-      image: '/wordpress-assets/angela-r.png',
+      image: '/wordpress-assets/angela-r.webp',
       quote: 'The support and training from Tax Genius has been incredible. I doubled my income in my second year!',
     },
     {
       name: 'Chelsea Mitchell Lowe',
       title: '2nd Year Tax Genius',
       followers: '2,492k',
-      image: '/wordpress-assets/chels.png',
+      image: '/wordpress-assets/chels.webp',
       quote: 'Best decision I ever made. The marketing materials and lead generation tools work perfectly.',
     },
     {
       name: 'Angela Richards',
       title: '2nd Year Tax Genius',
       followers: '1,826k',
-      image: '/wordpress-assets/dude.png',
+      image: '/wordpress-assets/dude.webp',
       quote: 'From zero experience to earning six figures in tax preparation. The comprehensive training made all the difference!',
     },
   ];
@@ -404,10 +404,11 @@ export default function JoinTeamPage() {
         <div className="container mx-auto max-w-4xl text-center">
           <div className="relative w-64 h-64 mx-auto mb-8">
             <Image
-              src="/wordpress-assets/golden-goose-2023-removebg-preview.png"
+              src="/wordpress-assets/golden-goose-2023-removebg-preview.webp"
               alt="Golden Goose Award"
               fill
               className="object-contain"
+              sizes="256px"
             />
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-6 text-[#4054b2]">

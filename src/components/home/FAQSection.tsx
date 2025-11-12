@@ -6,42 +6,24 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-
-const faqs = [
-  {
-    question: 'How quickly can I get my refund?',
-    answer:
-      'With direct deposit, you can receive your federal refund in as little as 24 hours after IRS acceptance. Paper checks typically take 2-3 weeks.',
-  },
-  {
-    question: 'What documents do I need to file?',
-    answer:
-      "You'll need your W-2s, 1099s, receipts for deductions, last year's tax return, and any other income or deduction documents. Our platform will guide you through everything you need.",
-  },
-  {
-    question: 'Is my information secure?',
-    answer:
-      'Yes! We use bank-level 256-bit encryption and are IRS-authorized. Your data is protected with the same security standards used by major financial institutions.',
-  },
-  {
-    question: 'What if I need help during filing?',
-    answer:
-      'Our CPAs are available via chat, phone, or video call. Premium plans include unlimited CPA support throughout the filing process.',
-  },
-  {
-    question: 'Do you offer audit protection?',
-    answer:
-      "Yes! All our plans include free audit protection. If you're audited, we'll represent you and handle all IRS communications at no extra cost.",
-  },
-];
+import { useTranslations } from 'next-intl';
 
 export function FAQSection() {
+  const t = useTranslations('home.faq');
+
+  const faqs = [
+    { questionKey: 'faq1.question', answerKey: 'faq1.answer' },
+    { questionKey: 'faq2.question', answerKey: 'faq2.answer' },
+    { questionKey: 'faq3.question', answerKey: 'faq3.answer' },
+    { questionKey: 'faq4.question', answerKey: 'faq4.answer' },
+    { questionKey: 'faq5.question', answerKey: 'faq5.answer' },
+  ];
   return (
     <section className="py-20 bg-muted/30">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl lg:text-5xl font-bold text-center mb-12">
-            Frequently Asked Questions
+            {t('sectionTitle')}
           </h2>
           <Accordion type="single" collapsible className="space-y-4">
             {faqs.map((faq, index) => (
@@ -51,9 +33,9 @@ export function FAQSection() {
                 className="bg-card rounded-lg px-6"
               >
                 <AccordionTrigger className="text-left hover:no-underline">
-                  {faq.question}
+                  {t(faq.questionKey)}
                 </AccordionTrigger>
-                <AccordionContent>{faq.answer}</AccordionContent>
+                <AccordionContent>{t(faq.answerKey)}</AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>

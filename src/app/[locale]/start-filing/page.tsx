@@ -1,4 +1,5 @@
-import { Metadata } from 'next';
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -14,21 +15,10 @@ import {
   ArrowRight,
   Users,
 } from 'lucide-react';
-
-export const metadata: Metadata = {
-  title: 'Start Your Tax Return - Fast Filing & Maximum Refund | Tax Genius Pro',
-  description:
-    'File your taxes in minutes and get every dollar you deserve. Expert CPAs find all deductions and credits. Average client refund: $3,200. Start your return now.',
-  keywords:
-    'file taxes fast, maximum tax refund, tax preparation, CPA tax filing, quick tax return',
-  openGraph: {
-    title: 'Get Your Maximum Tax Refund Fast | Tax Genius Pro',
-    description: 'File your taxes in minutes with certified CPAs. See what you qualify for today.',
-    type: 'website',
-  },
-};
+import { useTranslations } from 'next-intl';
 
 export default function StartFilingPage() {
+  const t = useTranslations('startFiling');
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Service',
@@ -79,43 +69,42 @@ export default function StartFilingPage() {
           <div>
             <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-semibold mb-6">
               <Zap className="h-4 w-4" />
-              File in 15 Minutes
+              {t('hero.badge')}
             </div>
 
             <h1 className="text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              Get Every Dollar You <span className="text-green-600">Deserve</span> This Tax Season
+              {t('hero.title')} <span className="text-green-600">{t('hero.titleHighlight')}</span> {t('hero.titleEnd')}
             </h1>
 
             <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-              Expert CPAs find all the deductions and credits you qualify for. Fast, easy, and you
-              keep more money.
+              {t('hero.subtitle')}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
               <Link href="/start-filing/form">
                 <Button size="lg" className="w-full sm:w-auto text-lg h-14 px-8">
-                  Start Your Return Now
+                  {t('hero.ctaButton')}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <CheckCircle className="h-5 w-5 text-green-500" />
-                No signup required to start
+                {t('hero.noSignup')}
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-6 pt-8 border-t">
               <div>
-                <div className="text-3xl font-bold text-green-600">15min</div>
-                <p className="text-sm text-muted-foreground">Average filing time</p>
+                <div className="text-3xl font-bold text-green-600">{t('hero.stat1')}</div>
+                <p className="text-sm text-muted-foreground">{t('hero.stat1Label')}</p>
               </div>
               <div>
-                <div className="text-3xl font-bold text-green-600">$3,200</div>
-                <p className="text-sm text-muted-foreground">Average refund</p>
+                <div className="text-3xl font-bold text-green-600">{t('hero.stat2')}</div>
+                <p className="text-sm text-muted-foreground">{t('hero.stat2Label')}</p>
               </div>
               <div>
-                <div className="text-3xl font-bold text-green-600">4.9★</div>
-                <p className="text-sm text-muted-foreground">Client rating</p>
+                <div className="text-3xl font-bold text-green-600">{t('hero.stat3')}</div>
+                <p className="text-sm text-muted-foreground">{t('hero.stat3Label')}</p>
               </div>
             </div>
           </div>
@@ -124,7 +113,7 @@ export default function StartFilingPage() {
             <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-2xl bg-card">
               <Image
                 src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80&auto=format&fit=crop"
-                alt="Happy person celebrating tax refund on laptop"
+                alt={t('hero.imageAlt')}
                 fill
                 className="object-cover"
                 priority
@@ -139,8 +128,8 @@ export default function StartFilingPage() {
                     <DollarSign className="h-6 w-6 text-green-600" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">50,000+</div>
-                    <p className="text-sm text-muted-foreground">Refunds Processed</p>
+                    <div className="text-2xl font-bold">{t('hero.floatingCardStat')}</div>
+                    <p className="text-sm text-muted-foreground">{t('hero.floatingCardLabel')}</p>
                   </div>
                 </div>
               </CardContent>
@@ -153,9 +142,9 @@ export default function StartFilingPage() {
       <section className="bg-white py-16 mt-12">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Why People Choose Tax Genius Pro</h2>
+            <h2 className="text-4xl font-bold mb-4">{t('whyChoose.title')}</h2>
             <p className="text-xl text-muted-foreground">
-              We focus on what matters most: your time and your money
+              {t('whyChoose.subtitle')}
             </p>
           </div>
 
@@ -165,23 +154,22 @@ export default function StartFilingPage() {
                 <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
                   <Clock className="h-8 w-8 text-blue-600" />
                 </div>
-                <h3 className="text-2xl font-bold mb-4">Lightning Fast Filing</h3>
+                <h3 className="text-2xl font-bold mb-4">{t('whyChoose.speed.title')}</h3>
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  Most clients complete their return in under 15 minutes. Our smart form asks only
-                  what's needed for YOUR situation.
+                  {t('whyChoose.speed.description')}
                 </p>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">Simple questions, no tax jargon</span>
+                    <span className="text-sm">{t('whyChoose.speed.feature1')}</span>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">Save & resume anytime</span>
+                    <span className="text-sm">{t('whyChoose.speed.feature2')}</span>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">Returns filed within 48 hours</span>
+                    <span className="text-sm">{t('whyChoose.speed.feature3')}</span>
                   </div>
                 </div>
               </CardContent>
@@ -192,23 +180,22 @@ export default function StartFilingPage() {
                 <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6">
                   <TrendingUp className="h-8 w-8 text-green-600" />
                 </div>
-                <h3 className="text-2xl font-bold mb-4">Maximum Refund Promise</h3>
+                <h3 className="text-2xl font-bold mb-4">{t('whyChoose.refund.title')}</h3>
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  Our CPAs find every deduction and credit you qualify for. See what you're entitled
-                  to - most clients get $3,200+.
+                  {t('whyChoose.refund.description')}
                 </p>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">Expert review of your return</span>
+                    <span className="text-sm">{t('whyChoose.refund.feature1')}</span>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">Find hidden deductions</span>
+                    <span className="text-sm">{t('whyChoose.refund.feature2')}</span>
                   </div>
                   <div className="flex items-start gap-3">
                     <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">100% accuracy guarantee</span>
+                    <span className="text-sm">{t('whyChoose.refund.feature3')}</span>
                   </div>
                 </div>
               </CardContent>
@@ -218,7 +205,7 @@ export default function StartFilingPage() {
           <div className="text-center mt-12">
             <Link href="/start-filing/form">
               <Button size="lg" className="text-lg h-14 px-8">
-                See What You Qualify For
+                {t('whyChoose.ctaButton')}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
@@ -229,9 +216,9 @@ export default function StartFilingPage() {
       {/* Social Proof - Testimonials */}
       <section className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-4">Real People, Real Results</h2>
+          <h2 className="text-4xl font-bold mb-4">{t('testimonials.title')}</h2>
           <p className="text-xl text-muted-foreground">
-            See what clients say about their refunds and experience
+            {t('testimonials.subtitle')}
           </p>
         </div>
 
@@ -303,7 +290,7 @@ export default function StartFilingPage() {
         <div className="mt-12 text-center">
           <div className="inline-flex items-center gap-2 bg-muted px-6 py-3 rounded-full">
             <Users className="h-5 w-5 text-green-600" />
-            <span className="font-semibold">Join 50,000+ satisfied clients</span>
+            <span className="font-semibold">{t('testimonials.joinText')}</span>
           </div>
         </div>
       </section>
@@ -312,9 +299,9 @@ export default function StartFilingPage() {
       <section className="bg-muted/50 py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Get Your Refund in 3 Simple Steps</h2>
+            <h2 className="text-4xl font-bold mb-4">{t('howItWorks.title')}</h2>
             <p className="text-xl text-muted-foreground">
-              Fast, easy, and designed for real people
+              {t('howItWorks.subtitle')}
             </p>
           </div>
 
@@ -328,10 +315,9 @@ export default function StartFilingPage() {
                   <Clock className="h-4 w-4 text-yellow-900" />
                 </div>
               </div>
-              <h3 className="text-xl font-bold mb-3">Answer Quick Questions</h3>
+              <h3 className="text-xl font-bold mb-3">{t('howItWorks.step1Title')}</h3>
               <p className="text-muted-foreground">
-                Takes 15 minutes or less. Simple questions about your income, family, and
-                deductions.
+                {t('howItWorks.step1Description')}
               </p>
             </div>
 
@@ -344,10 +330,9 @@ export default function StartFilingPage() {
                   <Shield className="h-4 w-4 text-yellow-900" />
                 </div>
               </div>
-              <h3 className="text-xl font-bold mb-3">Expert CPA Review</h3>
+              <h3 className="text-xl font-bold mb-3">{t('howItWorks.step2Title')}</h3>
               <p className="text-muted-foreground">
-                Licensed tax professionals review your return and find every deduction you qualify
-                for.
+                {t('howItWorks.step2Description')}
               </p>
             </div>
 
@@ -360,9 +345,9 @@ export default function StartFilingPage() {
                   <DollarSign className="h-4 w-4 text-yellow-900" />
                 </div>
               </div>
-              <h3 className="text-xl font-bold mb-3">Get Your Maximum Refund</h3>
+              <h3 className="text-xl font-bold mb-3">{t('howItWorks.step3Title')}</h3>
               <p className="text-muted-foreground">
-                We file your return and you get every dollar you deserve. Fast, secure, guaranteed.
+                {t('howItWorks.step3Description')}
               </p>
             </div>
           </div>
@@ -377,42 +362,42 @@ export default function StartFilingPage() {
               <div className="relative h-64 md:h-auto">
                 <Image
                   src="https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=600&q=80&auto=format&fit=crop"
-                  alt="Person excited about tax refund"
+                  alt={t('finalCta.imageAlt')}
                   fill
                   className="object-cover"
                   unoptimized
                 />
               </div>
               <CardContent className="p-8 md:p-12 flex flex-col justify-center">
-                <h2 className="text-3xl font-bold mb-4">Ready to See What You Qualify For?</h2>
+                <h2 className="text-3xl font-bold mb-4">{t('finalCta.title')}</h2>
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  Start your return now. No signup required. Most people finish in under 15 minutes.
+                  {t('finalCta.subtitle')}
                 </p>
 
                 <div className="space-y-3 mb-8">
                   <div className="flex items-center gap-3">
                     <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                    <span>Find all deductions and credits</span>
+                    <span>{t('finalCta.feature1')}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                    <span>Expert CPA reviews your return</span>
+                    <span>{t('finalCta.feature2')}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-                    <span>100% accuracy guaranteed</span>
+                    <span>{t('finalCta.feature3')}</span>
                   </div>
                 </div>
 
                 <Link href="/start-filing/form">
                   <Button size="lg" className="w-full text-lg h-14">
-                    Start Your Tax Return Now
+                    {t('finalCta.ctaButton')}
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </Link>
 
                 <p className="text-xs text-center text-muted-foreground mt-4">
-                  Average refund: $3,200 • File in 15 minutes
+                  {t('finalCta.subtext')}
                 </p>
               </CardContent>
             </div>
@@ -425,15 +410,15 @@ export default function StartFilingPage() {
         <div className="flex justify-center items-center gap-8 flex-wrap text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-green-500" />
-            <span className="font-semibold">IRS Authorized E-File Provider</span>
+            <span className="font-semibold">{t('trust.badge1')}</span>
           </div>
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-green-500" />
-            <span className="font-semibold">256-Bit Bank-Level Encryption</span>
+            <span className="font-semibold">{t('trust.badge2')}</span>
           </div>
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-green-500" />
-            <span className="font-semibold">BBB A+ Rated</span>
+            <span className="font-semibold">{t('trust.badge3')}</span>
           </div>
         </div>
       </section>

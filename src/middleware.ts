@@ -131,18 +131,49 @@ const isPublicApiRoute = (pathname: string): boolean => {
 };
 
 export async function middleware(req: NextRequest) {
-  // Skip NextAuth auth for test endpoints in development
+  const pathname = req.nextUrl.pathname;
+
+  // ============================================================================
+  // PHASE 1: BYPASS - Skip middleware for routes that don't need i18n or auth
+  // ============================================================================
+
+  // Skip middleware entirely for API routes, static files, and Next.js internals
   if (
-    process.env.NODE_ENV === 'development' &&
-    (req.nextUrl.pathname.startsWith('/api/auth/test-login') ||
-      req.nextUrl.pathname === '/auth/test-login')
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/sw.js') ||
+    pathname.startsWith('/manifest.json') ||
+    pathname.includes('.')
   ) {
     return NextResponse.next();
   }
 
-  let pathname = req.nextUrl.pathname;
+  // Skip auth for test endpoints in development
+  if (
+    process.env.NODE_ENV === 'development' &&
+    (pathname.startsWith('/api/auth/test-login') || pathname === '/auth/test-login')
+  ) {
+    return NextResponse.next();
+  }
 
-  // Handle i18n routing: Check if path includes locale prefix
+  // ============================================================================
+  // PHASE 2: I18N - Apply next-intl middleware FIRST for locale routing
+  // ============================================================================
+
+  // Apply i18n middleware to handle locale routing
+  // This ensures /en and /es routes are properly recognized
+  const intlResponse = intlMiddleware(req);
+
+  // If intl middleware returns a redirect (e.g., / -> /en), return it immediately
+  if (intlResponse.status === 307 || intlResponse.status === 308) {
+    return intlResponse;
+  }
+
+  // ============================================================================
+  // PHASE 3: PATH NORMALIZATION - Extract locale for custom middleware logic
+  // ============================================================================
+
+  // Check if path includes locale prefix
   const pathnameHasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
@@ -157,6 +188,10 @@ export async function middleware(req: NextRequest) {
       pathnameWithoutLocale = '/';
     }
   }
+
+  // ============================================================================
+  // PHASE 4: TRACKING & ATTRIBUTION - Handle analytics and referral tracking
+  // ============================================================================
 
   // EPIC 6: Check for attribution short links FIRST (before auth)
   // This must run before any auth checks so public links work
@@ -189,13 +224,17 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Run UTM tracking middleware (Epic 6)
-  let response = utmTrackingMiddleware(req);
+  // Run UTM tracking middleware (Epic 6) - captures UTM parameters to cookies
+  let trackingResponse = utmTrackingMiddleware(req);
 
   // Run ref parameter tracking middleware (capture ?ref=code)
-  response = await refTrackingMiddleware(req, response);
+  trackingResponse = await refTrackingMiddleware(req, trackingResponse);
 
-  // Get session using NextAuth
+  // ============================================================================
+  // PHASE 5: AUTHENTICATION & AUTHORIZATION - Check user access and permissions
+  // ============================================================================
+
+  // Get session using NextAuth v5
   const session = await auth();
   const userId = session?.user?.id;
 
@@ -252,7 +291,11 @@ export async function middleware(req: NextRequest) {
       const userEmail = session.user.email;
 
       if (userEmail === 'support@taxgeniuspro.tax') {
-        return intlMiddleware(req); // Apply i18n middleware
+        // Merge tracking cookies and return i18n response
+        trackingResponse.cookies.getAll().forEach((cookie) => {
+          intlResponse.cookies.set(cookie.name, cookie.value, cookie);
+        });
+        return intlResponse;
       }
 
       const forbiddenUrl = req.nextUrl.clone();
@@ -373,12 +416,18 @@ export async function middleware(req: NextRequest) {
 
       // If trying to access debug page, allow it without auto-assignment
       if (pathnameWithoutLocale === '/debug-role') {
-        return intlMiddleware(req);
+        trackingResponse.cookies.getAll().forEach((cookie) => {
+          intlResponse.cookies.set(cookie.name, cookie.value, cookie);
+        });
+        return intlResponse;
       }
 
       // Allow users without roles to access setup-admin page
       if (pathnameWithoutLocale === '/setup-admin') {
-        return intlMiddleware(req);
+        trackingResponse.cookies.getAll().forEach((cookie) => {
+          intlResponse.cookies.set(cookie.name, cookie.value, cookie);
+        });
+        return intlResponse;
       }
 
       // For users without a valid role, redirect to dashboard
@@ -387,12 +436,18 @@ export async function middleware(req: NextRequest) {
 
       // If they're on a public route, let them through
       if (isPublicRoute(pathnameWithoutLocale)) {
-        return intlMiddleware(req);
+        trackingResponse.cookies.getAll().forEach((cookie) => {
+          intlResponse.cookies.set(cookie.name, cookie.value, cookie);
+        });
+        return intlResponse;
       }
 
       // If already on dashboard or select-role page, let them through to avoid loops
       if (pathnameWithoutLocale === '/dashboard' || pathnameWithoutLocale === '/auth/select-role') {
-        return intlMiddleware(req);
+        trackingResponse.cookies.getAll().forEach((cookie) => {
+          intlResponse.cookies.set(cookie.name, cookie.value, cookie);
+        });
+        return intlResponse;
       }
 
       // Otherwise redirect to dashboard - it will handle role setup
@@ -420,23 +475,25 @@ export async function middleware(req: NextRequest) {
       const redirect = NextResponse.redirect(redirectUrl);
 
       // Copy tracking cookies to redirect response
-      response.cookies.getAll().forEach((cookie) => {
+      trackingResponse.cookies.getAll().forEach((cookie) => {
         redirect.cookies.set(cookie.name, cookie.value, cookie);
       });
       return redirect;
     }
   }
 
-  // Apply i18n middleware for locale handling
-  const i18nResponse = intlMiddleware(req);
+  // ============================================================================
+  // PHASE 6: RESPONSE - Merge tracking cookies into i18n response
+  // ============================================================================
 
-  // Merge tracking cookies from previous middlewares
-  response.cookies.getAll().forEach((cookie) => {
-    i18nResponse.cookies.set(cookie.name, cookie.value, cookie);
+  // Merge tracking cookies from previous middlewares into the i18n response
+  // This preserves both i18n locale handling AND tracking cookies
+  trackingResponse.cookies.getAll().forEach((cookie) => {
+    intlResponse.cookies.set(cookie.name, cookie.value, cookie);
   });
 
   // Return response with all tracking cookies and i18n handling
-  return i18nResponse;
+  return intlResponse;
 }
 
 export const config = {

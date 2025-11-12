@@ -5,6 +5,7 @@ import { getUTMCookie } from '@/lib/utils/cookie-manager';
 import { getAttribution, saveTaxIntakeAttribution } from '@/lib/services/attribution.service';
 import { EmailService } from '@/lib/services/email.service';
 import { logger } from '@/lib/logger';
+import { getEmailRecipients } from '@/config/email-routing';
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,6 +45,8 @@ export async function POST(req: NextRequest) {
       drivers_license,
       license_expiration,
       full_form_data,
+      // Language/Locale for email routing
+      locale,
     } = body;
 
     // Validate required fields
@@ -57,10 +60,11 @@ export async function POST(req: NextRequest) {
     // Check for ref parameter in URL
     const refParam = req.nextUrl.searchParams.get('ref');
     let refOverride = null;
+    let cachedReferrerProfile = null; // Cache for referrer profile to avoid duplicate queries
 
     if (refParam) {
-      // Look up the referrer by tracking code
-      const referrerProfile = await prisma.profile.findFirst({
+      // Look up the referrer by tracking code (optimization: cache this result)
+      cachedReferrerProfile = await prisma.profile.findFirst({
         where: {
           OR: [
             { trackingCode: refParam },
@@ -75,16 +79,16 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      if (referrerProfile) {
+      if (cachedReferrerProfile) {
         refOverride = {
           referrerUsername: refParam,
-          referrerType: referrerProfile.role,
+          referrerType: cachedReferrerProfile.role,
           attributionMethod: 'ref_param',
         };
         logger.info('Attribution from URL ref parameter', {
           ref: refParam,
-          referrerRole: referrerProfile.role,
-          referrerId: referrerProfile.id,
+          referrerRole: cachedReferrerProfile.role,
+          referrerId: cachedReferrerProfile.id,
         });
       }
     }
@@ -99,21 +103,25 @@ export async function POST(req: NextRequest) {
     let assignedPreparerId: string | null = null;
 
     if (attributionResult.attribution.referrerUsername) {
-      // Find the referrer profile
-      const referrerProfile = await prisma.profile.findFirst({
-        where: {
-          OR: [
-            { trackingCode: attributionResult.attribution.referrerUsername },
-            { customTrackingCode: attributionResult.attribution.referrerUsername },
-            { shortLinkUsername: attributionResult.attribution.referrerUsername },
-          ],
-        },
-        select: {
-          id: true,
-          role: true,
-          userId: true,
-        },
-      });
+      // Optimization: Reuse cached profile if same referrer, avoiding N+1 query
+      const referrerProfile =
+        cachedReferrerProfile &&
+        (attributionResult.attribution.referrerUsername === refParam)
+          ? cachedReferrerProfile
+          : await prisma.profile.findFirst({
+              where: {
+                OR: [
+                  { trackingCode: attributionResult.attribution.referrerUsername },
+                  { customTrackingCode: attributionResult.attribution.referrerUsername },
+                  { shortLinkUsername: attributionResult.attribution.referrerUsername },
+                ],
+              },
+              select: {
+                id: true,
+                role: true,
+                userId: true,
+              },
+            });
 
       if (referrerProfile) {
         // Business Rule: Assign lead based on referrer role
@@ -332,92 +340,109 @@ ${attributionResult.attribution.referrerUsername ? `- Referrer: ${attributionRes
       });
     }
 
-    // Send email notification to assigned preparer (if assigned)
-    if (assignedPreparerId) {
-      try {
-        // Send comprehensive tax intake email if all tax details are provided
-        if (isCompleteTaxIntake) {
-          await EmailService.sendTaxIntakeCompleteEmail(assignedPreparerId, {
-            leadId: lead.id,
-            // Personal Information
-            firstName: first_name,
-            middleName: middle_name,
-            lastName: last_name,
-            email: email,
-            phone: phone,
-            countryCode: country_code || '+1',
-            dateOfBirth: date_of_birth,
-            ssn: ssn,
-            // Address
-            addressLine1: address_line_1,
-            addressLine2: address_line_2,
-            city: city,
-            state: state,
-            zipCode: zip_code,
-            // Tax Filing Details
-            filingStatus: filing_status,
-            employmentType: employment_type,
-            occupation: occupation,
-            claimedAsDependent: claimed_as_dependent,
-            // Education
-            inCollege: in_college,
-            // Dependents
-            hasDependents: has_dependents,
-            numberOfDependents: number_of_dependents,
-            dependentsUnder24StudentOrDisabled: dependents_under_24_student_or_disabled,
-            dependentsInCollege: dependents_in_college,
-            childCareProvider: child_care_provider,
-            // Property
-            hasMortgage: has_mortgage,
-            // Tax Credits
-            deniedEitc: denied_eitc,
-            // IRS Information
-            hasIrsPin: has_irs_pin,
-            irsPin: irs_pin,
-            // Refund Preferences
-            wantsRefundAdvance: wants_refund_advance,
-            // Identification
-            driversLicense: drivers_license,
-            licenseExpiration: license_expiration,
-            licenseFileUrl: undefined, // TODO: Add file upload handling
-            // Attribution
-            source: attributionResult.attribution.attributionMethod || 'direct',
-            referrerUsername: attributionResult.attribution.referrerUsername,
-            referrerType: attributionResult.attribution.referrerType,
-            attributionMethod: attributionResult.attribution.attributionMethod,
-          });
-          logger.info('Comprehensive tax intake email sent to preparer', {
-            leadId: lead.id,
-            preparerId: assignedPreparerId,
-          });
-        } else {
-          // Send basic lead notification for incomplete submissions
-          await EmailService.sendNewLeadNotificationEmail(assignedPreparerId, {
-            leadId: lead.id,
-            leadName: `${lead.first_name} ${lead.last_name}`,
-            leadEmail: lead.email,
-            leadPhone: lead.phone || undefined,
-            service: 'tax-intake', // Tax intake form submission
-            message: undefined, // No message field in tax intake
-            source: attributionResult.attribution.attributionMethod || 'direct',
-          });
-          logger.info('Basic lead notification email sent to preparer', {
-            leadId: lead.id,
-            preparerId: assignedPreparerId,
-          });
-        }
-      } catch (emailError) {
-        // Log error but don't fail the request
-        logger.error('Failed to send email notification', {
-          error: emailError,
+    // ========================================
+    // LANGUAGE-BASED EMAIL ROUTING (using centralized config)
+    // Spanish → Goldenprotaxes@gmail.com (Ale Hamilton) + CC to taxgenius.tax@gmail.com (Owliver Owl)
+    // English → taxgenius.taxes@gmail.com (Ray Hamilton) + CC to taxgenius.tax@gmail.com (Owliver Owl)
+    // ========================================
+
+    // Determine primary recipient based on locale
+    const recipients = getEmailRecipients((locale as 'en' | 'es') || 'en');
+    const ccEmail = recipients.cc; // Always CC to Owliver Owl
+
+    logger.info('Language-based email routing', {
+      locale: locale || 'en',
+      primaryRecipient: recipients.primary,
+      ccRecipient: ccEmail,
+      assignedPreparerId: assignedPreparerId || 'None (using language-based routing)',
+    });
+
+    // Send email notification to assigned preparer (if assigned) OR to language-based recipient
+    const emailRecipient = assignedPreparerId || recipients.primary;
+
+    try {
+      // Send comprehensive tax intake email if all tax details are provided
+      if (isCompleteTaxIntake) {
+        await EmailService.sendTaxIntakeCompleteEmail(emailRecipient, {
           leadId: lead.id,
-          preparerId: assignedPreparerId,
-          isCompleteTaxIntake,
+          // Personal Information
+          firstName: first_name,
+          middleName: middle_name,
+          lastName: last_name,
+          email: email,
+          phone: phone,
+          countryCode: country_code || '+1',
+          dateOfBirth: date_of_birth,
+          ssn: ssn,
+          // Address
+          addressLine1: address_line_1,
+          addressLine2: address_line_2,
+          city: city,
+          state: state,
+          zipCode: zip_code,
+          // Tax Filing Details
+          filingStatus: filing_status,
+          employmentType: employment_type,
+          occupation: occupation,
+          claimedAsDependent: claimed_as_dependent,
+          // Education
+          inCollege: in_college,
+          // Dependents
+          hasDependents: has_dependents,
+          numberOfDependents: number_of_dependents,
+          dependentsUnder24StudentOrDisabled: dependents_under_24_student_or_disabled,
+          dependentsInCollege: dependents_in_college,
+          childCareProvider: child_care_provider,
+          // Property
+          hasMortgage: has_mortgage,
+          // Tax Credits
+          deniedEitc: denied_eitc,
+          // IRS Information
+          hasIrsPin: has_irs_pin,
+          irsPin: irs_pin,
+          // Refund Preferences
+          wantsRefundAdvance: wants_refund_advance,
+          // Identification
+          driversLicense: drivers_license,
+          licenseExpiration: license_expiration,
+          licenseFileUrl: undefined, // TODO: Add file upload handling
+          // Attribution
+          source: attributionResult.attribution.attributionMethod || 'direct',
+          referrerUsername: attributionResult.attribution.referrerUsername,
+          referrerType: attributionResult.attribution.referrerType,
+          attributionMethod: attributionResult.attribution.attributionMethod,
+        }, ccEmail, (locale as 'en' | 'es') || 'en'); // Pass CC email and locale
+        logger.info('Comprehensive tax intake email sent', {
+          leadId: lead.id,
+          recipient: emailRecipient,
+          cc: ccEmail,
+          locale: locale || 'en',
+        });
+      } else {
+        // Send basic lead notification for incomplete submissions
+        await EmailService.sendNewLeadNotificationEmail(emailRecipient, {
+          leadId: lead.id,
+          leadName: `${lead.first_name} ${lead.last_name}`,
+          leadEmail: lead.email,
+          leadPhone: lead.phone || undefined,
+          service: 'tax-intake', // Tax intake form submission
+          message: undefined, // No message field in tax intake
+          source: attributionResult.attribution.attributionMethod || 'direct',
+        }, ccEmail, (locale as 'en' | 'es') || 'en'); // Pass CC email and locale
+        logger.info('Basic lead notification email sent', {
+          leadId: lead.id,
+          recipient: emailRecipient,
+          cc: ccEmail,
+          locale: locale || 'en',
         });
       }
-    } else {
-      logger.info('Lead assigned to Tax Genius corporate, no preparer notification sent', {
+    } catch (emailError) {
+      // Log error but don't fail the request
+      logger.error('Failed to send email notification', {
+        error: emailError,
         leadId: lead.id,
+        recipient: emailRecipient,
+        isCompleteTaxIntake,
       });
     }
 

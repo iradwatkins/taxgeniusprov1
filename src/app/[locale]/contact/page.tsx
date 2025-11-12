@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, Suspense } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,6 +24,8 @@ import { BookingCallToAction } from '@/components/crm/BookingCallToAction';
 import { logger } from '@/lib/logger';
 
 export default function ContactPage() {
+  const t = useTranslations('forms.contact');
+  const locale = useLocale();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -45,7 +48,10 @@ export default function ContactPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          locale: locale, // Pass locale for language-based email routing
+        }),
       });
 
       const data = await response.json();
@@ -87,14 +93,13 @@ export default function ContactPage() {
         <div className="container mx-auto px-4 lg:px-8 relative">
           <div className="text-center max-w-4xl mx-auto">
             <Badge className="mb-6 bg-primary/10 text-primary border-primary/20">
-              Get In Touch
+              {t('badge')}
             </Badge>
             <h1 className="text-4xl lg:text-6xl font-bold text-foreground mb-6">
-              Let&apos;s Talk About Your <span className="text-primary">Tax Needs</span>
+              {t('pageTitle')} <span className="text-primary">{t('pageTitleHighlight')}</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              Ready to maximize your refund? Our tax experts are here to help. Contact us for a free
-              consultation and see how we can save you money.
+              {t('pageSubtitle')}
             </p>
           </div>
         </div>
@@ -108,16 +113,16 @@ export default function ContactPage() {
             <div>
               <Card className="shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-2xl">Get Your Free Consultation</CardTitle>
+                  <CardTitle className="text-2xl">{t('formTitle')}</CardTitle>
                   <CardDescription>
-                    Fill out the form below and we&apos;ll get back to you within 24 hours
+                    {t('formSubtitle')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="name">Full Name *</Label>
+                        <Label htmlFor="name">{t('name')} *</Label>
                         <Input
                           id="name"
                           name="name"
@@ -128,7 +133,7 @@ export default function ContactPage() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="email">Email *</Label>
+                        <Label htmlFor="email">{t('email')} *</Label>
                         <Input
                           id="email"
                           name="email"
@@ -143,7 +148,7 @@ export default function ContactPage() {
 
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="phone">Phone Number</Label>
+                        <Label htmlFor="phone">{t('phone')}</Label>
                         <Input
                           id="phone"
                           name="phone"
@@ -151,12 +156,12 @@ export default function ContactPage() {
                           value={formData.phone}
                           onChange={handleInputChange}
                           pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}|[0-9]{10}"
-                          placeholder="123-456-7890"
+                          placeholder={t('phonePlaceholder')}
                           className="mt-1"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="service">Service Needed</Label>
+                        <Label htmlFor="service">{t('service')}</Label>
                         <select
                           id="service"
                           name="service"
@@ -164,19 +169,19 @@ export default function ContactPage() {
                           onChange={handleInputChange}
                           className="mt-1 w-full px-3 py-2 border border-input bg-background rounded-md"
                         >
-                          <option value="">Select a service</option>
-                          <option value="individual">Individual Tax Return</option>
-                          <option value="business">Business Tax Return</option>
-                          <option value="real-estate">Real Estate Professional</option>
-                          <option value="audit-defense">Audit Defense</option>
-                          <option value="tax-planning">Tax Planning</option>
-                          <option value="other">Other</option>
+                          <option value="">{t('serviceSelect')}</option>
+                          <option value="individual">{t('serviceIndividual')}</option>
+                          <option value="business">{t('serviceBusiness')}</option>
+                          <option value="real-estate">{t('serviceRealEstate')}</option>
+                          <option value="audit-defense">{t('serviceAuditDefense')}</option>
+                          <option value="tax-planning">{t('serviceTaxPlanning')}</option>
+                          <option value="other">{t('serviceOther')}</option>
                         </select>
                       </div>
                     </div>
 
                     <div>
-                      <Label htmlFor="message">Message *</Label>
+                      <Label htmlFor="message">{t('message')} *</Label>
                       <Textarea
                         id="message"
                         name="message"
@@ -187,10 +192,10 @@ export default function ContactPage() {
                         maxLength={1000}
                         rows={4}
                         className="mt-1"
-                        placeholder="Tell us about your specific tax situation or questions... (minimum 10 characters)"
+                        placeholder={t('messagePlaceholder')}
                       />
                       <p className="text-xs text-muted-foreground mt-1">
-                        {formData.message.length}/1000 characters
+                        {t('messageCounter', { count: formData.message.length })}
                       </p>
                     </div>
 
@@ -208,11 +213,10 @@ export default function ContactPage() {
                           </div>
                           <div>
                             <h3 className="text-xl font-semibold text-green-900 dark:text-green-100 mb-2">
-                              Message Sent Successfully!
+                              {t('successTitle')}
                             </h3>
                             <p className="text-green-700 dark:text-green-300 mb-4">
-                              Thank you for contacting us. We&apos;ve received your message and will
-                              get back to you within 24 hours.
+                              {t('successMessage')}
                             </p>
                           </div>
                         </div>
@@ -238,7 +242,7 @@ export default function ContactPage() {
                               });
                             }}
                           >
-                            Send Another Message
+                            {t('sendAnother')}
                           </Button>
                         </div>
                       </div>
@@ -248,7 +252,7 @@ export default function ContactPage() {
                         className="w-full bg-primary hover:bg-primary/90"
                         disabled={isSubmitting}
                       >
-                        {isSubmitting ? 'Sending...' : 'Send Message'}{' '}
+                        {isSubmitting ? t('sending') : t('sendMessage')}{' '}
                         {!isSubmitting && <ArrowRight className="ml-2 w-4 h-4" />}
                       </Button>
                     )}
@@ -260,12 +264,12 @@ export default function ContactPage() {
             {/* Contact Information */}
             <div className="space-y-8">
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-6">Contact Information</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-6">{t('contactInfoTitle')}</h2>
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
                     <Phone className="w-6 h-6 text-primary mt-1" />
                     <div>
-                      <h3 className="font-semibold mb-1">Phone</h3>
+                      <h3 className="font-semibold mb-1">{t('contactPhone')}</h3>
                       <a href="tel:+14046271015" className="text-muted-foreground hover:text-primary transition-colors">
                         +1 404-627-1015
                       </a>
@@ -275,7 +279,7 @@ export default function ContactPage() {
                   <div className="flex items-start gap-4">
                     <Mail className="w-6 h-6 text-primary mt-1" />
                     <div>
-                      <h3 className="font-semibold mb-1">Email</h3>
+                      <h3 className="font-semibold mb-1">{t('contactEmail')}</h3>
                       <a href="mailto:taxgenius.tax@gmail.com" className="text-muted-foreground hover:text-primary transition-colors">
                         taxgenius.tax@gmail.com
                       </a>
@@ -285,7 +289,7 @@ export default function ContactPage() {
                   <div className="flex items-start gap-4">
                     <MapPin className="w-6 h-6 text-primary mt-1" />
                     <div>
-                      <h3 className="font-semibold mb-1">Location</h3>
+                      <h3 className="font-semibold mb-1">{t('contactLocation')}</h3>
                       <a
                         href="https://maps.google.com/?q=1632+Jonesboro+Rd+SE+Atlanta+GA+30315"
                         target="_blank"
@@ -302,15 +306,15 @@ export default function ContactPage() {
                   <div className="flex items-start gap-4">
                     <Clock className="w-6 h-6 text-primary mt-1" />
                     <div>
-                      <h3 className="font-semibold mb-1">Business Hours</h3>
+                      <h3 className="font-semibold mb-1">{t('contactHours')}</h3>
                       <div className="text-muted-foreground space-y-1">
-                        <p>Monday: 9:00 AM - 7:00 PM</p>
-                        <p>Tuesday: 9:00 AM - 7:00 PM</p>
-                        <p>Wednesday: 9:00 AM - 7:00 PM</p>
-                        <p>Thursday: 9:00 AM - 7:00 PM</p>
-                        <p>Friday: 9:00 AM - 7:00 PM</p>
-                        <p>Saturday: 10:00 AM - 5:00 PM</p>
-                        <p>Sunday: Closed</p>
+                        <p>{t('monday')}</p>
+                        <p>{t('tuesday')}</p>
+                        <p>{t('wednesday')}</p>
+                        <p>{t('thursday')}</p>
+                        <p>{t('friday')}</p>
+                        <p>{t('saturday')}</p>
+                        <p>{t('sunday')}</p>
                       </div>
                     </div>
                   </div>
@@ -320,21 +324,21 @@ export default function ContactPage() {
               {/* Quick Actions */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl">Quick Actions</CardTitle>
-                  <CardDescription>Need immediate assistance? Try these options</CardDescription>
+                  <CardTitle className="text-xl">{t('quickActionsTitle')}</CardTitle>
+                  <CardDescription>{t('quickActionsSubtitle')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Button variant="outline" className="w-full justify-start">
                     <Calendar className="mr-2 w-4 h-4" />
-                    Schedule Free Consultation
+                    {t('scheduleConsultation')}
                   </Button>
                   <Button variant="outline" className="w-full justify-start">
                     <MessageCircle className="mr-2 w-4 h-4" />
-                    Live Chat Support
+                    {t('liveChat')}
                   </Button>
                   <Button variant="outline" className="w-full justify-start">
                     <CheckCircle className="mr-2 w-4 h-4" />
-                    Check Refund Status
+                    {t('checkRefund')}
                   </Button>
                 </CardContent>
               </Card>
@@ -344,10 +348,9 @@ export default function ContactPage() {
                 <CardContent className="pt-6">
                   <div className="text-center">
                     <CheckCircle className="w-12 h-12 text-primary mx-auto mb-4" />
-                    <h3 className="font-semibold text-lg mb-2">Service Guarantee</h3>
+                    <h3 className="font-semibold text-lg mb-2">{t('guaranteeTitle')}</h3>
                     <p className="text-muted-foreground text-sm">
-                      We guarantee maximum refunds, accurate filing, and full audit protection. Your
-                      satisfaction is our commitment.
+                      {t('guaranteeMessage')}
                     </p>
                   </div>
                 </CardContent>
@@ -362,46 +365,43 @@ export default function ContactPage() {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-6">
-              Frequently Asked Questions
+              {t('faqTitle')}
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Quick answers to common questions about our services
+              {t('faqSubtitle')}
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">How quickly can you prepare my return?</CardTitle>
+                <CardTitle className="text-lg">{t('faqQ1')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Most individual returns are completed within 24-48 hours. Business returns
-                  typically take 3-5 business days depending on complexity.
+                  {t('faqA1')}
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Do you offer audit protection?</CardTitle>
+                <CardTitle className="text-lg">{t('faqQ2')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Yes! Full audit defense is included with every tax return we prepare. We&apos;ll
-                  represent you before the IRS at no additional cost.
+                  {t('faqA2')}
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Can I file from anywhere in the US?</CardTitle>
+                <CardTitle className="text-lg">{t('faqQ3')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Absolutely! We serve clients in all 50 states and offer both virtual consultations
-                  and in-person meetings where available.
+                  {t('faqA3')}
                 </p>
               </CardContent>
             </Card>
@@ -409,13 +409,12 @@ export default function ContactPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">
-                  What if I&apos;m not satisfied with your service?
+                  {t('faqQ4')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  We offer a 100% satisfaction guarantee. If you&apos;re not completely satisfied,
-                  we&apos;ll make it right or provide a full refund.
+                  {t('faqA4')}
                 </p>
               </CardContent>
             </Card>

@@ -1,16 +1,12 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, Quote, CheckCircle, Shield, Award } from 'lucide-react';
 import Link from 'next/link';
-import { Metadata } from 'next';
 import { generateAggregateRatingSchema } from '@/lib/seo-llm/1-core-seo/schema/tax-genius-schemas';
-
-export const metadata: Metadata = {
-  title: 'Client Testimonials | TaxGeniusPro',
-  description:
-    'Read what our clients say about our professional tax preparation services. Trusted by thousands of individuals and businesses.',
-};
+import { useTranslations } from 'next-intl';
 
 const testimonials = [
   {
@@ -135,15 +131,16 @@ const testimonials = [
   },
 ];
 
-const stats = [
-  { number: '10,000+', label: 'Happy Clients' },
-  { number: '4.9/5', label: 'Average Rating' },
-  { number: '25+ Years', label: 'Combined Experience' },
-  { number: '98%', label: 'Client Retention' },
-];
-
 export default function TestimonialsPage() {
+  const t = useTranslations('testimonials');
   const aggregateRatingSchema = generateAggregateRatingSchema();
+
+  const stats = [
+    { number: t('stats.clients'), label: t('stats.clientsLabel') },
+    { number: t('stats.rating'), label: t('stats.ratingLabel') },
+    { number: t('stats.experience'), label: t('stats.experienceLabel') },
+    { number: t('stats.retention'), label: t('stats.retentionLabel') },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -159,14 +156,13 @@ export default function TestimonialsPage() {
           <div className="max-w-3xl mx-auto text-center">
             <Badge variant="outline" className="mb-4">
               <Award className="w-3 h-3 mr-1" />
-              Trusted by Thousands
+              {t('hero.badge')}
             </Badge>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-              What Our Clients Say
+              {t('hero.title')}
             </h1>
             <p className="text-lg text-muted-foreground">
-              Don't just take our word for it. Here's what real clients have to say about their
-              experience with TaxGeniusPro.
+              {t('hero.description')}
             </p>
           </div>
 
@@ -228,32 +224,32 @@ export default function TestimonialsPage() {
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl font-bold text-center mb-12">Why Clients Trust TaxGeniusPro</h2>
+            <h2 className="text-2xl font-bold text-center mb-12">{t('trust.title')}</h2>
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Shield className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="font-semibold mb-2">IRS Authorized</h3>
+                <h3 className="font-semibold mb-2">{t('trust.card1Title')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Licensed and certified tax professionals
+                  {t('trust.card1Description')}
                 </p>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Award className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="font-semibold mb-2">BBB A+ Rated</h3>
+                <h3 className="font-semibold mb-2">{t('trust.card2Title')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Recognized for excellence and integrity
+                  {t('trust.card2Description')}
                 </p>
               </div>
               <div className="text-center">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="font-semibold mb-2">Satisfaction Guaranteed</h3>
-                <p className="text-sm text-muted-foreground">We stand behind our work 100%</p>
+                <h3 className="font-semibold mb-2">{t('trust.card3Title')}</h3>
+                <p className="text-sm text-muted-foreground">{t('trust.card3Description')}</p>
               </div>
             </div>
           </div>
@@ -265,17 +261,17 @@ export default function TestimonialsPage() {
         <div className="container mx-auto px-4 lg:px-8">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6">
-              Ready to Experience the TaxGeniusPro Difference?
+              {t('cta.title')}
             </h2>
             <p className="text-lg text-muted-foreground mb-8">
-              Join thousands of satisfied clients who trust us with their taxes. Get started today!
+              {t('cta.description')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild>
-                <Link href="/start-filing">Start Your Return</Link>
+                <Link href="/start-filing">{t('cta.ctaStart')}</Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="/contact">Contact Us</Link>
+                <Link href="/contact">{t('cta.ctaContact')}</Link>
               </Button>
             </div>
           </div>

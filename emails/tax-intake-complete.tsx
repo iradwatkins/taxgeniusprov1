@@ -9,7 +9,9 @@ import {
   Button,
   Section,
   Hr,
+  Img,
 } from '@react-email/components';
+import { t, commonTranslations, taxIntakeTranslations, type Locale } from './translations';
 
 interface TaxIntakeCompleteProps {
   preparerName: string;
@@ -62,6 +64,8 @@ interface TaxIntakeCompleteProps {
   referrerUsername?: string;
   referrerType?: string;
   attributionMethod?: string;
+  // Locale for translations
+  locale?: Locale;
 }
 
 export function TaxIntakeComplete(props: TaxIntakeCompleteProps) {
@@ -101,107 +105,147 @@ export function TaxIntakeComplete(props: TaxIntakeCompleteProps) {
     licenseExpiration,
     source,
     referrerUsername,
+    locale = 'en',
   } = props;
 
-  const filingStatusLabels: Record<string, string> = {
-    single: 'Single',
-    married_filing_separately: 'Married Filing Separately',
-    married_filing_jointly: 'Married Filing Jointly',
-    head_of_household: 'Head of Household',
-    qualifying_widow: 'Qualifying Widow(er)',
+  // Get translated filing status
+  const getFilingStatus = (status: string) => {
+    const statusKey = status as keyof typeof commonTranslations.filingStatus;
+    return commonTranslations.filingStatus[statusKey]
+      ? t(commonTranslations.filingStatus[statusKey], locale)
+      : status;
   };
 
-  const employmentLabels: Record<string, string> = {
-    w2: 'W-2',
-    '1099': '1099',
-    both: 'W-2 & 1099',
+  // Get translated employment type
+  const getEmployment = (empType: string) => {
+    const empKey = empType as keyof typeof commonTranslations.employment;
+    return commonTranslations.employment[empKey]
+      ? t(commonTranslations.employment[empKey], locale)
+      : empType;
   };
+
+  const yesNo = (value: string) => (value === 'yes' ? t(commonTranslations.yes, locale) : t(commonTranslations.no, locale));
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax';
+  const logoUrl = `${appUrl}/og-image.png`;
 
   return (
     <Html>
-      <Head />
+      <Head>
+        <meta property="og:title" content={t(taxIntakeTranslations.title, locale)} />
+        <meta property="og:description" content={`${t(taxIntakeTranslations.greeting, locale).replace('{name}', preparerName)} - ${leadName}`} />
+        <meta property="og:image" content={logoUrl} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content={logoUrl} />
+      </Head>
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
-            <Heading style={h1}>Complete Tax Intake Received</Heading>
+            <Img
+              src={logoUrl}
+              alt="Tax Genius Pro"
+              width="60"
+              height="60"
+              style={{ margin: '0 auto 20px', display: 'block' }}
+            />
+            <Heading style={h1}>{t(taxIntakeTranslations.title, locale)}</Heading>
           </Section>
 
           <Section style={content}>
-            <Text style={greeting}>Hi {preparerName},</Text>
-            <Text style={subtext}>Client ready for tax preparation</Text>
+            <Text style={greeting}>
+              {t(taxIntakeTranslations.greeting, locale).replace('{name}', preparerName)}
+            </Text>
+            <Text style={subtext}>{t(taxIntakeTranslations.subtext, locale)}</Text>
 
             {/* Contact Info */}
             <Section style={primaryBox}>
-              <Text style={boxLabel}>CLIENT INFORMATION</Text>
+              <Text style={boxLabel}>{t(taxIntakeTranslations.clientInformation, locale)}</Text>
               <Hr style={hr} />
               <Text style={detail}>
-                <strong>Name:</strong> {firstName} {middleName ? `${middleName} ` : ''}{lastName}
+                <strong>{t(commonTranslations.name, locale)}:</strong> {firstName}{' '}
+                {middleName ? `${middleName} ` : ''}
+                {lastName}
               </Text>
               <Text style={detail}>
-                <strong>Email:</strong> <a href={`mailto:${leadEmail}`} style={link}>{leadEmail}</a>
+                <strong>{t(commonTranslations.email, locale)}:</strong>{' '}
+                <a href={`mailto:${leadEmail}`} style={link}>
+                  {leadEmail}
+                </a>
               </Text>
               <Text style={detail}>
-                <strong>Phone:</strong> <a href={`tel:${leadPhone}`} style={link}>{countryCode} {leadPhone}</a>
+                <strong>{t(commonTranslations.phone, locale)}:</strong>{' '}
+                <a href={`tel:${leadPhone}`} style={link}>
+                  {countryCode} {leadPhone}
+                </a>
               </Text>
               <Text style={detail}>
-                <strong>DOB:</strong> {dateOfBirth}
+                <strong>{t(taxIntakeTranslations.dob, locale)}:</strong> {dateOfBirth}
               </Text>
               <Text style={detail}>
-                <strong>SSN:</strong> {ssn}
+                <strong>{t(taxIntakeTranslations.ssn, locale)}:</strong> {ssn}
               </Text>
             </Section>
 
             {/* Address */}
             <Section style={secondaryBox}>
-              <Text style={boxLabel}>ADDRESS</Text>
+              <Text style={boxLabel}>{t(taxIntakeTranslations.address, locale)}</Text>
               <Hr style={hr} />
               <Text style={detail}>{addressLine1}</Text>
               {addressLine2 && <Text style={detail}>{addressLine2}</Text>}
-              <Text style={detail}>{city}, {state} {zipCode}</Text>
+              <Text style={detail}>
+                {city}, {state} {zipCode}
+              </Text>
             </Section>
 
             {/* Tax Filing */}
             <Section style={primaryBox}>
-              <Text style={boxLabel}>TAX FILING</Text>
+              <Text style={boxLabel}>{t(taxIntakeTranslations.taxFiling, locale)}</Text>
               <Hr style={hr} />
               <Text style={detail}>
-                <strong>Filing Status:</strong> {filingStatusLabels[filingStatus] || filingStatus}
+                <strong>{t(taxIntakeTranslations.filingStatus, locale)}:</strong>{' '}
+                {getFilingStatus(filingStatus)}
               </Text>
               <Text style={detail}>
-                <strong>Employment:</strong> {employmentLabels[employmentType] || employmentType}
+                <strong>{t(taxIntakeTranslations.employment, locale)}:</strong>{' '}
+                {getEmployment(employmentType)}
               </Text>
               <Text style={detail}>
-                <strong>Occupation:</strong> {occupation}
+                <strong>{t(taxIntakeTranslations.occupation, locale)}:</strong> {occupation}
               </Text>
               <Text style={detail}>
-                <strong>Claimed as Dependent:</strong> {claimedAsDependent === 'yes' ? 'Yes' : 'No'}
+                <strong>{t(taxIntakeTranslations.claimedAsDependent, locale)}:</strong>{' '}
+                {yesNo(claimedAsDependent)}
               </Text>
               <Text style={detail}>
-                <strong>Currently in College:</strong> {inCollege === 'yes' ? 'Yes' : 'No'}
+                <strong>{t(taxIntakeTranslations.inCollege, locale)}:</strong> {yesNo(inCollege)}
               </Text>
             </Section>
 
             {/* Dependents */}
             {hasDependents === 'yes' && (
               <Section style={secondaryBox}>
-                <Text style={boxLabel}>DEPENDENTS</Text>
+                <Text style={boxLabel}>{t(taxIntakeTranslations.dependents, locale)}</Text>
                 <Hr style={hr} />
                 <Text style={detail}>
-                  <strong>Number:</strong> {numberOfDependents || 0}
+                  <strong>{t(taxIntakeTranslations.number, locale)}:</strong> {numberOfDependents || 0}
                 </Text>
                 {dependentsUnder24StudentOrDisabled && (
                   <Text style={detail}>
-                    <strong>Under 24 / Student / Disabled:</strong> {dependentsUnder24StudentOrDisabled === 'yes' ? 'Yes' : 'No'}
+                    <strong>{t(taxIntakeTranslations.under24StudentDisabled, locale)}:</strong>{' '}
+                    {yesNo(dependentsUnder24StudentOrDisabled)}
                   </Text>
                 )}
                 {dependentsInCollege && (
                   <Text style={detail}>
-                    <strong>In College:</strong> {dependentsInCollege === 'yes' ? 'Yes' : 'No'}
+                    <strong>{t(taxIntakeTranslations.dependentsInCollege, locale)}:</strong>{' '}
+                    {yesNo(dependentsInCollege)}
                   </Text>
                 )}
                 {childCareProvider && (
                   <Text style={detail}>
-                    <strong>Child Care Provider:</strong> {childCareProvider === 'yes' ? 'Yes' : 'No'}
+                    <strong>{t(taxIntakeTranslations.childCareProvider, locale)}:</strong>{' '}
+                    {yesNo(childCareProvider)}
                   </Text>
                 )}
               </Section>
@@ -209,37 +253,44 @@ export function TaxIntakeComplete(props: TaxIntakeCompleteProps) {
 
             {/* Property & Credits */}
             <Section style={primaryBox}>
-              <Text style={boxLabel}>PROPERTY & CREDITS</Text>
+              <Text style={boxLabel}>{t(taxIntakeTranslations.propertyCredits, locale)}</Text>
               <Hr style={hr} />
               <Text style={detail}>
-                <strong>Has Mortgage:</strong> {hasMortgage === 'yes' ? 'Yes' : 'No'}
+                <strong>{t(taxIntakeTranslations.hasMortgage, locale)}:</strong>{' '}
+                {yesNo(hasMortgage)}
               </Text>
               <Text style={detail}>
-                <strong>Previously Denied EITC:</strong> {deniedEitc === 'yes' ? 'Yes' : 'No'}
+                <strong>{t(taxIntakeTranslations.deniedEitc, locale)}:</strong> {yesNo(deniedEitc)}
               </Text>
             </Section>
 
             {/* IRS & Refund */}
             <Section style={secondaryBox}>
-              <Text style={boxLabel}>IRS & REFUND</Text>
+              <Text style={boxLabel}>{t(taxIntakeTranslations.irsRefund, locale)}</Text>
               <Hr style={hr} />
               <Text style={detail}>
-                <strong>Has IRS PIN:</strong> {hasIrsPin === 'yes' ? `Yes (${irsPin})` : hasIrsPin === 'yes_locate' ? 'Yes (Need to Locate)' : 'No'}
+                <strong>{t(taxIntakeTranslations.hasIrsPin, locale)}:</strong>{' '}
+                {hasIrsPin === 'yes'
+                  ? t(taxIntakeTranslations.irsPinYes, locale).replace('{pin}', irsPin || '')
+                  : hasIrsPin === 'yes_locate'
+                  ? t(taxIntakeTranslations.irsPinLocate, locale)
+                  : t(commonTranslations.no, locale)}
               </Text>
               <Text style={detail}>
-                <strong>Wants Refund Advance:</strong> {wantsRefundAdvance === 'yes' ? 'Yes' : 'No'}
+                <strong>{t(taxIntakeTranslations.wantsRefundAdvance, locale)}:</strong>{' '}
+                {yesNo(wantsRefundAdvance)}
               </Text>
             </Section>
 
             {/* ID */}
             <Section style={primaryBox}>
-              <Text style={boxLabel}>IDENTIFICATION</Text>
+              <Text style={boxLabel}>{t(taxIntakeTranslations.identification, locale)}</Text>
               <Hr style={hr} />
               <Text style={detail}>
-                <strong>Driver's License:</strong> {driversLicense}
+                <strong>{t(taxIntakeTranslations.driversLicense, locale)}:</strong> {driversLicense}
               </Text>
               <Text style={detail}>
-                <strong>Expiration:</strong> {licenseExpiration}
+                <strong>{t(taxIntakeTranslations.expiration, locale)}:</strong> {licenseExpiration}
               </Text>
             </Section>
 
@@ -247,7 +298,8 @@ export function TaxIntakeComplete(props: TaxIntakeCompleteProps) {
             {referrerUsername && (
               <Section style={metaBox}>
                 <Text style={metaText}>
-                  <strong>Source:</strong> {source} | <strong>Referrer:</strong> {referrerUsername}
+                  <strong>{t(commonTranslations.source, locale)}:</strong> {source} |{' '}
+                  <strong>{t(taxIntakeTranslations.referrer, locale)}:</strong> {referrerUsername}
                 </Text>
               </Section>
             )}
@@ -255,13 +307,13 @@ export function TaxIntakeComplete(props: TaxIntakeCompleteProps) {
             {/* Action Buttons */}
             <Section style={actionBox}>
               <Button style={btnPrimary} href={dashboardUrl}>
-                View Dashboard
+                {t(commonTranslations.viewDashboard, locale)}
               </Button>
               <Button style={btnSecondary} href={`mailto:${leadEmail}`}>
-                Email Client
+                {t(commonTranslations.emailClient, locale)}
               </Button>
               <Button style={btnTertiary} href={`tel:${leadPhone}`}>
-                Call Client
+                {t(commonTranslations.callClient, locale)}
               </Button>
             </Section>
           </Section>

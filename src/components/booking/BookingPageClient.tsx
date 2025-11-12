@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import AppointmentBooking from '@/components/AppointmentBooking';
 import { User, Phone, Video, FileText } from 'lucide-react';
 
@@ -17,8 +18,9 @@ interface BookingPageClientProps {
 }
 
 export function BookingPageClient({ preparer }: BookingPageClientProps) {
+  const t = useTranslations('booking');
   const preparerName = preparer
-    ? `${preparer.firstName || ''} ${preparer.lastName || ''}`.trim() || 'Your Tax Professional'
+    ? `${preparer.firstName || ''} ${preparer.lastName || ''}`.trim() || t('preparer.yourTaxProfessional')
     : null;
 
   return (
@@ -37,7 +39,7 @@ export function BookingPageClient({ preparer }: BookingPageClientProps) {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-4xl lg:text-6xl font-bold mb-4"
           >
-            Book Your Appointment
+            {t('header.title')}
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -45,7 +47,7 @@ export function BookingPageClient({ preparer }: BookingPageClientProps) {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-xl text-muted-foreground"
           >
-            Schedule a free consultation with a licensed tax professional
+            {t('header.subtitle')}
           </motion.p>
         </div>
       </motion.section>
@@ -127,7 +129,7 @@ export function BookingPageClient({ preparer }: BookingPageClientProps) {
                       >
                         <h2 className="text-2xl font-bold mb-1">{preparerName}</h2>
                         <p className="text-base text-muted-foreground font-medium">
-                          Licensed Tax Professional
+                          {t('preparer.licensedTaxProfessional')}
                         </p>
                       </motion.div>
                     </div>
@@ -136,9 +138,9 @@ export function BookingPageClient({ preparer }: BookingPageClientProps) {
               ) : (
                 <div className="bg-card border border-border rounded-2xl p-12 text-center">
                   <User className="w-24 h-24 mx-auto mb-4 text-muted-foreground/40" />
-                  <h3 className="text-2xl font-bold mb-2">Expert Tax Professionals</h3>
+                  <h3 className="text-2xl font-bold mb-2">{t('preparer.expertTaxProfessionals')}</h3>
                   <p className="text-muted-foreground">
-                    Schedule with our licensed CPAs
+                    {t('preparer.scheduleWithCPAs')}
                   </p>
                 </div>
               )}
@@ -170,9 +172,9 @@ export function BookingPageClient({ preparer }: BookingPageClientProps) {
             transition={{ duration: 0.5, delay: 0.6 }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">What to Expect</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('features.title')}</h2>
             <p className="text-lg text-muted-foreground">
-              Professional tax assistance tailored to your needs
+              {t('features.subtitle')}
             </p>
           </motion.div>
 
@@ -186,9 +188,9 @@ export function BookingPageClient({ preparer }: BookingPageClientProps) {
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
                 <Video className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="font-bold text-xl mb-3">Free 30-Minute Consultation</h3>
+              <h3 className="font-bold text-xl mb-3">{t('features.consultation.title')}</h3>
               <p className="text-muted-foreground">
-                Video call or phone - your choice
+                {t('features.consultation.description')}
               </p>
             </motion.div>
 
@@ -213,9 +215,9 @@ export function BookingPageClient({ preparer }: BookingPageClientProps) {
                   />
                 </svg>
               </div>
-              <h3 className="font-bold text-xl mb-3">Licensed CPA Review</h3>
+              <h3 className="font-bold text-xl mb-3">{t('features.cpaReview.title')}</h3>
               <p className="text-muted-foreground">
-                Expert analysis of your tax situation
+                {t('features.cpaReview.description')}
               </p>
             </motion.div>
 
@@ -228,9 +230,9 @@ export function BookingPageClient({ preparer }: BookingPageClientProps) {
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
                 <FileText className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="font-bold text-xl mb-3">Personalized Tax Strategy</h3>
+              <h3 className="font-bold text-xl mb-3">{t('features.strategy.title')}</h3>
               <p className="text-muted-foreground">
-                Custom recommendations for your needs
+                {t('features.strategy.description')}
               </p>
             </motion.div>
           </div>
@@ -253,7 +255,7 @@ export function BookingPageClient({ preparer }: BookingPageClientProps) {
           >
             <Image
               src="/icon-512x512.png"
-              alt="Tax Genius Pro - Oliver the Owl"
+              alt={t('imageAlt')}
               width={180}
               height={180}
               className="object-contain opacity-80 hover:opacity-100 transition-opacity"

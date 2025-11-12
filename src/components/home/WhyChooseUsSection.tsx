@@ -5,42 +5,41 @@ import { Button } from '@/components/ui/button';
 import { Award, DollarSign, Phone, Shield } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-
-const benefits = [
-  {
-    icon: Award,
-    title: 'Licensed CPAs with 25+ Years Experience',
-    description:
-      'Our team of certified professionals stays current with tax law changes to maximize your refund.',
-    bgColor: 'bg-primary/10',
-    iconColor: 'text-primary',
-  },
-  {
-    icon: DollarSign,
-    title: 'Maximum Refund Guaranteed in Writing',
-    description:
-      "We guarantee you'll get the largest refund possible, or we'll pay you the difference.",
-    bgColor: 'bg-success/10',
-    iconColor: 'text-success',
-  },
-  {
-    icon: Phone,
-    title: 'Year-Round Support (Not Just Tax Season)',
-    description:
-      "Get answers to your tax questions anytime. We're here for you all year, not just in April.",
-    bgColor: 'bg-primary/10',
-    iconColor: 'text-primary',
-  },
-  {
-    icon: Shield,
-    title: 'Bank-Level Security & Encryption',
-    description: 'Your sensitive information is protected with military-grade 256-bit encryption.',
-    bgColor: 'bg-primary/10',
-    iconColor: 'text-primary',
-  },
-];
+import { useTranslations } from 'next-intl';
 
 export function WhyChooseUsSection() {
+  const t = useTranslations('home.whyChooseUs');
+
+  const benefits = [
+    {
+      icon: Award,
+      titleKey: 'benefit1.title',
+      descriptionKey: 'benefit1.description',
+      bgColor: 'bg-primary/10',
+      iconColor: 'text-primary',
+    },
+    {
+      icon: DollarSign,
+      titleKey: 'benefit2.title',
+      descriptionKey: 'benefit2.description',
+      bgColor: 'bg-success/10',
+      iconColor: 'text-success',
+    },
+    {
+      icon: Phone,
+      titleKey: 'benefit3.title',
+      descriptionKey: 'benefit3.description',
+      bgColor: 'bg-primary/10',
+      iconColor: 'text-primary',
+    },
+    {
+      icon: Shield,
+      titleKey: 'benefit4.title',
+      descriptionKey: 'benefit4.description',
+      bgColor: 'bg-primary/10',
+      iconColor: 'text-primary',
+    },
+  ];
   return (
     <section className="py-24 bg-background">
       <div className="container mx-auto px-4 lg:px-8">
@@ -48,9 +47,9 @@ export function WhyChooseUsSection() {
           {/* Left Side - Content */}
           <div className="space-y-8">
             <div className="space-y-4">
-              <h2 className="text-3xl lg:text-4xl font-bold">Why 50,000+ Americans Trust Us</h2>
+              <h2 className="text-3xl lg:text-4xl font-bold">{t('sectionTitle')}</h2>
               <p className="text-lg text-muted-foreground">
-                Professional tax preparation with the personal touch you deserve
+                {t('sectionSubtitle')}
               </p>
             </div>
 
@@ -66,8 +65,8 @@ export function WhyChooseUsSection() {
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">{benefit.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed">{benefit.description}</p>
+                    <h3 className="text-lg font-semibold mb-2">{t(benefit.titleKey)}</h3>
+                    <p className="text-muted-foreground leading-relaxed">{t(benefit.descriptionKey)}</p>
                   </div>
                 </div>
               ))}
@@ -75,10 +74,10 @@ export function WhyChooseUsSection() {
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button variant="professional" size="lg" asChild>
-                <Link href="/start-filing/form">File Your Taxes</Link>
+                <Link href="/start-filing/form">{t('ctaFile')}</Link>
               </Button>
               <Button variant="outline" size="lg" asChild>
-                <Link href="/about">Learn More About Us</Link>
+                <Link href="/about">{t('ctaLearnMore')}</Link>
               </Button>
             </div>
           </div>
@@ -94,7 +93,7 @@ export function WhyChooseUsSection() {
             <div className="relative rounded-lg overflow-hidden shadow-2xl group">
               <Image
                 src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&q=80"
-                alt="Professional tax team collaborating"
+                alt={t('imageAlt')}
                 width={800}
                 height={600}
                 className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
@@ -115,8 +114,8 @@ export function WhyChooseUsSection() {
                   <Award className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">BBB A+</p>
-                  <p className="text-sm text-muted-foreground">Rated</p>
+                  <p className="text-2xl font-bold">{t('badgeTitle')}</p>
+                  <p className="text-sm text-muted-foreground">{t('badgeSubtitle')}</p>
                 </div>
               </div>
             </motion.div>

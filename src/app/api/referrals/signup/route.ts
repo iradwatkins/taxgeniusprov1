@@ -2,16 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { customAlphabet } from 'nanoid';
 import { logger } from '@/lib/logger';
+import { Resend } from 'resend';
+import { getEmailRecipients } from '@/config/email-routing';
 
 // Generate unique referral codes
 const nanoid = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 8);
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // POST /api/referrals/signup - Sign up for referral program
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const { firstName, lastName, email, phone } = body;
+    const { firstName, lastName, email, phone, locale } = body;
 
     // Validate required fields
     if (!firstName || !lastName || !email || !phone) {
@@ -158,8 +162,78 @@ This person has joined the referral program and can now start earning commission
       });
     }
 
-    // TODO: Send welcome email with referral link
-    // TODO: Send SMS notification
+    // ========================================
+    // EMAIL NOTIFICATIONS
+    // Send notification emails to admin team
+    // Language-based routing using centralized config:
+    // Spanish → Goldenprotaxes@gmail.com (Ale Hamilton) + CC to taxgenius.tax@gmail.com (Owliver Owl)
+    // English → taxgenius.taxes@gmail.com (Ray Hamilton) + CC to taxgenius.tax@gmail.com (Owliver Owl)
+    // ========================================
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@taxgeniuspro.tax';
+    const recipients = getEmailRecipients((locale as 'en' | 'es') || 'en');
+
+    logger.info('Referral signup language-based routing', {
+      locale: locale || 'en',
+      primaryRecipient: recipients.primary,
+      ccRecipient: recipients.cc,
+    });
+
+    try {
+      if (process.env.NODE_ENV === 'development') {
+        logger.info('Referral signup email (Dev Mode)', {
+          to: recipients.primary,
+          cc: recipients.cc,
+          from: fromEmail,
+          referralCode,
+          referralLink,
+        });
+      } else {
+        // Send notification to admin team (primary + CC)
+        const { data, error } = await resend.emails.send({
+          from: fromEmail,
+          to: [recipients.primary],
+          cc: [recipients.cc],
+          subject: `🌐 New Referral Program Signup: ${firstName} ${lastName}`,
+          html: `
+            <h2>New Referral Program Signup</h2>
+
+            <p><strong>A new person has joined the referral program!</strong></p>
+
+            <h3>Referrer Information:</h3>
+            <ul>
+              <li><strong>Name:</strong> ${firstName} ${lastName}</li>
+              <li><strong>Email:</strong> ${email}</li>
+              <li><strong>Phone:</strong> ${phone}</li>
+            </ul>
+
+            <h3>Referral Details:</h3>
+            <ul>
+              <li><strong>Referral Code:</strong> ${referralCode}</li>
+              <li><strong>Referral Link:</strong> <a href="${referralLink}">${referralLink}</a></li>
+              <li><strong>Application ID:</strong> ${application.id}</li>
+            </ul>
+
+            <p>This person can now start earning commissions by referring clients using their unique referral code.</p>
+
+            <hr />
+            <p style="color: #666; font-size: 12px;">This is an automated notification from Tax Genius Pro</p>
+          `,
+        });
+
+        if (error) {
+          logger.error('Failed to send referral signup notification email', error);
+        } else {
+          logger.info('Referral signup notification email sent', {
+            emailId: data?.id,
+            to: recipients.primary,
+            cc: recipients.cc
+          });
+        }
+      }
+    } catch (emailError) {
+      logger.error('Error sending referral signup email', emailError);
+      // Continue - database save succeeded
+    }
 
     return NextResponse.json({
       success: true,

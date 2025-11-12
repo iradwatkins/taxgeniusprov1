@@ -4,40 +4,42 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Calendar, Upload, UserCheck, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
-
-const steps = [
-  {
-    icon: Calendar,
-    number: 1,
-    title: 'Book Consultation',
-    description: 'Schedule a free 30-minute consultation with a licensed CPA',
-    delay: 0,
-  },
-  {
-    icon: Upload,
-    number: 2,
-    title: 'Upload Documents',
-    description: 'Securely upload W-2s, 1099s, and receipts through our portal',
-    delay: 0.2,
-  },
-  {
-    icon: UserCheck,
-    number: 3,
-    title: 'Expert Review',
-    description: 'CPA finds all eligible deductions and prepares your return',
-    delay: 0.4,
-  },
-  {
-    icon: CheckCircle,
-    number: 4,
-    title: 'File & Relax',
-    description: 'We handle IRS submission and track your refund status',
-    delay: 0.6,
-    isSuccess: true,
-  },
-];
+import { useTranslations } from 'next-intl';
 
 export function HowItWorksSection() {
+  const t = useTranslations('home.howItWorks');
+
+  const steps = [
+    {
+      icon: Calendar,
+      number: 1,
+      titleKey: 'step1.title',
+      descriptionKey: 'step1.description',
+      delay: 0,
+    },
+    {
+      icon: Upload,
+      number: 2,
+      titleKey: 'step2.title',
+      descriptionKey: 'step2.description',
+      delay: 0.2,
+    },
+    {
+      icon: UserCheck,
+      number: 3,
+      titleKey: 'step3.title',
+      descriptionKey: 'step3.description',
+      delay: 0.4,
+    },
+    {
+      icon: CheckCircle,
+      number: 4,
+      titleKey: 'step4.title',
+      descriptionKey: 'step4.description',
+      delay: 0.6,
+      isSuccess: true,
+    },
+  ];
   return (
     <section id="process" className="py-24 bg-muted/30 relative">
       {/* Background Image Placeholder */}
@@ -51,9 +53,9 @@ export function HowItWorksSection() {
 
       <div className="container mx-auto px-4 lg:px-8 relative">
         <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold mb-4">How It Works</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('sectionTitle')}</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Four simple steps to professional tax preparation
+            {t('sectionSubtitle')}
           </p>
         </div>
 
@@ -92,15 +94,15 @@ export function HowItWorksSection() {
                   {step.number}
                 </div>
               </motion.div>
-              <h3 className="text-lg font-semibold mb-3">{step.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
+              <h3 className="text-lg font-semibold mb-3">{t(step.titleKey)}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{t(step.descriptionKey)}</p>
             </motion.div>
           ))}
         </div>
 
         <div className="text-center mt-12">
           <Button variant="professional" size="lg" asChild>
-            <Link href="/start-filing/form">Get Started Today</Link>
+            <Link href="/start-filing/form">{t('ctaGetStarted')}</Link>
           </Button>
         </div>
       </div>

@@ -1149,27 +1149,36 @@ export class EmailService {
       service: string;
       message?: string;
       source: string;
-    }
+    },
+    ccEmail?: string,
+    locale?: 'en' | 'es'
   ): Promise<boolean> {
     try {
-      // Get preparer's notification email (professional or signup email)
-      const preparerEmail = await this.getPreparerNotificationEmail(preparerId);
+      // Check if preparerId is an email address (for language-based routing)
+      const isEmail = preparerId.includes('@');
+      const preparerEmail = isEmail
+        ? preparerId
+        : await this.getPreparerNotificationEmail(preparerId);
 
-      // Get preparer's name
-      const preparer = await prisma.user.findUnique({
-        where: { id: preparerId },
-        select: {
-          profile: {
-            select: {
-              firstName: true,
-              lastName: true,
+      // Get preparer's name (only if preparerId is a user ID, not an email)
+      let preparerName = 'Tax Professional';
+      if (!isEmail) {
+        const preparer = await prisma.user.findUnique({
+          where: { id: preparerId },
+          select: {
+            profile: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
             },
           },
-        },
-      });
-
-      const preparerName = preparer?.profile?.firstName || 'Tax Preparer';
-      const dashboardUrl = `${this.appUrl}/dashboard/tax-preparer/leads`;
+        });
+        preparerName = preparer?.profile?.firstName || 'Tax Preparer';
+      }
+      // Include locale in dashboard URL for proper language routing
+      const localePrefix = locale === 'es' ? '/es' : '/en';
+      const dashboardUrl = `${this.appUrl}${localePrefix}/dashboard/tax-preparer/leads`;
 
       if (process.env.NODE_ENV === 'development') {
         logger.info('New Lead Notification Email (Dev Mode):', {
@@ -1183,7 +1192,8 @@ export class EmailService {
       const { data, error } = await resend.emails.send({
         from: this.fromEmail,
         to: preparerEmail,
-        subject: `🎯 New Lead: ${leadData.service} - ${leadData.leadName}`,
+        ...(ccEmail && { cc: ccEmail }), // Add CC if provided
+        subject: `🌐 New Lead: ${leadData.service} - ${leadData.leadName}`,
         react: NewLeadNotification({
           preparerName,
           leadName: leadData.leadName,
@@ -1194,6 +1204,7 @@ export class EmailService {
           source: leadData.source,
           dashboardUrl,
           leadId: leadData.leadId,
+          locale: locale || 'en', // Pass locale for translations
         }),
       });
 
@@ -1270,27 +1281,36 @@ export class EmailService {
       referrerUsername?: string;
       referrerType?: string;
       attributionMethod?: string;
-    }
+    },
+    ccEmail?: string,
+    locale?: 'en' | 'es'
   ): Promise<boolean> {
     try {
-      // Get preparer's notification email (professional or signup email)
-      const preparerEmail = await this.getPreparerNotificationEmail(preparerId);
+      // Check if preparerId is an email address (for language-based routing)
+      const isEmail = preparerId.includes('@');
+      const preparerEmail = isEmail
+        ? preparerId
+        : await this.getPreparerNotificationEmail(preparerId);
 
-      // Get preparer's name
-      const preparer = await prisma.user.findUnique({
-        where: { id: preparerId },
-        select: {
-          profile: {
-            select: {
-              firstName: true,
-              lastName: true,
+      // Get preparer's name (only if preparerId is a user ID, not an email)
+      let preparerName = 'Tax Professional';
+      if (!isEmail) {
+        const preparer = await prisma.user.findUnique({
+          where: { id: preparerId },
+          select: {
+            profile: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
             },
           },
-        },
-      });
-
-      const preparerName = preparer?.profile?.firstName || 'Tax Preparer';
-      const dashboardUrl = `${this.appUrl}/dashboard/tax-preparer/leads`;
+        });
+        preparerName = preparer?.profile?.firstName || 'Tax Preparer';
+      }
+      // Include locale in dashboard URL for proper language routing
+      const localePrefix = locale === 'es' ? '/es' : '/en';
+      const dashboardUrl = `${this.appUrl}${localePrefix}/dashboard/tax-preparer/leads`;
 
       if (process.env.NODE_ENV === 'development') {
         logger.info('Tax Intake Complete Email (Dev Mode):', {
@@ -1305,7 +1325,8 @@ export class EmailService {
       const { data, error } = await resend.emails.send({
         from: this.fromEmail,
         to: preparerEmail,
-        subject: `📋 Complete Tax Intake: ${leadData.firstName} ${leadData.lastName} - Ready for Preparation`,
+        ...(ccEmail && { cc: ccEmail }), // Add CC if provided
+        subject: `🌐 Complete Tax Intake: ${leadData.firstName} ${leadData.lastName} - Ready for Preparation`,
         react: TaxIntakeComplete({
           preparerName,
           leadId: leadData.leadId,
@@ -1357,6 +1378,8 @@ export class EmailService {
           referrerUsername: leadData.referrerUsername,
           referrerType: leadData.referrerType,
           attributionMethod: leadData.attributionMethod,
+          // Locale for translations
+          locale: locale || 'en',
         }),
       });
 

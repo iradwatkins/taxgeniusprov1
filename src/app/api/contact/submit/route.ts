@@ -5,6 +5,7 @@ import { Resend } from 'resend';
 import { ContactFormNotification } from '../../../../../emails/contact-form-notification';
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
+import { getEmailRecipients } from '@/config/email-routing';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
     // }
 
     const body = await req.json();
-    const { name, email, phone, service, message } = body;
+    const { name, email, phone, service, message, locale } = body;
 
     // Validate required fields
     if (!name || !email || !service || !message) {
@@ -157,13 +158,23 @@ ${message}
     }
 
     // Send email notification to business
+    // Language-based routing using centralized config:
+    // Spanish → Goldenprotaxes@gmail.com (Ale Hamilton) + CC to taxgenius.tax@gmail.com (Owliver Owl)
+    // English → taxgenius.taxes@gmail.com (Ray Hamilton) + CC to taxgenius.tax@gmail.com (Owliver Owl)
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'noreply@taxgeniuspro.tax';
-    const toEmail = 'taxgenius.tax@gmail.com';
+    const recipients = getEmailRecipients((locale as 'en' | 'es') || 'en');
+
+    logger.info('Contact form language-based routing', {
+      locale: locale || 'en',
+      primary: recipients.primary,
+      cc: recipients.cc,
+    });
 
     try {
       if (process.env.NODE_ENV === 'development') {
         logger.info('Contact form email (Dev Mode)', {
-          to: toEmail,
+          to: recipients.primary,
+          cc: recipients.cc,
           from: fromEmail,
           name,
           email,
@@ -174,8 +185,9 @@ ${message}
       } else {
         const { data, error } = await resend.emails.send({
           from: fromEmail,
-          to: toEmail,
-          subject: `New Contact Form: ${service} - ${name}`,
+          to: [recipients.primary],
+          cc: [recipients.cc],
+          subject: `🌐 New Contact Form: ${service} - ${name}`,
           react: ContactFormNotification({
             name,
             email,
@@ -183,6 +195,7 @@ ${message}
             service,
             message,
             submittedAt: new Date(),
+            locale: (locale as 'en' | 'es') || 'en', // Pass locale for email translations
           }),
         });
 
@@ -190,7 +203,7 @@ ${message}
           logger.error('Failed to send contact form email', error);
           // Don't fail the request if email fails - we still saved to database
         } else {
-          logger.info('Contact form email sent', { emailId: data?.id });
+          logger.info('Contact form email sent', { emailId: data?.id, to: recipients.primary, cc: recipients.cc });
         }
       }
     } catch (emailError) {

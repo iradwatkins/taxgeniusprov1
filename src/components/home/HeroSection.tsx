@@ -7,8 +7,11 @@ import { Shield, Award, Users, Phone, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import AnimatedCounter from '@/components/AnimatedCounter';
+import { useTranslations } from 'next-intl';
 
 export function HeroSection() {
+  const t = useTranslations('home.hero');
+
   return (
     <section className="relative py-24 lg:py-32 bg-background overflow-hidden">
       <div className="container mx-auto px-4 lg:px-8">
@@ -27,44 +30,43 @@ export function HeroSection() {
                 className="px-4 py-2 text-sm font-semibold bg-primary/10 text-primary border-primary/20"
               >
                 <Shield className="w-4 h-4 mr-2" />
-                IRS Authorized
+                {t('irsAuthorized')}
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm font-semibold">
                 <Award className="w-4 h-4 mr-2" />
-                BBB A+ Rated
+                {t('bbbRated')}
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm font-semibold">
                 <Users className="w-4 h-4 mr-2" />
-                25+ Years
+                {t('yearsExperience')}
               </Badge>
             </div>
 
             {/* Headline */}
             <div className="space-y-6">
               <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight text-foreground">
-                Professional Tax Preparation
+                {t('title')}
                 <br />
-                <span className="text-primary">You Can Trust</span>
+                <span className="text-primary">{t('titleHighlight')}</span>
               </h1>
               <p className="text-lg lg:text-xl text-muted-foreground leading-relaxed">
-                Expert CPAs. Maximum Refunds. Peace of Mind. Get professional tax services from
-                licensed professionals who know how to save you money.
+                {t('subtitle')}
               </p>
             </div>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button variant="professional" size="lg" asChild>
-                <Link href="/start-filing/form">File Your Taxes Online</Link>
+                <Link href="/start-filing/form">{t('ctaFile')}</Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="/book-appointment">Schedule Consultation</Link>
+                <Link href="/book-appointment">{t('ctaSchedule')}</Link>
               </Button>
             </div>
 
             {/* Small Trust Text */}
             <p className="text-sm text-muted-foreground">
-              Start your return online or speak with a licensed CPA. Call{' '}
+              {t('helpText')}{' '}
               <Link href="tel:+14046271015" className="hover:text-primary transition-colors">
                 (404) 627-1015
               </Link>
@@ -81,7 +83,7 @@ export function HeroSection() {
             <div className="relative rounded-lg overflow-hidden shadow-2xl">
               <Image
                 src="https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=800&q=80"
-                alt="Professional tax advisor helping client"
+                alt={t('imageAlt')}
                 width={800}
                 height={600}
                 className="object-cover w-full h-full"
@@ -101,7 +103,7 @@ export function HeroSection() {
                     <p className="text-2xl font-bold">
                       <AnimatedCounter value={50000} suffix="+" />
                     </p>
-                    <p className="text-sm text-muted-foreground">Happy Clients</p>
+                    <p className="text-sm text-muted-foreground">{t('happyClients')}</p>
                   </div>
                 </div>
               </motion.div>

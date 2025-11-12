@@ -8,7 +8,9 @@ import {
   Button,
   Section,
   Hr,
+  Img,
 } from '@react-email/components';
+import { t, commonTranslations, contactFormTranslations, type Locale } from './translations';
 
 interface ContactFormNotificationProps {
   name: string;
@@ -17,6 +19,7 @@ interface ContactFormNotificationProps {
   service: string;
   message: string;
   submittedAt: Date;
+  locale?: Locale;
 }
 
 export function ContactFormNotification({
@@ -26,15 +29,8 @@ export function ContactFormNotification({
   service,
   message,
   submittedAt,
+  locale = 'en',
 }: ContactFormNotificationProps) {
-  const serviceLabels: Record<string, string> = {
-    individual: 'Individual Tax Return',
-    business: 'Business Tax Return',
-    'real-estate': 'Real Estate Professional',
-    'audit-defense': 'Audit Defense',
-    'tax-planning': 'Tax Planning',
-  };
-
   const serviceEmoji: Record<string, string> = {
     individual: '👤',
     business: '🏢',
@@ -43,39 +39,73 @@ export function ContactFormNotification({
     'tax-planning': '📊',
   };
 
+  // Get translated service label
+  const getServiceLabel = (svc: string) => {
+    const serviceKey = svc as keyof typeof commonTranslations.services;
+    return commonTranslations.services[serviceKey]
+      ? t(commonTranslations.services[serviceKey], locale)
+      : svc;
+  };
+
+  const firstName = name.split(' ')[0];
+  const serviceLabel = getServiceLabel(service);
+  const phoneText = phone
+    ? t(contactFormTranslations.atPhone, locale).replace('{phone}', phone)
+    : t(contactFormTranslations.thisWeek, locale);
+
+  const quickReply = t(contactFormTranslations.quickReplyTemplate, locale)
+    .replace('{firstName}', firstName)
+    .replace('{service}', serviceLabel.toLowerCase())
+    .replace('{phoneText}', phoneText);
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://taxgeniuspro.tax';
+  const logoUrl = `${appUrl}/og-image.png`;
+
   return (
     <Html>
-      <Head />
+      <Head>
+        <meta property="og:title" content={t(contactFormTranslations.title, locale)} />
+        <meta property="og:description" content={`${t(contactFormTranslations.urgentBanner, locale)} - ${name}`} />
+        <meta property="og:image" content={logoUrl} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content={logoUrl} />
+      </Head>
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
-            <Heading style={h1}>📬 New Contact Form Submission</Heading>
+            <Img
+              src={logoUrl}
+              alt="Tax Genius Pro"
+              width="60"
+              height="60"
+              style={{ margin: '0 auto 20px', display: 'block' }}
+            />
+            <Heading style={h1}>{t(contactFormTranslations.title, locale)}</Heading>
           </Section>
 
           <Section style={content}>
             <Section style={urgentBanner}>
-              <Text style={urgentText}>
-                ⏰ New inquiry received - Respond within 2 hours for best conversion
-              </Text>
+              <Text style={urgentText}>{t(contactFormTranslations.urgentBanner, locale)}</Text>
             </Section>
 
             <Heading style={h2}>{name}</Heading>
 
             <Section style={highlightBox}>
-              <Text style={sectionTitle}>📞 Contact Information</Text>
+              <Text style={sectionTitle}>{t(contactFormTranslations.contactInformation, locale)}</Text>
               <Hr style={hr} />
               <Text style={detailText}>
-                <strong>Name:</strong> {name}
+                <strong>{t(commonTranslations.name, locale)}:</strong> {name}
               </Text>
               <Text style={detailText}>
-                <strong>Email:</strong>{' '}
+                <strong>{t(commonTranslations.email, locale)}:</strong>{' '}
                 <a href={`mailto:${email}`} style={link}>
                   {email}
                 </a>
               </Text>
               {phone && (
                 <Text style={detailText}>
-                  <strong>Phone:</strong>{' '}
+                  <strong>{t(commonTranslations.phone, locale)}:</strong>{' '}
                   <a href={`tel:${phone}`} style={link}>
                     {phone}
                   </a>
@@ -85,90 +115,74 @@ export function ContactFormNotification({
 
             <Section style={serviceBox}>
               <Text style={serviceBadge}>
-                {serviceEmoji[service] || '📋'} {serviceLabels[service] || service}
+                {serviceEmoji[service] || '📋'} {serviceLabel}
               </Text>
             </Section>
 
             <Section style={messageBox}>
-              <Text style={sectionTitle}>💬 Message</Text>
+              <Text style={sectionTitle}>{t(contactFormTranslations.messageLabel, locale)}</Text>
               <Hr style={hr} />
               <Text style={messageText}>&quot;{message}&quot;</Text>
             </Section>
 
             <Section style={metaBox}>
               <Text style={metaText}>
-                <strong>Submitted:</strong>{' '}
-                {submittedAt.toLocaleString('en-US', {
+                <strong>{t(contactFormTranslations.submittedLabel, locale)}:</strong>{' '}
+                {submittedAt.toLocaleString(locale === 'es' ? 'es-US' : 'en-US', {
                   dateStyle: 'full',
                   timeStyle: 'short',
                   timeZone: 'America/New_York',
                 })}
               </Text>
               <Text style={metaText}>
-                <strong>Source:</strong> TaxGeniusPro Contact Page
+                <strong>{t(contactFormTranslations.sourceLabel, locale)}:</strong>{' '}
+                {t(contactFormTranslations.sourcePage, locale)}
               </Text>
             </Section>
 
             <Section style={actionBox}>
-              <Text style={actionTitle}>⚡ Recommended Actions</Text>
+              <Text style={actionTitle}>{t(contactFormTranslations.recommendedActions, locale)}</Text>
               <ul style={actionList}>
                 <li style={actionItem}>
-                  <strong>Respond within 2 hours</strong> for highest conversion rate
+                  <strong>{t(contactFormTranslations.action1, locale)}</strong>
                 </li>
                 <li style={actionItem}>
-                  Call {phone || 'the prospect'} if provided for immediate connection
+                  {phone
+                    ? t(contactFormTranslations.action2, locale).replace('{phone}', phone)
+                    : t(contactFormTranslations.action2NoPhone, locale)}
                 </li>
                 <li style={actionItem}>
-                  Send personalized email addressing their {serviceLabels[service] || 'inquiry'}
+                  {t(contactFormTranslations.action3, locale).replace('{service}', serviceLabel.toLowerCase())}
                 </li>
-                <li style={actionItem}>Create CRM record if not exists</li>
-                <li style={actionItem}>Schedule follow-up if no response within 24 hours</li>
+                <li style={actionItem}>{t(contactFormTranslations.action4, locale)}</li>
+                <li style={actionItem}>{t(contactFormTranslations.action5, locale)}</li>
               </ul>
             </Section>
 
             <Section style={buttonContainer}>
               <Button style={buttonPrimary} href={`mailto:${email}`}>
-                Reply via Email
+                {t(commonTranslations.replyViaEmail, locale)}
               </Button>
               {phone && (
                 <Button style={buttonSecondary} href={`tel:${phone}`}>
-                  Call Now
+                  {t(commonTranslations.callNow, locale)}
                 </Button>
               )}
             </Section>
 
             <Section style={quickReply}>
-              <Text style={quickReplyTitle}>📧 Quick Reply Template</Text>
-              <Text style={quickReplyText}>
-                Hi {name.split(' ')[0]},
-                <br />
-                <br />
-                Thank you for contacting TaxGeniusPro! I received your inquiry about{' '}
-                {serviceLabels[service]?.toLowerCase() || service}.
-                <br />
-                <br />
-                I&apos;d love to discuss how we can help. Are you available for a quick call{' '}
-                {phone ? `at ${phone}` : 'this week'}?
-                <br />
-                <br />
-                Alternatively, you can schedule a consultation at your convenience:{' '}
-                https://taxgeniuspro.tax/book-appointment
-                <br />
-                <br />
-                Looking forward to helping you!
-                <br />
-                <br />
-                Best regards,
-                <br />
-                TaxGeniusPro Team
-              </Text>
+              <Text style={quickReplyTitle}>{t(contactFormTranslations.quickReplyTitle, locale)}</Text>
+              <Text style={quickReplyText}>{quickReply}</Text>
             </Section>
           </Section>
 
           <Section style={footerSection}>
-            <Text style={copyright}>© 2025 TaxGeniusPro</Text>
+            <Text style={copyright}>{t(commonTranslations.copyright, locale)}</Text>
             <Text style={copyright}>
-              This notification was sent to taxgenius.tax@gmail.com
+              {t(contactFormTranslations.notificationSentTo, locale).replace(
+                '{email}',
+                'taxgenius.tax@gmail.com'
+              )}
             </Text>
           </Section>
         </Container>

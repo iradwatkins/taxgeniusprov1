@@ -27,7 +27,7 @@ import {
 import { PreparerCard } from '@/components/PreparerCard';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 // Tax intake form data structure
 interface TaxFormData {
@@ -123,6 +123,7 @@ interface SimpleTaxFormProps {
 export default function SimpleTaxForm({ preparer: initialPreparer }: SimpleTaxFormProps = {}) {
   const t = useTranslations('forms.taxIntake');
   const tCommon = useTranslations('common');
+  const locale = useLocale();
   const { data: session, status } = useSession(); const user = session?.user; const isLoaded = status !== 'loading';
   const [page, setPage] = useState(1);
   const [isDesktop, setIsDesktop] = useState(false);
@@ -272,6 +273,8 @@ export default function SimpleTaxForm({ preparer: initialPreparer }: SimpleTaxFo
           license_expiration: formData.license_expiration,
           // Full form data as JSON for any additional fields
           full_form_data: formData,
+          // Language/Locale for email routing
+          locale: locale,
         }),
       });
 

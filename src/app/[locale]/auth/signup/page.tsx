@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import {
   DollarSign,
   Shield,
@@ -22,6 +23,7 @@ function SignUpContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const role = searchParams.get('role') || 'client';
+  const t = useTranslations('auth.signup');
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -33,50 +35,53 @@ function SignUpContent() {
   // Role-specific content
   const roleContent = {
     client: {
-      badge: 'Professional Tax Services',
+      badge: t('client.badge'),
       icon: Shield,
-      heading: 'Get Your Taxes Done by Professionals',
-      subheading:
-        'Join 50,000+ satisfied customers who trust us for accurate, stress-free tax filing',
+      heading: t('client.heading'),
+      subheading: t('client.subheading'),
       benefits: [
-        { icon: CheckCircle, text: 'Maximum refund guaranteed' },
-        { icon: Shield, text: 'IRS-certified CPAs' },
-        { icon: TrendingUp, text: 'Average refund: $3,259' },
+        { icon: CheckCircle, text: t('client.benefit1') },
+        { icon: Shield, text: t('client.benefit2') },
+        { icon: TrendingUp, text: t('client.benefit3') },
       ],
-      ctaText: 'Start Your Free Tax Filing',
-      imageSuggestion: 'Happy family receiving tax refund',
+      ctaText: t('client.ctaText'),
+      imageSuggestion: t('client.imageSuggestion'),
+      trustIndicator: t('client.trustIndicator'),
+      accountSubtext: t('client.accountSubtext'),
       theme: 'from-blue-50 to-blue-100 dark:bg-blue-900/20',
       accentColor: 'text-blue-600 dark:text-blue-400',
     },
     preparer: {
-      badge: 'Career Opportunity',
+      badge: t('preparer.badge'),
       icon: Award,
-      heading: 'Build Your Tax Preparation Career',
-      subheading:
-        'Join our network of professional tax preparers. Flexible hours, remote work, earn $45-75 per return',
+      heading: t('preparer.heading'),
+      subheading: t('preparer.subheading'),
       benefits: [
-        { icon: DollarSign, text: 'Earn up to $5,000/month' },
-        { icon: Users, text: '100% remote - work from anywhere' },
-        { icon: Shield, text: 'E&O insurance included' },
+        { icon: DollarSign, text: t('preparer.benefit1') },
+        { icon: Users, text: t('preparer.benefit2') },
+        { icon: Shield, text: t('preparer.benefit3') },
       ],
-      ctaText: 'Start Your Application',
-      imageSuggestion: 'Professional tax preparer working confidently',
+      ctaText: t('preparer.ctaText'),
+      imageSuggestion: t('preparer.imageSuggestion'),
+      trustIndicator: t('preparer.trustIndicator'),
+      accountSubtext: t('preparer.accountSubtext'),
       theme: 'from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-800/20',
       accentColor: 'text-blue-600 dark:text-blue-400',
     },
     affiliate: {
-      badge: '💰 Start Earning Today',
+      badge: `💰 ${t('affiliate.badge')}`,
       icon: DollarSign,
-      heading: 'Start Making Money Now!',
-      subheading:
-        'Earn up to $50 for each friend you refer. Easy money, unlimited potential. Join thousands earning extra cash!',
+      heading: t('affiliate.heading'),
+      subheading: t('affiliate.subheading'),
       benefits: [
-        { icon: DollarSign, text: 'Up to $50 per referral - No limits!' },
-        { icon: TrendingUp, text: 'Get paid within 7 days' },
-        { icon: CheckCircle, text: 'Super easy - just share your link' },
+        { icon: DollarSign, text: t('affiliate.benefit1') },
+        { icon: TrendingUp, text: t('affiliate.benefit2') },
+        { icon: CheckCircle, text: t('affiliate.benefit3') },
       ],
-      ctaText: 'Get Your Referral Link Now',
-      imageSuggestion: 'Excited people celebrating money earnings',
+      ctaText: t('affiliate.ctaText'),
+      imageSuggestion: t('affiliate.imageSuggestion'),
+      trustIndicator: t('affiliate.trustIndicator'),
+      accountSubtext: t('affiliate.accountSubtext'),
       theme: 'from-yellow-50 to-orange-100 dark:from-yellow-900/20 dark:to-orange-800/20',
       accentColor: 'text-yellow-600 dark:text-yellow-400',
     },
@@ -91,12 +96,12 @@ function SignUpContent() {
 
     // Validation
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('errors.passwordsDoNotMatch'));
       return;
     }
 
     if (password.length < 8) {
-      setError('Password must be at least 8 characters long');
+      setError(t('errors.passwordTooShort'));
       return;
     }
 
@@ -119,7 +124,7 @@ function SignUpContent() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Failed to create account');
+        setError(data.error || t('errors.failedToCreateAccount'));
         setIsLoading(false);
         return;
       }
@@ -128,7 +133,7 @@ function SignUpContent() {
       router.push('/auth/select-role');
     } catch (error) {
       console.error('Sign up error:', error);
-      setError('An unexpected error occurred. Please try again.');
+      setError(t('errors.unexpectedError'));
       setIsLoading(false);
     }
   };
@@ -161,10 +166,10 @@ function SignUpContent() {
                   <IconComponent className={`w-16 h-16 ${content.accentColor}`} />
                 </div>
                 <p className="text-sm font-semibold text-muted-foreground mb-2">
-                  [Replace with image]
+                  {t('imagePlaceholder.replaceWith')}
                 </p>
                 <p className="text-xs text-muted-foreground">{content.imageSuggestion}</p>
-                <p className="text-xs text-muted-foreground mt-1">Recommended: 800x450px</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('imagePlaceholder.recommended')}</p>
               </div>
             </div>
           </div>
@@ -184,11 +189,7 @@ function SignUpContent() {
           {/* Trust indicators */}
           <div className="pt-4 border-t">
             <p className="text-sm text-muted-foreground mb-3">
-              {role === 'affiliate'
-                ? '🔥 Join 10,000+ people already earning extra cash'
-                : role === 'preparer'
-                  ? '✓ Trusted by 500+ professional tax preparers'
-                  : '✓ Trusted by 50,000+ satisfied customers'}
+              {role === 'affiliate' ? '🔥 ' : '✓ '}{content.trustIndicator}
             </p>
           </div>
         </div>
@@ -200,18 +201,14 @@ function SignUpContent() {
           <div className="text-center mb-8">
             <Image
               src="/images/wordpress-assets/taxgenius-logo.png"
-              alt="Tax Genius Pro"
+              alt={t('logoAlt')}
               width={200}
               height={50}
               className="h-12 w-auto mx-auto mb-6"
             />
             <h2 className="text-2xl font-bold mb-2">{content.ctaText}</h2>
             <p className="text-sm text-muted-foreground">
-              {role === 'affiliate'
-                ? 'Create your account and start earning in minutes'
-                : role === 'preparer'
-                  ? 'Create your professional account to get started'
-                  : 'Create your account to begin filing'}
+              {content.accountSubtext}
             </p>
           </div>
 
@@ -223,11 +220,11 @@ function SignUpContent() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name">{t('form.fullName')}</Label>
               <Input
                 id="name"
                 type="text"
-                placeholder="John M Doe (include middle name for tax preparers)"
+                placeholder={t('form.namePlaceholder')}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -236,17 +233,17 @@ function SignUpContent() {
               />
               {role === 'preparer' && (
                 <p className="text-xs text-muted-foreground">
-                  💡 Include your middle name/initial for a personalized tracking code (e.g., "jmd")
+                  💡 {t('form.preparerNameHint')}
                 </p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('form.email')}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t('form.emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -256,11 +253,11 @@ function SignUpContent() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('form.password')}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="At least 8 characters"
+                placeholder={t('form.passwordPlaceholder')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -271,11 +268,11 @@ function SignUpContent() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">{t('form.confirmPassword')}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="Re-enter your password"
+                placeholder={t('form.confirmPasswordPlaceholder')}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -285,13 +282,13 @@ function SignUpContent() {
             </div>
 
             <div className="text-xs text-muted-foreground">
-              By creating an account, you agree to our{' '}
+              {t('form.termsText')}{' '}
               <a href="/terms" className="text-primary hover:underline">
-                Terms of Service
+                {t('form.termsLink')}
               </a>{' '}
-              and{' '}
+              {t('form.termsAnd')}{' '}
               <a href="/privacy" className="text-primary hover:underline">
-                Privacy Policy
+                {t('form.privacyLink')}
               </a>
               .
             </div>
@@ -306,21 +303,21 @@ function SignUpContent() {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating account...
+                  {t('form.creatingAccountButton')}
                 </>
               ) : (
-                'Create Account'
+                t('form.createAccountButton')
               )}
             </Button>
           </form>
 
           <div className="text-center text-sm text-muted-foreground">
-            Already have an account?{' '}
+            {t('form.alreadyHaveAccount')}{' '}
             <a
               href={`/auth/signin${role ? `?role=${role}` : ''}`}
               className="text-primary hover:underline font-semibold"
             >
-              Sign in
+              {t('form.signInLink')}
             </a>
           </div>
         </div>

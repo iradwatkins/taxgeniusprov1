@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -34,132 +35,86 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 
-const helpCategories = [
-  {
-    icon: FileText,
-    title: 'Filing Your Return',
-    desc: 'Getting started, uploading documents, filing status',
-    articles: 12,
-    color: 'text-blue-500',
-  },
-  {
-    icon: CreditCard,
-    title: 'Payments & Pricing',
-    desc: 'Payment methods, refunds, pricing questions',
-    articles: 8,
-    color: 'text-green-500',
-  },
-  {
-    icon: Shield,
-    title: 'Security & Privacy',
-    desc: 'Data protection, account security, privacy policy',
-    articles: 6,
-    color: 'text-purple-500',
-  },
-  {
-    icon: Users,
-    title: 'Working with CPAs',
-    desc: 'Communication, document requests, consultation',
-    articles: 10,
-    color: 'text-orange-500',
-  },
-  {
-    icon: Calculator,
-    title: 'Deductions & Credits',
-    desc: 'What you can claim, documentation needed',
-    articles: 15,
-    color: 'text-pink-500',
-  },
-  {
-    icon: AlertCircle,
-    title: 'IRS Issues',
-    desc: 'Notices, audits, payment plans, resolution',
-    articles: 9,
-    color: 'text-red-500',
-  },
-];
-
-const popularArticles = [
-  { title: 'How do I upload my tax documents?', views: '12.5K' },
-  { title: 'When will I receive my refund?', views: '10.2K' },
-  { title: 'What documents do I need to file?', views: '9.8K' },
-  { title: 'How do I contact my assigned CPA?', views: '8.4K' },
-  { title: 'Can I amend my tax return after filing?', views: '7.9K' },
-  { title: 'What payment methods do you accept?', views: '6.5K' },
-];
-
-const faqs = [
-  {
-    category: 'Getting Started',
-    questions: [
-      {
-        q: 'How long does it take to file my taxes?',
-        a: 'Most returns are completed within 3-5 business days after you submit all required documents. Complex returns (business, investments, rental property) may take 5-7 days. Rush service is available for urgent situations.',
-      },
-      {
-        q: 'What documents do I need to file?',
-        a: "You'll need W-2s from employers, 1099 forms for other income, receipts for deductions, last year's tax return, and any relevant tax documents like 1098 (mortgage interest), 1095-A (health insurance), etc. Your CPA will provide a personalized checklist.",
-      },
-      {
-        q: 'Can I file taxes from any state?',
-        a: 'Yes! We prepare federal and state returns for all 50 states. Our CPAs are licensed and experienced with multi-state filings, including part-year resident returns.',
-      },
-    ],
-  },
-  {
-    category: 'Payments & Refunds',
-    questions: [
-      {
-        q: 'When do I pay for tax preparation?',
-        a: "You pay after your return is completed and you've reviewed and approved it. We don't charge until you're 100% satisfied. Payment is due before we file with the IRS.",
-      },
-      {
-        q: 'How quickly will I get my refund?',
-        a: 'With direct deposit, federal refunds typically arrive in 7-21 days after IRS acceptance. Paper check refunds take 2-4 weeks longer. We track your refund status and notify you of updates.',
-      },
-      {
-        q: 'Do you offer refund advances?',
-        a: 'Yes! Eligible clients can receive their refund in 24 hours with our instant refund advance program. Approval and loan amount depend on your expected refund and credit check.',
-      },
-    ],
-  },
-  {
-    category: 'CPA Services',
-    questions: [
-      {
-        q: 'Will I work with the same CPA?',
-        a: "Yes. You're assigned a dedicated CPA who handles your return from start to finish. They're available year-round for questions and become familiar with your tax situation.",
-      },
-      {
-        q: 'How do I communicate with my CPA?',
-        a: 'You can message your CPA directly through our secure portal, schedule video calls, or call their direct line. Most CPAs respond within 24 hours on business days.',
-      },
-      {
-        q: 'Are your tax preparers licensed?',
-        a: 'All our preparers are licensed CPAs (Certified Public Accountants) or Enrolled Agents (EAs) authorized to represent clients before the IRS. All hold active licenses and complete continuing education.',
-      },
-    ],
-  },
-  {
-    category: 'Security & Privacy',
-    questions: [
-      {
-        q: 'Is my information secure?',
-        a: "Absolutely. We use bank-level 256-bit encryption, secure servers, and strict access controls. We're SOC 2 Type II certified and comply with IRS security requirements for tax preparers.",
-      },
-      {
-        q: 'Who has access to my tax information?',
-        a: 'Only your assigned CPA and authorized support staff. We never sell your data. All employees sign confidentiality agreements and undergo background checks.',
-      },
-      {
-        q: 'What happens to my documents after filing?',
-        a: 'Documents are securely stored for 7 years (IRS requirement) then permanently deleted. You can download your return and documents anytime from your secure portal.',
-      },
-    ],
-  },
-];
-
 export default function HelpCenterPage() {
+  const t = useTranslations('help');
+
+  const helpCategories = [
+    {
+      icon: FileText,
+      titleKey: 'filing.title',
+      descKey: 'filing.description',
+      articlesKey: 'filing.articles',
+      color: 'text-blue-500',
+    },
+    {
+      icon: CreditCard,
+      titleKey: 'payments.title',
+      descKey: 'payments.description',
+      articlesKey: 'payments.articles',
+      color: 'text-green-500',
+    },
+    {
+      icon: Shield,
+      titleKey: 'security.title',
+      descKey: 'security.description',
+      articlesKey: 'security.articles',
+      color: 'text-purple-500',
+    },
+    {
+      icon: Users,
+      titleKey: 'cpas.title',
+      descKey: 'cpas.description',
+      articlesKey: 'cpas.articles',
+      color: 'text-orange-500',
+    },
+    {
+      icon: Calculator,
+      titleKey: 'deductions.title',
+      descKey: 'deductions.description',
+      articlesKey: 'deductions.articles',
+      color: 'text-pink-500',
+    },
+    {
+      icon: AlertCircle,
+      titleKey: 'irs.title',
+      descKey: 'irs.description',
+      articlesKey: 'irs.articles',
+      color: 'text-red-500',
+    },
+  ];
+
+  const popularArticles = [
+    { titleKey: 'article1.title', viewsKey: 'article1.views' },
+    { titleKey: 'article2.title', viewsKey: 'article2.views' },
+    { titleKey: 'article3.title', viewsKey: 'article3.views' },
+    { titleKey: 'article4.title', viewsKey: 'article4.views' },
+    { titleKey: 'article5.title', viewsKey: 'article5.views' },
+    { titleKey: 'article6.title', viewsKey: 'article6.views' },
+  ];
+
+  const faqSections = [
+    {
+      categoryKey: 'gettingStarted.category',
+      questions: ['q1', 'q2', 'q3'],
+      section: 'gettingStarted',
+    },
+    {
+      categoryKey: 'paymentsRefunds.category',
+      questions: ['q1', 'q2', 'q3'],
+      section: 'paymentsRefunds',
+    },
+    {
+      categoryKey: 'cpaServices.category',
+      questions: ['q1', 'q2', 'q3'],
+      section: 'cpaServices',
+    },
+    {
+      categoryKey: 'securityPrivacy.category',
+      questions: ['q1', 'q2', 'q3'],
+      section: 'securityPrivacy',
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -175,15 +130,15 @@ export default function HelpCenterPage() {
           >
             <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full">
               <HelpCircle className="w-5 h-5" />
-              <span className="font-semibold">Help Center</span>
+              <span className="font-semibold">{t('hero.badge')}</span>
             </div>
 
             <h1 className="text-4xl lg:text-6xl font-bold">
-              How Can We <span className="text-primary">Help You?</span>
+              {t('hero.title')} <span className="text-primary">{t('hero.titleHighlight')}</span>
             </h1>
 
             <p className="text-xl text-muted-foreground">
-              Search our knowledge base or contact our support team
+              {t('hero.subtitle')}
             </p>
 
             {/* Search Bar */}
@@ -192,14 +147,14 @@ export default function HelpCenterPage() {
                 <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="Search for answers... (e.g., 'How do I upload documents?')"
+                  placeholder={t('hero.searchPlaceholder')}
                   className="pl-14 h-16 text-lg shadow-lg"
                 />
                 <Button
                   className="absolute right-2 top-1/2 -translate-y-1/2 h-12"
                   variant="professional"
                 >
-                  Search
+                  {t('hero.searchButton')}
                 </Button>
               </div>
             </div>
@@ -207,9 +162,9 @@ export default function HelpCenterPage() {
             {/* Quick Stats */}
             <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto pt-8">
               {[
-                { icon: Book, label: '150+ Articles', color: 'text-blue-500' },
-                { icon: Video, label: '50+ Videos', color: 'text-purple-500' },
-                { icon: Users, label: '24/7 Support', color: 'text-green-500' },
+                { icon: Book, labelKey: 'articles', color: 'text-blue-500' },
+                { icon: Video, labelKey: 'videos', color: 'text-purple-500' },
+                { icon: Users, labelKey: 'support', color: 'text-green-500' },
               ].map((item, i) => (
                 <motion.div
                   key={i}
@@ -223,7 +178,7 @@ export default function HelpCenterPage() {
                   >
                     <item.icon className="w-6 h-6" />
                   </div>
-                  <p className="text-sm font-semibold">{item.label}</p>
+                  <p className="text-sm font-semibold">{t(`stats.${item.labelKey}`)}</p>
                 </motion.div>
               ))}
             </div>
@@ -238,33 +193,33 @@ export default function HelpCenterPage() {
             {[
               {
                 icon: Phone,
-                title: 'Phone Support',
-                desc: 'Mon-Fri: 9AM-7PM ET',
-                action: '(404) 627-1015',
+                titleKey: 'phone.title',
+                descKey: 'phone.description',
+                actionKey: 'phone.action',
                 href: 'tel:+14046271015',
                 color: 'text-green-500',
               },
               {
                 icon: MessageCircle,
-                title: 'Live Chat',
-                desc: 'Average wait: < 2 min',
-                action: 'Start Chat',
+                titleKey: 'chat.title',
+                descKey: 'chat.description',
+                actionKey: 'chat.action',
                 href: '#',
                 color: 'text-blue-500',
               },
               {
                 icon: Mail,
-                title: 'Email Support',
-                desc: 'Response within 24 hours',
-                action: 'Send Email',
+                titleKey: 'email.title',
+                descKey: 'email.description',
+                actionKey: 'email.action',
                 href: 'mailto:taxgenius.tax@gmail.com',
                 color: 'text-purple-500',
               },
               {
                 icon: Video,
-                title: 'Video Call',
-                desc: 'Schedule with your CPA',
-                action: 'Book Call',
+                titleKey: 'video.title',
+                descKey: 'video.description',
+                actionKey: 'video.action',
                 href: '/book-appointment',
                 color: 'text-orange-500',
               },
@@ -284,10 +239,10 @@ export default function HelpCenterPage() {
                     >
                       <option.icon className="w-7 h-7" />
                     </div>
-                    <h3 className="font-bold text-lg mb-2">{option.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-4">{option.desc}</p>
+                    <h3 className="font-bold text-lg mb-2">{t(`contact.${option.titleKey}`)}</h3>
+                    <p className="text-sm text-muted-foreground mb-4">{t(`contact.${option.descKey}`)}</p>
                     <Button variant="outline" className="w-full" asChild>
-                      <Link href={option.href}>{option.action}</Link>
+                      <Link href={option.href}>{t(`contact.${option.actionKey}`)}</Link>
                     </Button>
                   </CardContent>
                 </Card>
@@ -306,8 +261,8 @@ export default function HelpCenterPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Browse by Category</h2>
-            <p className="text-lg text-muted-foreground">Find answers organized by topic</p>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('categories.title')}</h2>
+            <p className="text-lg text-muted-foreground">{t('categories.subtitle')}</p>
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -320,7 +275,7 @@ export default function HelpCenterPage() {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 whileHover={{ scale: 1.05 }}
               >
-                <Link href={`/help/${category.title.toLowerCase().replace(/ /g, '-')}`}>
+                <Link href={`/help/${t(`categories.${category.titleKey}`).toLowerCase().replace(/ /g, '-')}`}>
                   <Card className="hover:shadow-xl transition-all cursor-pointer group h-full">
                     <CardHeader>
                       <div className="flex items-start justify-between mb-4">
@@ -329,16 +284,16 @@ export default function HelpCenterPage() {
                         >
                           <category.icon className="w-7 h-7" />
                         </div>
-                        <Badge variant="secondary">{category.articles} articles</Badge>
+                        <Badge variant="secondary">{t(`categories.${category.articlesKey}`)}</Badge>
                       </div>
                       <CardTitle className="text-xl group-hover:text-primary transition-colors">
-                        {category.title}
+                        {t(`categories.${category.titleKey}`)}
                       </CardTitle>
-                      <CardDescription className="text-base">{category.desc}</CardDescription>
+                      <CardDescription className="text-base">{t(`categories.${category.descKey}`)}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="flex items-center gap-2 text-sm text-primary font-semibold">
-                        <span>View Articles</span>
+                        <span>{t('categories.viewArticles')}</span>
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
                       </div>
                     </CardContent>
@@ -359,8 +314,8 @@ export default function HelpCenterPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Popular Articles</h2>
-            <p className="text-lg text-muted-foreground">Most viewed this month</p>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('popular.title')}</h2>
+            <p className="text-lg text-muted-foreground">{t('popular.subtitle')}</p>
           </motion.div>
 
           <div className="max-w-4xl mx-auto space-y-4">
@@ -382,9 +337,9 @@ export default function HelpCenterPage() {
                           </div>
                           <div className="flex-1">
                             <h3 className="font-semibold group-hover:text-primary transition-colors">
-                              {article.title}
+                              {t(`popular.${article.titleKey}`)}
                             </h3>
-                            <p className="text-sm text-muted-foreground">{article.views} views</p>
+                            <p className="text-sm text-muted-foreground">{t(`popular.${article.viewsKey}`)}</p>
                           </div>
                         </div>
                         <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-2 transition-all" />
@@ -407,12 +362,12 @@ export default function HelpCenterPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
-            <p className="text-lg text-muted-foreground">Quick answers to common questions</p>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">{t('faq.title')}</h2>
+            <p className="text-lg text-muted-foreground">{t('faq.subtitle')}</p>
           </motion.div>
 
           <div className="max-w-4xl mx-auto space-y-8">
-            {faqs.map((section, sectionIdx) => (
+            {faqSections.map((section, sectionIdx) => (
               <motion.div
                 key={sectionIdx}
                 initial={{ opacity: 0, y: 30 }}
@@ -424,11 +379,11 @@ export default function HelpCenterPage() {
                   <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
                     <HelpCircle className="w-5 h-5 text-primary" />
                   </div>
-                  {section.category}
+                  {t(`faq.${section.categoryKey}`)}
                 </h3>
 
                 <Accordion type="single" collapsible className="space-y-4">
-                  {section.questions.map((faq, faqIdx) => (
+                  {section.questions.map((q, faqIdx) => (
                     <AccordionItem
                       key={faqIdx}
                       value={`${sectionIdx}-${faqIdx}`}
@@ -437,11 +392,11 @@ export default function HelpCenterPage() {
                       <AccordionTrigger className="hover:no-underline text-left">
                         <div className="flex items-start gap-3">
                           <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                          <span className="font-semibold">{faq.q}</span>
+                          <span className="font-semibold">{t(`faq.${section.section}.${q}.question`)}</span>
                         </div>
                       </AccordionTrigger>
                       <AccordionContent className="text-muted-foreground pl-8 pt-2 leading-relaxed">
-                        {faq.a}
+                        {t(`faq.${section.section}.${q}.answer`)}
                       </AccordionContent>
                     </AccordionItem>
                   ))}
@@ -465,7 +420,7 @@ export default function HelpCenterPage() {
                 <div className="relative h-64 md:h-auto">
                   <Image
                     src="https://images.unsplash.com/photo-1556745753-b2904692b3cd?w=600&q=80"
-                    alt="Support team"
+                    alt={t('cta.imageAlt')}
                     width={600}
                     height={400}
                     className="object-cover w-full h-full"
@@ -479,32 +434,32 @@ export default function HelpCenterPage() {
                 </div>
 
                 <CardContent className="p-8 md:p-12 flex flex-col justify-center">
-                  <h3 className="text-2xl font-bold mb-3">Still Need Help?</h3>
+                  <h3 className="text-2xl font-bold mb-3">{t('cta.title')}</h3>
                   <p className="text-muted-foreground mb-6">
-                    Our support team is standing by to assist you with any questions.
+                    {t('cta.subtitle')}
                   </p>
 
                   <div className="space-y-3">
                     <Button variant="professional" className="w-full h-12" asChild>
                       <Link href="tel:+14046271015">
                         <Phone className="mr-2 w-5 h-5" />
-                        Call (404) 627-1015
+                        {t('cta.callButton')}
                       </Link>
                     </Button>
                     <Button variant="outline" className="w-full h-12">
                       <MessageCircle className="mr-2 w-5 h-5" />
-                      Start Live Chat
+                      {t('cta.chatButton')}
                     </Button>
                   </div>
 
                   <div className="flex items-center gap-4 pt-6 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-success" />
-                      <span>Available 24/7</span>
+                      <span>{t('cta.available')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-success" />
-                      <span>Avg. 2min response</span>
+                      <span>{t('cta.responseTime')}</span>
                     </div>
                   </div>
                 </CardContent>
