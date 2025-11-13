@@ -1,20 +1,20 @@
-import { validateRequest } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { redirect } from 'next/navigation';
-import AccountWrapper from '@/components/account/account-wrapper';
-import { AddressManager } from '@/components/account/address-manager';
+import { validateRequest } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import { redirect } from 'next/navigation'
+import AccountWrapper from '@/components/account/account-wrapper'
+import { AddressManager } from '@/components/account/address-manager'
 
 export default async function AddressesPage() {
-  const { user } = await validateRequest();
+  const { user } = await validateRequest()
 
   if (!user) {
-    redirect('/auth/signin');
+    redirect('/auth/signin')
   }
 
   const addresses = await prisma.address.findMany({
     where: { userId: user.id },
     orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }],
-  });
+  })
 
   return (
     <AccountWrapper>
@@ -25,5 +25,5 @@ export default async function AddressesPage() {
         <AddressManager addresses={addresses} />
       </div>
     </AccountWrapper>
-  );
+  )
 }

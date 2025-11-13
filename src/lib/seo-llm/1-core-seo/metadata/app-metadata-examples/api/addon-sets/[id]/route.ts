@@ -1,22 +1,22 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { validateRequest } from '@/lib/auth';
-import { randomUUID } from 'crypto';
-import { cache } from '@/lib/redis';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { validateRequest } from '@/lib/auth'
+import { randomUUID } from 'crypto'
+import { cache } from 'ioredis'
 
 // GET /api/addon-sets/[id] - Get a specific addon set
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
+    const { id } = await params
 
     if (!id) {
-      return NextResponse.json({ error: 'Addon set ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Addon set ID is required' }, { status: 400 })
     }
 
     // Cache key includes the addon set ID
-    const cacheKey = `addon:set:${id}`;
-    const cached = await cache.get(cacheKey);
-    if (cached) return NextResponse.json(cached);
+    const cacheKey = `addon:set:${id}`
+    const cached = await cache.get(cacheKey)
+    if (cached) return NextResponse.json(cached)
 
     const addOnSet = await prisma.addOnSet.findUnique({
       where: { id },
@@ -47,10 +47,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           },
         },
       },
-    });
+    })
 
     if (!addOnSet) {
-      return NextResponse.json({ error: 'Addon set not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Addon set not found' }, { status: 404 })
     }
 
     // Transform PascalCase to camelCase
@@ -68,30 +68,30 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       },
       AddOnSetItem: undefined,
       ProductAddOnSet: undefined,
-    };
+    }
 
     // Cache for 1 hour (3600 seconds)
-    await cache.set(cacheKey, transformed, 3600);
+    await cache.set(cacheKey, transformed, 3600)
 
-    return NextResponse.json(transformed);
+    return NextResponse.json(transformed)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch addon set' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch addon set' }, { status: 500 })
   }
 }
 
 // PUT /api/addon-sets/[id] - Update a specific addon set
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
-    const { user, session } = await validateRequest();
+    const { id } = await params
+    const { user, session } = await validateRequest()
     if (!session || !user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    const body = await request.json();
-    const { name, description, isActive, addOnItems } = body;
+    const body = await request.json()
+    const { name, description, isActive, addOnItems } = body
 
     if (!id) {
-      return NextResponse.json({ error: 'Addon set ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Addon set ID is required' }, { status: 400 })
     }
 
     // Start a transaction to update addon set and items
@@ -105,14 +105,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
           ...(isActive !== undefined && { isActive }),
           updatedAt: new Date(),
         },
-      });
+      })
 
       // If addOnItems provided, update the items
       if (addOnItems) {
         // Delete existing items
         await tx.addOnSetItem.deleteMany({
           where: { addOnSetId: id },
-        });
+        })
 
         // Create new items
         if (addOnItems.length > 0) {
@@ -127,7 +127,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
               createdAt: new Date(),
               updatedAt: new Date(),
             })),
-          });
+          })
         }
       }
 
@@ -150,8 +150,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             },
           },
         },
-      });
-    });
+      })
+    })
 
     // Transform PascalCase to camelCase
     const transformed = result
@@ -168,11 +168,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
           },
           AddOnSetItem: undefined,
         }
-      : null;
+      : null
 
-    return NextResponse.json(transformed);
+    return NextResponse.json(transformed)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update addon set' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update addon set' }, { status: 500 })
   }
 }
 
@@ -182,23 +182,23 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const { user, session } = await validateRequest();
+    const { id } = await params
+    const { user, session } = await validateRequest()
     if (!session || !user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Check if request has a body with force flag
-    let force = false;
+    let force = false
     try {
-      const body = await request.json();
-      force = body.force === true;
+      const body = await request.json()
+      force = body.force === true
     } catch {
       // No body or invalid JSON, force remains false
     }
 
     if (!id) {
-      return NextResponse.json({ error: 'Addon set ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Addon set ID is required' }, { status: 400 })
     }
 
     // Use transaction to ensure all deletions happen together
@@ -206,12 +206,12 @@ export async function DELETE(
       // Check if addon set is in use by products
       const productCount = await tx.productAddOnSet.count({
         where: { addOnSetId: id },
-      });
+      })
 
       if (productCount > 0 && !force) {
         throw new Error(
           `Cannot delete addon set. It is currently used by ${productCount} product(s).`
-        );
+        )
       }
 
       // If forcing delete or no products are using it, proceed with deletion
@@ -219,25 +219,25 @@ export async function DELETE(
         // Remove all product associations first
         await tx.productAddOnSet.deleteMany({
           where: { addOnSetId: id },
-        });
+        })
       }
 
       // Delete addon set items
       await tx.addOnSetItem.deleteMany({
         where: { addOnSetId: id },
-      });
+      })
 
       // Delete the addon set
       await tx.addOnSet.delete({
         where: { id },
-      });
-    });
+      })
+    })
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true })
   } catch (error) {
     if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      return NextResponse.json({ error: error.message }, { status: 400 })
     }
-    return NextResponse.json({ error: 'Failed to delete addon set' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to delete addon set' }, { status: 500 })
   }
 }

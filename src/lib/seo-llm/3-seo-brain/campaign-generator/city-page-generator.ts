@@ -11,32 +11,33 @@
  * 7. SEO metadata
  */
 
-import { prisma } from '@/lib/prisma';
-import { generateCompleteCityContent } from './city-content-prompts';
-import type { CityData } from './city-data-types';
+import { prisma } from '@/lib/prisma'
+import { generateCompleteCityContent } from './city-content-prompts'
+import type { CityData } from './city-data-types'
 
-// Import Google AI image generation from SEO system
-import { generateProductImage } from '@/lib/seo-llm/2-llm-integrations/google-imagen/google-ai-client';
+// Import existing Google AI image generation
+// @ts-ignore - Will use existing implementation
+import { generateProductImage } from '@/lib/seo-llm/2-llm-integrations/google-imagen/google-ai-client'
 
 export interface ProductCampaignSpec {
-  productName: string;
-  quantity: number;
-  size: string;
-  material: string;
-  turnaround: string;
-  price: number;
-  onlineOnly: boolean;
-  keywords: string[];
-  industries?: string[];
+  productName: string
+  quantity: number
+  size: string
+  material: string
+  turnaround: string
+  price: number
+  onlineOnly: boolean
+  keywords: string[]
+  industries?: string[]
 }
 
 export interface CityPageGenerationResult {
-  success: boolean;
-  cityLandingPageId?: string;
-  city: string;
-  state: string;
-  url?: string;
-  error?: string;
+  success: boolean
+  cityLandingPageId?: string
+  city: string
+  state: string
+  url?: string
+  error?: string
 }
 
 /**
@@ -47,30 +48,30 @@ export async function generate200CityPages(
   productSpec: ProductCampaignSpec,
   ollamaClient: any
 ): Promise<{
-  success: boolean;
-  generated: number;
-  failed: number;
-  results: CityPageGenerationResult[];
+  success: boolean
+  generated: number
+  failed: number
+  results: CityPageGenerationResult[]
 }> {
   // Get top 200 US cities
-  const cities = await getTop200USCities();
+  const cities = await getTop200USCities()
 
-  const results: CityPageGenerationResult[] = [];
-  let generated = 0;
-  let failed = 0;
+  const results: CityPageGenerationResult[] = []
+  let generated = 0
+  let failed = 0
 
   // Step 1: Generate main product image (ONE TIME)
-  const mainProductImage = await generateMainProductImage(productSpec);
+  const mainProductImage = await generateMainProductImage(productSpec)
 
   if (!mainProductImage.success) {
-    console.error('[SEO Brain] Failed to generate main product image');
-    return { success: false, generated: 0, failed: 200, results: [] };
+    console.error('[SEO Brain] Failed to generate main product image')
+    return { success: false, generated: 0, failed: 200, results: [] }
   }
 
   // Step 2: Generate city pages in batches of 10
-  const batchSize = 10;
+  const batchSize = 10
   for (let i = 0; i < cities.length; i += batchSize) {
-    const batch = cities.slice(i, i + batchSize);
+    const batch = cities.slice(i, i + batchSize)
 
     // Process batch in parallel
     const batchResults = await Promise.allSettled(
@@ -83,28 +84,28 @@ export async function generate200CityPages(
           ollamaClient,
         })
       )
-    );
+    )
 
     // Collect results
     for (const result of batchResults) {
       if (result.status === 'fulfilled' && result.value.success) {
-        generated++;
-        results.push(result.value);
+        generated++
+        results.push(result.value)
       } else {
-        failed++;
+        failed++
         results.push({
           success: false,
           city: 'Unknown',
           state: 'Unknown',
           error: result.status === 'rejected' ? result.reason : 'Generation failed',
-        });
+        })
       }
     }
 
     // Progress update
 
     // Small delay between batches to avoid overwhelming Ollama
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000))
   }
 
   // Update campaign status
@@ -115,23 +116,23 @@ export async function generate200CityPages(
       generationCompletedAt: new Date(),
       status: generated === 200 ? 'OPTIMIZING' : 'GENERATING',
     },
-  });
+  })
 
   return {
     success: generated > 0,
     generated,
     failed,
     results,
-  };
+  }
 }
 
 /**
  * Generate main product image (used across all cities)
  */
 async function generateMainProductImage(productSpec: ProductCampaignSpec): Promise<{
-  success: boolean;
-  url?: string;
-  error?: string;
+  success: boolean
+  url?: string
+  error?: string
 }> {
   try {
     // Extract product type
@@ -143,35 +144,35 @@ async function generateMainProductImage(productSpec: ProductCampaignSpec): Promi
           ? 'postcards'
           : productSpec.productName.toLowerCase().includes('brochure')
             ? 'brochures'
-            : 'printed materials';
+            : 'printed materials'
 
     // Create professional product photography prompt
-    const prompt = `Professional product photography of ${productSpec.size} ${productType} in ${productSpec.material}, displayed fanned out on clean white surface, studio lighting with soft shadows, high-end marketing photography, ultra sharp focus, premium paper texture visible, 4k resolution, minimalist composition`;
+    const prompt = `Professional product photography of ${productSpec.size} ${productType} in ${productSpec.material}, displayed fanned out on clean white surface, studio lighting with soft shadows, high-end marketing photography, ultra sharp focus, premium paper texture visible, 4k resolution, minimalist composition`
 
     // Generate image using existing Google AI integration
     const result = await generateProductImage({
       prompt,
       aspectRatio: '4:3',
       productName: productSpec.productName,
-    });
+    })
 
     if (result.success && result.imageUrl) {
       return {
         success: true,
         url: result.imageUrl,
-      };
+      }
     } else {
       return {
         success: false,
         error: result.error || 'Image generation failed',
-      };
+      }
     }
   } catch (error) {
-    console.error('[SEO Brain] Error generating main product image:', error);
+    console.error('[SEO Brain] Error generating main product image:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    }
   }
 }
 
@@ -179,13 +180,13 @@ async function generateMainProductImage(productSpec: ProductCampaignSpec): Promi
  * Generate a single city landing page
  */
 async function generateSingleCityPage(params: {
-  city: CityData;
-  campaignId: string;
-  productSpec: ProductCampaignSpec;
-  mainProductImageUrl: string;
-  ollamaClient: any;
+  city: CityData
+  campaignId: string
+  productSpec: ProductCampaignSpec
+  mainProductImageUrl: string
+  ollamaClient: any
 }): Promise<CityPageGenerationResult> {
-  const { city, campaignId, productSpec, mainProductImageUrl, ollamaClient } = params;
+  const { city, campaignId, productSpec, mainProductImageUrl, ollamaClient } = params
 
   try {
     // Step 1: Generate city-specific content (500 words + 10 benefits + 15 FAQs)
@@ -200,26 +201,26 @@ async function generateSingleCityPage(params: {
         price: productSpec.price,
       },
       ollamaClient,
-    });
+    })
 
     // Step 2: Generate city-specific hero image
     const cityHeroImage = await generateProductImage({
       prompt: content.imagePrompt,
       aspectRatio: '4:3',
       productName: `${productSpec.productName}-${city.slug}`,
-    });
+    })
 
     // Step 3: Generate SEO metadata
     const metadata = generateSEOMetadata({
       city,
       productSpec,
-    });
+    })
 
     // Step 4: Create URL slug
     const slug = `${productSpec.productName
       .toLowerCase()
       .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '')}-${city.slug}`;
+      .replace(/[^a-z0-9-]/g, '')}-${city.slug}`
 
     // Step 5: Create CityLandingPage record
     const cityPage = await prisma.cityLandingPage.create({
@@ -267,7 +268,7 @@ async function generateSingleCityPage(params: {
         orders: 0,
         revenue: 0,
       },
-    });
+    })
 
     return {
       success: true,
@@ -275,15 +276,15 @@ async function generateSingleCityPage(params: {
       city: city.name,
       state: city.state,
       url: `/print/${slug}`,
-    };
+    }
   } catch (error) {
-    console.error(`[SEO Brain]   ❌ Failed: ${city.name}, ${city.state}`, error);
+    console.error(`[SEO Brain]   ❌ Failed: ${city.name}, ${city.state}`, error)
     return {
       success: false,
       city: city.name,
       state: city.state,
       error: error instanceof Error ? error.message : 'Unknown error',
-    };
+    }
   }
 }
 
@@ -291,18 +292,18 @@ async function generateSingleCityPage(params: {
  * Generate SEO metadata for city page
  */
 function generateSEOMetadata(params: { city: CityData; productSpec: ProductCampaignSpec }): {
-  title: string;
-  description: string;
-  h1: string;
-  keywords: string[];
+  title: string
+  description: string
+  h1: string
+  keywords: string[]
 } {
-  const { city, productSpec } = params;
+  const { city, productSpec } = params
 
-  const title = `${productSpec.quantity} ${productSpec.size} ${productSpec.productName} in ${city.name}, ${city.state} | ${productSpec.turnaround} | $${productSpec.price}`;
+  const title = `${productSpec.quantity} ${productSpec.size} ${productSpec.productName} in ${city.name}, ${city.state} | ${productSpec.turnaround} | $${productSpec.price}`
 
-  const description = `Order ${productSpec.quantity} ${productSpec.size} ${productSpec.productName} in ${city.name}. ${productSpec.material}, ${productSpec.turnaround} turnaround. Online special: $${productSpec.price}. Free shipping to all ${city.state} locations.`;
+  const description = `Order ${productSpec.quantity} ${productSpec.size} ${productSpec.productName} in ${city.name}. ${productSpec.material}, ${productSpec.turnaround} turnaround. Online special: $${productSpec.price}. Free shipping to all ${city.state} locations.`
 
-  const h1 = `${productSpec.productName} in ${city.name}, ${city.state}`;
+  const h1 = `${productSpec.productName} in ${city.name}, ${city.state}`
 
   const keywords = [
     `${productSpec.productName.toLowerCase()} ${city.name.toLowerCase()}`,
@@ -312,21 +313,21 @@ function generateSEOMetadata(params: { city: CityData; productSpec: ProductCampa
     `cheap ${productSpec.productName.toLowerCase()} ${city.name.toLowerCase()}`,
     `fast ${productSpec.productName.toLowerCase()} ${city.state.toLowerCase()}`,
     ...productSpec.keywords,
-  ];
+  ]
 
-  return { title, description, h1, keywords };
+  return { title, description, h1, keywords }
 }
 
 /**
  * Generate complete schema.org markup
  */
 function generateSchemaMarkup(params: {
-  city: CityData;
-  productSpec: ProductCampaignSpec;
-  faqs: Array<{ question: string; answer: string }>;
-  slug: string;
+  city: CityData
+  productSpec: ProductCampaignSpec
+  faqs: Array<{ question: string; answer: string }>
+  slug: string
 }): any {
-  const { city, productSpec, faqs, slug } = params;
+  const { city, productSpec, faqs, slug } = params
 
   return {
     '@context': 'https://schema.org',
@@ -376,7 +377,7 @@ function generateSchemaMarkup(params: {
         })),
       },
     ],
-  };
+  }
 }
 
 /**
@@ -393,7 +394,7 @@ async function getTop200USCities(): Promise<CityData[]> {
     orderBy: {
       population: 'desc',
     },
-  });
+  })
 
   return cities.map((city) => ({
     id: city.id,
@@ -406,5 +407,5 @@ async function getTop200USCities(): Promise<CityData[]> {
     venues: [], // Add if available
     industries: [], // Add if available
     famousFor: [], // Add if available
-  }));
+  }))
 }

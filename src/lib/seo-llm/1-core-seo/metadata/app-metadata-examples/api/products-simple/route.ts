@@ -1,15 +1,15 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { cache } from '@/lib/redis';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { cache } from 'ioredis'
 
 // Simple working products endpoint for testing
 export async function GET(request: NextRequest) {
   try {
     // Cache key for products list
-    const cacheKey = 'products:simple:list';
+    const cacheKey = 'products:simple:list'
 
     // Try to get from cache first
-    const cached = await cache.get(cacheKey);
+    const cached = await cache.get(cacheKey)
     if (cached) {
       return NextResponse.json({
         success: true,
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
         count: cached.length,
         message: `Found ${cached.length} products (cached)`,
         cached: true,
-      });
+      })
     }
 
     const products = await prisma.product.findMany({
@@ -87,10 +87,10 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: [{ isFeatured: 'desc' }, { createdAt: 'desc' }],
-    });
+    })
 
     // Cache for 1 hour (3600 seconds)
-    await cache.set(cacheKey, products, 3600);
+    await cache.set(cacheKey, products, 3600)
 
     return NextResponse.json({
       success: true,
@@ -98,9 +98,9 @@ export async function GET(request: NextRequest) {
       count: products.length,
       message: `Found ${products.length} products`,
       cached: false,
-    });
+    })
   } catch (error) {
-    console.error('❌ Products API Error:', error);
+    console.error('❌ Products API Error:', error)
     return NextResponse.json(
       {
         success: false,
@@ -108,6 +108,6 @@ export async function GET(request: NextRequest) {
         details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }
-    );
+    )
   }
 }

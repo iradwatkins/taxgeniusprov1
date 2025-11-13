@@ -1,59 +1,59 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
 
 interface Product {
-  id: string;
-  title: string;
-  description: string;
-  link: string;
-  price: string;
-  availability: string;
-  image_link: string;
-  enable_search: boolean;
-  enable_checkout: boolean;
-  brand: string;
-  product_category: string;
-  seller_name: string;
-  condition: string;
-  product_type: string;
-  google_product_category: string;
+  id: string
+  title: string
+  description: string
+  link: string
+  price: string
+  availability: string
+  image_link: string
+  enable_search: boolean
+  enable_checkout: boolean
+  brand: string
+  product_category: string
+  seller_name: string
+  condition: string
+  product_type: string
+  google_product_category: string
 }
 
 export default function ChatGPTFeedViewer() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   const loadFeed = async () => {
-    setLoading(true);
-    setError('');
+    setLoading(true)
+    setError('')
 
     try {
-      const response = await fetch('https://gangrunprinting.com/feeds/chatgpt-products.json');
+      const response = await fetch('https://gangrunprinting.com/feeds/chatgpt-products.json')
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
       }
 
-      const data = await response.json();
-      setProducts(data);
+      const data = await response.json()
+      setProducts(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load feed');
-      console.error('Feed error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load feed')
+      console.error('Feed error:', err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    loadFeed();
-  }, []);
+    loadFeed()
+  }, [])
 
-  const categories = [...new Set(products.map((p) => p.product_category))];
-  const totalPrice = products.reduce((sum, p) => sum + parseFloat(p.price.split(' ')[0]), 0);
-  const avgPrice = products.length > 0 ? (totalPrice / products.length).toFixed(2) : '0.00';
-  const inStockCount = products.filter((p) => p.availability === 'in_stock').length;
+  const categories = [...new Set(products.map((p) => p.product_category))]
+  const totalPrice = products.reduce((sum, p) => sum + parseFloat(p.price.split(' ')[0]), 0)
+  const avgPrice = products.length > 0 ? (totalPrice / products.length).toFixed(2) : '0.00'
+  const inStockCount = products.filter((p) => p.availability === 'in_stock').length
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 to-purple-900 p-5">
@@ -121,7 +121,7 @@ export default function ChatGPTFeedViewer() {
                   src={product.image_link}
                   onError={(e) => {
                     e.currentTarget.src =
-                      'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="200"%3E%3Crect fill="%23f5f5f5" width="400" height="200"/%3E%3Ctext fill="%23999" font-family="Arial" font-size="18" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3ENo Image%3C/text%3E%3C/svg%3E';
+                      'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="200"%3E%3Crect fill="%23f5f5f5" width="400" height="200"/%3E%3Ctext fill="%23999" font-family="Arial" font-size="18" x="50%25" y="50%25" text-anchor="middle" dominant-baseline="middle"%3ENo Image%3C/text%3E%3C/svg%3E'
                   }}
                 />
                 <div className="p-5">
@@ -190,5 +190,5 @@ export default function ChatGPTFeedViewer() {
         )}
       </div>
     </div>
-  );
+  )
 }

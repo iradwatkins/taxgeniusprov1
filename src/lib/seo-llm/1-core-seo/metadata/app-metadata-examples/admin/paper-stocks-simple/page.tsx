@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, GripVertical, Check } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
+import { useState, useEffect } from 'react'
+import { Plus, Edit, Trash2, GripVertical, Check } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
 import {
   Table,
   TableBody,
@@ -15,7 +15,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
@@ -23,24 +23,24 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
-import toast from '@/lib/toast';
+} from '@/components/ui/dialog'
+import toast from '@/lib/toast'
 
 interface PaperStock {
-  id: string;
-  name: string;
-  basePrice: number; // Price per square inch
-  shippingWeight: number; // Weight per 1000 sheets
-  sortOrder: number;
-  isDefault: boolean;
-  isActive: boolean;
+  id: string
+  name: string
+  basePrice: number // Price per square inch
+  shippingWeight: number // Weight per 1000 sheets
+  sortOrder: number
+  isDefault: boolean
+  isActive: boolean
 }
 
 export default function SimplePaperStocksPage() {
-  const [paperStocks, setPaperStocks] = useState<PaperStock[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingStock, setEditingStock] = useState<PaperStock | null>(null);
+  const [paperStocks, setPaperStocks] = useState<PaperStock[]>([])
+  const [loading, setLoading] = useState(true)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editingStock, setEditingStock] = useState<PaperStock | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     basePrice: 0.00001234,
@@ -48,11 +48,11 @@ export default function SimplePaperStocksPage() {
     sortOrder: 0,
     isDefault: false,
     isActive: true,
-  });
+  })
 
   useEffect(() => {
-    fetchPaperStocks();
-  }, []);
+    fetchPaperStocks()
+  }, [])
 
   const fetchPaperStocks = async () => {
     try {
@@ -94,18 +94,18 @@ export default function SimplePaperStocksPage() {
           isDefault: false,
           isActive: true,
         },
-      ];
-      setPaperStocks(mockData);
+      ]
+      setPaperStocks(mockData)
     } catch (error) {
-      toast.error('Failed to load paper stocks');
+      toast.error('Failed to load paper stocks')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleOpenDialog = (stock?: PaperStock) => {
     if (stock) {
-      setEditingStock(stock);
+      setEditingStock(stock)
       setFormData({
         name: stock.name,
         basePrice: stock.basePrice,
@@ -113,9 +113,9 @@ export default function SimplePaperStocksPage() {
         sortOrder: stock.sortOrder,
         isDefault: stock.isDefault,
         isActive: stock.isActive,
-      });
+      })
     } else {
-      setEditingStock(null);
+      setEditingStock(null)
       setFormData({
         name: '',
         basePrice: 0.00001234,
@@ -123,51 +123,51 @@ export default function SimplePaperStocksPage() {
         sortOrder: paperStocks.length + 1,
         isDefault: false,
         isActive: true,
-      });
+      })
     }
-    setDialogOpen(true);
-  };
+    setDialogOpen(true)
+  }
 
   const handleSubmit = async () => {
     try {
       // If setting as default, unset other defaults
       if (formData.isDefault) {
-        setPaperStocks((prev) => prev.map((stock) => ({ ...stock, isDefault: false })));
+        setPaperStocks((prev) => prev.map((stock) => ({ ...stock, isDefault: false })))
       }
 
       if (editingStock) {
         // Update existing
         setPaperStocks((prev) =>
           prev.map((stock) => (stock.id === editingStock.id ? { ...stock, ...formData } : stock))
-        );
-        toast.success('Paper stock updated');
+        )
+        toast.success('Paper stock updated')
       } else {
         // Add new
         const newStock: PaperStock = {
           id: Date.now().toString(),
           ...formData,
-        };
-        setPaperStocks((prev) => [...prev, newStock]);
-        toast.success('Paper stock added');
+        }
+        setPaperStocks((prev) => [...prev, newStock])
+        toast.success('Paper stock added')
       }
-      setDialogOpen(false);
+      setDialogOpen(false)
     } catch (error) {
-      toast.error('Failed to save paper stock');
+      toast.error('Failed to save paper stock')
     }
-  };
+  }
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this paper stock?')) {
-      setPaperStocks((prev) => prev.filter((stock) => stock.id !== id));
-      toast.success('Paper stock deleted');
+      setPaperStocks((prev) => prev.filter((stock) => stock.id !== id))
+      toast.success('Paper stock deleted')
     }
-  };
+  }
 
   const toggleActive = (id: string) => {
     setPaperStocks((prev) =>
       prev.map((stock) => (stock.id === id ? { ...stock, isActive: !stock.isActive } : stock))
-    );
-  };
+    )
+  }
 
   const setAsDefault = (id: string) => {
     setPaperStocks((prev) =>
@@ -175,13 +175,13 @@ export default function SimplePaperStocksPage() {
         ...stock,
         isDefault: stock.id === id,
       }))
-    );
-    toast.success('Default paper stock updated');
-  };
+    )
+    toast.success('Default paper stock updated')
+  }
 
   const calculatePrice = (basePrice: number, quantity: number = 500, sizeInches: number = 24) => {
-    return (basePrice * sizeInches * quantity).toFixed(2);
-  };
+    return (basePrice * sizeInches * quantity).toFixed(2)
+  }
 
   return (
     <div className="space-y-6">
@@ -354,5 +354,5 @@ export default function SimplePaperStocksPage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }

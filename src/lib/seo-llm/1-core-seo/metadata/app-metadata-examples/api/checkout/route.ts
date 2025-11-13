@@ -1,23 +1,19 @@
-import { MAX_FILE_SIZE, TAX_RATE, DEFAULT_WAREHOUSE_ZIP } from '@/lib/constants';
-import { type NextRequest, NextResponse } from 'next/server';
+import { MAX_FILE_SIZE, TAX_RATE, DEFAULT_WAREHOUSE_ZIP } from '@/lib/constants'
+import { type NextRequest, NextResponse } from 'next/server'
 
-import { validateRequest } from '@/lib/auth';
-import { N8NWorkflows } from '@/lib/n8n';
-import { prisma } from '@/lib/prisma';
-import { sendOrderConfirmationWithFiles, sendAdminOrderNotification } from '@/lib/resend';
-import {
-  createOrUpdateSquareCustomer,
-  createSquareCheckout,
-  createSquareOrder,
-} from '@/lib/square';
-import { OrderService } from '@/services/OrderService';
-import type { CreateOrderInput } from '@/types/service';
-import { triggerOrderPlaced } from '@/lib/marketing/workflow-events';
+import { validateRequest } from '@/lib/auth'
+import { N8NWorkflows } from '@/lib/n8n'
+import { prisma } from '@/lib/prisma'
+import { sendOrderConfirmationWithFiles, sendAdminOrderNotification } from '@/lib/resend'
+import { createOrUpdateSquareCustomer, createSquareCheckout, createSquareOrder } from '@/lib/square'
+import { OrderService } from '@/services/OrderService'
+import type { CreateOrderInput } from '@/types/service'
+import { triggerOrderPlaced } from '@/lib/marketing/workflow-events'
 
 export async function POST(request: NextRequest) {
   try {
-    const { user, session } = await validateRequest();
-    const data = await request.json();
+    const { user, session } = await validateRequest()
+    const data = await request.json()
 
     const {
       items,
@@ -29,68 +25,68 @@ export async function POST(request: NextRequest) {
       shippingMethod,
       funnelId,
       funnelStepId,
-    } = data;
+    } = data
 
     // Get landing page source from cookie for attribution tracking
-    const landingPageSource = request.cookies.get('landing_page_source')?.value || null;
+    const landingPageSource = request.cookies.get('landing_page_source')?.value || null
 
     if (!items || items.length === 0) {
-      return NextResponse.json({ error: 'No items in cart' }, { status: 400 });
+      return NextResponse.json({ error: 'No items in cart' }, { status: 400 })
     }
 
     if (!email) {
-      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Email is required' }, { status: 400 })
     }
 
     // Calculate totals
-    let subtotal = 0;
+    let subtotal = 0
     const orderItems = items.map((item: Record<string, unknown>) => ({
       productName: item.productName || item.name,
       productSku: item.sku || 'CUSTOM',
       quantity: item.quantity,
       price: item.price,
       options: item.options || {},
-    }));
+    }))
 
     for (const item of orderItems) {
-      subtotal += item.price * item.quantity;
+      subtotal += item.price * item.quantity
     }
 
     // Calculate tax (8.25% for Texas)
-    const taxRate = TAX_RATE;
-    const tax = Math.round(subtotal * taxRate);
+    const taxRate = TAX_RATE
+    const tax = Math.round(subtotal * taxRate)
 
     // Calculate shipping
-    const shipping = shippingMethod === 'express' ? 2500 : 1000; // $25 or $10
+    const shipping = shippingMethod === 'express' ? 2500 : 1000 // $25 or $10
 
     // Calculate total
-    const total = subtotal + tax + shipping;
+    const total = subtotal + tax + shipping
 
     // Generate temporary order reference for Square (OrderService will generate final order number)
-    const tempOrderRef = `TMP-${Date.now().toString(36).toUpperCase()}`;
+    const tempOrderRef = `TMP-${Date.now().toString(36).toUpperCase()}`
 
     // Create or update Square customer
-    let squareCustomerId: string | undefined;
+    let squareCustomerId: string | undefined
     try {
-      const customerResult = await createOrUpdateSquareCustomer(email, name, phone);
-      squareCustomerId = customerResult.id;
+      const customerResult = await createOrUpdateSquareCustomer(email, name, phone)
+      squareCustomerId = customerResult.id
     } catch (error) {
       // Continue without customer ID
     }
 
     // Create Square order
-    let squareOrderId: string | undefined;
+    let squareOrderId: string | undefined
 
     interface SquareLineItem {
-      name: string;
-      quantity: string;
+      name: string
+      quantity: string
       basePriceMoney: {
-        amount: bigint;
-        currency: string;
-      };
+        amount: bigint
+        currency: string
+      }
     }
 
-    let squareLineItems: SquareLineItem[] = [];
+    let squareLineItems: SquareLineItem[] = []
     try {
       squareLineItems = orderItems.map((item: Record<string, unknown>) => ({
         name: item.productName as string,
@@ -99,7 +95,7 @@ export async function POST(request: NextRequest) {
           amount: BigInt(Math.round(Number(item.price))),
           currency: 'USD',
         },
-      }));
+      }))
 
       // Add shipping as a line item
       squareLineItems.push({
@@ -109,7 +105,7 @@ export async function POST(request: NextRequest) {
           amount: BigInt(shipping),
           currency: 'USD',
         },
-      });
+      })
 
       const squareOrderResult = await createSquareOrder({
         referenceId: tempOrderRef,
@@ -121,9 +117,9 @@ export async function POST(request: NextRequest) {
             percentage: (taxRate * 100).toString(),
           },
         ],
-      });
+      })
 
-      squareOrderId = squareOrderResult.id;
+      squareOrderId = squareOrderResult.id
     } catch (error) {
       // Continue without Square order ID
     }
@@ -134,7 +130,7 @@ export async function POST(request: NextRequest) {
       userId: user?.id,
       userRole: user?.role,
       timestamp: new Date(),
-    });
+    })
 
     const orderInput: CreateOrderInput = {
       userId: user?.id || '',
@@ -182,22 +178,22 @@ export async function POST(request: NextRequest) {
         squareOrderId,
         landingPageSource,
       },
-    };
+    }
 
-    const orderResult = await orderService.createOrder(orderInput);
+    const orderResult = await orderService.createOrder(orderInput)
 
     if (!orderResult.success || !orderResult.data) {
       return NextResponse.json(
         { error: orderResult.error || 'Failed to create order' },
         { status: 500 }
-      );
+      )
     }
 
-    const order = orderResult.data;
+    const order = orderResult.data
 
     // Trigger N8N workflow for order creation (vendor notifications only)
     try {
-      await N8NWorkflows.onOrderCreated(order.id);
+      await N8NWorkflows.onOrderCreated(order.id)
     } catch (n8nError) {
       // Don't fail the order if N8N fails
     }
@@ -209,7 +205,7 @@ export async function POST(request: NextRequest) {
           orderNumber: order.orderNumber,
           total: order.total,
           items: orderItems,
-        });
+        })
       } catch (workflowError) {
         // Don't fail the order if workflow fails
       }
@@ -219,7 +215,7 @@ export async function POST(request: NextRequest) {
     const orderWithItems = await prisma.order.findUnique({
       where: { id: order.id },
       include: { OrderItem: true },
-    });
+    })
 
     // Send enhanced order confirmation email to customer
     try {
@@ -240,7 +236,7 @@ export async function POST(request: NextRequest) {
         shipping,
         total,
         shippingAddress,
-      });
+      })
     } catch (emailError) {
       // Don't fail the order if email fails
     }
@@ -269,7 +265,7 @@ export async function POST(request: NextRequest) {
         shippingMethod,
         orderDate: order.createdAt,
         paymentStatus: 'PENDING_PAYMENT',
-      });
+      })
     } catch (adminEmailError) {
       // Don't fail the order if admin email fails
     }
@@ -281,7 +277,7 @@ export async function POST(request: NextRequest) {
         orderNumber: order.orderNumber,
         email,
         items: squareLineItems,
-      });
+      })
 
       if (checkoutResult.url) {
         // Update order with payment link
@@ -290,7 +286,7 @@ export async function POST(request: NextRequest) {
           data: {
             squareOrderId: checkoutResult.orderId || squareOrderId,
           },
-        });
+        })
 
         return NextResponse.json({
           success: true,
@@ -300,7 +296,7 @@ export async function POST(request: NextRequest) {
             total: order.total,
           },
           checkoutUrl: checkoutResult.url,
-        });
+        })
       }
     } catch (error) {
       // Return order without payment link
@@ -317,8 +313,8 @@ export async function POST(request: NextRequest) {
       },
       message:
         'Order created. Payment processing temporarily unavailable. We will contact you shortly.',
-    });
+    })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to process checkout' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to process checkout' }, { status: 500 })
   }
 }

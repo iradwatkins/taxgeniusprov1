@@ -4,27 +4,27 @@
  */
 
 export interface BreadcrumbItem {
-  name: string;
-  url: string;
+  name: string
+  url: string
 }
 
 export interface Product {
-  id: string;
-  name: string;
-  description?: string;
-  imageUrl?: string;
-  price: number;
-  sku?: string;
-  category?: string;
+  id: string
+  name: string
+  description?: string
+  imageUrl?: string
+  price: number
+  sku?: string
+  category?: string
 }
 
 export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  imageUrl?: string;
-  productCount?: number;
+  id: string
+  name: string
+  slug: string
+  description?: string
+  imageUrl?: string
+  productCount?: number
 }
 
 /**
@@ -41,7 +41,7 @@ export function generateBreadcrumbSchema(items: BreadcrumbItem[]) {
       name: item.name,
       item: item.url,
     })),
-  };
+  }
 }
 
 /**
@@ -59,7 +59,7 @@ export function generateCategorySchema(category: Category, baseUrl: string) {
     ...(category.productCount && {
       numberOfItems: category.productCount,
     }),
-  };
+  }
 }
 
 /**
@@ -81,7 +81,7 @@ export function generateProductSchema(product: Product, baseUrl: string) {
       availability: 'https://schema.org/InStock',
       url: `${baseUrl}/products/${product.id}`,
     },
-  };
+  }
 }
 
 /**
@@ -108,7 +108,7 @@ export function generateOrganizationSchema(baseUrl: string) {
     sameAs: [
       // Add social media URLs here when available
     ],
-  };
+  }
 }
 
 /**
@@ -129,7 +129,7 @@ export function generateWebSiteSchema(baseUrl: string) {
       },
       'query-input': 'required name=search_term_string',
     },
-  };
+  }
 }
 
 /**
@@ -137,18 +137,18 @@ export function generateWebSiteSchema(baseUrl: string) {
  */
 export function generateCombinedSchema(...schemas: Array<Record<string, unknown>>) {
   if (schemas.length === 1) {
-    return schemas[0];
+    return schemas[0]
   }
 
   return {
     '@context': 'https://schema.org',
     '@graph': schemas,
-  };
+  }
 }
 
 /**
  * Convert schema object to JSON-LD script tag content
  */
 export function schemaToJsonLd(schema: Record<string, unknown>) {
-  return JSON.stringify(schema, null, 0);
+  return JSON.stringify(schema, null, 0)
 }

@@ -1,9 +1,9 @@
-import { prisma } from '@/lib/prisma';
-import { notFound } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { CustomerProofApproval } from '@/components/customer/proofs/customer-proof-approval';
+import { prisma } from '@/lib/prisma'
+import { notFound } from 'next/navigation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { CustomerProofApproval } from '@/components/customer/proofs/customer-proof-approval'
 import {
   Package,
   Truck,
@@ -14,15 +14,15 @@ import {
   MapPin,
   Calendar,
   FileText,
-} from 'lucide-react';
+} from 'lucide-react'
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 interface OrderTrackingPageProps {
   params: Promise<{
-    orderNumber: string;
-  }>;
+    orderNumber: string
+  }>
 }
 
 const statusSteps = [
@@ -33,7 +33,7 @@ const statusSteps = [
   { key: 'READY_FOR_PICKUP', label: 'Ready', icon: CheckCircle },
   { key: 'SHIPPED', label: 'Shipped', icon: Truck },
   { key: 'DELIVERED', label: 'Delivered', icon: CheckCircle },
-];
+]
 
 const statusConfig: Record<string, { color: string; bgColor: string }> = {
   PENDING_PAYMENT: { color: 'text-yellow-600', bgColor: 'bg-yellow-100' },
@@ -45,7 +45,7 @@ const statusConfig: Record<string, { color: string; bgColor: string }> = {
   DELIVERED: { color: 'text-green-600', bgColor: 'bg-green-100' },
   CANCELLED: { color: 'text-red-600', bgColor: 'bg-red-100' },
   REFUNDED: { color: 'text-gray-600', bgColor: 'bg-gray-100' },
-};
+}
 
 async function getOrderDetails(orderNumber: string) {
   const order = await prisma.order.findFirst({
@@ -66,21 +66,21 @@ async function getOrderDetails(orderNumber: string) {
         },
       },
     },
-  });
+  })
 
-  return order;
+  return order
 }
 
 export default async function OrderTrackingPage({ params }: OrderTrackingPageProps) {
-  const { orderNumber } = await params;
-  const order = await getOrderDetails(orderNumber);
+  const { orderNumber } = await params
+  const order = await getOrderDetails(orderNumber)
 
   if (!order) {
-    notFound();
+    notFound()
   }
 
-  const currentStepIndex = statusSteps.findIndex((step) => step.key === order.status);
-  const config = statusConfig[order.status] || { color: 'text-gray-600', bgColor: 'bg-gray-100' };
+  const currentStepIndex = statusSteps.findIndex((step) => step.key === order.status)
+  const config = statusConfig[order.status] || { color: 'text-gray-600', bgColor: 'bg-gray-100' }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -116,9 +116,9 @@ export default async function OrderTrackingPage({ params }: OrderTrackingPagePro
 
             <div className="relative flex justify-between">
               {statusSteps.map((step, index) => {
-                const Icon = step.icon;
-                const isActive = index <= currentStepIndex;
-                const isCurrent = step.key === order.status;
+                const Icon = step.icon
+                const isActive = index <= currentStepIndex
+                const isCurrent = step.key === order.status
 
                 return (
                   <div key={step.key} className="flex flex-col items-center">
@@ -141,7 +141,7 @@ export default async function OrderTrackingPage({ params }: OrderTrackingPagePro
                       {step.label}
                     </span>
                   </div>
-                );
+                )
               })}
             </div>
           </div>
@@ -337,5 +337,5 @@ export default async function OrderTrackingPage({ params }: OrderTrackingPagePro
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Package, Eye } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
+import { useState, useEffect } from 'react'
+import { Plus, Edit, Trash2, Package, Eye } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import Link from 'next/link'
 import {
   Table,
   TableBody,
@@ -13,69 +13,69 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import toast from '@/lib/toast';
+} from '@/components/ui/table'
+import toast from '@/lib/toast'
 
 interface AddOn {
-  id: string;
-  name: string;
-  description: string | null;
-  pricingModel: string;
-  configuration: any;
-  isActive: boolean;
-  sortOrder: number;
-  additionalTurnaroundDays: number;
+  id: string
+  name: string
+  description: string | null
+  pricingModel: string
+  configuration: any
+  isActive: boolean
+  sortOrder: number
+  additionalTurnaroundDays: number
   _count?: {
-    AddOnSetItem: number;
-    ProductAddOn: number;
-  };
+    AddOnSetItem: number
+    ProductAddOn: number
+  }
 }
 
 export default function AddOnsPage() {
-  const [addons, setAddons] = useState<AddOn[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [addons, setAddons] = useState<AddOn[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchAddons();
-  }, []);
+    fetchAddons()
+  }, [])
 
   const fetchAddons = async () => {
     try {
-      const response = await fetch('/api/addons');
+      const response = await fetch('/api/addons')
       if (response.ok) {
-        const data = await response.json();
-        setAddons(Array.isArray(data) ? data : []);
+        const data = await response.json()
+        setAddons(Array.isArray(data) ? data : [])
       } else {
-        toast.error('Failed to load addons');
-        setAddons([]);
+        toast.error('Failed to load addons')
+        setAddons([])
       }
     } catch (error) {
-      toast.error('Failed to load addons');
-      setAddons([]);
+      toast.error('Failed to load addons')
+      setAddons([])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
+    if (!confirm(`Are you sure you want to delete "${name}"?`)) return
 
     try {
       const response = await fetch(`/api/addons/${id}`, {
         method: 'DELETE',
-      });
+      })
 
       if (response.ok) {
-        toast.success('Addon deleted successfully');
-        fetchAddons();
+        toast.success('Addon deleted successfully')
+        fetchAddons()
       } else {
-        const error = await response.json();
-        toast.error(error.details || error.error || 'Failed to delete addon');
+        const error = await response.json()
+        toast.error(error.details || error.error || 'Failed to delete addon')
       }
     } catch (error) {
-      toast.error('Failed to delete addon');
+      toast.error('Failed to delete addon')
     }
-  };
+  }
 
   const toggleActive = async (id: string, isActive: boolean) => {
     try {
@@ -83,34 +83,34 @@ export default function AddOnsPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isActive: !isActive }),
-      });
+      })
 
       if (response.ok) {
-        toast.success(`Addon ${!isActive ? 'activated' : 'deactivated'}`);
-        fetchAddons();
+        toast.success(`Addon ${!isActive ? 'activated' : 'deactivated'}`)
+        fetchAddons()
       } else {
-        throw new Error('Failed to update addon');
+        throw new Error('Failed to update addon')
       }
     } catch (error) {
-      toast.error('Failed to update addon');
+      toast.error('Failed to update addon')
     }
-  };
+  }
 
   const getPricingDisplay = (addon: AddOn) => {
-    const config = addon.configuration;
+    const config = addon.configuration
     switch (addon.pricingModel) {
       case 'FLAT':
-        return `$${config.flatFee?.toFixed(2) || '0.00'}`;
+        return `$${config.flatFee?.toFixed(2) || '0.00'}`
       case 'PERCENTAGE':
-        return `${(config.percentage * 100).toFixed(0)}%`;
+        return `${(config.percentage * 100).toFixed(0)}%`
       case 'PER_UNIT':
-        return config.perPieceRate ? `$${config.perPieceRate}/piece` : 'Per Unit';
+        return config.perPieceRate ? `$${config.perPieceRate}/piece` : 'Per Unit'
       case 'CUSTOM':
-        return 'Custom';
+        return 'Custom'
       default:
-        return addon.pricingModel;
+        return addon.pricingModel
     }
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -278,5 +278,5 @@ export default function AddOnsPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

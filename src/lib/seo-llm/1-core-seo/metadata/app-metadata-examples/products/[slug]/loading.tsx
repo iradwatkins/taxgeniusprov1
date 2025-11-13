@@ -1,5 +1,5 @@
-import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function ProductDetailLoading() {
   return (
@@ -92,5 +92,5 @@ export default function ProductDetailLoading() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

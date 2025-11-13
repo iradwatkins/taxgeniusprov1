@@ -1,7 +1,7 @@
-'use client';
+'use client'
 
-import { Suspense, useEffect, useState } from 'react';
-import Image from 'next/image';
+import { Suspense, useEffect, useState } from 'react'
+import Image from 'next/image'
 import {
   CheckCircle,
   Download,
@@ -20,93 +20,93 @@ import {
   CheckCircle2,
   Check,
   Phone,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import toast from '@/lib/toast';
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import toast from '@/lib/toast'
 
 interface ProductOptions {
-  size?: string;
-  paperStock?: string;
-  coating?: string;
-  sides?: string;
-  turnaround?: string;
-  [key: string]: string | undefined;
+  size?: string
+  paperStock?: string
+  coating?: string
+  sides?: string
+  turnaround?: string
+  [key: string]: string | undefined
 }
 
 interface OrderItem {
-  productName: string;
-  quantity: number;
-  price: number;
-  options?: ProductOptions;
-  fileUrl?: string;
-  fileName?: string;
+  productName: string
+  quantity: number
+  price: number
+  options?: ProductOptions
+  fileUrl?: string
+  fileName?: string
 }
 
 interface UploadedImage {
-  id: string;
-  url: string;
-  thumbnailUrl?: string;
-  fileName: string;
-  fileSize?: number;
-  uploadedAt?: string;
+  id: string
+  url: string
+  thumbnailUrl?: string
+  fileName: string
+  fileSize?: number
+  uploadedAt?: string
 }
 
 interface OrderInfo {
-  orderNumber: string;
-  orderId?: string;
-  total: number;
-  subtotal: number;
-  tax: number;
-  shipping: number;
-  items: OrderItem[];
-  uploadedImages?: UploadedImage[];
+  orderNumber: string
+  orderId?: string
+  total: number
+  subtotal: number
+  tax: number
+  shipping: number
+  items: OrderItem[]
+  uploadedImages?: UploadedImage[]
   customerInfo?: {
-    email: string;
-    firstName: string;
-    lastName: string;
-    phone?: string;
-  };
+    email: string
+    firstName: string
+    lastName: string
+    phone?: string
+  }
   shippingAddress?: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-  status?: string;
-  createdAt?: string;
-  paidAt?: string;
+    street: string
+    city: string
+    state: string
+    zipCode: string
+    country: string
+  }
+  status?: string
+  createdAt?: string
+  paidAt?: string
 }
 
 function SuccessContent() {
-  const searchParams = useSearchParams();
-  const [orderInfo, setOrderInfo] = useState<OrderInfo | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const searchParams = useSearchParams()
+  const [orderInfo, setOrderInfo] = useState<OrderInfo | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchOrderData = async () => {
       try {
         // First try to get order info from session storage
-        const storedOrder = sessionStorage.getItem('lastOrder');
+        const storedOrder = sessionStorage.getItem('lastOrder')
         if (storedOrder) {
-          const orderData = JSON.parse(storedOrder);
-          setOrderInfo(orderData);
-          sessionStorage.removeItem('lastOrder');
-          setIsLoading(false);
-          return;
+          const orderData = JSON.parse(storedOrder)
+          setOrderInfo(orderData)
+          sessionStorage.removeItem('lastOrder')
+          setIsLoading(false)
+          return
         }
 
         // Fallback to query params and API call
-        const orderNumber = searchParams.get('order') || searchParams.get('orderNumber');
+        const orderNumber = searchParams.get('order') || searchParams.get('orderNumber')
         if (orderNumber) {
-          const response = await fetch(`/api/orders/${orderNumber}/public`);
+          const response = await fetch(`/api/orders/${orderNumber}/public`)
           if (response.ok) {
-            const orderData = await response.json();
-            setOrderInfo(orderData);
+            const orderData = await response.json()
+            setOrderInfo(orderData)
           } else {
             // Minimal fallback data
             setOrderInfo({
@@ -116,20 +116,20 @@ function SuccessContent() {
               tax: 0,
               shipping: 0,
               items: [],
-            });
+            })
           }
         }
       } catch {
         // Silently handle error - fallback to minimal order display
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchOrderData();
-  }, [searchParams]);
+    fetchOrderData()
+  }, [searchParams])
 
-  const orderNumber = orderInfo?.orderNumber || searchParams.get('order') || 'ORD-XXXXXX';
+  const orderNumber = orderInfo?.orderNumber || searchParams.get('order') || 'ORD-XXXXXX'
 
   if (isLoading) {
     return (
@@ -138,7 +138,7 @@ function SuccessContent() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -165,8 +165,8 @@ function SuccessContent() {
                   size="sm"
                   variant="ghost"
                   onClick={() => {
-                    navigator.clipboard.writeText(orderNumber);
-                    toast.success('Order number copied!');
+                    navigator.clipboard.writeText(orderNumber)
+                    toast.success('Order number copied!')
                   }}
                 >
                   <Copy className="h-4 w-4" />
@@ -481,7 +481,7 @@ function SuccessContent() {
                     variant="outline"
                     onClick={() => {
                       if (orderInfo?.orderNumber) {
-                        window.open(`/api/orders/${orderInfo.orderNumber}/receipt`, '_blank');
+                        window.open(`/api/orders/${orderInfo.orderNumber}/receipt`, '_blank')
                       }
                     }}
                   >
@@ -561,7 +561,7 @@ function SuccessContent() {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 export default function CheckoutSuccessPage() {
@@ -575,5 +575,5 @@ export default function CheckoutSuccessPage() {
     >
       <SuccessContent />
     </Suspense>
-  );
+  )
 }

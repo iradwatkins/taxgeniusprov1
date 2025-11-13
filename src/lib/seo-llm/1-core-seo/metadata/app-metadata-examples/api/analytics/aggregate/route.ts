@@ -8,8 +8,8 @@
  * Body: { date?: string, job?: 'campaigns' | 'funnels' | 'all' }
  */
 
-import { NextResponse } from 'next/server';
-import { validateRequest } from '@/lib/auth';
+import { NextResponse } from 'next/server'
+import { validateRequest } from '@/lib/auth'
 import {
   runDailyAggregations,
   aggregateCampaignMetrics,
@@ -17,36 +17,36 @@ import {
   calculateOrderMetrics,
   calculateProductMetrics,
   calculateCustomerMetrics,
-} from '@/lib/analytics/aggregation-service';
+} from '@/lib/analytics/aggregation-service'
 
 export async function POST(request: Request) {
   try {
     // Only allow admin users
-    const { user } = await validateRequest();
+    const { user } = await validateRequest()
     if (!user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = await request.json();
-    const { date, job = 'all' } = body;
+    const body = await request.json()
+    const { date, job = 'all' } = body
 
-    const targetDate = date ? new Date(date) : new Date();
+    const targetDate = date ? new Date(date) : new Date()
 
-    let result;
+    let result
 
     switch (job) {
       case 'campaigns':
-        result = await aggregateCampaignMetrics(targetDate);
-        break;
+        result = await aggregateCampaignMetrics(targetDate)
+        break
 
       case 'funnels':
-        result = await aggregateFunnelMetrics(targetDate);
-        break;
+        result = await aggregateFunnelMetrics(targetDate)
+        break
 
       case 'all':
       default:
-        result = await runDailyAggregations(targetDate);
-        break;
+        result = await runDailyAggregations(targetDate)
+        break
     }
 
     return NextResponse.json({
@@ -54,10 +54,10 @@ export async function POST(request: Request) {
       job,
       date: targetDate.toISOString().split('T')[0],
       result,
-    });
+    })
   } catch (error) {
-    console.error('Error triggering aggregation:', error);
-    return NextResponse.json({ error: 'Failed to trigger aggregation' }, { status: 500 });
+    console.error('Error triggering aggregation:', error)
+    return NextResponse.json({ error: 'Failed to trigger aggregation' }, { status: 500 })
   }
 }
 
@@ -68,35 +68,35 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   try {
     // Only allow admin users
-    const { user } = await validateRequest();
+    const { user } = await validateRequest()
     if (!user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type') || 'orders';
+    const { searchParams } = new URL(request.url)
+    const type = searchParams.get('type') || 'orders'
     const startDate = new Date(
       searchParams.get('startDate') || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-    );
-    const endDate = new Date(searchParams.get('endDate') || new Date());
+    )
+    const endDate = new Date(searchParams.get('endDate') || new Date())
 
-    let result;
+    let result
 
     switch (type) {
       case 'orders':
-        result = await calculateOrderMetrics(startDate, endDate);
-        break;
+        result = await calculateOrderMetrics(startDate, endDate)
+        break
 
       case 'products':
-        result = await calculateProductMetrics(startDate, endDate);
-        break;
+        result = await calculateProductMetrics(startDate, endDate)
+        break
 
       case 'customers':
-        result = await calculateCustomerMetrics(startDate, endDate);
-        break;
+        result = await calculateCustomerMetrics(startDate, endDate)
+        break
 
       default:
-        return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
+        return NextResponse.json({ error: 'Invalid type' }, { status: 400 })
     }
 
     return NextResponse.json({
@@ -107,9 +107,9 @@ export async function GET(request: Request) {
         end: endDate.toISOString().split('T')[0],
       },
       ...result,
-    });
+    })
   } catch (error) {
-    console.error('Error calculating metrics:', error);
-    return NextResponse.json({ error: 'Failed to calculate metrics' }, { status: 500 });
+    console.error('Error calculating metrics:', error)
+    return NextResponse.json({ error: 'Failed to calculate metrics' }, { status: 500 })
   }
 }

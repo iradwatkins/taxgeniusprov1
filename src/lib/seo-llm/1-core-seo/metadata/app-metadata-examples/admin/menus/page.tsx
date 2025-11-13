@@ -1,17 +1,17 @@
-import { redirect } from 'next/navigation';
-import { validateRequest } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
-import { Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
+import { redirect } from 'next/navigation'
+import { validateRequest } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import Link from 'next/link'
+import { Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react'
 
 export default async function MenusPage() {
-  const { user } = await validateRequest();
+  const { user } = await validateRequest()
 
   if (!user || user.role !== 'ADMIN') {
-    redirect('/admin/login');
+    redirect('/admin/login')
   }
 
   const menus = await prisma.menu.findMany({
@@ -24,7 +24,7 @@ export default async function MenusPage() {
       },
     },
     orderBy: { createdAt: 'desc' },
-  });
+  })
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -65,7 +65,9 @@ export default async function MenusPage() {
             </CardHeader>
             <CardContent>
               {menu.description && (
-                <p className="text-sm text-muted-foreground mb-4">{menu.description}</p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {menu.description}
+                </p>
               )}
 
               <div className="flex gap-4 mb-4 text-sm">
@@ -111,5 +113,5 @@ export default async function MenusPage() {
         )}
       </div>
     </div>
-  );
+  )
 }

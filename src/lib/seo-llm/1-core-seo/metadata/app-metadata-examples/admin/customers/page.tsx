@@ -1,12 +1,12 @@
-import { prisma } from '@/lib/prisma';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CustomersTable } from '@/components/admin/customers-table';
-import { Users, UserPlus, ShoppingCart, DollarSign } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { AddCustomerButton } from '@/components/admin/customers-page-client';
+import { prisma } from '@/lib/prisma'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CustomersTable } from '@/components/admin/customers-table'
+import { Users, UserPlus, ShoppingCart, DollarSign } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { AddCustomerButton } from '@/components/admin/customers-page-client'
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 async function getCustomersData() {
   // Get all customers with their order stats
@@ -27,17 +27,17 @@ async function getCustomersData() {
     orderBy: {
       createdAt: 'desc',
     },
-  });
+  })
 
   // Calculate customer stats
   const customersWithStats = customers.map((customer) => {
-    const orders = customer.Order || [];
+    const orders = customer.Order || []
     const totalSpent = orders
       .filter((o) => o.status !== 'CANCELLED' && o.status !== 'REFUNDED')
-      .reduce((sum, order) => sum + (order.total || 0), 0);
+      .reduce((sum, order) => sum + (order.total || 0), 0)
 
     const lastOrderDate =
-      orders.length > 0 ? Math.max(...orders.map((o) => new Date(o.createdAt).getTime())) : null;
+      orders.length > 0 ? Math.max(...orders.map((o) => new Date(o.createdAt).getTime())) : null
 
     return {
       id: customer.id,
@@ -50,27 +50,27 @@ async function getCustomersData() {
       lastOrderDate: lastOrderDate ? new Date(lastOrderDate) : null,
       isBroker: customer.isBroker || false,
       brokerDiscounts: customer.brokerDiscounts as Record<string, number> | null,
-    };
-  });
+    }
+  })
 
   // Get summary stats
-  const totalCustomers = customers.length;
-  const totalRevenue = customersWithStats.reduce((sum, c) => sum + c.totalSpent, 0);
+  const totalCustomers = customers.length
+  const totalRevenue = customersWithStats.reduce((sum, c) => sum + c.totalSpent, 0)
   const avgOrderValue =
     totalRevenue /
     Math.max(
       customersWithStats.reduce((sum, c) => sum + c.totalOrders, 0),
       1
-    );
+    )
 
   // Get new customers this month
-  const startOfMonth = new Date();
-  startOfMonth.setDate(1);
-  startOfMonth.setHours(0, 0, 0, 0);
+  const startOfMonth = new Date()
+  startOfMonth.setDate(1)
+  startOfMonth.setHours(0, 0, 0, 0)
 
   const newCustomersThisMonth = customers.filter(
     (c) => new Date(c.createdAt) >= startOfMonth
-  ).length;
+  ).length
 
   return {
     customers: customersWithStats,
@@ -80,11 +80,11 @@ async function getCustomersData() {
       totalRevenue,
       avgOrderValue,
     },
-  };
+  }
 }
 
 export default async function CustomersPage() {
-  const { customers, stats } = await getCustomersData();
+  const { customers, stats } = await getCustomersData()
 
   return (
     <div className="space-y-6">
@@ -161,5 +161,5 @@ export default async function CustomersPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

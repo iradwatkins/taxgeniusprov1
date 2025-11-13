@@ -1,47 +1,47 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Copy, ExternalLink, CheckCircle2, BarChart3, TrendingUp } from 'lucide-react';
-import Link from 'next/link';
-import toast from '@/lib/toast';
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Copy, ExternalLink, CheckCircle2, BarChart3, TrendingUp } from 'lucide-react'
+import Link from 'next/link'
+import toast from '@/lib/toast'
 
 export default function SEOPage() {
-  const [copied, setCopied] = useState<string | null>(null);
-  const [productCount, setProductCount] = useState<number>(0);
-  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [copied, setCopied] = useState<string | null>(null)
+  const [productCount, setProductCount] = useState<number>(0)
+  const [loadingProducts, setLoadingProducts] = useState(true)
 
   useEffect(() => {
-    fetchProductCount();
-  }, []);
+    fetchProductCount()
+  }, [])
 
   async function fetchProductCount() {
     try {
-      const response = await fetch('/api/products?isActive=true');
+      const response = await fetch('/api/products?isActive=true')
       if (response.ok) {
-        const products = await response.json();
-        setProductCount(products.length);
+        const products = await response.json()
+        setProductCount(products.length)
       }
     } catch (error) {
-      console.error('Failed to fetch product count:', error);
+      console.error('Failed to fetch product count:', error)
     } finally {
-      setLoadingProducts(false);
+      setLoadingProducts(false)
     }
   }
 
-  const sitemapUrl = 'https://gangrunprinting.com/sitemap.xml';
-  const robotsUrl = 'https://gangrunprinting.com/robots.txt';
-  const chatgptFeedUrl = 'https://gangrunprinting.com/feeds/chatgpt-products.json';
+  const sitemapUrl = 'https://gangrunprinting.com/sitemap.xml'
+  const robotsUrl = 'https://gangrunprinting.com/robots.txt'
+  const chatgptFeedUrl = 'https://gangrunprinting.com/feeds/chatgpt-products.json'
 
   const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(label);
-    toast.success(`${label} copied to clipboard`);
-    setTimeout(() => setCopied(null), 2000);
-  };
+    navigator.clipboard.writeText(text)
+    setCopied(label)
+    toast.success(`${label} copied to clipboard`)
+    setTimeout(() => setCopied(null), 2000)
+  }
 
   const searchEngineLinks = [
     {
@@ -72,7 +72,7 @@ export default function SEOPage() {
       description: 'Submit to Baidu (Chinese search engine)',
       color: 'bg-blue-600',
     },
-  ];
+  ]
 
   const seoTools = [
     {
@@ -95,7 +95,7 @@ export default function SEOPage() {
       url: `https://search.google.com/test/mobile-friendly?url=https://gangrunprinting.com`,
       description: 'Check mobile compatibility',
     },
-  ];
+  ]
 
   return (
     <div className="p-8">
@@ -427,5 +427,5 @@ export default function SEOPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

@@ -6,26 +6,26 @@
  * Starts a new 200-city landing page campaign
  */
 
-import { type NextRequest, NextResponse } from 'next/server';
-import { validateRequest } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { generate200CityPages } from '@/lib/seo-brain/city-page-generator';
-import { sendCampaignCompleteAlert } from '@/lib/seo-brain/telegram-notifier';
+import { type NextRequest, NextResponse } from 'next/server'
+import { validateRequest } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import { generate200CityPages } from '@/lib/seo-brain/city-page-generator'
+import { sendCampaignCompleteAlert } from '@/lib/seo-brain/telegram-notifier'
 
 export async function POST(request: NextRequest) {
   try {
     // Admin only
-    const { user } = await validateRequest();
+    const { user } = await validateRequest()
     if (!user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = await request.json();
-    const { productName, quantity, size, material, turnaround, price, keywords, industries } = body;
+    const body = await request.json()
+    const { productName, quantity, size, material, turnaround, price, keywords, industries } = body
 
     // Validation
     if (!productName || !quantity || !size || !material || !turnaround || !price) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
     // Create campaign
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
         citiesGenerated: 0,
         citiesIndexed: 0,
       },
-    });
+    })
 
     // Start generation in background (don't await - it takes 6-7 hours)
     startCampaignGeneration(campaign.id, {
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       onlineOnly: true,
       keywords: keywords || [],
       industries: industries || [],
-    });
+    })
 
     return NextResponse.json({
       success: true,
@@ -69,10 +69,10 @@ export async function POST(request: NextRequest) {
       status: 'PENDING',
       message:
         'Campaign started. Generation will take 6-7 hours. You will receive Telegram notification when complete.',
-    });
+    })
   } catch (error) {
-    console.error('[SEO Brain API] Start campaign error:', error);
-    return NextResponse.json({ error: 'Failed to start campaign' }, { status: 500 });
+    console.error('[SEO Brain API] Start campaign error:', error)
+    return NextResponse.json({ error: 'Failed to start campaign' }, { status: 500 })
   }
 }
 
@@ -88,7 +88,7 @@ async function startCampaignGeneration(campaignId: string, productSpec: any) {
         status: 'GENERATING',
         generationStartedAt: new Date(),
       },
-    });
+    })
 
     // Initialize Ollama client
     const ollamaClient = {
@@ -104,14 +104,14 @@ async function startCampaignGeneration(campaignId: string, productSpec: any) {
               stream: false,
             }),
           }
-        );
-        const data = await response.json();
-        return data.response;
+        )
+        const data = await response.json()
+        return data.response
       },
-    };
+    }
 
     // Generate 200 city pages
-    const result = await generate200CityPages(campaignId, productSpec, ollamaClient);
+    const result = await generate200CityPages(campaignId, productSpec, ollamaClient)
 
     // Send completion notification
     if (result.success) {
@@ -125,10 +125,10 @@ async function startCampaignGeneration(campaignId: string, productSpec: any) {
           estimatedMonthlyTraffic: result.generated * 50,
           estimatedMonthlyRevenue: result.generated * 2,
         },
-      });
+      })
     }
   } catch (error) {
-    console.error('[SEO Brain] Campaign generation failed:', error);
+    console.error('[SEO Brain] Campaign generation failed:', error)
 
     // Update campaign status to FAILED
     await prisma.productCampaignQueue.update({
@@ -136,25 +136,25 @@ async function startCampaignGeneration(campaignId: string, productSpec: any) {
       data: {
         status: 'FAILED',
       },
-    });
+    })
   }
 }
 
 export async function GET(request: NextRequest) {
   try {
-    const { user } = await validateRequest();
+    const { user } = await validateRequest()
     if (!user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get all campaigns
     const campaigns = await prisma.productCampaignQueue.findMany({
       orderBy: { createdAt: 'desc' },
       take: 20,
-    });
+    })
 
-    return NextResponse.json({ campaigns });
+    return NextResponse.json({ campaigns })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch campaigns' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch campaigns' }, { status: 500 })
   }
 }

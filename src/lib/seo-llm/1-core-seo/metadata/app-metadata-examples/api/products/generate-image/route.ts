@@ -5,9 +5,9 @@
  * Stores versions in a "drafts" folder for review
  */
 
-import { type NextRequest, NextResponse } from 'next/server';
-import { GoogleAIImageGenerator } from '@/lib/image-generation';
-import { S3Client, PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { type NextRequest, NextResponse } from 'next/server'
+import { GoogleAIImageGenerator } from '@/lib/seo-llm/2-llm-integrations/google-imagen/google-ai-client'
+import { S3Client, PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3'
 
 const s3Client = new S3Client({
   region: 'us-east-1',
@@ -17,16 +17,16 @@ const s3Client = new S3Client({
     secretAccessKey: process.env.MINIO_SECRET_KEY || '',
   },
   forcePathStyle: true,
-});
+})
 
-const BUCKET_NAME = process.env.MINIO_BUCKET_NAME || 'gangrun-products';
-const MINIO_PUBLIC_URL = process.env.MINIO_PUBLIC_URL || 'http://localhost:9000';
+const BUCKET_NAME = process.env.MINIO_BUCKET_NAME || 'gangrun-products'
+const MINIO_PUBLIC_URL = process.env.MINIO_PUBLIC_URL || 'http://localhost:9000'
 
 interface GenerateImageRequest {
-  prompt: string;
-  productName?: string;
-  aspectRatio?: '1:1' | '3:4' | '4:3' | '9:16' | '16:9';
-  imageSize?: '1K' | '2K';
+  prompt: string
+  productName?: string
+  aspectRatio?: '1:1' | '3:4' | '4:3' | '9:16' | '16:9'
+  imageSize?: '1K' | '2K'
 }
 
 /**
@@ -42,15 +42,15 @@ interface GenerateImageRequest {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body: GenerateImageRequest = await request.json();
-    const { prompt, productName, aspectRatio = '4:3', imageSize = '2K' } = body;
+    const body: GenerateImageRequest = await request.json()
+    const { prompt, productName, aspectRatio = '4:3', imageSize = '2K' } = body
 
     if (!prompt || prompt.trim().length === 0) {
-      return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Prompt is required' }, { status: 400 })
     }
 
     // Initialize Google AI generator
-    const generator = new GoogleAIImageGenerator();
+    const generator = new GoogleAIImageGenerator()
 
     // Generate the image
     const result = await generator.generateImage({
@@ -61,16 +61,16 @@ export async function POST(request: NextRequest) {
         imageSize,
         personGeneration: 'dont_allow',
       },
-    });
+    })
 
     // Create unique filename with timestamp
-    const timestamp = Date.now();
+    const timestamp = Date.now()
     const sanitizedName = (productName || 'product')
       .toLowerCase()
       .replace(/[^a-z0-9]/g, '-')
-      .substring(0, 50);
+      .substring(0, 50)
 
-    const filename = `drafts/${sanitizedName}-${timestamp}.png`;
+    const filename = `drafts/${sanitizedName}-${timestamp}.png`
 
     // Upload to MinIO in "drafts" folder
     await s3Client.send(
@@ -86,13 +86,13 @@ export async function POST(request: NextRequest) {
           imageSize,
         },
       })
-    );
+    )
 
     // Construct public URL
-    const imageUrl = `${MINIO_PUBLIC_URL}/${BUCKET_NAME}/${filename}`;
+    const imageUrl = `${MINIO_PUBLIC_URL}/${BUCKET_NAME}/${filename}`
 
     // Get count of all draft versions for this product
-    const drafts = await listDraftVersions(sanitizedName);
+    const drafts = await listDraftVersions(sanitizedName)
 
     return NextResponse.json({
       success: true,
@@ -105,29 +105,29 @@ export async function POST(request: NextRequest) {
         imageSize,
         draftVersions: drafts.length,
       },
-    });
+    })
   } catch (error: any) {
-    console.error('Image generation error:', error);
+    console.error('Image generation error:', error)
 
     // Handle specific errors
     if (error.message?.includes('API key')) {
       return NextResponse.json(
         { error: 'AI service not configured. Check API key.' },
         { status: 500 }
-      );
+      )
     }
 
     if (error.message?.includes('Rate limit')) {
       return NextResponse.json(
         { error: 'Rate limit exceeded. Please wait a moment and try again.' },
         { status: 429 }
-      );
+      )
     }
 
     return NextResponse.json(
       { error: error.message || 'Failed to generate image' },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -138,22 +138,22 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const productName = searchParams.get('productName');
+    const { searchParams } = new URL(request.url)
+    const productName = searchParams.get('productName')
 
     if (!productName) {
       return NextResponse.json(
         { error: 'productName query parameter is required' },
         { status: 400 }
-      );
+      )
     }
 
     const sanitizedName = productName
       .toLowerCase()
       .replace(/[^a-z0-9]/g, '-')
-      .substring(0, 50);
+      .substring(0, 50)
 
-    const drafts = await listDraftVersions(sanitizedName);
+    const drafts = await listDraftVersions(sanitizedName)
 
     return NextResponse.json({
       success: true,
@@ -162,13 +162,13 @@ export async function GET(request: NextRequest) {
         drafts,
         count: drafts.length,
       },
-    });
+    })
   } catch (error: any) {
-    console.error('Error listing drafts:', error);
+    console.error('Error listing drafts:', error)
     return NextResponse.json(
       { error: error.message || 'Failed to list draft versions' },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -187,20 +187,20 @@ export async function GET(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { filename, productName, deleteAll } = body;
+    const body = await request.json()
+    const { filename, productName, deleteAll } = body
 
     if (deleteAll && productName) {
       // Delete all drafts for this product
       const sanitizedName = productName
         .toLowerCase()
         .replace(/[^a-z0-9]/g, '-')
-        .substring(0, 50);
+        .substring(0, 50)
 
-      const drafts = await listDraftVersions(sanitizedName);
+      const drafts = await listDraftVersions(sanitizedName)
 
       // Delete each draft
-      const { DeleteObjectsCommand } = await import('@aws-sdk/client-s3');
+      const { DeleteObjectsCommand } = await import('@aws-sdk/client-s3')
       await s3Client.send(
         new DeleteObjectsCommand({
           Bucket: BUCKET_NAME,
@@ -208,36 +208,36 @@ export async function DELETE(request: NextRequest) {
             Objects: drafts.map((draft) => ({ Key: draft.filename })),
           },
         })
-      );
+      )
 
       return NextResponse.json({
         success: true,
         message: `Deleted ${drafts.length} draft versions`,
         deletedCount: drafts.length,
-      });
+      })
     } else if (filename) {
       // Delete specific file
-      const { DeleteObjectCommand } = await import('@aws-sdk/client-s3');
+      const { DeleteObjectCommand } = await import('@aws-sdk/client-s3')
       await s3Client.send(
         new DeleteObjectCommand({
           Bucket: BUCKET_NAME,
           Key: filename,
         })
-      );
+      )
 
       return NextResponse.json({
         success: true,
         message: 'Draft deleted successfully',
-      });
+      })
     } else {
       return NextResponse.json(
         { error: 'Either filename or (productName + deleteAll) is required' },
         { status: 400 }
-      );
+      )
     }
   } catch (error: any) {
-    console.error('Error deleting draft:', error);
-    return NextResponse.json({ error: error.message || 'Failed to delete draft' }, { status: 500 });
+    console.error('Error deleting draft:', error)
+    return NextResponse.json({ error: error.message || 'Failed to delete draft' }, { status: 500 })
   }
 }
 
@@ -250,15 +250,15 @@ async function listDraftVersions(productNamePrefix: string) {
       Bucket: BUCKET_NAME,
       Prefix: `drafts/${productNamePrefix}`,
     })
-  );
+  )
 
   const drafts = (response.Contents || []).map((item) => ({
     filename: item.Key || '',
     url: `${MINIO_PUBLIC_URL}/${BUCKET_NAME}/${item.Key}`,
     size: item.Size || 0,
     lastModified: item.LastModified || new Date(),
-  }));
+  }))
 
   // Sort by newest first
-  return drafts.sort((a, b) => b.lastModified.getTime() - a.lastModified.getTime());
+  return drafts.sort((a, b) => b.lastModified.getTime() - a.lastModified.getTime())
 }

@@ -1,19 +1,19 @@
-import { validateRequest } from '@/lib/auth';
-import { redirect, notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
-import { FunnelEditor } from '@/components/funnels/funnel-editor';
+import { validateRequest } from '@/lib/auth'
+import { redirect, notFound } from 'next/navigation'
+import { prisma } from '@/lib/prisma'
+import { FunnelEditor } from '@/components/funnels/funnel-editor'
 
 interface FunnelEditorPageProps {
   params: {
-    id: string;
-  };
+    id: string
+  }
 }
 
 export default async function FunnelEditorPage({ params }: FunnelEditorPageProps) {
-  const { user } = await validateRequest();
+  const { user } = await validateRequest()
 
   if (!user || user.role !== 'ADMIN') {
-    redirect('/login');
+    redirect('/login')
   }
 
   // Fetch funnel with all related data
@@ -71,15 +71,15 @@ export default async function FunnelEditorPage({ params }: FunnelEditorPageProps
         },
       },
     },
-  });
+  })
 
   if (!funnel) {
-    notFound();
+    notFound()
   }
 
   // Verify ownership
   if (funnel.userId !== user.id) {
-    redirect('/admin/funnels');
+    redirect('/admin/funnels')
   }
 
   // Fetch all products for selection
@@ -90,7 +90,7 @@ export default async function FunnelEditorPage({ params }: FunnelEditorPageProps
       ProductCategory: true,
     },
     orderBy: { name: 'asc' },
-  });
+  })
 
-  return <FunnelEditor funnel={funnel} products={products} />;
+  return <FunnelEditor funnel={funnel} products={products} />
 }

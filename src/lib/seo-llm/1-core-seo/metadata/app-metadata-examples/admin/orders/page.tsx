@@ -1,8 +1,8 @@
-import { prisma } from '@/lib/prisma';
-import { Suspense } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { prisma } from '@/lib/prisma'
+import { Suspense } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 import {
   Plus,
   Search,
@@ -17,8 +17,8 @@ import {
   XCircle,
   AlertCircle,
   type LucideIcon,
-} from 'lucide-react';
-import Link from 'next/link';
+} from 'lucide-react'
+import Link from 'next/link'
 import {
   Table,
   TableBody,
@@ -26,41 +26,41 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { StatusFilter } from '@/components/admin/orders/status-filter';
-import { OrdersTableWithBulkActions } from '@/components/admin/orders/orders-table-with-bulk-actions';
+} from '@/components/ui/select'
+import { StatusFilter } from '@/components/admin/orders/status-filter'
+import { OrdersTableWithBulkActions } from '@/components/admin/orders/orders-table-with-bulk-actions'
 
 // Force dynamic rendering for real-time data
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 interface OrdersPageProps {
   searchParams?: Promise<{
-    page?: string;
-    status?: string;
-    search?: string;
-  }>;
+    page?: string
+    status?: string
+    search?: string
+  }>
 }
 
 async function OrdersContent({ searchParams }: { searchParams: Record<string, unknown> }) {
-  const page = Number(searchParams?.page) || 1;
-  const pageSize = 20;
-  const statusFilter = String(searchParams?.status || 'all');
-  const searchQuery = String(searchParams?.search || '');
+  const page = Number(searchParams?.page) || 1
+  const pageSize = 20
+  const statusFilter = String(searchParams?.status || 'all')
+  const searchQuery = String(searchParams?.search || '')
 
   try {
     // Build where clause for filtering
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = {}
 
     if (statusFilter !== 'all') {
-      where.status = statusFilter;
+      where.status = statusFilter
     }
 
     if (searchQuery) {
@@ -68,7 +68,7 @@ async function OrdersContent({ searchParams }: { searchParams: Record<string, un
         { orderNumber: { contains: searchQuery, mode: 'insensitive' } },
         { email: { contains: searchQuery, mode: 'insensitive' } },
         { phone: { contains: searchQuery, mode: 'insensitive' } },
-      ];
+      ]
     }
 
     // Get orders with pagination
@@ -108,23 +108,23 @@ async function OrdersContent({ searchParams }: { searchParams: Record<string, un
         take: pageSize,
       }),
       prisma.order.count({ where }),
-    ]);
+    ])
 
-    const totalPages = Math.ceil(totalCount / pageSize);
+    const totalPages = Math.ceil(totalCount / pageSize)
 
     // Get order statistics
     const stats = await prisma.order.groupBy({
       by: ['status'],
       _count: true,
-    });
+    })
 
     const statsMap = stats.reduce(
       (acc, stat) => {
-        acc[stat.status] = stat._count;
-        return acc;
+        acc[stat.status] = stat._count
+        return acc
       },
       {} as Record<string, number>
-    );
+    )
 
     // Calculate total revenue from delivered orders
     const revenue = await prisma.order.aggregate({
@@ -134,7 +134,7 @@ async function OrdersContent({ searchParams }: { searchParams: Record<string, un
       _sum: {
         total: true,
       },
-    });
+    })
 
     return (
       <div className="space-y-8">
@@ -272,8 +272,8 @@ async function OrdersContent({ searchParams }: { searchParams: Record<string, un
                   )}
                   <div className="flex items-center gap-1">
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      const pageNum = page <= 3 ? i + 1 : page + i - 2;
-                      if (pageNum > totalPages) return null;
+                      const pageNum = page <= 3 ? i + 1 : page + i - 2
+                      if (pageNum > totalPages) return null
                       return (
                         <Link
                           key={pageNum}
@@ -286,7 +286,7 @@ async function OrdersContent({ searchParams }: { searchParams: Record<string, un
                         >
                           {pageNum}
                         </Link>
-                      );
+                      )
                     })}
                   </div>
                   {page < totalPages ? (
@@ -307,17 +307,17 @@ async function OrdersContent({ searchParams }: { searchParams: Record<string, un
           </CardContent>
         </Card>
       </div>
-    );
+    )
   } catch (error) {
-    console.error('[Orders Page] Error loading orders:', error);
+    console.error('[Orders Page] Error loading orders:', error)
     console.error(
       '[Orders Page] Error stack:',
       error instanceof Error ? error.stack : 'No stack trace'
-    );
+    )
     console.error(
       '[Orders Page] Error message:',
       error instanceof Error ? error.message : String(error)
-    );
+    )
 
     return (
       <div className="space-y-8">
@@ -349,12 +349,12 @@ async function OrdersContent({ searchParams }: { searchParams: Record<string, un
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 }
 
 export default async function OrdersPage({ searchParams }: OrdersPageProps) {
-  const params = await searchParams;
+  const params = await searchParams
 
   return (
     <Suspense
@@ -378,5 +378,5 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
     >
       <OrdersContent searchParams={params || {}} />
     </Suspense>
-  );
+  )
 }

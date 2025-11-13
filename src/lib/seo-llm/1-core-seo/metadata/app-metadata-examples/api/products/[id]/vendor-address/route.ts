@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 /**
  * GET /api/products/[id]/vendor-address
@@ -9,10 +9,10 @@ import { prisma } from '@/lib/prisma';
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id: productId } = await params;
+    const { id: productId } = await params
 
     if (!productId) {
-      return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Product ID is required' }, { status: 400 })
     }
 
     // Find the preferred vendor for this product
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           },
         },
       },
-    });
+    })
 
     // If no preferred vendor, try to find any active vendor for this product
     const vendor =
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             },
           },
         })
-      )?.Vendor;
+      )?.Vendor
 
     if (!vendor || !vendor.address) {
       // No vendor found or vendor has no address - return null so default is used
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         vendorId: null,
         vendorName: null,
         address: null,
-      });
+      })
     }
 
     return NextResponse.json({
@@ -73,9 +73,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       vendorId: vendor.id,
       vendorName: vendor.name,
       address: vendor.address,
-    });
+    })
   } catch (error) {
-    console.error('Error fetching vendor address:', error);
-    return NextResponse.json({ error: 'Failed to fetch vendor address' }, { status: 500 });
+    console.error('Error fetching vendor address:', error)
+    return NextResponse.json({ error: 'Failed to fetch vendor address' }, { status: 500 })
   }
 }

@@ -1,19 +1,19 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { deleteProductImage } from '@/lib/minio-products';
-import { validateRequest } from '@/lib/auth';
-import { transformProductForFrontend } from '@/lib/data-transformers';
-import { randomUUID } from 'crypto';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { deleteProductImage } from '@/lib/minio-products'
+import { validateRequest } from '@/lib/auth'
+import { transformProductForFrontend } from '@/lib/data-transformers'
+import { randomUUID } from 'crypto'
 import {
   createSuccessResponse,
   createNotFoundErrorResponse,
   createDatabaseErrorResponse,
-} from '@/lib/api-response';
+} from '@/lib/api-response'
 
 // GET /api/products/[id] - Get single product
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
+    const { id } = await params
     const product = await prisma.product.findUnique({
       where: { id },
       include: {
@@ -77,26 +77,26 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           orderBy: { minQuantity: 'asc' },
         },
       },
-    });
+    })
 
     if (!product) {
-      return createNotFoundErrorResponse('Product');
+      return createNotFoundErrorResponse('Product')
     }
 
     // Transform for frontend compatibility
-    const transformedProduct = transformProductForFrontend(product);
-    return createSuccessResponse(transformedProduct);
+    const transformedProduct = transformProductForFrontend(product)
+    return createSuccessResponse(transformedProduct)
   } catch (error) {
-    return createDatabaseErrorResponse(error);
+    return createDatabaseErrorResponse(error)
   }
 }
 
 // PUT /api/products/[id] - Update product
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
+    const { id } = await params
 
-    const { user, session } = await validateRequest();
+    const { user, session } = await validateRequest()
     //   hasSession: !!session,
     //   hasUser: !!user,
     //   role: user?.role,
@@ -107,11 +107,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         session: !!session,
         user: !!user,
         role: user?.role,
-      });
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const data = await request.json();
+    const data = await request.json()
     //   hasImages: !!data.images,
     //   paperStockSetId: data.paperStockSetId,
     //   quantityGroupId: data.quantityGroupId,
@@ -133,7 +133,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       options,
       pricingTiers,
       ...rest
-    } = data;
+    } = data
 
     // Only include valid Product model fields
     const productData = {
@@ -152,7 +152,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       rushDays: rest.rushDays,
       rushFee: rest.rushFee,
       updatedAt: new Date(),
-    };
+    }
 
     // Get existing product to compare images
     const existingProduct = await prisma.product.findUnique({
@@ -175,37 +175,37 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         },
         PricingTier: true,
       },
-    });
+    })
 
     if (!existingProduct) {
-      console.error('[PUT Product] Product not found:', id);
-      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+      console.error('[PUT Product] Product not found:', id)
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
     // Delete removed images from MinIO
-    const existingImageUrls = existingProduct.ProductImage.map((img) => img.Image.url);
-    const newImageUrls = images?.map((img: Record<string, unknown>) => img.url) || [];
-    const imagesToDelete = existingImageUrls.filter((url) => !newImageUrls.includes(url));
+    const existingImageUrls = existingProduct.ProductImage.map((img) => img.Image.url)
+    const newImageUrls = images?.map((img: Record<string, unknown>) => img.url) || []
+    const imagesToDelete = existingImageUrls.filter((url) => !newImageUrls.includes(url))
 
     for (const url of imagesToDelete) {
       try {
-        await deleteProductImage(url);
+        await deleteProductImage(url)
       } catch (error) {
-        console.error('[PUT Product] Failed to delete image from MinIO:', error);
+        console.error('[PUT Product] Failed to delete image from MinIO:', error)
       }
     }
 
     // Update product using transaction
     const product = await prisma.$transaction(async (tx) => {
       // Delete existing relations
-      await tx.productImage.deleteMany({ where: { productId: id } });
-      await tx.productPaperStockSet.deleteMany({ where: { productId: id } });
-      await tx.productQuantityGroup.deleteMany({ where: { productId: id } });
-      await tx.productSizeGroup.deleteMany({ where: { productId: id } });
-      await tx.productTurnaroundTimeSet.deleteMany({ where: { productId: id } });
-      await tx.productAddOnSet.deleteMany({ where: { productId: id } });
-      await tx.productOption.deleteMany({ where: { productId: id } });
-      await tx.pricingTier.deleteMany({ where: { productId: id } });
+      await tx.productImage.deleteMany({ where: { productId: id } })
+      await tx.productPaperStockSet.deleteMany({ where: { productId: id } })
+      await tx.productQuantityGroup.deleteMany({ where: { productId: id } })
+      await tx.productSizeGroup.deleteMany({ where: { productId: id } })
+      await tx.productTurnaroundTimeSet.deleteMany({ where: { productId: id } })
+      await tx.productAddOnSet.deleteMany({ where: { productId: id } })
+      await tx.productOption.deleteMany({ where: { productId: id } })
+      await tx.pricingTier.deleteMany({ where: { productId: id } })
 
       // Update product with new data
       return await tx.product.update({
@@ -226,7 +226,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                           sortOrder: index,
                           isPrimary: img.isPrimary || false,
                           updatedAt: new Date(),
-                        };
+                        }
                       }
 
                       // Otherwise, create a new Image record first
@@ -248,7 +248,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                           category: 'product',
                           updatedAt: new Date(),
                         },
-                      });
+                      })
 
                       return {
                         id: randomUUID(),
@@ -256,7 +256,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
                         sortOrder: index,
                         isPrimary: img.isPrimary || false,
                         updatedAt: new Date(),
-                      };
+                      }
                     })
                   ),
                 }
@@ -413,29 +413,29 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
           },
           PricingTier: true,
         },
-      });
-    });
+      })
+    })
 
-    return NextResponse.json(product);
+    return NextResponse.json(product)
   } catch (error) {
-    console.error('[PUT Product] Error occurred:', error);
+    console.error('[PUT Product] Error occurred:', error)
 
     // Check for Prisma unique constraint violations
     if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
-      const prismaError = error as any;
-      const field = prismaError.meta?.target?.[0];
-      console.error('[PUT Product] Unique constraint violation:', field);
+      const prismaError = error as any
+      const field = prismaError.meta?.target?.[0]
+      console.error('[PUT Product] Unique constraint violation:', field)
       return NextResponse.json(
         { error: `A product with this ${field} already exists` },
         { status: 400 }
-      );
+      )
     }
 
     // Log the full error for debugging
-    console.error('[PUT Product] Full error details:', error);
+    console.error('[PUT Product] Full error details:', error)
 
     // Return error response
-    const errorMessage = error instanceof Error ? error.message : 'Failed to update product';
+    const errorMessage = error instanceof Error ? error.message : 'Failed to update product'
     return NextResponse.json(
       {
         error: 'Failed to update product',
@@ -443,20 +443,20 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         debug: process.env.NODE_ENV === 'development' ? error : undefined,
       },
       { status: 500 }
-    );
+    )
   }
 }
 
 // PATCH /api/products/[id] - Simple update product (for toggles, etc.)
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
-    const { user, session } = await validateRequest();
+    const { id } = await params
+    const { user, session } = await validateRequest()
     if (!session || !user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const data = await request.json();
+    const data = await request.json()
 
     // Update product with simple fields
     const product = await prisma.product.update({
@@ -465,11 +465,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       include: {
         ProductCategory: true,
       },
-    });
+    })
 
-    return NextResponse.json(product);
+    return NextResponse.json(product)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update product' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update product' }, { status: 500 })
   }
 }
 
@@ -479,9 +479,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id } = await params
 
-    const { user, session } = await validateRequest();
+    const { user, session } = await validateRequest()
     //   hasSession: !!session,
     //   hasUser: !!user,
     //   role: user?.role,
@@ -492,8 +492,8 @@ export async function DELETE(
         session: !!session,
         user: !!user,
         role: user?.role,
-      });
-      return NextResponse.json({ error: 'Unauthorized - Admin access required' }, { status: 401 });
+      })
+      return NextResponse.json({ error: 'Unauthorized - Admin access required' }, { status: 401 })
     }
 
     // Get product with images to delete from MinIO
@@ -506,37 +506,37 @@ export async function DELETE(
           },
         },
       },
-    });
+    })
 
     if (!product) {
-      console.error('[DELETE Product] Product not found:', id);
-      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+      console.error('[DELETE Product] Product not found:', id)
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
     // Delete images from MinIO
     for (const image of product.ProductImage) {
       try {
-        await deleteProductImage(image.Image.url);
+        await deleteProductImage(image.Image.url)
       } catch (error) {
-        console.error('[DELETE Product] Failed to delete image from MinIO:', error);
+        console.error('[DELETE Product] Failed to delete image from MinIO:', error)
       }
     }
 
     // Delete product (cascade will handle relations)
     await prisma.product.delete({
       where: { id },
-    });
+    })
 
-    return NextResponse.json({ message: 'Product deleted successfully' }, { status: 200 });
+    return NextResponse.json({ message: 'Product deleted successfully' }, { status: 200 })
   } catch (error) {
-    console.error('[DELETE Product] Error deleting product:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[DELETE Product] Error deleting product:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
       {
         error: 'Failed to delete product',
         details: errorMessage,
       },
       { status: 500 }
-    );
+    )
   }
 }

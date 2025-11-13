@@ -1,17 +1,17 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { Activity, DollarSign, ShoppingCart, TrendingDown, TrendingUp, Users } from 'lucide-react';
+import { useEffect, useState } from 'react'
+import { Activity, DollarSign, ShoppingCart, TrendingDown, TrendingUp, Users } from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface StatData {
-  label: string;
-  value: string | number;
-  change: number;
-  icon: React.ElementType;
-  color: string;
+  label: string
+  value: string | number
+  change: number
+  icon: React.ElementType
+  color: string
 }
 
 export function RealTimeStats() {
@@ -44,50 +44,50 @@ export function RealTimeStats() {
       icon: Activity,
       color: 'orange',
     },
-  ]);
+  ])
 
-  const [isLive, setIsLive] = useState(true);
+  const [isLive, setIsLive] = useState(true)
 
   useEffect(() => {
-    if (!isLive) return;
+    if (!isLive) return
 
     const interval = setInterval(() => {
       setStats((prevStats) =>
         prevStats.map((stat) => {
-          let newValue = stat.value;
-          let change = 0;
+          let newValue = stat.value
+          let change = 0
 
           if (stat.label === 'Active Users') {
-            const delta = Math.floor(Math.random() * 11) - 5;
-            newValue = Math.max(50, Math.min(500, Number(stat.value) + delta));
-            change = delta;
+            const delta = Math.floor(Math.random() * 11) - 5
+            newValue = Math.max(50, Math.min(500, Number(stat.value) + delta))
+            change = delta
           } else if (stat.label === 'Live Orders') {
-            const delta = Math.floor(Math.random() * 5) - 2;
-            newValue = Math.max(0, Number(stat.value) + delta);
-            change = delta;
+            const delta = Math.floor(Math.random() * 5) - 2
+            newValue = Math.max(0, Number(stat.value) + delta)
+            change = delta
           } else if (stat.label === "Today's Revenue") {
-            const currentValue = parseFloat(String(stat.value).replace(/[$,]/g, ''));
-            const delta = (Math.random() * 100).toFixed(2);
-            newValue = `$${(currentValue + parseFloat(delta)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            change = parseFloat(delta);
+            const currentValue = parseFloat(String(stat.value).replace(/[$,]/g, ''))
+            const delta = (Math.random() * 100).toFixed(2)
+            newValue = `$${(currentValue + parseFloat(delta)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+            change = parseFloat(delta)
           } else if (stat.label === 'Server Load') {
-            const currentValue = parseInt(String(stat.value));
-            const delta = Math.floor(Math.random() * 11) - 5;
-            newValue = `${Math.max(10, Math.min(100, currentValue + delta))}%`;
-            change = delta;
+            const currentValue = parseInt(String(stat.value))
+            const delta = Math.floor(Math.random() * 11) - 5
+            newValue = `${Math.max(10, Math.min(100, currentValue + delta))}%`
+            change = delta
           }
 
           return {
             ...stat,
             value: newValue,
             change,
-          };
+          }
         })
-      );
-    }, 3000);
+      )
+    }, 3000)
 
-    return () => clearInterval(interval);
-  }, [isLive]);
+    return () => clearInterval(interval)
+  }, [isLive])
 
   const getColorClasses = (color: string) => {
     const colors: Record<string, { bg: string; icon: string }> = {
@@ -104,9 +104,9 @@ export function RealTimeStats() {
         bg: 'bg-orange-100 dark:bg-orange-900/20',
         icon: 'text-orange-600 dark:text-orange-400',
       },
-    };
-    return colors[color] || colors.blue;
-  };
+    }
+    return colors[color] || colors.blue
+  }
 
   return (
     <div className="space-y-4">
@@ -126,8 +126,8 @@ export function RealTimeStats() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, index) => {
-          const Icon = stat.icon;
-          const colors = getColorClasses(stat.color);
+          const Icon = stat.icon
+          const colors = getColorClasses(stat.color)
 
           return (
             <Card key={index} className="relative overflow-hidden hover:shadow-lg transition-all">
@@ -162,9 +162,9 @@ export function RealTimeStats() {
                 )}
               </CardContent>
             </Card>
-          );
+          )
         })}
       </div>
     </div>
-  );
+  )
 }

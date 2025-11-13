@@ -6,29 +6,29 @@
  */
 
 const TELEGRAM_BOT_TOKEN =
-  process.env.SEO_BRAIN_TELEGRAM_BOT_TOKEN || '7510262123:AAFiInboeGKrhovu8hcmDvZsDgEpS3W1yWs';
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID; // You'll need to add this
+  process.env.SEO_BRAIN_TELEGRAM_BOT_TOKEN || '7510262123:AAFiInboeGKrhovu8hcmDvZsDgEpS3W1yWs'
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID // You'll need to add this
 
-const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
+const TELEGRAM_API = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`
 
 export interface TelegramAlert {
-  type: 'opportunity' | 'issue' | 'decision' | 'winner' | 'loser' | 'complete';
-  severity: 'info' | 'low' | 'medium' | 'high' | 'critical';
-  title: string;
-  message: string;
-  details?: Record<string, any>;
-  options?: DecisionOption[];
-  entityType?: string;
-  entityId?: string;
+  type: 'opportunity' | 'issue' | 'decision' | 'winner' | 'loser' | 'complete'
+  severity: 'info' | 'low' | 'medium' | 'high' | 'critical'
+  title: string
+  message: string
+  details?: Record<string, any>
+  options?: DecisionOption[]
+  entityType?: string
+  entityId?: string
 }
 
 export interface DecisionOption {
-  option: string; // "A", "B", "C"
-  action: string;
-  pros: string[];
-  cons: string[];
-  confidence: number; // 1-100
-  estimatedImpact?: string;
+  option: string // "A", "B", "C"
+  action: string
+  pros: string[]
+  cons: string[]
+  confidence: number // 1-100
+  estimatedImpact?: string
 }
 
 /**
@@ -39,12 +39,12 @@ export async function sendTelegramAlert(
 ): Promise<{ success: boolean; messageId?: string }> {
   try {
     if (!TELEGRAM_CHAT_ID) {
-      console.warn('[Telegram] TELEGRAM_ADMIN_CHAT_ID not configured');
-      return { success: false };
+      console.warn('[Telegram] TELEGRAM_ADMIN_CHAT_ID not configured')
+      return { success: false }
     }
 
     // Format message with emoji and structure
-    const formattedMessage = formatAlertMessage(alert);
+    const formattedMessage = formatAlertMessage(alert)
 
     // Send to Telegram
     const response = await fetch(`${TELEGRAM_API}/sendMessage`, {
@@ -56,22 +56,22 @@ export async function sendTelegramAlert(
         parse_mode: 'Markdown',
         disable_web_page_preview: true,
       }),
-    });
+    })
 
-    const data = await response.json();
+    const data = await response.json()
 
     if (data.ok) {
       return {
         success: true,
         messageId: data.result.message_id,
-      };
+      }
     } else {
-      console.error('[Telegram] Send failed:', data);
-      return { success: false };
+      console.error('[Telegram] Send failed:', data)
+      return { success: false }
     }
   } catch (error) {
-    console.error('[Telegram] Error sending alert:', error);
-    return { success: false };
+    console.error('[Telegram] Error sending alert:', error)
+    return { success: false }
   }
 }
 
@@ -79,46 +79,46 @@ export async function sendTelegramAlert(
  * Format alert message for Telegram (Markdown)
  */
 function formatAlertMessage(alert: TelegramAlert): string {
-  const emoji = getSeverityEmoji(alert.severity);
-  const typeEmoji = getTypeEmoji(alert.type);
+  const emoji = getSeverityEmoji(alert.severity)
+  const typeEmoji = getTypeEmoji(alert.type)
 
-  let message = `${emoji} *${alert.title}*\n\n`;
-  message += `${typeEmoji} Type: ${alert.type.toUpperCase()}\n`;
-  message += `${alert.message}\n\n`;
+  let message = `${emoji} *${alert.title}*\n\n`
+  message += `${typeEmoji} Type: ${alert.type.toUpperCase()}\n`
+  message += `${alert.message}\n\n`
 
   // Add details if present
   if (alert.details) {
-    message += `📊 *Details:*\n`;
+    message += `📊 *Details:*\n`
     for (const [key, value] of Object.entries(alert.details)) {
-      message += `• ${formatKey(key)}: ${formatValue(value)}\n`;
+      message += `• ${formatKey(key)}: ${formatValue(value)}\n`
     }
-    message += `\n`;
+    message += `\n`
   }
 
   // Add decision options if present
   if (alert.options && alert.options.length > 0) {
-    message += `🤔 *Your Options:*\n\n`;
+    message += `🤔 *Your Options:*\n\n`
 
     for (const opt of alert.options) {
-      message += `*Option ${opt.option}:* ${opt.action}\n`;
-      message += `✅ Pros: ${opt.pros.join(', ')}\n`;
-      message += `❌ Cons: ${opt.cons.join(', ')}\n`;
-      message += `🎯 Confidence: ${opt.confidence}%\n`;
+      message += `*Option ${opt.option}:* ${opt.action}\n`
+      message += `✅ Pros: ${opt.pros.join(', ')}\n`
+      message += `❌ Cons: ${opt.cons.join(', ')}\n`
+      message += `🎯 Confidence: ${opt.confidence}%\n`
 
       if (opt.estimatedImpact) {
-        message += `📈 Impact: ${opt.estimatedImpact}\n`;
+        message += `📈 Impact: ${opt.estimatedImpact}\n`
       }
 
-      message += `\n`;
+      message += `\n`
     }
 
-    message += `*Reply with: A, B, or C to choose*\n`;
+    message += `*Reply with: A, B, or C to choose*\n`
   }
 
   // Add timestamp
-  message += `\n⏰ ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}`;
+  message += `\n⏰ ${new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' })}`
 
-  return message;
+  return message
 }
 
 /**
@@ -131,8 +131,8 @@ function getSeverityEmoji(severity: string): string {
     medium: '🟡',
     high: '🟠',
     critical: '🔴',
-  };
-  return emojiMap[severity] || 'ℹ️';
+  }
+  return emojiMap[severity] || 'ℹ️'
 }
 
 /**
@@ -146,8 +146,8 @@ function getTypeEmoji(type: string): string {
     winner: '🏆',
     loser: '📉',
     complete: '✅',
-  };
-  return emojiMap[type] || '📢';
+  }
+  return emojiMap[type] || '📢'
 }
 
 /**
@@ -157,7 +157,7 @@ function formatKey(key: string): string {
   return key
     .replace(/([A-Z])/g, ' $1')
     .replace(/^./, (str) => str.toUpperCase())
-    .trim();
+    .trim()
 }
 
 /**
@@ -165,26 +165,26 @@ function formatKey(key: string): string {
  */
 function formatValue(value: any): string {
   if (typeof value === 'number') {
-    return value.toLocaleString();
+    return value.toLocaleString()
   }
   if (Array.isArray(value)) {
-    return value.join(', ');
+    return value.join(', ')
   }
   if (typeof value === 'object' && value !== null) {
-    return JSON.stringify(value);
+    return JSON.stringify(value)
   }
-  return String(value);
+  return String(value)
 }
 
 /**
  * Send opportunity alert
  */
 export async function sendOpportunityAlert(params: {
-  city: string;
-  product: string;
-  opportunity: string;
-  estimatedRevenue: number;
-  confidence: number;
+  city: string
+  product: string
+  opportunity: string
+  estimatedRevenue: number
+  confidence: number
 }) {
   return sendTelegramAlert({
     type: 'opportunity',
@@ -197,18 +197,18 @@ export async function sendOpportunityAlert(params: {
       estimatedRevenue: `$${params.estimatedRevenue}`,
       confidence: `${params.confidence}%`,
     },
-  });
+  })
 }
 
 /**
  * Send issue alert
  */
 export async function sendIssueAlert(params: {
-  city: string;
-  product: string;
-  issue: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  currentMetrics: Record<string, any>;
+  city: string
+  product: string
+  issue: string
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  currentMetrics: Record<string, any>
 }) {
   return sendTelegramAlert({
     type: 'issue',
@@ -220,19 +220,19 @@ export async function sendIssueAlert(params: {
       city: params.city,
       ...params.currentMetrics,
     },
-  });
+  })
 }
 
 /**
  * Send decision request
  */
 export async function sendDecisionRequest(params: {
-  title: string;
-  description: string;
-  context: Record<string, any>;
-  options: DecisionOption[];
-  entityType?: string;
-  entityId?: string;
+  title: string
+  description: string
+  context: Record<string, any>
+  options: DecisionOption[]
+  entityType?: string
+  entityId?: string
 }) {
   return sendTelegramAlert({
     type: 'decision',
@@ -243,17 +243,17 @@ export async function sendDecisionRequest(params: {
     options: params.options,
     entityType: params.entityType,
     entityId: params.entityId,
-  });
+  })
 }
 
 /**
  * Send winner found alert
  */
 export async function sendWinnerAlert(params: {
-  city: string;
-  product: string;
-  metrics: Record<string, any>;
-  vsAverage: Record<string, any>;
+  city: string
+  product: string
+  metrics: Record<string, any>
+  vsAverage: Record<string, any>
 }) {
   return sendTelegramAlert({
     type: 'winner',
@@ -265,17 +265,17 @@ export async function sendWinnerAlert(params: {
       ...params.metrics,
       vsAverage: JSON.stringify(params.vsAverage),
     },
-  });
+  })
 }
 
 /**
  * Send loser found alert with improvement options
  */
 export async function sendLoserAlert(params: {
-  city: string;
-  product: string;
-  metrics: Record<string, any>;
-  improvementOptions: DecisionOption[];
+  city: string
+  product: string
+  metrics: Record<string, any>
+  improvementOptions: DecisionOption[]
 }) {
   return sendTelegramAlert({
     type: 'loser',
@@ -287,18 +287,18 @@ export async function sendLoserAlert(params: {
       ...params.metrics,
     },
     options: params.improvementOptions,
-  });
+  })
 }
 
 /**
  * Send campaign complete alert
  */
 export async function sendCampaignCompleteAlert(params: {
-  product: string;
-  citiesGenerated: number;
-  totalRevenue: number;
-  topCities: string[];
-  metrics: Record<string, any>;
+  product: string
+  citiesGenerated: number
+  totalRevenue: number
+  topCities: string[]
+  metrics: Record<string, any>
 }) {
   return sendTelegramAlert({
     type: 'complete',
@@ -311,23 +311,23 @@ export async function sendCampaignCompleteAlert(params: {
       topCities: params.topCities.join(', '),
       ...params.metrics,
     },
-  });
+  })
 }
 
 /**
  * Test Telegram connection
  */
 export async function testTelegramConnection(): Promise<{
-  success: boolean;
-  chatId?: string;
-  error?: string;
+  success: boolean
+  chatId?: string
+  error?: string
 }> {
   try {
     if (!TELEGRAM_CHAT_ID) {
       return {
         success: false,
         error: 'TELEGRAM_ADMIN_CHAT_ID not configured. Add to .env file.',
-      };
+      }
     }
 
     const response = await fetch(`${TELEGRAM_API}/sendMessage`, {
@@ -338,25 +338,25 @@ export async function testTelegramConnection(): Promise<{
         text: '🤖 *SEO Brain Connected!*\n\nYour SEO Brain is online and ready to help optimize your 200-city landing pages.\n\nYou will receive alerts about:\n• New opportunities\n• Performance issues\n• Winner/loser pages\n• Decisions that need your input',
         parse_mode: 'Markdown',
       }),
-    });
+    })
 
-    const data = await response.json();
+    const data = await response.json()
 
     if (data.ok) {
       return {
         success: true,
         chatId: TELEGRAM_CHAT_ID,
-      };
+      }
     } else {
       return {
         success: false,
         error: data.description || 'Unknown error',
-      };
+      }
     }
   } catch (error) {
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Connection failed',
-    };
+    }
   }
 }

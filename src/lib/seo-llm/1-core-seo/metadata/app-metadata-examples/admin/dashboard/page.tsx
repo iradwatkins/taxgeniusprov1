@@ -1,17 +1,17 @@
-import { prisma } from '@/lib/prisma';
-import { StatsCard } from '@/components/admin/stats-cards';
-import { RecentOrdersTable } from '@/components/admin/recent-orders-table';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import Link from 'next/link';
-import { DollarSign, Package, CheckCircle, AlertCircle, ShoppingCart, Clock } from 'lucide-react';
+import { prisma } from '@/lib/prisma'
+import { StatsCard } from '@/components/admin/stats-cards'
+import { RecentOrdersTable } from '@/components/admin/recent-orders-table'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import Link from 'next/link'
+import { DollarSign, Package, CheckCircle, AlertCircle, ShoppingCart, Clock } from 'lucide-react'
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 async function getDashboardData() {
   // Get total orders (all time)
-  const totalOrders = await prisma.order.count();
+  const totalOrders = await prisma.order.count()
 
   // Get in progress orders (active orders)
   const inProgressOrders = await prisma.order.count({
@@ -20,14 +20,14 @@ async function getDashboardData() {
         in: ['PAID', 'PROCESSING', 'PRINTING', 'QUALITY_CHECK', 'PACKAGING', 'SHIPPED'],
       },
     },
-  });
+  })
 
   // Get completed orders (successfully fulfilled)
   const completedOrders = await prisma.order.count({
     where: {
       status: 'DELIVERED',
     },
-  });
+  })
 
   // Get total revenue (all time)
   const totalRevenue = await prisma.order.aggregate({
@@ -39,7 +39,7 @@ async function getDashboardData() {
         notIn: ['CANCELLED', 'REFUNDED'],
       },
     },
-  });
+  })
 
   // Get recent orders
   const recentOrders = await prisma.order.findMany({
@@ -50,7 +50,7 @@ async function getDashboardData() {
     include: {
       OrderItem: true,
     },
-  });
+  })
 
   // Get urgent orders for alerts
   const urgentOrders = await prisma.order.count({
@@ -59,7 +59,7 @@ async function getDashboardData() {
         in: ['PAID', 'PROCESSING', 'PRINTING'],
       },
     },
-  });
+  })
 
   return {
     totalOrders,
@@ -68,11 +68,11 @@ async function getDashboardData() {
     totalRevenue: totalRevenue._sum.total || 0,
     urgentOrders,
     recentOrders,
-  };
+  }
 }
 
 export default async function AdminDashboard() {
-  const data = await getDashboardData();
+  const data = await getDashboardData()
 
   return (
     <div className="space-y-6">
@@ -174,5 +174,5 @@ export default async function AdminDashboard() {
         </Card>
       )}
     </div>
-  );
+  )
 }

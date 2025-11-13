@@ -1,19 +1,19 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const state = searchParams.get('state');
-    const search = searchParams.get('search');
+    const { searchParams } = new URL(request.url)
+    const state = searchParams.get('state')
+    const search = searchParams.get('search')
 
     // Build where clause for filtering
     const whereClause: Record<string, unknown> = {
       isActive: true,
-    };
+    }
 
     if (state) {
-      whereClause.state = state.toUpperCase();
+      whereClause.state = state.toUpperCase()
     }
 
     if (search) {
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
         { name: { contains: search, mode: 'insensitive' } },
         { code: { contains: search, mode: 'insensitive' } },
         { city: { contains: search, mode: 'insensitive' } },
-      ];
+      ]
     }
 
     // Get airports with full data for locations page display
@@ -40,13 +40,13 @@ export async function GET(request: NextRequest) {
         carrier: true,
       },
       orderBy: [{ city: 'asc' }],
-    });
+    })
 
     return NextResponse.json({
       success: true,
       airports,
       count: airports.length,
-    });
+    })
   } catch (error) {
     return NextResponse.json(
       {
@@ -54,6 +54,6 @@ export async function GET(request: NextRequest) {
         error: 'Failed to fetch airports',
       },
       { status: 500 }
-    );
+    )
   }
 }

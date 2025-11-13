@@ -1,17 +1,36 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import CountdownTimer from '@/components/CountdownTimer';
 import { CheckCircle, Star, TrendingUp, Award } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-
-export const metadata = {
-  title: 'Become a Tax Preparer - Make $100,000+ This Tax Season | Tax Genius',
-  description:
-    'FREE training and marketing for 100 people! Work from home, flexible hours, high income potential. Join Tax Genius Pro today!',
-};
+import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 
 export default function PreparerLandingPage() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const target = 100000;
+    const duration = 2000; // 2 seconds
+    const steps = 60;
+    const increment = target / steps;
+    let current = 0;
+
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) {
+        setCount(target);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(current));
+      }
+    }, duration / steps);
+
+    return () => clearInterval(timer);
+  }, []);
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -32,15 +51,34 @@ export default function PreparerLandingPage() {
               ARE YOU TIRED OF BEING BROKE?
             </h2>
 
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black leading-tight">
+            <motion.h1
+              className="text-4xl md:text-6xl lg:text-7xl font-black leading-tight"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
               DO YOU WANT TO
               <br />
-              <span className="text-yellow-300">MAKE</span>
+              <motion.span
+                className="text-white"
+                initial={{ scale: 0.8 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                MAKE
+              </motion.span>
               <br />
               <span className="text-5xl md:text-7xl lg:text-8xl">up to</span>
               <br />
-              <span className="text-6xl md:text-8xl lg:text-9xl text-yellow-300">$100,000+</span>
-            </h1>
+              <motion.span
+                className="text-6xl md:text-8xl lg:text-9xl text-white"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 100, delay: 0.5 }}
+              >
+                ${count.toLocaleString()}+
+              </motion.span>
+            </motion.h1>
 
             <h2 className="text-3xl md:text-4xl font-bold">THIS TAX SEASON?</h2>
 
@@ -83,8 +121,13 @@ export default function PreparerLandingPage() {
       <section className="py-16 px-4 bg-muted/30">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
-            <div className="w-32 h-32 mx-auto mb-6 bg-primary/10 rounded-full flex items-center justify-center">
-              <div className="text-6xl">🦉</div>
+            <div className="w-32 h-32 mx-auto mb-6 relative">
+              <Image
+                src="/tax-genius-logo.png"
+                alt="Tax Genius Logo"
+                fill
+                className="object-contain"
+              />
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-4">MEET COACH OWLIVER.</h2>
             <p className="text-2xl font-semibold text-primary">
@@ -102,7 +145,7 @@ export default function PreparerLandingPage() {
             TAX GENIUS IS PERFECT FOR YOU, ONLY IF...
           </h2>
 
-          <div className="grid md:grid-cols-2 gap-8 items-center">
+          <div className="grid md:grid-cols-2 gap-8 items-start">
             <div className="space-y-6">
               {[
                 "You're tired of constantly struggling financially and not having enough money to enjoy life the way you want.",
@@ -115,20 +158,20 @@ export default function PreparerLandingPage() {
                   <p className="text-lg">{text}</p>
                 </div>
               ))}
-            </div>
 
-            <div className="bg-primary/15 rounded-2xl p-8 border-4 border-primary/20">
-              <div className="text-center space-y-4">
-                <div className="text-6xl">👔</div>
-                <p className="text-sm text-muted-foreground">[Image: Professional tax preparer]</p>
+              <div className="bg-card border-2 border-primary rounded-xl p-8 mt-8">
+                <div className="text-5xl font-bold text-primary mb-2">$75,000</div>
+                <div className="text-xl font-semibold">AVERAGE TAX PREPARER INCOME</div>
               </div>
             </div>
-          </div>
 
-          <div className="text-center mt-12">
-            <div className="bg-card border-2 border-primary rounded-xl p-8 inline-block">
-              <div className="text-5xl font-bold text-primary mb-2">$75,000</div>
-              <div className="text-xl font-semibold">AVERAGE TAX PREPARER INCOME</div>
+            <div className="relative h-[600px] rounded-2xl overflow-hidden border-4 border-primary/20">
+              <Image
+                src="/professional-tax-preparer.webp"
+                alt="Professional tax preparer"
+                fill
+                className="object-contain"
+              />
             </div>
           </div>
         </div>
@@ -159,40 +202,63 @@ export default function PreparerLandingPage() {
 
       {/* Story Section */}
       <section className="py-16 px-4">
-        <div className="container mx-auto max-w-4xl">
-          <div className="bg-card border rounded-2xl p-8 md:p-12">
-            <div className="space-y-6 text-lg leading-relaxed">
-              <p className="font-semibold text-2xl">My name is Erin,</p>
+        <div className="container mx-auto max-w-6xl">
+          <motion.div
+            className="bg-card border rounded-2xl p-8 md:p-12"
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="grid md:grid-cols-[300px_1fr] gap-8 items-start">
+              <motion.div
+                className="relative w-full h-80 rounded-lg overflow-hidden"
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+              >
+                <Image
+                  src="/erin.webp"
+                  alt="Erin - Tax Genius Pro Success Story"
+                  fill
+                  className="object-cover"
+                />
+              </motion.div>
 
-              <p>
-                I used to feel and say the same things. I was just like you—Broke, Bills and No clue
-                of what to do next.
-              </p>
+              <div className="space-y-6 text-lg leading-relaxed">
+                <p className="font-semibold text-2xl">My name is Erin,</p>
 
-              <p>
-                I lost my job went though all my saving during Covid and had to figure out how to
-                make some money.
-              </p>
+                <p>
+                  I used to feel and say the same things. I was just like you—Broke, Bills and No clue
+                  of what to do next.
+                </p>
 
-              <p>
-                That's when my friend suggested tax preparation—I knew nothing about taxes but every
-                year I needed A tax professional to prepare my taxes. That's when he said "you, me
-                and Millions of other people have to file taxes every year. How would you like to
-                make a years salary in a couple months? Just try it."
-              </p>
+                <p>
+                  I lost my job went though all my saving during Covid and had to figure out how to
+                  make some money.
+                </p>
 
-              <p className="font-bold text-xl text-primary">
-                Anyway, after a lot of trial and error, we built a system that took me from begging
-                family and friends to do their taxes to earning $139,000 in my second season!
-              </p>
+                <p>
+                  That's when my friend suggested tax preparation—I knew nothing about taxes but every
+                  year I needed A tax professional to prepare my taxes. That's when he said "you, me
+                  and Millions of other people have to file taxes every year. How would you like to
+                  make a years salary in a couple months? Just try it."
+                </p>
 
-              <p>
-                Now, you can do the same. Whether you're just starting or wanting to try something
-                new, The Tax Genius system will give you everything you need to succeed. Clients,
-                Growth, and Financial freedom.
-              </p>
+                <p className="font-bold text-xl text-primary">
+                  Anyway, after a lot of trial and error, we built a system that took me from begging
+                  family and friends to do their taxes to earning $139,000 in my second season!
+                </p>
+
+                <p>
+                  Now, you can do the same. Whether you're just starting or wanting to try something
+                  new, The Tax Genius system will give you everything you need to succeed. Clients,
+                  Growth, and Financial freedom.
+                </p>
+              </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -318,6 +384,7 @@ export default function PreparerLandingPage() {
                 name: 'GELISA WHITE',
                 role: '1st Year Tax Genius',
                 followers: '15.7k followers',
+                image: '/testimonials/gelsiawhite.png',
                 quote:
                   'I was really getting tired of doing hair. I needed a change. I wanted to become a tax preparer but did not now how. Tax Genius give me the tools i needed to be very successful',
               },
@@ -325,6 +392,7 @@ export default function PreparerLandingPage() {
                 name: 'YAUMAR WILLIAMS',
                 role: '2nd Year Tax Genius',
                 followers: '11.7k followers',
+                image: '/testimonials/yaumarwilliams.png',
                 quote:
                   'Being an entrepreneur I know that starting a business from scratch was hard however text Genius to help me find clients to make building my Client List quickly',
               },
@@ -332,6 +400,7 @@ export default function PreparerLandingPage() {
                 name: 'CHELSEA MITCHELL LOWE',
                 role: '2nd Year Tax Genius',
                 followers: '2,492k followers',
+                image: '/testimonials/chelseamichelllowe.png',
                 quote:
                   'My biggest problem was keeping my client attention during the office season. But Tax Genius showed me how to Stay on my clients minds and have them looking for me in January',
               },
@@ -339,20 +408,31 @@ export default function PreparerLandingPage() {
                 name: 'ANGELA RICHARDS',
                 role: '2nd Year Tax Genius',
                 followers: '1,826k followers',
+                image: '/testimonials/angelarichards.png',
                 quote:
                   'I sell real estate and with the market being up and down. I needed to figure out something i could do during the cold weather. Tax Genius help me convert my real estate client into Tax clients',
               },
             ].map((testimonial, i) => (
               <div key={i} className="bg-card border rounded-xl p-6">
                 <div className="flex items-start gap-4 mb-4">
-                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-2xl font-bold text-primary border-2 border-primary/20">
-                    {testimonial.name.charAt(0)}
+                  <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-primary/20">
+                    <Image
+                      src={testimonial.image}
+                      alt={testimonial.name}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                   <div>
                     <p className="font-bold">{testimonial.name}</p>
                     <p className="text-sm text-muted-foreground">{testimonial.role}</p>
                     <p className="text-xs text-primary">{testimonial.followers}</p>
                   </div>
+                </div>
+                <div className="flex justify-center mb-3">
+                  {[...Array(5)].map((_, starIdx) => (
+                    <Star key={starIdx} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  ))}
                 </div>
                 <p className="italic">"{testimonial.quote}"</p>
               </div>
@@ -407,11 +487,38 @@ export default function PreparerLandingPage() {
       <section className="py-16 px-4">
         <div className="container mx-auto max-w-4xl text-center">
           <div className="mb-8">
-            <div className="text-8xl mb-4">🪿</div>
-            <h2 className="text-3xl font-bold mb-4">
+            <motion.div
+              className="relative w-80 h-80 mx-auto mb-6"
+              initial={{ scale: 0, rotate: -180 }}
+              whileInView={{ scale: 1, rotate: 0 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", stiffness: 100, duration: 1 }}
+            >
+              <Image
+                src="/golden-eggs.png"
+                alt="Golden Eggs"
+                fill
+                className="object-contain drop-shadow-2xl"
+              />
+            </motion.div>
+            <motion.h2
+              className="text-3xl font-bold mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+            >
               You just found the owl that lays the golden eggs.
-            </h2>
-            <p className="text-xl">Ready to get more clients with Tax Genius Pro</p>
+            </motion.h2>
+            <motion.p
+              className="text-xl"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.5 }}
+            >
+              Ready to get more clients with Tax Genius Pro
+            </motion.p>
           </div>
 
           <div className="text-2xl font-bold mb-8 text-red-600">

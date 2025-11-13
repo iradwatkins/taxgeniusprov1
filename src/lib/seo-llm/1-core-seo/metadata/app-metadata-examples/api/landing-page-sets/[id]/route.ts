@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { validateRequest } from '@/lib/auth';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { validateRequest } from '@/lib/auth'
 
 /**
  * GET /api/landing-page-sets/[id]
@@ -8,13 +8,13 @@ import { validateRequest } from '@/lib/auth';
  */
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { user, session } = await validateRequest();
+    const { user, session } = await validateRequest()
     if (!user || !session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     if (user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
 
     const landingPageSet = await prisma.landingPageSet.findUnique({
@@ -31,10 +31,10 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
           },
         },
       },
-    });
+    })
 
     if (!landingPageSet) {
-      return NextResponse.json({ error: 'Landing page set not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Landing page set not found' }, { status: 404 })
     }
 
     // Get aggregate metrics
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         revenue: true,
         conversionRate: true,
       },
-    });
+    })
 
     const metrics = {
       citiesGenerated: landingPageSet._count.CityLandingPage,
@@ -57,15 +57,15 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         cityPages.length > 0
           ? cityPages.reduce((sum, page) => sum + (page.conversionRate || 0), 0) / cityPages.length
           : 0,
-    };
+    }
 
     return NextResponse.json({
       ...landingPageSet,
       metrics,
-    });
+    })
   } catch (error) {
-    console.error(`[GET /api/landing-page-sets/${params.id}] Error:`, error);
-    return NextResponse.json({ error: 'Failed to fetch landing page set' }, { status: 500 });
+    console.error(`[GET /api/landing-page-sets/${params.id}] Error:`, error)
+    return NextResponse.json({ error: 'Failed to fetch landing page set' }, { status: 500 })
   }
 }
 
@@ -75,16 +75,16 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
  */
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { user, session } = await validateRequest();
+    const { user, session } = await validateRequest()
     if (!user || !session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     if (user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
 
-    const body = await request.json();
+    const body = await request.json()
     const {
       name,
       titleTemplate,
@@ -103,15 +103,15 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       discountEnabled,
       discountPercent,
       chatWidgetEnabled,
-    } = body;
+    } = body
 
     // Check if landing page set exists
     const existing = await prisma.landingPageSet.findUnique({
       where: { id: params.id },
-    });
+    })
 
     if (!existing) {
-      return NextResponse.json({ error: 'Landing page set not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Landing page set not found' }, { status: 404 })
     }
 
     // Don't allow updating if it's published (must archive first)
@@ -119,7 +119,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json(
         { error: 'Cannot update published landing page set. Archive it first.' },
         { status: 400 }
-      );
+      )
     }
 
     // Update the set
@@ -155,12 +155,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         AddOnSet: true,
         TurnaroundTimeSet: true,
       },
-    });
+    })
 
-    return NextResponse.json(updated);
+    return NextResponse.json(updated)
   } catch (error) {
-    console.error(`[PUT /api/landing-page-sets/${params.id}] Error:`, error);
-    return NextResponse.json({ error: 'Failed to update landing page set' }, { status: 500 });
+    console.error(`[PUT /api/landing-page-sets/${params.id}] Error:`, error)
+    return NextResponse.json({ error: 'Failed to update landing page set' }, { status: 500 })
   }
 }
 
@@ -170,13 +170,13 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
  */
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { user, session } = await validateRequest();
+    const { user, session } = await validateRequest()
     if (!user || !session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     if (user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
 
     // Check if exists
@@ -187,23 +187,23 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
           select: { CityLandingPage: true },
         },
       },
-    });
+    })
 
     if (!existing) {
-      return NextResponse.json({ error: 'Landing page set not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Landing page set not found' }, { status: 404 })
     }
 
     // Delete (will cascade to all city landing pages)
     await prisma.landingPageSet.delete({
       where: { id: params.id },
-    });
+    })
 
     return NextResponse.json({
       success: true,
       message: `Deleted landing page set and ${existing._count.CityLandingPage} city pages`,
-    });
+    })
   } catch (error) {
-    console.error(`[DELETE /api/landing-page-sets/${params.id}] Error:`, error);
-    return NextResponse.json({ error: 'Failed to delete landing page set' }, { status: 500 });
+    console.error(`[DELETE /api/landing-page-sets/${params.id}] Error:`, error)
+    return NextResponse.json({ error: 'Failed to delete landing page set' }, { status: 500 })
   }
 }

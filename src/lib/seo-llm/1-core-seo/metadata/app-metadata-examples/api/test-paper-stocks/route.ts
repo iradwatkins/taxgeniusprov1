@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
 
 export async function GET(): Promise<unknown> {
   try {
@@ -53,10 +53,10 @@ export async function GET(): Promise<unknown> {
         defaultSides: 'image-one-side',
         productsCount: 0,
       },
-    ];
+    ]
 
-    return NextResponse.json(mockData);
+    return NextResponse.json(mockData)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch paper stocks' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch paper stocks' }, { status: 500 })
   }
 }

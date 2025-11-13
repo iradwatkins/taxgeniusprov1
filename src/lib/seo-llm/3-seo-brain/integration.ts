@@ -1,36 +1,36 @@
-import { prisma } from '@/lib/prisma';
-import { SERVICE_ENDPOINTS } from '@/config/constants';
+import { prisma } from '@/lib/prisma'
+import { SERVICE_ENDPOINTS } from '@/lib/constants'
 
 export interface N8NWorkflowConfig {
-  id: string;
-  name: string;
-  active: boolean;
+  id: string
+  name: string
+  active: boolean
   webhooks: Array<{
-    path: string;
-    method: string;
-    responseMode: string;
-  }>;
+    path: string
+    method: string
+    responseMode: string
+  }>
 }
 
 export interface N8NWebhookPayload {
-  trigger: string;
-  data: Record<string, unknown>;
-  timestamp: string;
-  source: 'gangrunprinting';
+  trigger: string
+  data: Record<string, unknown>
+  timestamp: string
+  source: 'gangrunprinting'
 }
 
 export interface N8NExecutionResult {
-  success: boolean;
-  executionId?: string;
-  error?: string;
-  data?: Record<string, unknown>;
+  success: boolean
+  executionId?: string
+  error?: string
+  data?: Record<string, unknown>
 }
 
 export class N8NIntegration {
-  private static readonly N8N_BASE_URL = SERVICE_ENDPOINTS.N8N_BASE;
-  private static readonly N8N_API_KEY = process.env.N8N_API_KEY;
+  private static readonly N8N_BASE_URL = SERVICE_ENDPOINTS.N8N_BASE
+  private static readonly N8N_API_KEY = process.env.N8N_API_KEY
   private static readonly WEBHOOK_SECRET =
-    process.env.N8N_WEBHOOK_SECRET || 'gangrun-webhook-secret';
+    process.env.N8N_WEBHOOK_SECRET || 'gangrun-webhook-secret'
 
   static async registerWebhook(
     name: string,
@@ -39,8 +39,8 @@ export class N8NIntegration {
     payload?: Record<string, unknown>
   ): Promise<N8NWebhook> {
     // Generate webhook URL
-    const webhookPath = `webhook/gangrun/${trigger.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
-    const webhookUrl = `${this.N8N_BASE_URL}/${webhookPath}`;
+    const webhookPath = `webhook/gangrun/${trigger.toLowerCase().replace(/[^a-z0-9]/g, '-')}`
+    const webhookUrl = `${this.N8N_BASE_URL}/${webhookPath}`
 
     // Create webhook in database
     return await prisma.n8NWebhook.create({
@@ -52,14 +52,14 @@ export class N8NIntegration {
         payload,
         isActive: true,
       },
-    });
+    })
   }
 
   static async getWebhooks(): Promise<N8NWebhook[]> {
     return await prisma.n8NWebhook.findMany({
       where: { isActive: true },
       orderBy: { createdAt: 'desc' },
-    });
+    })
   }
 
   static async getWebhook(id: string): Promise<N8NWebhook | null> {
@@ -71,20 +71,20 @@ export class N8NIntegration {
           orderBy: { executedAt: 'desc' },
         },
       },
-    });
+    })
   }
 
   static async updateWebhook(id: string, data: Partial<N8NWebhook>): Promise<N8NWebhook> {
     return await prisma.n8NWebhook.update({
       where: { id },
       data,
-    });
+    })
   }
 
   static async deleteWebhook(id: string): Promise<void> {
     await prisma.n8NWebhook.delete({
       where: { id },
-    });
+    })
   }
 
   static async triggerWebhook(
@@ -96,17 +96,17 @@ export class N8NIntegration {
         trigger,
         isActive: true,
       },
-    });
+    })
 
-    const results: N8NExecutionResult[] = [];
+    const results: N8NExecutionResult[] = []
 
     for (const webhook of webhooks) {
       try {
-        const result = await this.executeWebhook(webhook, data);
-        results.push(result);
+        const result = await this.executeWebhook(webhook, data)
+        results.push(result)
 
         // Log the execution
-        await this.logWebhookExecution(webhook.id, data, result);
+        await this.logWebhookExecution(webhook.id, data, result)
 
         // Update trigger count
         await prisma.n8NWebhook.update({
@@ -115,20 +115,20 @@ export class N8NIntegration {
             triggerCount: { increment: 1 },
             lastTriggered: new Date(),
           },
-        });
+        })
       } catch (error) {
         const errorResult: N8NExecutionResult = {
           success: false,
           error: error instanceof Error ? error.message : 'Unknown error',
-        };
-        results.push(errorResult);
+        }
+        results.push(errorResult)
 
         // Log the error
-        await this.logWebhookExecution(webhook.id, data, errorResult, 500);
+        await this.logWebhookExecution(webhook.id, data, errorResult, 500)
       }
     }
 
-    return results;
+    return results
   }
 
   private static async executeWebhook(
@@ -140,7 +140,7 @@ export class N8NIntegration {
       data,
       timestamp: new Date().toISOString(),
       source: 'gangrunprinting',
-    };
+    }
 
     const response = await fetch(webhook.url, {
       method: 'POST',
@@ -150,19 +150,19 @@ export class N8NIntegration {
         'User-Agent': 'GangRun-Printing/1.0',
       },
       body: JSON.stringify(payload),
-    });
+    })
 
     if (!response.ok) {
-      throw new Error(`Webhook failed with status ${response.status}: ${response.statusText}`);
+      throw new Error(`Webhook failed with status ${response.status}: ${response.statusText}`)
     }
 
-    const responseData = await response.json();
+    const responseData = await response.json()
 
     return {
       success: true,
       executionId: responseData.executionId,
       data: responseData,
-    };
+    }
   }
 
   private static async logWebhookExecution(
@@ -178,7 +178,7 @@ export class N8NIntegration {
         response,
         status,
       },
-    });
+    })
   }
 
   // Marketing-specific webhook triggers
@@ -190,7 +190,7 @@ export class N8NIntegration {
       campaignId,
       campaign: campaignData,
       eventType: 'marketing.campaign.sent',
-    });
+    })
   }
 
   static async triggerEmailOpened(
@@ -203,7 +203,7 @@ export class N8NIntegration {
       recipientEmail,
       metadata,
       eventType: 'marketing.email.opened',
-    });
+    })
   }
 
   static async triggerEmailClicked(
@@ -218,7 +218,7 @@ export class N8NIntegration {
       clickedUrl,
       metadata,
       eventType: 'marketing.email.clicked',
-    });
+    })
   }
 
   static async triggerCustomerSegmentUpdated(
@@ -229,7 +229,7 @@ export class N8NIntegration {
       segmentId,
       segment: segmentData,
       eventType: 'marketing.segment.updated',
-    });
+    })
   }
 
   static async triggerWorkflowCompleted(
@@ -244,7 +244,7 @@ export class N8NIntegration {
       userId,
       results,
       eventType: 'marketing.workflow.completed',
-    });
+    })
   }
 
   static async triggerABTestCompleted(
@@ -257,7 +257,7 @@ export class N8NIntegration {
       winnerId,
       results,
       eventType: 'marketing.ab_test.completed',
-    });
+    })
   }
 
   // Business event triggers
@@ -269,7 +269,7 @@ export class N8NIntegration {
       orderId,
       order: orderData,
       eventType: 'business.order.placed',
-    });
+    })
   }
 
   static async triggerUserRegistered(
@@ -280,7 +280,7 @@ export class N8NIntegration {
       userId,
       user: userData,
       eventType: 'business.user.registered',
-    });
+    })
   }
 
   static async triggerCartAbandoned(
@@ -291,7 +291,7 @@ export class N8NIntegration {
       userId,
       cart: cartData,
       eventType: 'business.cart.abandoned',
-    });
+    })
   }
 
   static async triggerCustomerReturned(
@@ -302,13 +302,13 @@ export class N8NIntegration {
       userId,
       metadata,
       eventType: 'business.customer.returned',
-    });
+    })
   }
 
   // N8N API integration methods
   static async getN8NWorkflows(): Promise<N8NWorkflowConfig[]> {
     if (!this.N8N_API_KEY) {
-      throw new Error('N8N API key not configured');
+      throw new Error('N8N API key not configured')
     }
 
     try {
@@ -317,22 +317,22 @@ export class N8NIntegration {
           'X-N8N-API-KEY': this.N8N_API_KEY,
           'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (!response.ok) {
-        throw new Error(`N8N API error: ${response.status} ${response.statusText}`);
+        throw new Error(`N8N API error: ${response.status} ${response.statusText}`)
       }
 
-      const data = await response.json();
-      return data.data || [];
+      const data = await response.json()
+      return data.data || []
     } catch (error) {
-      return [];
+      return []
     }
   }
 
   static async activateN8NWorkflow(workflowId: string): Promise<boolean> {
     if (!this.N8N_API_KEY) {
-      throw new Error('N8N API key not configured');
+      throw new Error('N8N API key not configured')
     }
 
     try {
@@ -342,17 +342,17 @@ export class N8NIntegration {
           'X-N8N-API-KEY': this.N8N_API_KEY,
           'Content-Type': 'application/json',
         },
-      });
+      })
 
-      return response.ok;
+      return response.ok
     } catch (error) {
-      return false;
+      return false
     }
   }
 
   static async deactivateN8NWorkflow(workflowId: string): Promise<boolean> {
     if (!this.N8N_API_KEY) {
-      throw new Error('N8N API key not configured');
+      throw new Error('N8N API key not configured')
     }
 
     try {
@@ -365,23 +365,23 @@ export class N8NIntegration {
             'Content-Type': 'application/json',
           },
         }
-      );
+      )
 
-      return response.ok;
+      return response.ok
     } catch (error) {
-      return false;
+      return false
     }
   }
 
   static async getN8NExecutions(workflowId?: string): Promise<any[]> {
     if (!this.N8N_API_KEY) {
-      throw new Error('N8N API key not configured');
+      throw new Error('N8N API key not configured')
     }
 
     try {
-      let url = `${this.N8N_BASE_URL}/api/v1/executions`;
+      let url = `${this.N8N_BASE_URL}/api/v1/executions`
       if (workflowId) {
-        url += `?workflowId=${workflowId}`;
+        url += `?workflowId=${workflowId}`
       }
 
       const response = await fetch(url, {
@@ -389,16 +389,16 @@ export class N8NIntegration {
           'X-N8N-API-KEY': this.N8N_API_KEY,
           'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (!response.ok) {
-        throw new Error(`N8N API error: ${response.status} ${response.statusText}`);
+        throw new Error(`N8N API error: ${response.status} ${response.statusText}`)
       }
 
-      const data = await response.json();
-      return data.data || [];
+      const data = await response.json()
+      return data.data || []
     } catch (error) {
-      return [];
+      return []
     }
   }
 
@@ -406,10 +406,10 @@ export class N8NIntegration {
   static async testWebhook(webhookId: string): Promise<boolean> {
     const webhook = await prisma.n8NWebhook.findUnique({
       where: { id: webhookId },
-    });
+    })
 
     if (!webhook) {
-      throw new Error('Webhook not found');
+      throw new Error('Webhook not found')
     }
 
     try {
@@ -418,7 +418,7 @@ export class N8NIntegration {
         data: { test: true },
         timestamp: new Date().toISOString(),
         source: 'gangrunprinting',
-      };
+      }
 
       const response = await fetch(webhook.url, {
         method: 'POST',
@@ -428,9 +428,9 @@ export class N8NIntegration {
           'User-Agent': 'GangRun-Printing/1.0',
         },
         body: JSON.stringify(testPayload),
-      });
+      })
 
-      const success = response.ok;
+      const success = response.ok
 
       // Log the test
       await this.logWebhookExecution(
@@ -438,17 +438,17 @@ export class N8NIntegration {
         testPayload,
         { success, data: success ? await response.json() : null },
         response.status
-      );
+      )
 
-      return success;
+      return success
     } catch (error) {
       await this.logWebhookExecution(
         webhookId,
         { test: true },
         { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
         500
-      );
-      return false;
+      )
+      return false
     }
   }
 
@@ -495,11 +495,11 @@ export class N8NIntegration {
         trigger: 'workflow_completed',
         description: 'Track marketing workflow completion rates',
       },
-    ];
+    ]
 
     for (const webhookData of webhooks) {
       try {
-        await this.registerWebhook(webhookData.name, webhookData.trigger, webhookData.description);
+        await this.registerWebhook(webhookData.name, webhookData.trigger, webhookData.description)
       } catch (error) {}
     }
   }
@@ -510,15 +510,12 @@ export class N8NIntegration {
     signature: string,
     secret: string = this.WEBHOOK_SECRET
   ): boolean {
-    const crypto = require('crypto');
-    const computedSignature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+    const crypto = require('crypto')
+    const computedSignature = crypto.createHmac('sha256', secret).update(payload).digest('hex')
 
     return crypto.timingSafeEqual(
       Buffer.from(signature, 'hex'),
       Buffer.from(computedSignature, 'hex')
-    );
+    )
   }
 }
-
-// Export seoBrain instance for backward compatibility with existing API routes
-export const seoBrain = N8NIntegration;

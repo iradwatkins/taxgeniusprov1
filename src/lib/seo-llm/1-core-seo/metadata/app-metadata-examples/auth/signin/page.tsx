@@ -1,19 +1,19 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import Image from 'next/image';
+import { useState } from 'react'
+import Image from 'next/image'
 
 export default function SignInPage() {
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [message, setMessage] = useState('')
+  const [isSuccess, setIsSuccess] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setMessage('');
+    e.preventDefault()
+    setIsLoading(true)
+    setMessage('')
 
     try {
       const response = await fetch('/api/auth/send-magic-link', {
@@ -22,24 +22,24 @@ export default function SignInPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, name: name || undefined }),
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (response.ok) {
-        setMessage('Magic link sent! Check your email to sign in.');
-        setIsSuccess(true);
+        setMessage('Magic link sent! Check your email to sign in.')
+        setIsSuccess(true)
       } else {
-        setMessage(data.error || 'Failed to send magic link');
-        setIsSuccess(false);
+        setMessage(data.error || 'Failed to send magic link')
+        setIsSuccess(false)
       }
     } catch (error) {
-      setMessage('Something went wrong. Please try again.');
-      setIsSuccess(false);
+      setMessage('Something went wrong. Please try again.')
+      setIsSuccess(false)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -157,5 +157,5 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

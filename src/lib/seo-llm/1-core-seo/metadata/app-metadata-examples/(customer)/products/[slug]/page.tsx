@@ -1,19 +1,19 @@
-import { notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
-import ProductDetailClient from '@/components/product/product-detail-client';
+import { notFound } from 'next/navigation'
+import { prisma } from '@/lib/prisma'
+import ProductDetailClient from '@/components/product/product-detail-client'
 // import { ComponentErrorBoundary } from '@/components/error-boundary'
-import { type Metadata } from 'next';
-import { generateAllProductSchemas } from '@/lib/schema-generators';
-import { type PrismaProductImage } from '@/types/product';
+import { type Metadata } from 'next'
+import { generateAllProductSchemas } from '@/lib/schema-generators'
+import { type PrismaProductImage } from '@/types/product'
 import {
   getApprovedProductSEO,
   generateProductMetaTags,
-} from '@/lib/seo-brain/generate-product-seo';
-import { Breadcrumbs, BreadcrumbSchema } from '@/components/customer/breadcrumbs';
+} from '@/lib/seo-brain/generate-product-seo'
+import { Breadcrumbs, BreadcrumbSchema } from '@/components/customer/breadcrumbs'
 
 // Force dynamic rendering to prevent chunk loading issues
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 // This is a SERVER COMPONENT - no 'use client' directive
 // It fetches data on the server and avoids all JSON parsing issues
@@ -22,9 +22,9 @@ export const revalidate = 0;
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string }>
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug } = await params
 
   try {
     // Look up by slug or SKU
@@ -52,13 +52,13 @@ export async function generateMetadata({
           },
         },
       },
-    });
+    })
 
     if (!product) {
       return {
         title: 'Product Not Found | GangRun Printing',
         description: 'The product you are looking for could not be found.',
-      };
+      }
     }
 
     // Try to use AI-generated meta tags if available
@@ -68,7 +68,7 @@ export async function generateMetadata({
         productCategory: product.ProductCategory?.name,
         city: product.City?.name,
         state: product.City?.stateCode,
-      });
+      })
 
       return {
         title: product.seoMetaTitle || metaTags.title,
@@ -77,10 +77,10 @@ export async function generateMetadata({
           title: product.seoMetaTitle || metaTags.title,
           description: metaTags.ogDescription,
         },
-      };
+      }
     } catch (aiError) {
       // Fallback to manual meta tags if AI generation fails
-      console.warn('[SEO Brain] Failed to generate meta tags, using fallback:', aiError);
+      console.warn('[SEO Brain] Failed to generate meta tags, using fallback:', aiError)
       return {
         title: product.seoMetaTitle || `${product.name} | GangRun Printing`,
         description:
@@ -88,14 +88,14 @@ export async function generateMetadata({
           product.shortDescription ||
           product.description ||
           `Order ${product.name} from GangRun Printing`,
-      };
+      }
     }
   } catch (error) {
-    console.error('Error generating metadata:', error);
+    console.error('Error generating metadata:', error)
     return {
       title: 'Products | GangRun Printing',
       description: 'Browse our printing products',
-    };
+    }
   }
 }
 
@@ -103,14 +103,14 @@ export async function generateMetadata({
 function isValidSlug(slug: string): boolean {
   // Basic slug validation: alphanumeric with hyphens and underscores
   // Prevent excessively long slugs that might be attacks
-  const slugRegex = /^[a-z0-9-_]{1,100}$/;
-  return slugRegex.test(slug);
+  const slugRegex = /^[a-z0-9-_]{1,100}$/
+  return slugRegex.test(slug)
 }
 
 async function getProduct(slug: string) {
   // Validate slug format to prevent potential issues
   if (!isValidSlug(slug)) {
-    return null;
+    return null
   }
 
   try {
@@ -180,7 +180,7 @@ async function getProduct(slug: string) {
           },
         },
       },
-    });
+    })
 
     if (!product) {
       // Product not found for this slug
@@ -188,10 +188,10 @@ async function getProduct(slug: string) {
       // Product successfully found
     }
 
-    return product;
+    return product
   } catch (error) {
     // Error fetching product from database
-    return null;
+    return null
   }
 }
 
@@ -200,60 +200,60 @@ async function getProductConfiguration(productId: string) {
   try {
     // Use fetch to call the API endpoint
     // In Docker, use internal port; works in both dev and production
-    const apiUrl = `http://localhost:3002/api/products/${productId}/configuration`;
+    const apiUrl = `http://localhost:3002/api/products/${productId}/configuration`
 
     const response = await fetch(apiUrl, {
       cache: 'no-store', // Don't cache during SSR
       headers: {
         'Content-Type': 'application/json',
       },
-    });
+    })
 
     if (!response.ok) {
-      console.error('[ProductPage] API returned error status:', response.status);
-      return null;
+      console.error('[ProductPage] API returned error status:', response.status)
+      return null
     }
 
-    const configuration = await response.json();
+    const configuration = await response.json()
 
-    return configuration;
+    return configuration
   } catch (error) {
-    console.error('[ProductPage] Error fetching configuration:', error);
-    return null;
+    console.error('[ProductPage] Error fetching configuration:', error)
+    return null
   }
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   // Await params to fix Next.js 15 warning
-  const { slug } = await params;
+  const { slug } = await params
 
   // Validate slug before processing
   if (!slug || typeof slug !== 'string') {
-    notFound();
+    notFound()
   }
 
   // Fetch product data on the server
-  const product = await getProduct(slug);
+  const product = await getProduct(slug)
 
   if (!product) {
-    notFound();
+    notFound()
   }
 
   // TEMPORARY FIX (Oct 18, 2025): Server-side fetch doesn't work in Docker (localhost:3002 unreachable)
   // Reverting to client-side fetch - component has robust fallback with 10s timeout
   // See: docs/CRITICAL-REACT-HYDRATION-FIX-2025-10-18.md
-  const configuration = null;
+  const configuration = null
 
   // Try to get AI-generated SEO content (with timeout/fallback)
-  let seoContent: string | null = null;
+  let seoContent: string | null = null
   try {
     seoContent = await getApprovedProductSEO(
       product.id,
       product.City?.name,
       product.City?.stateCode
-    );
+    )
   } catch (error) {
-    console.warn('[ProductPage] Failed to fetch SEO content:', error);
+    console.warn('[ProductPage] Failed to fetch SEO content:', error)
   }
 
   // Transform the product data to match client component expectations
@@ -286,13 +286,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     // Use AI-generated SEO content if available, otherwise fallback to database description
     description: seoContent || product.description || '',
     shortDescription: product.shortDescription || '',
-  };
+  }
 
   // Serialize configuration to ensure it's JSON-compatible for client hydration
-  const serializedConfiguration = configuration ? JSON.parse(JSON.stringify(configuration)) : null;
+  const serializedConfiguration = configuration ? JSON.parse(JSON.stringify(configuration)) : null
 
   // Generate JSON-LD structured data for SEO and AI
-  const schemas = generateAllProductSchemas(transformedProduct as any);
+  const schemas = generateAllProductSchemas(transformedProduct as any)
 
   // Build breadcrumbs
   const breadcrumbs = product.ProductCategory
@@ -303,7 +303,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         },
         { label: product.name, href: `/products/${product.slug}` },
       ]
-    : [{ label: product.name, href: `/products/${product.slug}` }];
+    : [{ label: product.name, href: `/products/${product.slug}` }]
 
   // Pass the server-fetched data to the client component with error boundary
   return (
@@ -331,5 +331,5 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         />
       </div>
     </>
-  );
+  )
 }

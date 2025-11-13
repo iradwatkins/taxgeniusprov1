@@ -1,7 +1,7 @@
-'use client';
+'use client'
 
-import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, use } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
   Package,
@@ -12,99 +12,99 @@ import {
   Share2,
   Plane,
   MapPin,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import Link from 'next/link';
-import { format } from '@/lib/date';
-import { TrackingButton, TrackingLink } from '@/components/tracking/tracking-button';
-import { formatTrackingNumber, getCarrierName } from '@/lib/tracking';
-import toast from '@/lib/toast';
-import { CustomerOrderFiles } from '@/components/customer/order-files';
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import Link from 'next/link'
+import { format } from '@/lib/date'
+import { TrackingButton, TrackingLink } from '@/components/tracking/tracking-button'
+import { formatTrackingNumber, getCarrierName } from '@/lib/tracking'
+import toast from '@/lib/toast'
+import { CustomerOrderFiles } from '@/components/customer/order-files'
 
 interface OrderDetail {
-  id: string;
-  orderNumber: string;
-  referenceNumber?: string;
-  status: string;
-  total: number;
-  subtotal: number;
-  tax: number;
-  shipping: number;
-  shippingMethod?: string;
-  shippingRate?: Record<string, unknown>;
-  selectedAirportId?: string;
+  id: string
+  orderNumber: string
+  referenceNumber?: string
+  status: string
+  total: number
+  subtotal: number
+  tax: number
+  shipping: number
+  shippingMethod?: string
+  shippingRate?: Record<string, unknown>
+  selectedAirportId?: string
   selectedAirport?: {
-    id: string;
-    code: string;
-    name: string;
-    address: string;
-    city: string;
-    state: string;
-    zip: string;
-    hours: Record<string, unknown>;
-    operator?: string;
-  };
-  trackingNumber?: string;
-  carrier?: Record<string, unknown>;
-  createdAt: string;
-  paidAt?: string;
-  shippingAddress: Record<string, unknown>;
-  billingAddress?: Record<string, unknown>;
+    id: string
+    code: string
+    name: string
+    address: string
+    city: string
+    state: string
+    zip: string
+    hours: Record<string, unknown>
+    operator?: string
+  }
+  trackingNumber?: string
+  carrier?: Record<string, unknown>
+  createdAt: string
+  paidAt?: string
+  shippingAddress: Record<string, unknown>
+  billingAddress?: Record<string, unknown>
   OrderItem: Array<{
-    id: string;
-    productName: string;
-    productSku: string;
-    quantity: number;
-    price: number;
-    options?: Record<string, unknown>;
-  }>;
+    id: string
+    productName: string
+    productSku: string
+    quantity: number
+    price: number
+    options?: Record<string, unknown>
+  }>
 }
 
 export default function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
-  const router = useRouter();
-  const [order, setOrder] = useState<OrderDetail | null>(null);
-  const [loading, setLoading] = useState(true);
+  const resolvedParams = use(params)
+  const router = useRouter()
+  const [order, setOrder] = useState<OrderDetail | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchOrderDetails();
-  }, [resolvedParams.id]);
+    fetchOrderDetails()
+  }, [resolvedParams.id])
 
   const fetchOrderDetails = async () => {
     try {
-      const response = await fetch(`/api/orders/${resolvedParams.id}`);
+      const response = await fetch(`/api/orders/${resolvedParams.id}`)
       if (response.ok) {
-        const data = await response.json();
-        setOrder(data);
+        const data = await response.json()
+        setOrder(data)
       } else {
-        toast.error('Failed to load order details');
-        router.push('/account/orders');
+        toast.error('Failed to load order details')
+        router.push('/account/orders')
       }
     } catch (error) {
-      toast.error('Failed to load order details');
+      toast.error('Failed to load order details')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleShareTracking = () => {
     if (order?.trackingNumber && order?.carrier) {
-      const trackingUrl = `${window.location.origin}/track?carrier=${order.carrier}&tracking=${order.trackingNumber}`;
-      navigator.clipboard.writeText(trackingUrl);
-      toast.success('Tracking link copied to clipboard!');
+      const trackingUrl = `${window.location.origin}/track?carrier=${order.carrier}&tracking=${order.trackingNumber}`
+      navigator.clipboard.writeText(trackingUrl)
+      toast.success('Tracking link copied to clipboard!')
     }
-  };
+  }
 
   const handleCopyTrackingNumber = () => {
     if (order?.trackingNumber && order?.carrier) {
-      const formattedNumber = formatTrackingNumber(order.carrier, order.trackingNumber);
-      navigator.clipboard.writeText(formattedNumber);
-      toast.success('Tracking number copied!');
+      const formattedNumber = formatTrackingNumber(order.carrier, order.trackingNumber)
+      navigator.clipboard.writeText(formattedNumber)
+      toast.success('Tracking number copied!')
     }
-  };
+  }
 
   const getStatusColor = (status: string) => {
     const statusColors: Record<string, string> = {
@@ -116,9 +116,9 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       DELIVERED: 'bg-green-100 text-green-800',
       CANCELLED: 'bg-red-100 text-red-800',
       REFUNDED: 'bg-gray-100 text-gray-800',
-    };
-    return statusColors[status] || 'bg-gray-100 text-gray-800';
-  };
+    }
+    return statusColors[status] || 'bg-gray-100 text-gray-800'
+  }
 
   if (loading) {
     return (
@@ -128,7 +128,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
           <div className="h-64 bg-gray-300 rounded"></div>
         </div>
       </div>
-    );
+    )
   }
 
   if (!order) {
@@ -136,7 +136,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       <div className="container mx-auto px-4 py-8">
         <p>Order not found</p>
       </div>
-    );
+    )
   }
 
   return (
@@ -408,5 +408,5 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         <Button>Reorder Items</Button>
       </div>
     </div>
-  );
+  )
 }

@@ -5,40 +5,40 @@
  * for replication to underperformers
  */
 
-import { prisma } from '@/lib/prisma';
-import { ollamaClient } from './ollama-client';
+import { prisma } from '@/lib/prisma'
+import { ollamaClient } from './ollama-client'
 
 export interface WinnerPattern {
-  patternName: string;
+  patternName: string
   contentStructure: {
-    introLength: string;
-    benefitsCount: number;
-    faqCount: number;
-    localMentions: number;
-  };
+    introLength: string
+    benefitsCount: number
+    faqCount: number
+    localMentions: number
+  }
   seoStructure: {
-    titleFormat: string;
-    keywordDensity: string;
-    h2Count: number;
-  };
+    titleFormat: string
+    keywordDensity: string
+    h2Count: number
+  }
   conversionElements: {
-    ctaPlacement: string[];
-    priceDisplay: string;
-    urgencyTactic: string;
-  };
+    ctaPlacement: string[]
+    priceDisplay: string
+    urgencyTactic: string
+  }
 }
 
 /**
  * Analyze top performers and extract patterns
  */
 export async function analyzeWinners(params: { campaignId: string; topCount?: number }): Promise<{
-  success: boolean;
-  pattern?: WinnerPattern;
-  sourceCities?: string[];
-  avgScore?: number;
+  success: boolean
+  pattern?: WinnerPattern
+  sourceCities?: string[]
+  avgScore?: number
 }> {
   try {
-    const { campaignId, topCount = 10 } = params;
+    const { campaignId, topCount = 10 } = params
 
     // Get top performing city pages
     const topPages = await prisma.cityLandingPage.findMany({
@@ -52,19 +52,19 @@ export async function analyzeWinners(params: { campaignId: string; topCount?: nu
         revenue: 'desc',
       },
       take: topCount,
-    });
+    })
 
     if (topPages.length === 0) {
-      return { success: false };
+      return { success: false }
     }
 
     // Calculate performance scores
     const pagesWithScores = topPages.map((page) => ({
       ...page,
       score: calculatePerformanceScore(page),
-    }));
+    }))
 
-    const avgScore = pagesWithScores.reduce((sum, p) => sum + p.score, 0) / pagesWithScores.length;
+    const avgScore = pagesWithScores.reduce((sum, p) => sum + p.score, 0) / pagesWithScores.length
 
     // Prepare data for AI analysis
     const pagesData = pagesWithScores.map((page) => ({
@@ -77,14 +77,14 @@ export async function analyzeWinners(params: { campaignId: string; topCount?: nu
       intro: page.aiIntro?.substring(0, 500), // First 500 chars
       benefitsCount: page.aiBenefits?.split('\n').length || 0,
       faqCount: Array.isArray(page.faqSchema) ? page.faqSchema.length : 0,
-    }));
+    }))
 
     // Ask AI to extract patterns
-    const prompt = generatePatternExtractionPrompt(pagesData);
+    const prompt = generatePatternExtractionPrompt(pagesData)
     const patternData = await ollamaClient.generateJSON<WinnerPattern>({
       prompt,
       temperature: 0.3, // Lower temperature for more consistent analysis
-    });
+    })
 
     // Save pattern to database
     await prisma.cityWinnerPattern.create({
@@ -103,17 +103,17 @@ export async function analyzeWinners(params: { campaignId: string; topCount?: nu
         confidence: 85, // Default confidence
         sampleSize: topPages.length,
       },
-    });
+    })
 
     return {
       success: true,
       pattern: patternData,
       sourceCities: pagesData.map((p) => p.city),
       avgScore,
-    };
+    }
   } catch (error) {
-    console.error('[Winner Analyzer] Error:', error);
-    return { success: false };
+    console.error('[Winner Analyzer] Error:', error)
+    return { success: false }
   }
 }
 
@@ -121,16 +121,16 @@ export async function analyzeWinners(params: { campaignId: string; topCount?: nu
  * Calculate performance score for a page
  */
 function calculatePerformanceScore(page: any): number {
-  const conversions = page._count?.orders || 0;
-  const views = page.views || 0;
-  const revenue = page.revenue?.toNumber() || 0;
+  const conversions = page._count?.orders || 0
+  const views = page.views || 0
+  const revenue = page.revenue?.toNumber() || 0
 
   // Weighted score: conversions (50%) + views (30%) + revenue (20%)
-  const conversionScore = Math.min(100, (conversions / 10) * 100);
-  const viewScore = Math.min(100, (views / 500) * 100);
-  const revenueScore = Math.min(100, (revenue / 1000) * 100);
+  const conversionScore = Math.min(100, (conversions / 10) * 100)
+  const viewScore = Math.min(100, (views / 500) * 100)
+  const revenueScore = Math.min(100, (revenue / 1000) * 100)
 
-  return conversionScore * 0.5 + viewScore * 0.3 + revenueScore * 0.2;
+  return conversionScore * 0.5 + viewScore * 0.3 + revenueScore * 0.2
 }
 
 /**
@@ -172,5 +172,5 @@ OUTPUT FORMAT (JSON only, no explanation):
   }
 }
 
-Extract the pattern now (JSON only):`;
+Extract the pattern now (JSON only):`
 }

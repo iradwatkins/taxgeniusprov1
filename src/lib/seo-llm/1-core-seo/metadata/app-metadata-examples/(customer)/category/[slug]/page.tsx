@@ -1,23 +1,23 @@
-import { Suspense } from 'react';
-import { notFound } from 'next/navigation';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Package, Grid3x3, ArrowRight } from 'lucide-react';
-import { prisma } from '@/lib/prisma';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Breadcrumbs, BreadcrumbSchema } from '@/components/customer/breadcrumbs';
-import { generateCategoryMetadata } from '@/lib/seo/metadata';
-import { generateCategorySchema } from '@/lib/seo/schema';
+import { Suspense } from 'react'
+import { notFound } from 'next/navigation'
+import Image from 'next/image'
+import Link from 'next/link'
+import { Package, Grid3x3, ArrowRight } from 'lucide-react'
+import { prisma } from '@/lib/prisma'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Breadcrumbs, BreadcrumbSchema } from '@/components/customer/breadcrumbs'
+import { generateCategoryMetadata } from '@/lib/seo/metadata'
+import { generateCategorySchema } from '@/lib/seo/schema'
 
 interface CategoryPageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string }>
 }
 
 // Generate metadata for SEO
 export async function generateMetadata({ params }: CategoryPageProps) {
-  const { slug } = await params;
+  const { slug } = await params
 
   const category = await prisma.productCategory.findUnique({
     where: { slug },
@@ -30,12 +30,12 @@ export async function generateMetadata({ params }: CategoryPageProps) {
       seoKeywords: true,
       imageUrl: true,
     },
-  });
+  })
 
   if (!category) {
     return {
       title: 'Category Not Found',
-    };
+    }
   }
 
   return generateCategoryMetadata(
@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: CategoryPageProps) {
     category.metaTitle || undefined,
     category.seoKeywords,
     category.imageUrl || undefined
-  );
+  )
 }
 
 // Generate static params for all active categories (ISR optimization)
@@ -54,15 +54,15 @@ export async function generateStaticParams() {
     const categories = await prisma.productCategory.findMany({
       where: { isActive: true },
       select: { slug: true },
-    });
+    })
 
     return categories.map((category) => ({
       slug: category.slug,
-    }));
+    }))
   } catch (error) {
     // During build time, database might not be available
-    console.warn('Could not fetch categories for static generation:', error);
-    return [];
+    console.warn('Could not fetch categories for static generation:', error)
+    return []
   }
 }
 
@@ -102,21 +102,21 @@ async function getCategoryData(slug: string) {
         select: { Product: true },
       },
     },
-  });
+  })
 
-  return category;
+  return category
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  const { slug } = await params;
+  const { slug } = await params
 
-  const category = await getCategoryData(slug);
+  const category = await getCategoryData(slug)
 
   if (!category || !category.isActive) {
-    notFound();
+    notFound()
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gangrunprinting.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gangrunprinting.com'
 
   // Build breadcrumbs
   const breadcrumbs = category.ParentCategory
@@ -124,7 +124,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         { label: category.ParentCategory.name, href: `/category/${category.ParentCategory.slug}` },
         { label: category.name, href: `/category/${category.slug}` },
       ]
-    : [{ label: category.name, href: `/category/${category.slug}` }];
+    : [{ label: category.name, href: `/category/${category.slug}` }]
 
   // Generate schema.org data
   const categorySchema = generateCategorySchema(
@@ -137,7 +137,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       productCount: category._count.Product,
     },
     baseUrl
-  );
+  )
 
   return (
     <>
@@ -254,8 +254,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   }
                 >
                   {category.Product.map((product) => {
-                    const productImage = product.ProductImage[0]?.Image;
-                    const imageUrl = productImage?.thumbnailUrl || productImage?.url;
+                    const productImage = product.ProductImage[0]?.Image
+                    const imageUrl = productImage?.thumbnailUrl || productImage?.url
 
                     return (
                       <Link key={product.id} href={`/products/${product.slug}`}>
@@ -298,7 +298,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                           </CardContent>
                         </Card>
                       </Link>
-                    );
+                    )
                   })}
                 </Suspense>
               </div>
@@ -307,5 +307,5 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         </div>
       </div>
     </>
-  );
+  )
 }

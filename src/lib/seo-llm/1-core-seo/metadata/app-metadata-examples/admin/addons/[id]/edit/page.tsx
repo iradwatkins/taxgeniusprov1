@@ -1,29 +1,29 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import toast from '@/lib/toast';
-import { ArrowLeft, Save, Loader2 } from 'lucide-react';
-import { use } from 'react';
+} from '@/components/ui/select'
+import toast from '@/lib/toast'
+import { ArrowLeft, Save, Loader2 } from 'lucide-react'
+import { use } from 'react'
 
 export default function EditAddonPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [fetchLoading, setFetchLoading] = useState(true);
+  const resolvedParams = use(params)
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [fetchLoading, setFetchLoading] = useState(true)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -38,40 +38,40 @@ export default function EditAddonPage({ params }: { params: Promise<{ id: string
     percentage: 0,
     perPieceRate: 0,
     baseFee: 0,
-  });
+  })
 
   useEffect(() => {
-    fetchAddon();
-  }, []);
+    fetchAddon()
+  }, [])
 
   const fetchAddon = async () => {
     try {
-      const response = await fetch(`/api/addons/${resolvedParams.id}`);
-      if (!response.ok) throw new Error('Failed to fetch addon');
+      const response = await fetch(`/api/addons/${resolvedParams.id}`)
+      if (!response.ok) throw new Error('Failed to fetch addon')
 
-      const addon = await response.json();
+      const addon = await response.json()
 
       // Parse configuration based on pricing model
-      const config = addon.configuration || {};
+      const config = addon.configuration || {}
       let flatFee = 0,
         percentage = 0,
         perPieceRate = 0,
-        baseFee = 0;
+        baseFee = 0
 
       switch (addon.pricingModel) {
         case 'FLAT':
-          flatFee = config.flatFee || 0;
-          break;
+          flatFee = config.flatFee || 0
+          break
         case 'PERCENTAGE':
-          percentage = (config.percentage || 0) * 100;
-          break;
+          percentage = (config.percentage || 0) * 100
+          break
         case 'PER_UNIT':
-          perPieceRate = config.perPieceRate || 0;
-          break;
+          perPieceRate = config.perPieceRate || 0
+          break
         case 'CUSTOM':
-          baseFee = config.baseFee || 0;
-          perPieceRate = config.perPieceRate || 0;
-          break;
+          baseFee = config.baseFee || 0
+          perPieceRate = config.perPieceRate || 0
+          break
       }
 
       setFormData({
@@ -87,46 +87,46 @@ export default function EditAddonPage({ params }: { params: Promise<{ id: string
         percentage,
         perPieceRate,
         baseFee,
-      });
+      })
     } catch (error) {
-      toast.error('Failed to load addon');
-      router.push('/admin/addons');
+      toast.error('Failed to load addon')
+      router.push('/admin/addons')
     } finally {
-      setFetchLoading(false);
+      setFetchLoading(false)
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!formData.name || !formData.pricingModel) {
-      toast.error('Please fill in required fields');
-      return;
+      toast.error('Please fill in required fields')
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
 
     try {
       // Build configuration based on pricing model
-      let configuration: any = {};
+      let configuration: any = {}
 
       switch (formData.pricingModel) {
         case 'FLAT':
-          configuration = { flatFee: formData.flatFee };
-          break;
+          configuration = { flatFee: formData.flatFee }
+          break
         case 'PERCENTAGE':
-          configuration = { percentage: formData.percentage / 100, appliesTo: 'base_price' };
-          break;
+          configuration = { percentage: formData.percentage / 100, appliesTo: 'base_price' }
+          break
         case 'PER_UNIT':
-          configuration = { perPieceRate: formData.perPieceRate };
-          break;
+          configuration = { perPieceRate: formData.perPieceRate }
+          break
         case 'CUSTOM':
           configuration = {
             baseFee: formData.baseFee,
             perPieceRate: formData.perPieceRate,
             formula: `$${formData.baseFee} + $${formData.perPieceRate}/piece`,
-          };
-          break;
+          }
+          break
       }
 
       const payload = {
@@ -139,28 +139,28 @@ export default function EditAddonPage({ params }: { params: Promise<{ id: string
         sortOrder: formData.sortOrder,
         isActive: formData.isActive,
         adminNotes: formData.adminNotes || null,
-      };
+      }
 
       const response = await fetch(`/api/addons/${resolvedParams.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-      });
+      })
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to update addon');
+        throw new Error(result.error || 'Failed to update addon')
       }
 
-      toast.success('Addon updated successfully!');
-      router.push('/admin/addons');
+      toast.success('Addon updated successfully!')
+      router.push('/admin/addons')
     } catch (error) {
-      toast.error((error as Error).message || 'Failed to update addon');
+      toast.error((error as Error).message || 'Failed to update addon')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   if (fetchLoading) {
     return (
@@ -172,7 +172,7 @@ export default function EditAddonPage({ params }: { params: Promise<{ id: string
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   return (
@@ -424,5 +424,5 @@ export default function EditAddonPage({ params }: { params: Promise<{ id: string
         </Card>
       </form>
     </div>
-  );
+  )
 }

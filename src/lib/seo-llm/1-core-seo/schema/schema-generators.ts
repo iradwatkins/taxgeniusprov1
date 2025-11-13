@@ -11,28 +11,28 @@
  */
 
 interface City {
-  id: string;
-  name: string;
-  stateCode: string;
+  id: string
+  name: string
+  stateCode: string
 }
 
 interface ProductForSchema {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  shortDescription: string | null;
-  basePrice: number;
-  ProductImage?: Array<{ Image?: { url: string } }>;
-  City?: City | null;
-  seoFaqs?: Array<{ question: string; answer: string }> | null;
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  shortDescription: string | null
+  basePrice: number
+  ProductImage?: Array<{ Image?: { url: string } }>
+  City?: City | null
+  seoFaqs?: Array<{ question: string; answer: string }> | null
 }
 
 export function generateProductSchema(
   product: ProductForSchema,
   siteUrl: string = 'https://gangrunprinting.com'
 ) {
-  const imageUrl = product.ProductImage?.[0]?.Image?.url || `${siteUrl}/default-product.jpg`;
+  const imageUrl = product.ProductImage?.[0]?.Image?.url || `${siteUrl}/default-product.jpg`
 
   return {
     '@context': 'https://schema.org/',
@@ -106,11 +106,11 @@ export function generateProductSchema(
           },
         }
       : {}),
-  };
+  }
 }
 
 export function generateFAQSchema(faqs: Array<{ question: string; answer: string }>) {
-  if (!faqs || faqs.length === 0) return null;
+  if (!faqs || faqs.length === 0) return null
 
   return {
     '@context': 'https://schema.org',
@@ -123,14 +123,14 @@ export function generateFAQSchema(faqs: Array<{ question: string; answer: string
         text: faq.answer,
       },
     })),
-  };
+  }
 }
 
 export function generateLocalBusinessSchema(
   product: ProductForSchema,
   siteUrl: string = 'https://gangrunprinting.com'
 ) {
-  if (!product.City) return null;
+  if (!product.City) return null
 
   return {
     '@context': 'https://schema.org',
@@ -170,7 +170,7 @@ export function generateLocalBusinessSchema(
         closes: '18:00',
       },
     ],
-  };
+  }
 }
 
 export function generateOrganizationSchema(siteUrl: string = 'https://gangrunprinting.com') {
@@ -199,7 +199,7 @@ export function generateOrganizationSchema(siteUrl: string = 'https://gangrunpri
       'https://wa.me/18774264786', // WhatsApp business
       'sms:+18774264786', // SMS for mobile sharing
     ],
-  };
+  }
 }
 
 /**
@@ -232,7 +232,7 @@ export function generateBreadcrumbSchema(
         item: `${siteUrl}/products/${product.slug}`,
       },
     ],
-  };
+  }
 }
 
 /**
@@ -274,7 +274,7 @@ export function generateHowToSchema(
         text: 'Professional printing with quality checks. Free shipping over $50. Track delivery in real-time.',
       },
     ],
-  };
+  }
 }
 
 /**
@@ -282,15 +282,15 @@ export function generateHowToSchema(
  */
 export function generateReviewSchema(
   testimonials: Array<{
-    quote: string;
-    author: string;
-    location: string;
-    rating: number;
-    date?: string;
+    quote: string
+    author: string
+    location: string
+    rating: number
+    date?: string
   }>,
   productName: string
 ) {
-  if (!testimonials || testimonials.length === 0) return [];
+  if (!testimonials || testimonials.length === 0) return []
 
   return testimonials.map((testimonial) => ({
     '@type': 'Review',
@@ -310,7 +310,7 @@ export function generateReviewSchema(
       '@type': 'Product',
       name: productName,
     },
-  }));
+  }))
 }
 
 /**
@@ -325,13 +325,13 @@ export function generateAllProductSchemas(
     generateOrganizationSchema(siteUrl),
     generateBreadcrumbSchema(product, siteUrl),
     generateHowToSchema(product.name, siteUrl),
-  ];
+  ]
 
-  const faqSchema = product.seoFaqs ? generateFAQSchema(product.seoFaqs) : null;
-  if (faqSchema) schemas.push(faqSchema);
+  const faqSchema = product.seoFaqs ? generateFAQSchema(product.seoFaqs) : null
+  if (faqSchema) schemas.push(faqSchema)
 
-  const localBusinessSchema = generateLocalBusinessSchema(product, siteUrl);
-  if (localBusinessSchema) schemas.push(localBusinessSchema);
+  const localBusinessSchema = generateLocalBusinessSchema(product, siteUrl)
+  if (localBusinessSchema) schemas.push(localBusinessSchema)
 
-  return schemas;
+  return schemas
 }

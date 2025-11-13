@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { z } from 'zod'
 
 // Schema for reordering items
 const reorderSchema = z.object({
@@ -10,22 +10,22 @@ const reorderSchema = z.object({
       sortOrder: z.number().int().min(0),
     })
   ),
-});
+})
 
 // PUT - Reorder paper stocks within a set
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
-    const body = await request.json();
-    const validatedData = reorderSchema.parse(body);
+    const { id } = await params
+    const body = await request.json()
+    const validatedData = reorderSchema.parse(body)
 
     // Check if set exists
     const group = await prisma.paperStockSet.findUnique({
       where: { id },
-    });
+    })
 
     if (!group) {
-      return NextResponse.json({ error: 'Paper stock set not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Paper stock set not found' }, { status: 404 })
     }
 
     // Update sort orders in a transaction
@@ -43,7 +43,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
           },
         })
       )
-    );
+    )
 
     // Return the updated set
     const updatedGroup = await prisma.paperStockSet.findUnique({
@@ -58,17 +58,17 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
           },
         },
       },
-    });
+    })
 
-    return NextResponse.json(updatedGroup);
+    return NextResponse.json(updatedGroup)
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Validation error', details: error.issues },
         { status: 400 }
-      );
+      )
     }
 
-    return NextResponse.json({ error: 'Failed to reorder paper stock set items' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to reorder paper stock set items' }, { status: 500 })
   }
 }

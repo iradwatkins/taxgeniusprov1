@@ -1,7 +1,7 @@
-'use client';
+'use client'
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import {
   BarChart3,
   CreditCard,
@@ -13,9 +13,9 @@ import {
   Settings,
   ShoppingCart,
   Users,
-} from 'lucide-react';
+} from 'lucide-react'
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils'
 
 const items = [
   {
@@ -73,15 +73,15 @@ const items = [
     href: '/admin/settings',
     icon: Settings,
   },
-];
+]
 
 export function DashboardNav() {
-  const pathname = usePathname();
+  const pathname = usePathname()
 
   return (
     <nav className="grid items-start gap-2 p-4">
       {items.map((item) => {
-        const Icon = item.icon;
+        const Icon = item.icon
         return (
           <Link
             key={item.href}
@@ -96,8 +96,8 @@ export function DashboardNav() {
             <Icon className="h-4 w-4" />
             {item.title}
           </Link>
-        );
+        )
       })}
     </nav>
-  );
+  )
 }

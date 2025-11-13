@@ -1,51 +1,51 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { z } from 'zod'
 
 // Validation schema
 const assignTurnaroundTimeSetSchema = z.object({
   turnaroundTimeSetId: z.string().min(1, 'Turnaround time set ID is required'),
   isDefault: z.boolean().optional().default(false),
-});
+})
 
 // POST /api/products/[id]/turnaround-time-set - Assign a turnaround time set to a product
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id: productId } = await params;
+    const { id: productId } = await params
 
     if (!productId) {
-      return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Product ID is required' }, { status: 400 })
     }
 
     // Parse and validate request body
-    const body = await request.json();
-    const validated = assignTurnaroundTimeSetSchema.safeParse(body);
+    const body = await request.json()
+    const validated = assignTurnaroundTimeSetSchema.safeParse(body)
 
     if (!validated.success) {
       return NextResponse.json(
         { error: 'Validation failed', details: validated.error.issues },
         { status: 400 }
-      );
+      )
     }
 
-    const { turnaroundTimeSetId, isDefault } = validated.data;
+    const { turnaroundTimeSetId, isDefault } = validated.data
 
     // Verify product exists
     const product = await prisma.product.findUnique({
       where: { id: productId },
-    });
+    })
 
     if (!product) {
-      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
     // Verify turnaround time set exists
     const turnaroundTimeSet = await prisma.turnaroundTimeSet.findUnique({
       where: { id: turnaroundTimeSetId },
-    });
+    })
 
     if (!turnaroundTimeSet) {
-      return NextResponse.json({ error: 'Turnaround time set not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Turnaround time set not found' }, { status: 404 })
     }
 
     // Create or update the assignment
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           },
         },
       },
-    });
+    })
 
     // If this is set as default, update other assignments for this product
     if (isDefault) {
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         data: {
           isDefault: false,
         },
-      });
+      })
     }
 
     return NextResponse.json(
@@ -99,22 +99,22 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         data: productTurnaroundTimeSet,
       },
       { status: 200 }
-    );
+    )
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to assign turnaround time set', details: error },
       { status: 500 }
-    );
+    )
   }
 }
 
 // GET /api/products/[id]/turnaround-time-set - Get assigned turnaround time sets for a product
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id: productId } = await params;
+    const { id: productId } = await params
 
     if (!productId) {
-      return NextResponse.json({ error: 'Product ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Product ID is required' }, { status: 400 })
     }
 
     const productTurnaroundTimeSets = await prisma.productTurnaroundTimeSet.findMany({
@@ -134,7 +134,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         },
       },
       orderBy: [{ isDefault: 'desc' }, { createdAt: 'asc' }],
-    });
+    })
 
     return NextResponse.json(
       {
@@ -142,12 +142,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         data: productTurnaroundTimeSets,
       },
       { status: 200 }
-    );
+    )
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to fetch turnaround time sets', details: error },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -157,15 +157,15 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: productId } = await params;
-    const { searchParams } = new URL(request.url);
-    const turnaroundTimeSetId = searchParams.get('turnaroundTimeSetId');
+    const { id: productId } = await params
+    const { searchParams } = new URL(request.url)
+    const turnaroundTimeSetId = searchParams.get('turnaroundTimeSetId')
 
     if (!productId || !turnaroundTimeSetId) {
       return NextResponse.json(
         { error: 'Product ID and Turnaround Time Set ID are required' },
         { status: 400 }
-      );
+      )
     }
 
     const deleted = await prisma.productTurnaroundTimeSet.delete({
@@ -175,7 +175,7 @@ export async function DELETE(
           turnaroundTimeSetId,
         },
       },
-    });
+    })
 
     return NextResponse.json(
       {
@@ -183,11 +183,11 @@ export async function DELETE(
         data: deleted,
       },
       { status: 200 }
-    );
+    )
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to remove turnaround time set', details: error },
       { status: 500 }
-    );
+    )
   }
 }

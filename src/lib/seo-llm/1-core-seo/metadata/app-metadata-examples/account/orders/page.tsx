@@ -1,44 +1,44 @@
-import { Suspense } from 'react';
-import { redirect } from 'next/navigation';
-import { validateRequest } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import AccountWrapper from '@/components/account/account-wrapper';
-import { OrdersList } from '@/components/account/orders-list';
-import { OrdersListSkeleton } from '@/components/account/orders-list-skeleton';
+import { Suspense } from 'react'
+import { redirect } from 'next/navigation'
+import { validateRequest } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import AccountWrapper from '@/components/account/account-wrapper'
+import { OrdersList } from '@/components/account/orders-list'
+import { OrdersListSkeleton } from '@/components/account/orders-list-skeleton'
 
 // Force dynamic rendering for real-time data
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 interface PageProps {
   searchParams: Promise<{
-    status?: string;
-    search?: string;
-    sort?: string;
-    page?: string;
-    startDate?: string;
-    endDate?: string;
-  }>;
+    status?: string
+    search?: string
+    sort?: string
+    page?: string
+    startDate?: string
+    endDate?: string
+  }>
 }
 
 export default async function OrdersPage({ searchParams }: PageProps) {
   // Authenticate user
-  const { user } = await validateRequest();
+  const { user } = await validateRequest()
 
   if (!user) {
-    redirect('/auth/signin?from=/account/orders');
+    redirect('/auth/signin?from=/account/orders')
   }
 
   // Await search params
-  const params = await searchParams;
+  const params = await searchParams
 
   // Parse query parameters
-  const statusFilter = params.status || 'all';
-  const searchQuery = params.search || '';
-  const sortBy = params.sort || 'date_desc';
-  const page = parseInt(params.page || '1', 10);
-  const startDate = params.startDate;
-  const endDate = params.endDate;
+  const statusFilter = params.status || 'all'
+  const searchQuery = params.search || ''
+  const sortBy = params.sort || 'date_desc'
+  const page = parseInt(params.page || '1', 10)
+  const startDate = params.startDate
+  const endDate = params.endDate
 
   // Fetch user's orders with related data
   const ordersRaw = await prisma.order.findMany({
@@ -51,7 +51,7 @@ export default async function OrdersPage({ searchParams }: PageProps) {
     orderBy: {
       createdAt: 'desc',
     },
-  });
+  })
 
   // Serialize dates for client component
   const orders = ordersRaw.map((order) => ({
@@ -64,7 +64,7 @@ export default async function OrdersPage({ searchParams }: PageProps) {
       ...item,
       createdAt: item.createdAt.toISOString(),
     })),
-  }));
+  }))
 
   return (
     <AccountWrapper>
@@ -88,5 +88,5 @@ export default async function OrdersPage({ searchParams }: PageProps) {
         </Suspense>
       </div>
     </AccountWrapper>
-  );
+  )
 }

@@ -1,11 +1,11 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { validateRequest } from '@/lib/auth';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { validateRequest } from '@/lib/auth'
 
 // GET /api/turnaround-time-sets/[id] - Get a single turnaround time set
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
+    const { id } = await params
 
     const set = await prisma.turnaroundTimeSet.findUnique({
       where: { id },
@@ -19,28 +19,28 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           },
         },
       },
-    });
+    })
 
     if (!set) {
-      return NextResponse.json({ error: 'Turnaround time set not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Turnaround time set not found' }, { status: 404 })
     }
 
-    return NextResponse.json(set);
+    return NextResponse.json(set)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch turnaround time set' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch turnaround time set' }, { status: 500 })
   }
 }
 
 // PUT /api/turnaround-time-sets/[id] - Update a turnaround time set
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
-    const { user, session } = await validateRequest();
+    const { id } = await params
+    const { user, session } = await validateRequest()
     if (!session || !user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    const body = await request.json();
-    const { name, description, isActive, turnaroundTimeIds } = body;
+    const body = await request.json()
+    const { name, description, isActive, turnaroundTimeIds } = body
 
     // Start a transaction to update the set and its items
     const set = await prisma.$transaction(async (tx) => {
@@ -52,14 +52,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
           description,
           isActive,
         },
-      });
+      })
 
       // If turnaroundTimeIds provided, update the items
       if (turnaroundTimeIds) {
         // Delete existing items
         await tx.turnaroundTimeSetItem.deleteMany({
           where: { turnaroundTimeSetId: id },
-        });
+        })
 
         // Create new items
         await tx.turnaroundTimeSetItem.createMany({
@@ -69,7 +69,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             sortOrder: index,
             isDefault: index === 0,
           })),
-        });
+        })
       }
 
       // Return the updated set with items
@@ -85,12 +85,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             },
           },
         },
-      });
-    });
+      })
+    })
 
-    return NextResponse.json(set);
+    return NextResponse.json(set)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update turnaround time set' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update turnaround time set' }, { status: 500 })
   }
 }
 
@@ -100,16 +100,16 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const { user, session } = await validateRequest();
+    const { id } = await params
+    const { user, session } = await validateRequest()
     if (!session || !user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Check if set is in use by any products
     const productsUsingSet = await prisma.productTurnaroundTimeSet.count({
       where: { turnaroundTimeSetId: id },
-    });
+    })
 
     if (productsUsingSet > 0) {
       return NextResponse.json(
@@ -117,16 +117,16 @@ export async function DELETE(
           error: `This set is used by ${productsUsingSet} product(s). Remove from products before deleting.`,
         },
         { status: 400 }
-      );
+      )
     }
 
     // Delete the set (items will cascade)
     await prisma.turnaroundTimeSet.delete({
       where: { id },
-    });
+    })
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to delete turnaround time set' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to delete turnaround time set' }, { status: 500 })
   }
 }

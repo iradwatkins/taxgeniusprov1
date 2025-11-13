@@ -1,12 +1,12 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { validateRequest } from '@/lib/auth';
-import { cache } from '@/lib/redis';
-import { z } from 'zod';
+import { type NextRequest, NextResponse } from 'next/server'
+import { validateRequest } from '@/lib/auth'
+import { cache } from 'ioredis'
+import { z } from 'zod'
 
 // Schema for invalidation request
 const InvalidateSchema = z.object({
   patterns: z.array(z.string()).min(1, 'At least one pattern is required'),
-});
+})
 
 /**
  * POST /api/cache/invalidate
@@ -26,13 +26,13 @@ const InvalidateSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     // Validate admin access
-    const { user, session } = await validateRequest();
+    const { user, session } = await validateRequest()
     if (!session || !user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized - Admin access required' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized - Admin access required' }, { status: 401 })
     }
 
-    const body = await request.json();
-    const validation = InvalidateSchema.safeParse(body);
+    const body = await request.json()
+    const validation = InvalidateSchema.safeParse(body)
 
     if (!validation.success) {
       return NextResponse.json(
@@ -41,19 +41,19 @@ export async function POST(request: NextRequest) {
           details: validation.error.issues,
         },
         { status: 400 }
-      );
+      )
     }
 
-    const { patterns } = validation.data;
+    const { patterns } = validation.data
 
     // Clear cache for each pattern
-    const results: Record<string, number> = {};
-    let totalCleared = 0;
+    const results: Record<string, number> = {}
+    let totalCleared = 0
 
     for (const pattern of patterns) {
-      const cleared = await cache.clearPattern(pattern);
-      results[pattern] = cleared;
-      totalCleared += cleared;
+      const cleared = await cache.clearPattern(pattern)
+      results[pattern] = cleared
+      totalCleared += cleared
     }
 
     return NextResponse.json({
@@ -61,16 +61,16 @@ export async function POST(request: NextRequest) {
       message: `Cleared ${totalCleared} cache entries`,
       results,
       patterns,
-    });
+    })
   } catch (error) {
-    console.error('[POST /api/cache/invalidate] Error:', error);
+    console.error('[POST /api/cache/invalidate] Error:', error)
     return NextResponse.json(
       {
         error: 'Failed to invalidate cache',
         message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -83,9 +83,9 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     // Validate admin access
-    const { user, session } = await validateRequest();
+    const { user, session } = await validateRequest()
     if (!session || !user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized - Admin access required' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized - Admin access required' }, { status: 401 })
     }
 
     // Return documentation of available cache patterns
@@ -157,9 +157,9 @@ export async function GET() {
           request: { patterns: ['*'] },
         },
       ],
-    });
+    })
   } catch (error) {
-    console.error('[GET /api/cache/invalidate] Error:', error);
-    return NextResponse.json({ error: 'Failed to fetch cache patterns' }, { status: 500 });
+    console.error('[GET /api/cache/invalidate] Error:', error)
+    return NextResponse.json({ error: 'Failed to fetch cache patterns' }, { status: 500 })
   }
 }

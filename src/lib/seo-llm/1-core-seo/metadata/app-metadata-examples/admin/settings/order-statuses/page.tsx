@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 import {
   Plus,
   Edit,
@@ -11,11 +11,11 @@ import {
   XCircle,
   AlertCircle,
   BarChart3,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import Link from 'next/link'
 import {
   Table,
   TableBody,
@@ -23,109 +23,109 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import toast from '@/lib/toast';
-import * as Icons from 'lucide-react';
+} from '@/components/ui/table'
+import toast from '@/lib/toast'
+import * as Icons from 'lucide-react'
 
 interface OrderStatus {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  icon: string;
-  color: string;
-  badgeColor: string;
-  isPaid: boolean;
-  isCore: boolean;
-  includeInReports: boolean;
-  allowDownloads: boolean;
-  sortOrder: number;
-  isActive: boolean;
-  sendEmailOnEnter: boolean;
-  orderCount: number;
-  transitionCount: number;
-  canDelete: boolean;
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  icon: string
+  color: string
+  badgeColor: string
+  isPaid: boolean
+  isCore: boolean
+  includeInReports: boolean
+  allowDownloads: boolean
+  sortOrder: number
+  isActive: boolean
+  sendEmailOnEnter: boolean
+  orderCount: number
+  transitionCount: number
+  canDelete: boolean
   EmailTemplate?: {
-    id: string;
-    name: string;
-  } | null;
+    id: string
+    name: string
+  } | null
 }
 
 interface StatusesResponse {
-  statuses: OrderStatus[];
-  total: number;
-  coreCount: number;
-  customCount: number;
+  statuses: OrderStatus[]
+  total: number
+  coreCount: number
+  customCount: number
 }
 
 export default function OrderStatusesPage() {
-  const [statuses, setStatuses] = useState<OrderStatus[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ total: 0, coreCount: 0, customCount: 0 });
+  const [statuses, setStatuses] = useState<OrderStatus[]>([])
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({ total: 0, coreCount: 0, customCount: 0 })
 
   useEffect(() => {
-    fetchStatuses();
-  }, []);
+    fetchStatuses()
+  }, [])
 
   const fetchStatuses = async () => {
     try {
-      const response = await fetch('/api/admin/order-statuses');
+      const response = await fetch('/api/admin/order-statuses')
       if (response.ok) {
-        const data: StatusesResponse = await response.json();
-        setStatuses(data.statuses);
+        const data: StatusesResponse = await response.json()
+        setStatuses(data.statuses)
         setStats({
           total: data.total,
           coreCount: data.coreCount,
           customCount: data.customCount,
-        });
+        })
       } else {
-        toast.error('Failed to load order statuses');
-        setStatuses([]);
+        toast.error('Failed to load order statuses')
+        setStatuses([])
       }
     } catch (error) {
-      toast.error('Failed to load order statuses');
-      setStatuses([]);
+      toast.error('Failed to load order statuses')
+      setStatuses([])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleDelete = async (status: OrderStatus) => {
     if (status.isCore) {
-      toast.error('Cannot delete core system statuses');
-      return;
+      toast.error('Cannot delete core system statuses')
+      return
     }
 
     if (status.orderCount > 0) {
       toast.error(
         `Cannot delete status with ${status.orderCount} active orders. Please reassign orders first.`
-      );
-      return;
+      )
+      return
     }
 
-    if (!confirm(`Are you sure you want to delete "${status.name}"?`)) return;
+    if (!confirm(`Are you sure you want to delete "${status.name}"?`)) return
 
     try {
       const response = await fetch(`/api/admin/order-statuses/${status.id}`, {
         method: 'DELETE',
-      });
+      })
 
       if (response.ok) {
-        toast.success('Status deleted successfully');
-        fetchStatuses();
+        toast.success('Status deleted successfully')
+        fetchStatuses()
       } else {
-        const error = await response.json();
-        toast.error(error.error || 'Failed to delete status');
+        const error = await response.json()
+        toast.error(error.error || 'Failed to delete status')
       }
     } catch (error) {
-      toast.error('Failed to delete status');
+      toast.error('Failed to delete status')
     }
-  };
+  }
 
   const toggleActive = async (status: OrderStatus) => {
     if (status.isCore) {
-      toast.error('Cannot deactivate core system statuses');
-      return;
+      toast.error('Cannot deactivate core system statuses')
+      return
     }
 
     try {
@@ -133,23 +133,23 @@ export default function OrderStatusesPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isActive: !status.isActive }),
-      });
+      })
 
       if (response.ok) {
-        toast.success(`Status ${!status.isActive ? 'activated' : 'deactivated'}`);
-        fetchStatuses();
+        toast.success(`Status ${!status.isActive ? 'activated' : 'deactivated'}`)
+        fetchStatuses()
       } else {
-        throw new Error('Failed to update status');
+        throw new Error('Failed to update status')
       }
     } catch (error) {
-      toast.error('Failed to update status');
+      toast.error('Failed to update status')
     }
-  };
+  }
 
   const getIconComponent = (iconName: string) => {
-    const IconComponent = (Icons as any)[iconName];
-    return IconComponent ? <IconComponent className="h-4 w-4" /> : <List className="h-4 w-4" />;
-  };
+    const IconComponent = (Icons as any)[iconName]
+    return IconComponent ? <IconComponent className="h-4 w-4" /> : <List className="h-4 w-4" />
+  }
 
   return (
     <div className="space-y-6">
@@ -413,5 +413,5 @@ export default function OrderStatusesPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

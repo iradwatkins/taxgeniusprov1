@@ -1,23 +1,23 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Save } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft, Save } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import Link from 'next/link';
-import toast from '@/lib/toast';
+} from '@/components/ui/select'
+import Link from 'next/link'
+import toast from '@/lib/toast'
 
 // Common Lucide icons for order statuses
 const ICON_OPTIONS = [
@@ -38,7 +38,7 @@ const ICON_OPTIONS = [
   'Zap',
   'Shield',
   'Star',
-];
+]
 
 // Tailwind color options
 const COLOR_OPTIONS = [
@@ -51,7 +51,7 @@ const COLOR_OPTIONS = [
   { label: 'Indigo', value: 'indigo' },
   { label: 'Purple', value: 'purple' },
   { label: 'Pink', value: 'pink' },
-];
+]
 
 // Badge color presets
 const BADGE_COLOR_OPTIONS = [
@@ -83,11 +83,11 @@ const BADGE_COLOR_OPTIONS = [
     label: 'Purple (Process)',
     value: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400',
   },
-];
+]
 
 export default function NewOrderStatusPage() {
-  const router = useRouter();
-  const [saving, setSaving] = useState(false);
+  const router = useRouter()
+  const [saving, setSaving] = useState(false)
 
   const [formData, setFormData] = useState({
     name: '',
@@ -102,7 +102,7 @@ export default function NewOrderStatusPage() {
     sortOrder: 50,
     sendEmailOnEnter: false,
     emailTemplateId: '',
-  });
+  })
 
   // Auto-generate slug from name
   const handleNameChange = (name: string) => {
@@ -110,12 +110,12 @@ export default function NewOrderStatusPage() {
       ...prev,
       name,
       slug: prev.slug || name.toUpperCase().replace(/[^A-Z0-9]+/g, '_'),
-    }));
-  };
+    }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
+    e.preventDefault()
+    setSaving(true)
 
     try {
       const response = await fetch('/api/admin/order-statuses', {
@@ -125,21 +125,21 @@ export default function NewOrderStatusPage() {
           ...formData,
           emailTemplateId: formData.emailTemplateId || null,
         }),
-      });
+      })
 
       if (response.ok) {
-        toast.success('Custom status created successfully');
-        router.push('/admin/settings/order-statuses');
+        toast.success('Custom status created successfully')
+        router.push('/admin/settings/order-statuses')
       } else {
-        const error = await response.json();
-        toast.error(error.error || 'Failed to create status');
+        const error = await response.json()
+        toast.error(error.error || 'Failed to create status')
       }
     } catch (error) {
-      toast.error('Failed to create status');
+      toast.error('Failed to create status')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -377,5 +377,5 @@ export default function NewOrderStatusPage() {
         </div>
       </form>
     </div>
-  );
+  )
 }

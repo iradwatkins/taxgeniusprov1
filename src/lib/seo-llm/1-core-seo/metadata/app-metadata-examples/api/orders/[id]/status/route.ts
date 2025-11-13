@@ -4,16 +4,16 @@
  * Allows admins to update order status with validation
  */
 
-import { type NextRequest, NextResponse } from 'next/server';
-import { validateRequest } from '@/lib/auth';
-import { OrderService } from '@/lib/services/order-service';
-import { prisma } from '@/lib/prisma';
-import { type OrderStatus } from '@prisma/client';
+import { type NextRequest, NextResponse } from 'next/server'
+import { validateRequest } from '@/lib/auth'
+import { OrderService } from '@/lib/services/order-service'
+import { prisma } from '@/lib/prisma'
+import { type OrderStatus } from '@prisma/client'
 
 interface StatusUpdateRequest {
-  toStatus: OrderStatus;
-  notes?: string;
-  metadata?: Record<string, unknown>;
+  toStatus: OrderStatus
+  notes?: string
+  metadata?: Record<string, unknown>
 }
 
 /**
@@ -23,28 +23,28 @@ interface StatusUpdateRequest {
  */
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { user } = await validateRequest();
+    const { user } = await validateRequest()
 
     // Only admins can update status
     if (!user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { id } = await params;
-    const body: StatusUpdateRequest = await request.json();
-    const { toStatus, notes, metadata } = body;
+    const { id } = await params
+    const body: StatusUpdateRequest = await request.json()
+    const { toStatus, notes, metadata } = body
 
     if (!toStatus) {
-      return NextResponse.json({ error: 'toStatus is required' }, { status: 400 });
+      return NextResponse.json({ error: 'toStatus is required' }, { status: 400 })
     }
 
     // Get current order
     const order = await prisma.order.findUnique({
       where: { id },
-    });
+    })
 
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     // ADMIN OVERRIDE: Admins can change to any status (no transition validation)
@@ -58,7 +58,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       notes,
       changedBy: user.email || 'Admin',
       metadata,
-    });
+    })
 
     // Update landing page metrics if order came from a landing page
     // Only update when order is confirmed (payment successful)
@@ -70,24 +70,24 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
             orders: { increment: 1 },
             revenue: { increment: order.total },
           },
-        });
+        })
 
         // Recalculate conversion rate
         const landingPage = await prisma.cityLandingPage.findUnique({
           where: { id: order.sourceLandingPageId },
           select: { organicViews: true, orders: true },
-        });
+        })
 
         if (landingPage && landingPage.organicViews > 0) {
-          const conversionRate = (landingPage.orders / landingPage.organicViews) * 100;
+          const conversionRate = (landingPage.orders / landingPage.organicViews) * 100
           await prisma.cityLandingPage.update({
             where: { id: order.sourceLandingPageId },
             data: { conversionRate },
-          });
+          })
         }
       } catch (metricsError) {
         // Don't fail status update if metrics update fails
-        console.error('[Landing Page Metrics] Failed to update:', metricsError);
+        console.error('[Landing Page Metrics] Failed to update:', metricsError)
       }
     }
 
@@ -100,18 +100,18 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
           take: 5,
         },
       },
-    });
+    })
 
     return NextResponse.json({
       success: true,
       order: updatedOrder,
-    });
+    })
   } catch (error) {
-    console.error('[Status Update] Error:', error);
+    console.error('[Status Update] Error:', error)
 
-    const errorMessage = error instanceof Error ? error.message : 'Status update failed';
+    const errorMessage = error instanceof Error ? error.message : 'Status update failed'
 
-    return NextResponse.json({ error: errorMessage }, { status: 400 });
+    return NextResponse.json({ error: errorMessage }, { status: 400 })
   }
 }
 
@@ -122,13 +122,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { user } = await validateRequest();
+    const { user } = await validateRequest()
 
     if (!user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { id } = await params;
+    const { id } = await params
 
     const order = await prisma.order.findUnique({
       where: { id },
@@ -142,10 +142,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
           orderBy: { createdAt: 'desc' },
         },
       },
-    });
+    })
 
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     // ADMIN OVERRIDE: Return ALL active statuses for quick status changes
@@ -162,7 +162,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         badgeColor: true,
         isPaid: true,
       },
-    });
+    })
 
     // Get current status details
     const currentStatusDetails = await prisma.customOrderStatus.findUnique({
@@ -176,7 +176,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         badgeColor: true,
         isPaid: true,
       },
-    });
+    })
 
     // Convert all statuses to validNextStates format (exclude current status)
     const validNextStates = allStatuses
@@ -185,16 +185,16 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         ...s,
         requiresPayment: false,
         requiresAdmin: false,
-      }));
+      }))
 
     return NextResponse.json({
       currentStatus: order.status,
       currentStatusDetails,
       history: order.StatusHistory,
       validNextStates,
-    });
+    })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch status' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch status' }, { status: 500 })
   }
 }
 
@@ -206,18 +206,18 @@ async function validateStatusTransition(
   toStatusSlug: string
 ): Promise<boolean> {
   // Allow same-status transitions
-  if (fromStatusSlug === toStatusSlug) return true;
+  if (fromStatusSlug === toStatusSlug) return true
 
   try {
     // Look up both statuses by slug
     const [fromStatus, toStatus] = await Promise.all([
       prisma.customOrderStatus.findUnique({ where: { slug: fromStatusSlug } }),
       prisma.customOrderStatus.findUnique({ where: { slug: toStatusSlug } }),
-    ]);
+    ])
 
     if (!fromStatus || !toStatus) {
-      console.error('[Status Validation] Status not found:', { fromStatusSlug, toStatusSlug });
-      return false;
+      console.error('[Status Validation] Status not found:', { fromStatusSlug, toStatusSlug })
+      return false
     }
 
     // Check if transition exists in database
@@ -228,12 +228,12 @@ async function validateStatusTransition(
           toStatusId: toStatus.id,
         },
       },
-    });
+    })
 
-    return !!transition;
+    return !!transition
   } catch (error) {
-    console.error('[Status Validation] Error validating transition:', error);
-    return false;
+    console.error('[Status Validation] Error validating transition:', error)
+    return false
   }
 }
 
@@ -245,10 +245,10 @@ async function getValidNextStatesFromDb(currentStatusSlug: string) {
     // Get current status
     const currentStatus = await prisma.customOrderStatus.findUnique({
       where: { slug: currentStatusSlug },
-    });
+    })
 
     if (!currentStatus) {
-      return [];
+      return []
     }
 
     // Get valid transitions
@@ -269,15 +269,15 @@ async function getValidNextStatesFromDb(currentStatusSlug: string) {
           },
         },
       },
-    });
+    })
 
     return transitions.map((t) => ({
       ...t.ToStatus,
       requiresPayment: t.requiresPayment,
       requiresAdmin: t.requiresAdmin,
-    }));
+    }))
   } catch (error) {
-    console.error('[Status API] Failed to get valid next states:', error);
-    return [];
+    console.error('[Status API] Failed to get valid next states:', error)
+    return []
   }
 }

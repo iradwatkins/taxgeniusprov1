@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { Card, CardContent } from '@/components/ui/card';
-import { Download } from 'lucide-react';
-import AccountWrapper from '@/components/account/account-wrapper';
+import { Card, CardContent } from '@/components/ui/card'
+import { Download } from 'lucide-react'
+import AccountWrapper from '@/components/account/account-wrapper'
 
 export default function DownloadsPage() {
   return (
@@ -22,5 +22,5 @@ export default function DownloadsPage() {
         </Card>
       </div>
     </AccountWrapper>
-  );
+  )
 }

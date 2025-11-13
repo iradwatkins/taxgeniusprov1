@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { nanoid } from 'nanoid';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 /**
  * POST /api/marketing/carts/track
@@ -24,7 +24,7 @@ import { nanoid } from 'nanoid';
  */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body = await req.json()
     const {
       sessionId,
       userId,
@@ -36,22 +36,22 @@ export async function POST(req: NextRequest) {
       shipping,
       total,
       shippingMethod,
-    } = body;
+    } = body
 
     // Validate required fields
     if (!sessionId || !items || items.length === 0) {
       return NextResponse.json(
         { error: 'Missing required fields: sessionId, items' },
         { status: 400 }
-      );
+      )
     }
 
     // Check if cart session already exists
     const existingCart = await prisma.cartSession.findUnique({
       where: { sessionId },
-    });
+    })
 
-    const now = new Date();
+    const now = new Date()
 
     if (existingCart) {
       // Update existing cart session
@@ -73,13 +73,13 @@ export async function POST(req: NextRequest) {
           recoveredAt:
             existingCart.abandoned && !existingCart.recovered ? now : existingCart.recoveredAt,
         },
-      });
+      })
 
       return NextResponse.json({
         success: true,
         cart: updatedCart,
         action: 'updated',
-      });
+      })
     } else {
       // Create new cart session
       const newCart = await prisma.cartSession.create({
@@ -98,16 +98,16 @@ export async function POST(req: NextRequest) {
           lastActivity: now,
           abandoned: false,
         },
-      });
+      })
 
       return NextResponse.json({
         success: true,
         cart: newCart,
         action: 'created',
-      });
+      })
     }
   } catch (error) {
-    console.error('[API] Cart tracking error:', error);
-    return NextResponse.json({ error: 'Failed to track cart session' }, { status: 500 });
+    console.error('[API] Cart tracking error:', error)
+    return NextResponse.json({ error: 'Failed to track cart session' }, { status: 500 })
   }
 }

@@ -1,55 +1,49 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save } from 'lucide-react';
-import Link from 'next/link';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { ArrowLeft, Save } from 'lucide-react'
+import Link from 'next/link'
 
 export default function NewMenuPage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     type: 'HEADER',
     description: '',
     isActive: true,
-  });
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
 
     try {
       const response = await fetch('/api/admin/menus', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
-      });
+      })
 
-      if (!response.ok) throw new Error('Failed to create menu');
+      if (!response.ok) throw new Error('Failed to create menu')
 
-      const menu = await response.json();
-      router.push(`/admin/menus/${menu.id}`);
+      const menu = await response.json()
+      router.push(`/admin/menus/${menu.id}`)
     } catch (error) {
-      console.error('Error creating menu:', error);
-      alert('Failed to create menu. Please try again.');
+      console.error('Error creating menu:', error)
+      alert('Failed to create menu. Please try again.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-2xl">
@@ -65,7 +59,9 @@ export default function NewMenuPage() {
       <Card>
         <CardHeader>
           <CardTitle>Create New Menu</CardTitle>
-          <CardDescription>Create a new navigation menu for your website</CardDescription>
+          <CardDescription>
+            Create a new navigation menu for your website
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -139,5 +135,5 @@ export default function NewMenuPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

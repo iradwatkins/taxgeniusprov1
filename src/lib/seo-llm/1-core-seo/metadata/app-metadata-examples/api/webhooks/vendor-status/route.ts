@@ -1,27 +1,27 @@
 // API Route: Vendor Status Update Webhook
 // Receives order status updates from vendors via N8N
 
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { OrderStateMachine, type OrderStatus } from '@/domains/orders/state-machine';
-import { VendorWebhookHandler, type VendorWebhookPayload } from '@/domains/vendors/webhook-handler';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { OrderStateMachine, type OrderStatus } from '@/domains/orders/state-machine'
+import { VendorWebhookHandler, type VendorWebhookPayload } from '@/domains/vendors/webhook-handler'
 // import { sendOrderStatusEmail } from '@/lib/order-notifications';
 
 export async function POST(request: NextRequest) {
   try {
     // Parse webhook payload
-    const payload: VendorWebhookPayload = await request.json();
+    const payload: VendorWebhookPayload = await request.json()
 
     // Initialize webhook handler
-    const webhookHandler = new VendorWebhookHandler();
+    const webhookHandler = new VendorWebhookHandler()
 
     // Process vendor status to internal status
-    const result = await webhookHandler.processWebhook(payload);
+    const result = await webhookHandler.processWebhook(payload)
 
     if (!result.success) {
       return NextResponse.json(webhookHandler.formatN8NResponse(false, null, result.error), {
         status: 400,
-      });
+      })
     }
 
     // Get current order from database
@@ -31,24 +31,24 @@ export async function POST(request: NextRequest) {
         customer: true,
         vendor: true,
       },
-    });
+    })
 
     if (!order) {
       return NextResponse.json(webhookHandler.formatN8NResponse(false, null, 'Order not found'), {
         status: 404,
-      });
+      })
     }
 
     // Initialize state machine with current status
-    const stateMachine = new OrderStateMachine(order.status as OrderStatus);
+    const stateMachine = new OrderStateMachine(order.status as OrderStatus)
 
     // Attempt state transition
-    const transition = stateMachine.transition(result.event!);
+    const transition = stateMachine.transition(result.event!)
 
     if (!transition.success) {
       return NextResponse.json(webhookHandler.formatN8NResponse(false, null, transition.error), {
         status: 400,
-      });
+      })
     }
 
     // Update order in database
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
           },
         },
       },
-    });
+    })
 
     // Send customer notification if needed
     // TODO: Implement sendOrderStatusEmail function
@@ -94,9 +94,9 @@ export async function POST(request: NextRequest) {
         customerNotified: transition.notifyCustomer,
       }),
       { status: 200 }
-    );
+    )
   } catch (error) {
-    console.error('Webhook processing error:', error);
+    console.error('Webhook processing error:', error)
     return NextResponse.json(
       {
         success: false,
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
         timestamp: new Date().toISOString(),
       },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -117,5 +117,5 @@ export async function OPTIONS(request: NextRequest) {
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, X-Webhook-Signature',
     },
-  });
+  })
 }

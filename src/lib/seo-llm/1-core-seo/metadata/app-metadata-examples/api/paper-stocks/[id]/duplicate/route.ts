@@ -1,11 +1,11 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { createId } from '@paralleldrive/cuid2';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { createId } from '@paralleldrive/cuid2'
 
 // POST /api/paper-stocks/[id]/duplicate
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
+    const { id } = await params
 
     // Fetch the original paper stock with relationships
     const original = await prisma.paperStock.findUnique({
@@ -22,10 +22,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           },
         },
       },
-    });
+    })
 
     if (!original) {
-      return NextResponse.json({ error: 'Paper stock not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Paper stock not found' }, { status: 404 })
     }
 
     // Get count of existing copies to generate a unique name
@@ -35,10 +35,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           startsWith: `${original.name} (Copy`,
         },
       },
-    });
+    })
 
-    const copyNumber = existingCopies + 1;
-    const newName = `${original.name} (Copy ${copyNumber})`;
+    const copyNumber = existingCopies + 1
+    const newName = `${original.name} (Copy ${copyNumber})`
 
     // Create the duplicated paper stock with relationships using transaction
     const duplicate = await prisma.$transaction(async (tx) => {
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           isActive: false, // Start as inactive to prevent conflicts
           updatedAt: new Date(),
         },
-      });
+      })
 
       // Copy paper stock coatings
       if (original.paperStockCoatings.length > 0) {
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             coatingId: coating.coatingId,
             isDefault: coating.isDefault,
           })),
-        });
+        })
       }
 
       // Copy paper stock sides
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             priceMultiplier: side.priceMultiplier,
             isEnabled: side.isEnabled,
           })),
-        });
+        })
       }
 
       // Return the complete duplicated paper stock
@@ -93,14 +93,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             },
           },
         },
-      });
-    });
+      })
+    })
 
     return NextResponse.json({
       message: 'Paper stock duplicated successfully',
       PaperStock: duplicate,
-    });
+    })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to duplicate paper stock' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to duplicate paper stock' }, { status: 500 })
   }
 }

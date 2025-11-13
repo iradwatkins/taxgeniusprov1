@@ -1,8 +1,8 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { validateRequest } from '@/lib/auth';
-import { transformQuantityGroups } from '@/lib/utils/quantity-transformer';
-import { randomUUID } from 'crypto';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { validateRequest } from '@/lib/auth'
+import { transformQuantityGroups } from '@/lib/utils/quantity-transformer'
+import { randomUUID } from 'crypto'
 
 // GET /api/quantities - List all quantity groups
 // Optional query params:
@@ -10,13 +10,13 @@ import { randomUUID } from 'crypto';
 //   - format=selector: Return transformed data for quantity selector component
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams;
-    const activeOnly = searchParams.get('active') === 'true';
-    const format = searchParams.get('format');
+    const searchParams = request.nextUrl.searchParams
+    const activeOnly = searchParams.get('active') === 'true'
+    const format = searchParams.get('format')
 
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = {}
     if (activeOnly) {
-      where.isActive = true;
+      where.isActive = true
     }
 
     const quantityGroups = await prisma.quantityGroup.findMany({
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: { sortOrder: 'asc' },
-    });
+    })
 
     // Process the groups to include parsed values list
     const processedGroups = quantityGroups.map((group) => ({
@@ -39,40 +39,40 @@ export async function GET(request: NextRequest) {
         .map((v) => v.trim())
         .filter((v) => v),
       hasCustomOption: group.values.toLowerCase().includes('custom'),
-    }));
+    }))
 
     // If format=selector, return transformed data for quantity selector component
     if (format === 'selector') {
-      const transformedQuantities = transformQuantityGroups(processedGroups);
-      return NextResponse.json(transformedQuantities);
+      const transformedQuantities = transformQuantityGroups(processedGroups)
+      return NextResponse.json(transformedQuantities)
     }
 
     // Default: return quantity groups for admin interface
-    return NextResponse.json(processedGroups);
+    return NextResponse.json(processedGroups)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch quantity groups' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch quantity groups' }, { status: 500 })
   }
 }
 
 // POST /api/quantities - Create a new quantity group
 export async function POST(request: NextRequest) {
   try {
-    const { user } = await validateRequest();
+    const { user } = await validateRequest()
     if (!user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = await request.json();
+    const body = await request.json()
 
     const { name, description, values, defaultValue, customMin, customMax, sortOrder, isActive } =
-      body;
+      body
 
     // Validation
     if (!name || !values || !defaultValue) {
       return NextResponse.json(
         { error: 'Name, values, and default value are required' },
         { status: 400 }
-      );
+      )
     }
 
     const quantityGroup = await prisma.quantityGroup.create({
@@ -88,17 +88,17 @@ export async function POST(request: NextRequest) {
         isActive: isActive !== undefined ? isActive : true,
         updatedAt: new Date(),
       },
-    });
+    })
 
-    return NextResponse.json(quantityGroup, { status: 201 });
+    return NextResponse.json(quantityGroup, { status: 201 })
   } catch (error) {
     if (error.code === 'P2002') {
       return NextResponse.json(
         { error: 'A quantity group with this name already exists' },
         { status: 400 }
-      );
+      )
     }
 
-    return NextResponse.json({ error: 'Failed to create quantity group' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create quantity group' }, { status: 500 })
   }
 }

@@ -1,11 +1,11 @@
-import { notFound, redirect } from 'next/navigation';
-import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
-import { ArrowLeft, Save, AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { notFound, redirect } from 'next/navigation'
+import Link from 'next/link'
+import { prisma } from '@/lib/prisma'
+import { ArrowLeft, Save, AlertCircle } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>
 }
 
 async function getOrder(id: string) {
@@ -23,17 +23,17 @@ async function getOrder(id: string) {
         },
       },
     },
-  });
+  })
 
-  return order;
+  return order
 }
 
 export default async function EditOrderPage({ params }: PageProps) {
-  const { id } = await params;
-  const order = await getOrder(id);
+  const { id } = await params
+  const order = await getOrder(id)
 
   if (!order) {
-    notFound();
+    notFound()
   }
 
   return (
@@ -140,5 +140,5 @@ export default async function EditOrderPage({ params }: PageProps) {
         </Link>
       </div>
     </div>
-  );
+  )
 }

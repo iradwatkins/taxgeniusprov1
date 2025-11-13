@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 import {
   Plus,
   Edit,
@@ -10,14 +10,14 @@ import {
   ChevronRight,
   Eye,
   Copy,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Checkbox } from '@/components/ui/checkbox';
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Table,
   TableBody,
@@ -25,7 +25,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
@@ -33,16 +33,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import toast from '@/lib/toast';
+} from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import toast from '@/lib/toast'
 import {
   DndContext,
   closestCenter,
@@ -51,56 +51,56 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
-} from '@dnd-kit/core';
+} from '@dnd-kit/core'
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+} from '@dnd-kit/sortable'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
 interface PaperStock {
-  id: string;
-  name: string;
-  weight: number;
-  pricePerSqInch: number;
-  tooltipText: string | null;
-  isActive: boolean;
-  paperStockCoatings: any[];
-  paperStockSides: any[];
+  id: string
+  name: string
+  weight: number
+  pricePerSqInch: number
+  tooltipText: string | null
+  isActive: boolean
+  paperStockCoatings: any[]
+  paperStockSides: any[]
 }
 
 interface PaperStockGroupItem {
-  id: string;
-  paperStockId: string;
-  isDefault: boolean;
-  sortOrder: number;
-  paperStock: PaperStock;
+  id: string
+  paperStockId: string
+  isDefault: boolean
+  sortOrder: number
+  paperStock: PaperStock
 }
 
 interface PaperStockGroup {
-  id: string;
-  name: string;
-  description: string | null;
-  sortOrder: number;
-  isActive: boolean;
-  paperStockItems: PaperStockGroupItem[];
-  productPaperStockGroups?: any[];
+  id: string
+  name: string
+  description: string | null
+  sortOrder: number
+  isActive: boolean
+  paperStockItems: PaperStockGroupItem[]
+  productPaperStockGroups?: any[]
 }
 
 function SortableItem({ id, children }: { id: string; children: React.ReactNode }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
-  });
+  })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-  };
+  }
 
   return (
     <div ref={setNodeRef} className="flex items-center gap-2" style={style}>
@@ -109,20 +109,20 @@ function SortableItem({ id, children }: { id: string; children: React.ReactNode 
       </div>
       {children}
     </div>
-  );
+  )
 }
 
 export default function PaperStockGroupsPage() {
-  const [groups, setGroups] = useState<PaperStockGroup[]>([]);
-  const [allPaperStocks, setAllPaperStocks] = useState<PaperStock[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
-  const [editingGroup, setEditingGroup] = useState<PaperStockGroup | null>(null);
-  const [deletingGroup, setDeletingGroup] = useState<PaperStockGroup | null>(null);
-  const [previewGroup, setPreviewGroup] = useState<PaperStockGroup | null>(null);
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [groups, setGroups] = useState<PaperStockGroup[]>([])
+  const [allPaperStocks, setAllPaperStocks] = useState<PaperStock[]>([])
+  const [loading, setLoading] = useState(true)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false)
+  const [editingGroup, setEditingGroup] = useState<PaperStockGroup | null>(null)
+  const [deletingGroup, setDeletingGroup] = useState<PaperStockGroup | null>(null)
+  const [previewGroup, setPreviewGroup] = useState<PaperStockGroup | null>(null)
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
 
   // Form state
   const [formData, setFormData] = useState({
@@ -133,79 +133,79 @@ export default function PaperStockGroupsPage() {
     selectedPaperStocks: [] as string[],
     defaultPaperStock: '' as string,
     paperStockOrders: {} as Record<string, number>,
-  });
+  })
 
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
-  );
+  )
 
   useEffect(() => {
-    fetchGroups();
-    fetchPaperStocks();
-  }, []);
+    fetchGroups()
+    fetchPaperStocks()
+  }, [])
 
   const fetchGroups = async () => {
     try {
-      const response = await fetch('/api/paper-stock-sets');
-      if (!response.ok) throw new Error('Failed to fetch groups');
-      const data = await response.json();
+      const response = await fetch('/api/paper-stock-sets')
+      if (!response.ok) throw new Error('Failed to fetch groups')
+      const data = await response.json()
 
       // Ensure each group has paperStockItems array
       const processedGroups = (Array.isArray(data) ? data : []).map((group: any) => ({
         ...group,
         paperStockItems: group.paperStockItems || [],
         productPaperStockGroups: group.productPaperStockGroups || [],
-      }));
+      }))
 
-      setGroups(processedGroups);
+      setGroups(processedGroups)
     } catch (error) {
-      toast.error('Failed to load paper stock groups');
+      toast.error('Failed to load paper stock groups')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const fetchPaperStocks = async () => {
     try {
-      const response = await fetch('/api/paper-stocks');
-      if (!response.ok) throw new Error('Failed to fetch paper stocks');
-      const data = await response.json();
-      setAllPaperStocks(data.filter((stock: PaperStock) => stock.isActive));
+      const response = await fetch('/api/paper-stocks')
+      if (!response.ok) throw new Error('Failed to fetch paper stocks')
+      const data = await response.json()
+      setAllPaperStocks(data.filter((stock: PaperStock) => stock.isActive))
     } catch (error) {}
-  };
+  }
 
   const handleDragEnd = (event: DragEndEvent, groupId: string) => {
-    const { active, over } = event;
+    const { active, over } = event
 
     if (active.id !== over?.id) {
       setGroups((groups) => {
         return groups.map((group) => {
           if (group.id === groupId) {
-            const items = group.paperStockItems || [];
-            const oldIndex = items.findIndex((item) => item.paperStockId === active.id);
-            const newIndex = items.findIndex((item) => item.paperStockId === over?.id);
+            const items = group.paperStockItems || []
+            const oldIndex = items.findIndex((item) => item.paperStockId === active.id)
+            const newIndex = items.findIndex((item) => item.paperStockId === over?.id)
 
-            const newItems = arrayMove(items, oldIndex, newIndex);
+            const newItems = arrayMove(items, oldIndex, newIndex)
 
             // Update sort orders
             const updatedItems = newItems.map((item, index) => ({
               ...item,
               sortOrder: index,
-            }));
+            }))
 
             // Save the new order to the backend
-            saveReorder(groupId, updatedItems);
+            saveReorder(groupId, updatedItems)
 
-            return { ...group, paperStockItems: updatedItems };
+            return { ...group, paperStockItems: updatedItems }
           }
-          return group;
-        });
-      });
+          return group
+        })
+      })
     }
-  };
+  }
 
   const saveReorder = async (groupId: string, items: PaperStockGroupItem[]) => {
     try {
@@ -218,45 +218,45 @@ export default function PaperStockGroupsPage() {
             sortOrder: item.sortOrder,
           })),
         }),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error('Failed to save order');
+        throw new Error('Failed to save order')
       }
 
-      toast.success('Order updated');
+      toast.success('Order updated')
     } catch (error) {
-      toast.error('Failed to save order');
-      fetchGroups(); // Reload to get original order
+      toast.error('Failed to save order')
+      fetchGroups() // Reload to get original order
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (formData.selectedPaperStocks.length === 0) {
-      toast.error('Please select at least one paper stock');
-      return;
+      toast.error('Please select at least one paper stock')
+      return
     }
 
     // Ensure a default is always selected
-    let defaultStock = formData.defaultPaperStock;
+    let defaultStock = formData.defaultPaperStock
     if (!defaultStock || !formData.selectedPaperStocks.includes(defaultStock)) {
       // Auto-select first paper stock as default if none selected or invalid
-      defaultStock = formData.selectedPaperStocks[0];
+      defaultStock = formData.selectedPaperStocks[0]
     }
 
     try {
       const url = editingGroup
         ? `/api/paper-stock-sets/${editingGroup.id}`
-        : '/api/paper-stock-sets';
-      const method = editingGroup ? 'PUT' : 'POST';
+        : '/api/paper-stock-sets'
+      const method = editingGroup ? 'PUT' : 'POST'
 
       const paperStocks = formData.selectedPaperStocks.map((stockId, index) => ({
         id: stockId,
         isDefault: stockId === defaultStock,
         sortOrder: formData.paperStockOrders[stockId] || index,
-      }));
+      }))
 
       const response = await fetch(url, {
         method,
@@ -268,35 +268,35 @@ export default function PaperStockGroupsPage() {
           isActive: formData.isActive,
           paperStocks,
         }),
-      });
+      })
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to save group');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to save group')
       }
 
-      toast.success(editingGroup ? 'Group updated' : 'Group created');
-      setDialogOpen(false);
-      resetForm();
-      fetchGroups();
+      toast.success(editingGroup ? 'Group updated' : 'Group created')
+      setDialogOpen(false)
+      resetForm()
+      fetchGroups()
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message)
     }
-  };
+  }
 
   const handleEdit = (group: PaperStockGroup) => {
-    setEditingGroup(group);
+    setEditingGroup(group)
 
-    const selectedPaperStocks = (group.paperStockItems || []).map((item) => item.paperStockId);
+    const selectedPaperStocks = (group.paperStockItems || []).map((item) => item.paperStockId)
     const defaultPaperStock =
-      (group.paperStockItems || []).find((item) => item.isDefault)?.paperStockId || '';
+      (group.paperStockItems || []).find((item) => item.isDefault)?.paperStockId || ''
     const paperStockOrders = (group.paperStockItems || []).reduce(
       (acc, item) => {
-        acc[item.paperStockId] = item.sortOrder;
-        return acc;
+        acc[item.paperStockId] = item.sortOrder
+        return acc
       },
       {} as Record<string, number>
-    );
+    )
 
     setFormData({
       name: group.name,
@@ -306,45 +306,45 @@ export default function PaperStockGroupsPage() {
       selectedPaperStocks,
       defaultPaperStock,
       paperStockOrders,
-    });
-    setDialogOpen(true);
-  };
+    })
+    setDialogOpen(true)
+  }
 
   const handleDelete = async () => {
-    if (!deletingGroup) return;
+    if (!deletingGroup) return
 
     try {
       const response = await fetch(`/api/paper-stock-sets/${deletingGroup.id}`, {
         method: 'DELETE',
-      });
+      })
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete group');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to delete group')
       }
 
-      toast.success('Group deleted');
-      setDeleteDialogOpen(false);
-      setDeletingGroup(null);
-      fetchGroups();
+      toast.success('Group deleted')
+      setDeleteDialogOpen(false)
+      setDeletingGroup(null)
+      fetchGroups()
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message)
     }
-  };
+  }
 
   const handleDuplicate = (group: PaperStockGroup) => {
-    setEditingGroup(null);
+    setEditingGroup(null)
 
-    const selectedPaperStocks = (group.paperStockItems || []).map((item) => item.paperStockId);
+    const selectedPaperStocks = (group.paperStockItems || []).map((item) => item.paperStockId)
     const defaultPaperStock =
-      (group.paperStockItems || []).find((item) => item.isDefault)?.paperStockId || '';
+      (group.paperStockItems || []).find((item) => item.isDefault)?.paperStockId || ''
     const paperStockOrders = (group.paperStockItems || []).reduce(
       (acc, item) => {
-        acc[item.paperStockId] = item.sortOrder;
-        return acc;
+        acc[item.paperStockId] = item.sortOrder
+        return acc
       },
       {} as Record<string, number>
-    );
+    )
 
     setFormData({
       name: `${group.name} - Copy`,
@@ -354,17 +354,17 @@ export default function PaperStockGroupsPage() {
       selectedPaperStocks,
       defaultPaperStock,
       paperStockOrders,
-    });
-    setDialogOpen(true);
-  };
+    })
+    setDialogOpen(true)
+  }
 
   const handlePreview = (group: PaperStockGroup) => {
-    setPreviewGroup(group);
-    setPreviewDialogOpen(true);
-  };
+    setPreviewGroup(group)
+    setPreviewDialogOpen(true)
+  }
 
   const resetForm = () => {
-    setEditingGroup(null);
+    setEditingGroup(null)
     setFormData({
       name: '',
       description: '',
@@ -373,20 +373,20 @@ export default function PaperStockGroupsPage() {
       selectedPaperStocks: [],
       defaultPaperStock: '',
       paperStockOrders: {},
-    });
-  };
+    })
+  }
 
   const toggleGroupExpansion = (groupId: string) => {
     setExpandedGroups((prev) => {
-      const newSet = new Set(prev);
+      const newSet = new Set(prev)
       if (newSet.has(groupId)) {
-        newSet.delete(groupId);
+        newSet.delete(groupId)
       } else {
-        newSet.add(groupId);
+        newSet.add(groupId)
       }
-      return newSet;
-    });
-  };
+      return newSet
+    })
+  }
 
   if (loading) {
     return (
@@ -396,7 +396,7 @@ export default function PaperStockGroupsPage() {
           <div className="h-64 bg-gray-200 rounded"></div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -419,8 +419,8 @@ export default function PaperStockGroupsPage() {
             </div>
             <Button
               onClick={() => {
-                resetForm();
-                setDialogOpen(true);
+                resetForm()
+                setDialogOpen(true)
               }}
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -529,8 +529,8 @@ export default function PaperStockGroupsPage() {
                             title="Delete"
                             variant="outline"
                             onClick={() => {
-                              setDeletingGroup(group);
-                              setDeleteDialogOpen(true);
+                              setDeletingGroup(group)
+                              setDeleteDialogOpen(true)
                             }}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -673,7 +673,7 @@ export default function PaperStockGroupsPage() {
                                 formData.selectedPaperStocks.length === 0
                                   ? stock.id
                                   : formData.defaultPaperStock,
-                            });
+                            })
                           } else {
                             setFormData({
                               ...formData,
@@ -684,7 +684,7 @@ export default function PaperStockGroupsPage() {
                                 formData.defaultPaperStock === stock.id
                                   ? ''
                                   : formData.defaultPaperStock,
-                            });
+                            })
                           }
                         }}
                       />
@@ -720,8 +720,8 @@ export default function PaperStockGroupsPage() {
                     }
                   >
                     {formData.selectedPaperStocks.map((stockId) => {
-                      const stock = allPaperStocks.find((s) => s.id === stockId);
-                      if (!stock) return null;
+                      const stock = allPaperStocks.find((s) => s.id === stockId)
+                      if (!stock) return null
                       return (
                         <div
                           key={stockId}
@@ -737,7 +737,7 @@ export default function PaperStockGroupsPage() {
                             )}
                           </Label>
                         </div>
-                      );
+                      )
                     })}
                   </RadioGroup>
                 </div>
@@ -813,5 +813,5 @@ export default function PaperStockGroupsPage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }

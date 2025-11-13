@@ -1,18 +1,18 @@
-import { redirect } from 'next/navigation';
-import { validateRequest } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import QuickLinksManager from '@/components/admin/quick-links-manager';
+import { redirect } from 'next/navigation'
+import { validateRequest } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import QuickLinksManager from '@/components/admin/quick-links-manager'
 
 export default async function QuickLinksPage() {
-  const { user } = await validateRequest();
+  const { user } = await validateRequest()
 
   if (!user || user.role !== 'ADMIN') {
-    redirect('/admin/login');
+    redirect('/admin/login')
   }
 
   const quickLinks = await prisma.quickLink.findMany({
     orderBy: { sortOrder: 'asc' },
-  });
+  })
 
   const categories = await prisma.productCategory.findMany({
     where: { isActive: true },
@@ -22,7 +22,7 @@ export default async function QuickLinksPage() {
       name: true,
       slug: true,
     },
-  });
+  })
 
   const products = await prisma.product.findMany({
     where: { isActive: true },
@@ -34,7 +34,7 @@ export default async function QuickLinksPage() {
       categoryId: true,
     },
     take: 100,
-  });
+  })
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -45,7 +45,11 @@ export default async function QuickLinksPage() {
         </p>
       </div>
 
-      <QuickLinksManager quickLinks={quickLinks} categories={categories} products={products} />
+      <QuickLinksManager
+        quickLinks={quickLinks}
+        categories={categories}
+        products={products}
+      />
     </div>
-  );
+  )
 }

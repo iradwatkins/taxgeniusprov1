@@ -1,45 +1,45 @@
-'use client';
+'use client'
 
-import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { EmailBuilder, type EmailTemplate } from '@/components/marketing/email-builder';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Save, Send } from 'lucide-react';
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
+import { EmailBuilder, type EmailTemplate } from '@/components/marketing/email-builder'
+import { Button } from '@/components/ui/button'
+import { ArrowLeft, Save, Send } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 
 interface Campaign {
-  id: string;
-  name: string;
-  subject: string;
-  previewText: string;
-  content: Record<string, unknown>;
-  status: string;
+  id: string
+  name: string
+  subject: string
+  previewText: string
+  content: Record<string, unknown>
+  status: string
 }
 
 function EmailBuilderPageContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const campaignId = searchParams.get('campaignId');
-  const templateId = searchParams.get('templateId');
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const campaignId = searchParams.get('campaignId')
+  const templateId = searchParams.get('templateId')
 
-  const [campaign, setCampaign] = useState<Campaign | null>(null);
-  const [template, setTemplate] = useState<EmailTemplate | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
-  const [previewHtml, setPreviewHtml] = useState('');
+  const [campaign, setCampaign] = useState<Campaign | null>(null)
+  const [template, setTemplate] = useState<EmailTemplate | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
+  const [previewHtml, setPreviewHtml] = useState('')
 
   useEffect(() => {
     if (campaignId) {
-      fetchCampaign();
+      fetchCampaign()
     } else if (templateId) {
-      fetchTemplate();
+      fetchTemplate()
     } else {
       // Initialize blank template for new email
       setTemplate({
@@ -55,19 +55,19 @@ function EmailBuilderPageContent() {
           lineHeight: '1.5',
           textColor: '#333333',
         },
-      });
-      setLoading(false);
+      })
+      setLoading(false)
     }
-  }, [campaignId, templateId]);
+  }, [campaignId, templateId])
 
   const fetchCampaign = async () => {
-    if (!campaignId) return;
+    if (!campaignId) return
 
     try {
-      const response = await fetch(`/api/marketing/campaigns/${campaignId}`);
+      const response = await fetch(`/api/marketing/campaigns/${campaignId}`)
       if (response.ok) {
-        const data = await response.json();
-        setCampaign(data);
+        const data = await response.json()
+        setCampaign(data)
 
         // Convert campaign to template format
         setTemplate({
@@ -83,21 +83,21 @@ function EmailBuilderPageContent() {
             lineHeight: '1.5',
             textColor: '#333333',
           },
-        });
+        })
       }
     } catch (error) {
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const fetchTemplate = async () => {
-    if (!templateId) return;
+    if (!templateId) return
 
     try {
-      const response = await fetch(`/api/marketing/templates/${templateId}`);
+      const response = await fetch(`/api/marketing/templates/${templateId}`)
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json()
         setTemplate({
           id: data.id,
           name: data.name,
@@ -111,16 +111,16 @@ function EmailBuilderPageContent() {
             lineHeight: '1.5',
             textColor: '#333333',
           },
-        });
+        })
       }
     } catch (error) {
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSave = async (emailTemplate: EmailTemplate) => {
-    setSaving(true);
+    setSaving(true)
 
     try {
       if (campaignId) {
@@ -136,11 +136,11 @@ function EmailBuilderPageContent() {
               globalStyles: emailTemplate.globalStyles,
             },
           }),
-        });
+        })
 
         if (response.ok) {
-          const updatedCampaign = await response.json();
-          setCampaign(updatedCampaign);
+          const updatedCampaign = await response.json()
+          setCampaign(updatedCampaign)
         }
       } else if (templateId) {
         // Update template
@@ -156,7 +156,7 @@ function EmailBuilderPageContent() {
               globalStyles: emailTemplate.globalStyles,
             },
           }),
-        });
+        })
 
         if (response.ok) {
           // Template updated successfully
@@ -177,28 +177,28 @@ function EmailBuilderPageContent() {
             },
             isPublic: false,
           }),
-        });
+        })
 
         if (response.ok) {
-          const newTemplate = await response.json();
-          setTemplate((prev) => ({ ...prev!, id: newTemplate.id }));
+          const newTemplate = await response.json()
+          setTemplate((prev) => ({ ...prev!, id: newTemplate.id }))
         }
       }
     } catch (error) {
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   const handlePreview = (emailTemplate: EmailTemplate) => {
     // Generate HTML preview
-    const html = generateEmailHtml(emailTemplate);
-    setPreviewHtml(html);
-    setShowPreview(true);
-  };
+    const html = generateEmailHtml(emailTemplate)
+    setPreviewHtml(html)
+    setShowPreview(true)
+  }
 
   const generateEmailHtml = (emailTemplate: EmailTemplate): string => {
-    const { components, globalStyles } = emailTemplate;
+    const { components, globalStyles } = emailTemplate
 
     const componentsHtml = components
       .map((component) => {
@@ -206,12 +206,12 @@ function EmailBuilderPageContent() {
           case 'text':
             return `<div style="${Object.entries(component.styles)
               .map(([key, value]) => `${camelToKebab(key)}: ${value}`)
-              .join('; ')}">${component.content.text}</div>`;
+              .join('; ')}">${component.content.text}</div>`
 
           case 'image':
             return `<div style="text-align: ${component.styles.textAlign}">
             <img src="${component.content.src}" alt="${component.content.alt}" style="width: ${component.content.width}; max-width: 100%; height: auto;" />
-          </div>`;
+          </div>`
 
           case 'button':
             return `<div style="text-align: ${component.styles.textAlign}">
@@ -220,15 +220,15 @@ function EmailBuilderPageContent() {
               .join('; ')}; text-decoration: none; display: inline-block;">
               ${component.content.text}
             </a>
-          </div>`;
+          </div>`
 
           case 'divider':
             return `<div style="${Object.entries(component.styles)
               .map(([key, value]) => `${camelToKebab(key)}: ${value}`)
-              .join('; ')}"></div>`;
+              .join('; ')}"></div>`
 
           case 'columns':
-            const columnWidth = 100 / component.content.columns;
+            const columnWidth = 100 / component.content.columns
             return `<table style="width: 100%; border-collapse: collapse;">
             <tr>
               ${Array.from(
@@ -239,13 +239,13 @@ function EmailBuilderPageContent() {
                 </td>`
               ).join('')}
             </tr>
-          </table>`;
+          </table>`
 
           default:
-            return '';
+            return ''
         }
       })
-      .join('');
+      .join('')
 
     return `
       <!DOCTYPE html>
@@ -261,33 +261,33 @@ function EmailBuilderPageContent() {
         </div>
       </body>
       </html>
-    `;
-  };
+    `
+  }
 
   const camelToKebab = (str: string): string => {
-    return str.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase();
-  };
+    return str.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase()
+  }
 
   const handleSendCampaign = async () => {
-    if (!campaignId) return;
+    if (!campaignId) return
 
     try {
       const response = await fetch(`/api/marketing/campaigns/${campaignId}/send`, {
         method: 'POST',
-      });
+      })
 
       if (response.ok) {
-        router.push('/admin/marketing/campaigns');
+        router.push('/admin/marketing/campaigns')
       }
     } catch (error) {}
-  };
-
-  if (loading) {
-    return <div className="p-6">Loading email builder...</div>;
   }
 
-  console.log('EmailBuilderPage - template:', template);
-  console.log('EmailBuilderPage - rendering');
+  if (loading) {
+    return <div className="p-6">Loading email builder...</div>
+  }
+
+  console.log('EmailBuilderPage - template:', template)
+  console.log('EmailBuilderPage - rendering')
 
   return (
     <div className="h-screen flex flex-col">
@@ -340,7 +340,7 @@ function EmailBuilderPageContent() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }
 
 export default function EmailBuilderPage() {
@@ -354,5 +354,5 @@ export default function EmailBuilderPage() {
     >
       <EmailBuilderPageContent />
     </Suspense>
-  );
+  )
 }

@@ -20,6 +20,7 @@ interface ContactFormNotificationProps {
   message: string;
   submittedAt: Date;
   locale?: Locale;
+  recipientName?: string;
 }
 
 export function ContactFormNotification({
@@ -30,6 +31,7 @@ export function ContactFormNotification({
   message,
   submittedAt,
   locale = 'en',
+  recipientName = 'there',
 }: ContactFormNotificationProps) {
   const serviceEmoji: Record<string, string> = {
     individual: '👤',
@@ -85,6 +87,15 @@ export function ContactFormNotification({
           </Section>
 
           <Section style={content}>
+            <Text style={greetingText}>
+              {locale === 'es' ? `Hola ${recipientName},` : `Hello ${recipientName},`}
+            </Text>
+            <Text style={greetingSubtext}>
+              {locale === 'es'
+                ? 'Este es un formulario de preparación de impuestos del sitio web.'
+                : 'This is a Tax Preparation form from the website.'}
+            </Text>
+
             <Section style={urgentBanner}>
               <Text style={urgentText}>{t(contactFormTranslations.urgentBanner, locale)}</Text>
             </Section>
@@ -222,6 +233,21 @@ const content = {
   border: '1px solid #e0e0e0',
   borderTop: 'none',
   borderRadius: '0 0 10px 10px',
+};
+
+const greetingText = {
+  color: '#1f2937',
+  fontSize: '18px',
+  fontWeight: 'bold',
+  marginBottom: '8px',
+  marginTop: '0',
+};
+
+const greetingSubtext = {
+  color: '#6b7280',
+  fontSize: '15px',
+  marginBottom: '20px',
+  marginTop: '0',
 };
 
 const h2 = {

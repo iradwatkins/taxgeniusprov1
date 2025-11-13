@@ -1,19 +1,19 @@
-'use client';
+'use client'
 
-import { useState, useEffect, use } from 'react';
-import { ArrowLeft, Plus, Trash2, ArrowRight, Shield, CreditCard } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
+import { useState, useEffect, use } from 'react'
+import { ArrowLeft, Plus, Trash2, ArrowRight, Shield, CreditCard } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -21,7 +21,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
@@ -30,76 +30,76 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import Link from 'next/link';
-import toast from '@/lib/toast';
-import * as Icons from 'lucide-react';
+} from '@/components/ui/dialog'
+import Link from 'next/link'
+import toast from '@/lib/toast'
+import * as Icons from 'lucide-react'
 
 interface OrderStatus {
-  id: string;
-  name: string;
-  slug: string;
-  icon: string;
-  color: string;
-  badgeColor: string;
+  id: string
+  name: string
+  slug: string
+  icon: string
+  color: string
+  badgeColor: string
 }
 
 interface Transition {
-  id: string;
-  toStatusId: string;
-  requiresPayment: boolean;
-  requiresAdmin: boolean;
-  ToStatus: OrderStatus;
+  id: string
+  toStatusId: string
+  requiresPayment: boolean
+  requiresAdmin: boolean
+  ToStatus: OrderStatus
 }
 
 interface TransitionsResponse {
-  currentStatus: OrderStatus;
-  transitions: Transition[];
-  availableStatuses: OrderStatus[];
-  total: number;
+  currentStatus: OrderStatus
+  transitions: Transition[]
+  availableStatuses: OrderStatus[]
+  total: number
 }
 
 export default function TransitionsPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
-  const [loading, setLoading] = useState(true);
-  const [currentStatus, setCurrentStatus] = useState<OrderStatus | null>(null);
-  const [transitions, setTransitions] = useState<Transition[]>([]);
-  const [availableStatuses, setAvailableStatuses] = useState<OrderStatus[]>([]);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState('');
-  const [requiresPayment, setRequiresPayment] = useState(false);
-  const [requiresAdmin, setRequiresAdmin] = useState(false);
-  const [adding, setAdding] = useState(false);
+  const resolvedParams = use(params)
+  const [loading, setLoading] = useState(true)
+  const [currentStatus, setCurrentStatus] = useState<OrderStatus | null>(null)
+  const [transitions, setTransitions] = useState<Transition[]>([])
+  const [availableStatuses, setAvailableStatuses] = useState<OrderStatus[]>([])
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [selectedStatus, setSelectedStatus] = useState('')
+  const [requiresPayment, setRequiresPayment] = useState(false)
+  const [requiresAdmin, setRequiresAdmin] = useState(false)
+  const [adding, setAdding] = useState(false)
 
   useEffect(() => {
-    fetchTransitions();
-  }, [resolvedParams.id]);
+    fetchTransitions()
+  }, [resolvedParams.id])
 
   const fetchTransitions = async () => {
     try {
-      const response = await fetch(`/api/admin/order-statuses/${resolvedParams.id}/transitions`);
+      const response = await fetch(`/api/admin/order-statuses/${resolvedParams.id}/transitions`)
       if (response.ok) {
-        const data: TransitionsResponse = await response.json();
-        setCurrentStatus(data.currentStatus);
-        setTransitions(data.transitions);
-        setAvailableStatuses(data.availableStatuses);
+        const data: TransitionsResponse = await response.json()
+        setCurrentStatus(data.currentStatus)
+        setTransitions(data.transitions)
+        setAvailableStatuses(data.availableStatuses)
       } else {
-        toast.error('Failed to load transitions');
+        toast.error('Failed to load transitions')
       }
     } catch (error) {
-      toast.error('Failed to load transitions');
+      toast.error('Failed to load transitions')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleAddTransition = async () => {
     if (!selectedStatus) {
-      toast.error('Please select a target status');
-      return;
+      toast.error('Please select a target status')
+      return
     }
 
-    setAdding(true);
+    setAdding(true)
     try {
       const response = await fetch(`/api/admin/order-statuses/${resolvedParams.id}/transitions`, {
         method: 'POST',
@@ -109,58 +109,58 @@ export default function TransitionsPage({ params }: { params: Promise<{ id: stri
           requiresPayment,
           requiresAdmin,
         }),
-      });
+      })
 
       if (response.ok) {
-        toast.success('Transition added successfully');
-        setDialogOpen(false);
-        setSelectedStatus('');
-        setRequiresPayment(false);
-        setRequiresAdmin(false);
-        fetchTransitions();
+        toast.success('Transition added successfully')
+        setDialogOpen(false)
+        setSelectedStatus('')
+        setRequiresPayment(false)
+        setRequiresAdmin(false)
+        fetchTransitions()
       } else {
-        const error = await response.json();
-        toast.error(error.error || 'Failed to add transition');
+        const error = await response.json()
+        toast.error(error.error || 'Failed to add transition')
       }
     } catch (error) {
-      toast.error('Failed to add transition');
+      toast.error('Failed to add transition')
     } finally {
-      setAdding(false);
+      setAdding(false)
     }
-  };
+  }
 
   const handleDeleteTransition = async (toStatusId: string, toStatusName: string) => {
-    if (!confirm(`Remove transition to "${toStatusName}"?`)) return;
+    if (!confirm(`Remove transition to "${toStatusName}"?`)) return
 
     try {
       const response = await fetch(
         `/api/admin/order-statuses/${resolvedParams.id}/transitions?toStatusId=${toStatusId}`,
         { method: 'DELETE' }
-      );
+      )
 
       if (response.ok) {
-        toast.success('Transition removed successfully');
-        fetchTransitions();
+        toast.success('Transition removed successfully')
+        fetchTransitions()
       } else {
-        const error = await response.json();
-        toast.error(error.error || 'Failed to remove transition');
+        const error = await response.json()
+        toast.error(error.error || 'Failed to remove transition')
       }
     } catch (error) {
-      toast.error('Failed to remove transition');
+      toast.error('Failed to remove transition')
     }
-  };
+  }
 
   const getIconComponent = (iconName: string) => {
-    const IconComponent = (Icons as any)[iconName];
-    return IconComponent ? <IconComponent className="h-4 w-4" /> : null;
-  };
+    const IconComponent = (Icons as any)[iconName]
+    return IconComponent ? <IconComponent className="h-4 w-4" /> : null
+  }
 
   if (loading) {
     return (
       <div className="flex h-96 items-center justify-center">
         <p className="text-muted-foreground">Loading transitions...</p>
       </div>
-    );
+    )
   }
 
   if (!currentStatus) {
@@ -168,7 +168,7 @@ export default function TransitionsPage({ params }: { params: Promise<{ id: stri
       <div className="flex h-96 items-center justify-center">
         <p className="text-muted-foreground">Status not found</p>
       </div>
-    );
+    )
   }
 
   return (
@@ -396,5 +396,5 @@ export default function TransitionsPage({ params }: { params: Promise<{ id: stri
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

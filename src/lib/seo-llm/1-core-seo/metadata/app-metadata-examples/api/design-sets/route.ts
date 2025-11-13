@@ -1,7 +1,7 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
-import { randomUUID } from 'crypto';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { z } from 'zod'
+import { randomUUID } from 'crypto'
 
 // Schema for creating/updating a design set
 const designSetSchema = z.object({
@@ -18,7 +18,7 @@ const designSetSchema = z.object({
       })
     )
     .optional(),
-});
+})
 
 // GET - List all design sets
 export async function GET(): Promise<unknown> {
@@ -38,7 +38,7 @@ export async function GET(): Promise<unknown> {
       orderBy: {
         sortOrder: 'asc',
       },
-    });
+    })
 
     // Transform the data to match frontend expectations
     const transformedSets = sets.map((set) => ({
@@ -51,39 +51,39 @@ export async function GET(): Promise<unknown> {
         designOption: item.DesignOption,
       })),
       productDesignSets: set.ProductDesignSet || [],
-    }));
+    }))
 
-    return NextResponse.json(transformedSets);
+    return NextResponse.json(transformedSets)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch design sets' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch design sets' }, { status: 500 })
   }
 }
 
 // POST - Create a new design set
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const validatedData = designSetSchema.parse(body);
+    const body = await request.json()
+    const validatedData = designSetSchema.parse(body)
 
     // Check if name already exists
     const existingSet = await prisma.designSet.findUnique({
       where: { name: validatedData.name },
-    });
+    })
 
     if (existingSet) {
       return NextResponse.json(
         { error: 'A design set with this name already exists' },
         { status: 400 }
-      );
+      )
     }
 
     // Ensure at least one design option is marked as default
-    const designOptionsWithDefault = validatedData.designOptions || [];
+    const designOptionsWithDefault = validatedData.designOptions || []
     if (designOptionsWithDefault.length > 0) {
-      const hasDefault = designOptionsWithDefault.some((option) => option.isDefault);
+      const hasDefault = designOptionsWithDefault.some((option) => option.isDefault)
       if (!hasDefault) {
         // If no default is set, make the first one default
-        designOptionsWithDefault[0].isDefault = true;
+        designOptionsWithDefault[0].isDefault = true
       }
     }
 
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
         },
         ProductDesignSet: true,
       },
-    });
+    })
 
     // Transform the data to match frontend expectations
     const transformedSet = {
@@ -130,17 +130,17 @@ export async function POST(request: NextRequest) {
         designOption: item.DesignOption,
       })),
       productDesignSets: set.ProductDesignSet || [],
-    };
+    }
 
-    return NextResponse.json(transformedSet);
+    return NextResponse.json(transformedSet)
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Validation error', details: error.issues },
         { status: 400 }
-      );
+      )
     }
 
-    return NextResponse.json({ error: 'Failed to create design set' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create design set' }, { status: 500 })
   }
 }

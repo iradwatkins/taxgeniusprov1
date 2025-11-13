@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Palette, Square, Copy } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Checkbox } from '@/components/ui/checkbox';
+import { useState, useEffect } from 'react'
+import { Plus, Edit, Trash2, Palette, Square, Copy } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Table,
   TableBody,
@@ -16,7 +16,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
@@ -24,65 +24,65 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { CoatingCreationModal } from '@/components/admin/coating-creation-modal';
-import { SidesCreationModal } from '@/components/admin/sides-creation-modal';
-import toast from '@/lib/toast';
+} from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
+import { CoatingCreationModal } from '@/components/admin/coating-creation-modal'
+import { SidesCreationModal } from '@/components/admin/sides-creation-modal'
+import toast from '@/lib/toast'
 
 interface CoatingOption {
-  id: string;
-  name: string;
-  description: string | null;
+  id: string
+  name: string
+  description: string | null
 }
 
 interface SidesOption {
-  id: string;
-  name: string;
-  code: string;
-  description: string | null;
+  id: string
+  name: string
+  code: string
+  description: string | null
 }
 
 interface PaperStockSidesRelation {
-  sidesOptionId: string;
-  priceMultiplier: number;
-  isEnabled: boolean;
-  isDefault: boolean;
+  sidesOptionId: string
+  priceMultiplier: number
+  isEnabled: boolean
+  isDefault: boolean
 }
 
 interface PaperStockCoatingRelation {
-  coatingId: string;
-  isDefault: boolean;
+  coatingId: string
+  isDefault: boolean
 }
 
 interface PaperStock {
-  id: string;
-  name: string;
-  weight: number;
-  pricePerSqInch: number;
-  tooltipText: string | null;
-  isActive: boolean;
+  id: string
+  name: string
+  weight: number
+  pricePerSqInch: number
+  tooltipText: string | null
+  isActive: boolean
   // Vendor pricing & markup fields
-  vendorPricePerSqInch?: number | null;
-  markupType?: 'PERCENTAGE' | 'FLAT' | null;
-  markupValue?: number | null;
-  profitMargin?: number | null;
-  paperStockCoatings: (PaperStockCoatingRelation & { coating: CoatingOption })[];
-  paperStockSides: (PaperStockSidesRelation & { sidesOption: SidesOption })[];
-  productsCount?: number;
+  vendorPricePerSqInch?: number | null
+  markupType?: 'PERCENTAGE' | 'FLAT' | null
+  markupValue?: number | null
+  profitMargin?: number | null
+  paperStockCoatings: (PaperStockCoatingRelation & { coating: CoatingOption })[]
+  paperStockSides: (PaperStockSidesRelation & { sidesOption: SidesOption })[]
+  productsCount?: number
 }
 
 export default function PaperStocksPage() {
-  const [paperStocks, setPaperStocks] = useState<PaperStock[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [editingStock, setEditingStock] = useState<PaperStock | null>(null);
-  const [deletingStock, setDeletingStock] = useState<PaperStock | null>(null);
-  const [allCoatingOptions, setAllCoatingOptions] = useState<CoatingOption[]>([]);
-  const [allSidesOptions, setAllSidesOptions] = useState<SidesOption[]>([]);
-  const [coatingModalOpen, setCoatingModalOpen] = useState(false);
-  const [sidesModalOpen, setSidesModalOpen] = useState(false);
+  const [paperStocks, setPaperStocks] = useState<PaperStock[]>([])
+  const [loading, setLoading] = useState(true)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [editingStock, setEditingStock] = useState<PaperStock | null>(null)
+  const [deletingStock, setDeletingStock] = useState<PaperStock | null>(null)
+  const [allCoatingOptions, setAllCoatingOptions] = useState<CoatingOption[]>([])
+  const [allSidesOptions, setAllSidesOptions] = useState<SidesOption[]>([])
+  const [coatingModalOpen, setCoatingModalOpen] = useState(false)
+  const [sidesModalOpen, setSidesModalOpen] = useState(false)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -100,38 +100,38 @@ export default function PaperStocksPage() {
     selectedSides: [] as string[],
     defaultSides: '' as string,
     sidesMultipliers: {} as Record<string, number>,
-  });
+  })
 
   useEffect(() => {
-    fetchPaperStocks();
-    fetchOptions();
-  }, []);
+    fetchPaperStocks()
+    fetchOptions()
+  }, [])
 
   const fetchOptions = async () => {
     try {
       const [coatingsRes, sidesRes] = await Promise.all([
         fetch('/api/coating-options'),
         fetch('/api/sides-options'),
-      ]);
+      ])
 
       if (coatingsRes.ok) {
-        const coatingsData = await coatingsRes.json();
-        setAllCoatingOptions(coatingsData);
+        const coatingsData = await coatingsRes.json()
+        setAllCoatingOptions(coatingsData)
       }
 
       if (sidesRes.ok) {
-        const sidesData = await sidesRes.json();
-        setAllSidesOptions(sidesData);
+        const sidesData = await sidesRes.json()
+        setAllSidesOptions(sidesData)
       }
     } catch (error) {}
-  };
+  }
 
   const fetchPaperStocks = async () => {
     try {
-      const response = await fetch('/api/paper-stocks');
-      if (!response.ok) throw new Error('Failed to fetch paper stocks');
+      const response = await fetch('/api/paper-stocks')
+      if (!response.ok) throw new Error('Failed to fetch paper stocks')
 
-      const data = await response.json();
+      const data = await response.json()
 
       // Transform API response to match our interface
       const transformedStocks = data.map((stock: any) => ({
@@ -149,22 +149,22 @@ export default function PaperStocksPage() {
         paperStockCoatings: stock.paperStockCoatings || [],
         paperStockSides: stock.paperStockSides || [],
         productsCount: stock.paperStockSetItems?.length || 0,
-      }));
+      }))
 
-      setPaperStocks(transformedStocks);
+      setPaperStocks(transformedStocks)
     } catch (error) {
-      toast.error('Failed to load paper stocks');
+      toast.error('Failed to load paper stocks')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     try {
-      const url = editingStock ? `/api/paper-stocks/${editingStock.id}` : '/api/paper-stocks';
-      const method = editingStock ? 'PUT' : 'POST';
+      const url = editingStock ? `/api/paper-stocks/${editingStock.id}` : '/api/paper-stocks'
+      const method = editingStock ? 'PUT' : 'POST'
 
       const payload = {
         name: formData.name,
@@ -185,45 +185,45 @@ export default function PaperStocksPage() {
           multiplier: formData.sidesMultipliers[sidesId] || 1.0,
           isDefault: sidesId === formData.defaultSides,
         })),
-      };
+      }
 
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-      });
+      })
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to save paper stock');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to save paper stock')
       }
 
-      toast.success(editingStock ? 'Paper stock updated' : 'Paper stock created');
-      setDialogOpen(false);
-      resetForm();
-      fetchPaperStocks();
+      toast.success(editingStock ? 'Paper stock updated' : 'Paper stock created')
+      setDialogOpen(false)
+      resetForm()
+      fetchPaperStocks()
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message)
     }
-  };
+  }
 
   const handleEdit = (stock: PaperStock) => {
-    setEditingStock(stock);
+    setEditingStock(stock)
 
     // Extract coating data
-    const selectedCoatings = stock.paperStockCoatings.map((pc) => pc.coatingId);
-    const defaultCoating = stock.paperStockCoatings.find((pc) => pc.isDefault)?.coatingId || '';
+    const selectedCoatings = stock.paperStockCoatings.map((pc) => pc.coatingId)
+    const defaultCoating = stock.paperStockCoatings.find((pc) => pc.isDefault)?.coatingId || ''
 
     // Extract sides data and multipliers
-    const selectedSides = stock.paperStockSides.map((ps) => ps.sidesOptionId);
-    const defaultSides = stock.paperStockSides.find((ps) => ps.isDefault)?.sidesOptionId || '';
+    const selectedSides = stock.paperStockSides.map((ps) => ps.sidesOptionId)
+    const defaultSides = stock.paperStockSides.find((ps) => ps.isDefault)?.sidesOptionId || ''
     const sidesMultipliers = stock.paperStockSides.reduce(
       (acc, ps) => {
-        acc[ps.sidesOptionId] = ps.priceMultiplier;
-        return acc;
+        acc[ps.sidesOptionId] = ps.priceMultiplier
+        return acc
       },
       {} as Record<string, number>
-    );
+    )
 
     setFormData({
       name: stock.name,
@@ -240,34 +240,34 @@ export default function PaperStocksPage() {
       selectedSides,
       defaultSides,
       sidesMultipliers,
-    });
-    setDialogOpen(true);
-  };
+    })
+    setDialogOpen(true)
+  }
 
   const handleDelete = async () => {
-    if (!deletingStock) return;
+    if (!deletingStock) return
 
     try {
       const response = await fetch(`/api/paper-stocks/${deletingStock.id}`, {
         method: 'DELETE',
-      });
+      })
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete paper stock');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to delete paper stock')
       }
 
-      toast.success('Paper stock deleted');
-      setDeleteDialogOpen(false);
-      setDeletingStock(null);
-      fetchPaperStocks();
+      toast.success('Paper stock deleted')
+      setDeleteDialogOpen(false)
+      setDeletingStock(null)
+      fetchPaperStocks()
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message)
     }
-  };
+  }
 
   const resetForm = () => {
-    setEditingStock(null);
+    setEditingStock(null)
     setFormData({
       name: '',
       weight: 0,
@@ -283,30 +283,30 @@ export default function PaperStocksPage() {
       selectedSides: [],
       defaultSides: '',
       sidesMultipliers: {},
-    });
-  };
+    })
+  }
 
   const openDeleteDialog = (stock: PaperStock) => {
-    setDeletingStock(stock);
-    setDeleteDialogOpen(true);
-  };
+    setDeletingStock(stock)
+    setDeleteDialogOpen(true)
+  }
 
   const handleDuplicate = (stock: PaperStock) => {
-    setEditingStock(null); // Important: clear editing stock so it creates a new item
+    setEditingStock(null) // Important: clear editing stock so it creates a new item
     // Extract coating data
-    const selectedCoatings = stock.paperStockCoatings.map((pc) => pc.coatingId);
-    const defaultCoating = stock.paperStockCoatings.find((pc) => pc.isDefault)?.coatingId || '';
+    const selectedCoatings = stock.paperStockCoatings.map((pc) => pc.coatingId)
+    const defaultCoating = stock.paperStockCoatings.find((pc) => pc.isDefault)?.coatingId || ''
 
     // Extract sides data and multipliers
-    const selectedSides = stock.paperStockSides.map((ps) => ps.sidesOptionId);
-    const defaultSides = stock.paperStockSides.find((ps) => ps.isDefault)?.sidesOptionId || '';
+    const selectedSides = stock.paperStockSides.map((ps) => ps.sidesOptionId)
+    const defaultSides = stock.paperStockSides.find((ps) => ps.isDefault)?.sidesOptionId || ''
     const sidesMultipliers = stock.paperStockSides.reduce(
       (acc, ps) => {
-        acc[ps.sidesOptionId] = ps.priceMultiplier;
-        return acc;
+        acc[ps.sidesOptionId] = ps.priceMultiplier
+        return acc
       },
       {} as Record<string, number>
-    );
+    )
 
     setFormData({
       name: `${stock.name} - Copy`,
@@ -323,25 +323,25 @@ export default function PaperStocksPage() {
       selectedSides,
       defaultSides,
       sidesMultipliers,
-    });
-    setDialogOpen(true);
-  };
+    })
+    setDialogOpen(true)
+  }
 
   const handleCoatingCreated = (newCoating: CoatingOption) => {
     // Add to the list of available coating options
-    setAllCoatingOptions((prev) => [...prev, newCoating]);
+    setAllCoatingOptions((prev) => [...prev, newCoating])
 
     // Auto-select the new coating and set as default if it's the first one
     setFormData((prev) => ({
       ...prev,
       selectedCoatings: [...prev.selectedCoatings, newCoating.id],
       defaultCoating: prev.selectedCoatings.length === 0 ? newCoating.id : prev.defaultCoating,
-    }));
-  };
+    }))
+  }
 
   const handleSidesCreated = (newSides: SidesOption) => {
     // Add to the list of available sides options
-    setAllSidesOptions((prev) => [...prev, newSides]);
+    setAllSidesOptions((prev) => [...prev, newSides])
 
     // Auto-select the new sides option with default multiplier and set as default if first one
     setFormData((prev) => ({
@@ -352,8 +352,8 @@ export default function PaperStocksPage() {
         ...prev.sidesMultipliers,
         [newSides.id]: 1.0,
       },
-    }));
-  };
+    }))
+  }
 
   if (loading) {
     return (
@@ -363,7 +363,7 @@ export default function PaperStocksPage() {
           <div className="h-64 bg-gray-200 rounded"></div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -384,8 +384,8 @@ export default function PaperStocksPage() {
             </div>
             <Button
               onClick={() => {
-                resetForm();
-                setDialogOpen(true);
+                resetForm()
+                setDialogOpen(true)
               }}
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -476,8 +476,8 @@ export default function PaperStocksPage() {
                             type="number"
                             value={formData.vendorPricePerSqInch}
                             onChange={(e) => {
-                              const vendorPrice = parseFloat(e.target.value) || 0;
-                              setFormData({ ...formData, vendorPricePerSqInch: vendorPrice });
+                              const vendorPrice = parseFloat(e.target.value) || 0
+                              setFormData({ ...formData, vendorPricePerSqInch: vendorPrice })
                             }}
                           />
                           <p className="text-xs text-muted-foreground">
@@ -615,7 +615,7 @@ export default function PaperStocksPage() {
                                         formData.selectedCoatings.length === 0
                                           ? coating.id
                                           : formData.defaultCoating,
-                                    });
+                                    })
                                   } else {
                                     setFormData({
                                       ...formData,
@@ -627,7 +627,7 @@ export default function PaperStocksPage() {
                                         formData.defaultCoating === coating.id
                                           ? ''
                                           : formData.defaultCoating,
-                                    });
+                                    })
                                   }
                                 }}
                               />
@@ -709,10 +709,10 @@ export default function PaperStocksPage() {
                                         ...formData.sidesMultipliers,
                                         [sides.id]: formData.sidesMultipliers[sides.id] || 1.0,
                                       },
-                                    });
+                                    })
                                   } else {
                                     const { [sides.id]: removed, ...remainingMultipliers } =
-                                      formData.sidesMultipliers;
+                                      formData.sidesMultipliers
                                     setFormData({
                                       ...formData,
                                       selectedSides: formData.selectedSides.filter(
@@ -724,7 +724,7 @@ export default function PaperStocksPage() {
                                           ? ''
                                           : formData.defaultSides,
                                       sidesMultipliers: remainingMultipliers,
-                                    });
+                                    })
                                   }
                                 }}
                               />
@@ -764,14 +764,14 @@ export default function PaperStocksPage() {
                                         type="number"
                                         value={formData.sidesMultipliers[sides.id] || 1.0}
                                         onChange={(e) => {
-                                          const value = parseFloat(e.target.value) || 1.0;
+                                          const value = parseFloat(e.target.value) || 1.0
                                           setFormData({
                                             ...formData,
                                             sidesMultipliers: {
                                               ...formData.sidesMultipliers,
                                               [sides.id]: value,
                                             },
-                                          });
+                                          })
                                         }}
                                       />
                                     </div>
@@ -969,5 +969,5 @@ export default function PaperStocksPage() {
         onSidesCreated={handleSidesCreated}
       />
     </div>
-  );
+  )
 }

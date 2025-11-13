@@ -11,30 +11,30 @@
  * In production, it reads from a pre-generated static file for performance.
  */
 
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 // ChatGPT Product Feed Item Interface
 interface ChatGPTProductFeedItem {
-  id: string;
-  title: string;
-  description: string;
-  link: string;
-  price: string;
-  availability: 'in_stock' | 'out_of_stock' | 'preorder';
-  image_link: string;
-  enable_search: boolean;
-  enable_checkout: boolean;
-  gtin?: string;
-  brand?: string;
-  product_category?: string;
-  sale_price?: string;
-  inventory_quantity?: number;
-  seller_name?: string;
-  condition?: 'new' | 'refurbished' | 'used';
-  additional_image_links?: string[];
-  product_type?: string;
-  google_product_category?: string;
+  id: string
+  title: string
+  description: string
+  link: string
+  price: string
+  availability: 'in_stock' | 'out_of_stock' | 'preorder'
+  image_link: string
+  enable_search: boolean
+  enable_checkout: boolean
+  gtin?: string
+  brand?: string
+  product_category?: string
+  sale_price?: string
+  inventory_quantity?: number
+  seller_name?: string
+  condition?: 'new' | 'refurbished' | 'used'
+  additional_image_links?: string[]
+  product_type?: string
+  google_product_category?: string
 }
 
 /**
@@ -44,9 +44,9 @@ interface ChatGPTProductFeedItem {
  */
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '1000', 10);
-    const offset = parseInt(searchParams.get('offset') || '0', 10);
+    const { searchParams } = new URL(request.url)
+    const limit = parseInt(searchParams.get('limit') || '1000', 10)
+    const offset = parseInt(searchParams.get('offset') || '0', 10)
 
     // Fetch active products
     const products = await prisma.product.findMany({
@@ -76,31 +76,31 @@ export async function GET(request: Request) {
       orderBy: {
         createdAt: 'desc',
       },
-    });
+    })
 
     // Transform to ChatGPT feed format
     const feedItems: ChatGPTProductFeedItem[] = products.map((product) => {
       // Calculate base price (simplified)
-      const basePrice = product.basePrice || 29.99;
+      const basePrice = product.basePrice || 29.99
 
       // Get primary image
-      const primaryImage = product.ProductImage.find((img) => img.isPrimary);
+      const primaryImage = product.ProductImage.find((img) => img.isPrimary)
       const imageUrl = primaryImage?.Image?.url
         ? `https://gangrunprinting.com${primaryImage.Image.url}`
-        : 'https://gangrunprinting.com/images/product-placeholder.jpg';
+        : 'https://gangrunprinting.com/images/product-placeholder.jpg'
 
       // Get additional images
       const additionalImages = product.ProductImage.filter(
         (img) => !img.isPrimary && img.Image?.url
       )
         .slice(0, 9)
-        .map((img) => `https://gangrunprinting.com${img.Image.url}`);
+        .map((img) => `https://gangrunprinting.com${img.Image.url}`)
 
       // Build description
       const description =
         product.description ||
         product.shortDescription ||
-        `High-quality ${product.name} from GangRun Printing. Professional printing services with fast turnaround times and competitive pricing.`;
+        `High-quality ${product.name} from GangRun Printing. Professional printing services with fast turnaround times and competitive pricing.`
 
       const feedItem: ChatGPTProductFeedItem = {
         // Required fields
@@ -121,23 +121,23 @@ export async function GET(request: Request) {
         condition: 'new',
         product_type: product.ProductCategory?.name || 'Custom Printing',
         google_product_category: 'Business & Industrial > Printing & Graphic Design',
-      };
+      }
 
       // Add additional images if available
       if (additionalImages.length > 0) {
-        feedItem.additional_image_links = additionalImages;
+        feedItem.additional_image_links = additionalImages
       }
 
       // Add sale price from metadata if available
       if (product.metadata && typeof product.metadata === 'object') {
-        const metadata = product.metadata as any;
+        const metadata = product.metadata as any
         if (metadata.salePrice) {
-          feedItem.sale_price = `${metadata.salePrice} USD`;
+          feedItem.sale_price = `${metadata.salePrice} USD`
         }
       }
 
-      return feedItem;
-    });
+      return feedItem
+    })
 
     // Return JSON feed with proper headers
     return NextResponse.json(feedItems, {
@@ -147,16 +147,16 @@ export async function GET(request: Request) {
         'X-Feed-Generated': new Date().toISOString(),
         'X-Total-Products': feedItems.length.toString(),
       },
-    });
+    })
   } catch (error) {
-    console.error('[ChatGPT Feed API] Error generating feed:', error);
+    console.error('[ChatGPT Feed API] Error generating feed:', error)
     return NextResponse.json(
       {
         error: 'Failed to generate product feed',
         message: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -169,7 +169,7 @@ export async function HEAD(request: Request) {
   try {
     const productCount = await prisma.product.count({
       where: { isActive: true },
-    });
+    })
 
     return new Response(null, {
       headers: {
@@ -179,8 +179,8 @@ export async function HEAD(request: Request) {
         'X-Last-Updated': new Date().toISOString(),
         'Cache-Control': 'public, max-age=900',
       },
-    });
+    })
   } catch (error) {
-    return new Response(null, { status: 500 });
+    return new Response(null, { status: 500 })
   }
 }

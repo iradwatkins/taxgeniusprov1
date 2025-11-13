@@ -4,26 +4,26 @@
  * Generates SEO-optimized content for product pages using Ollama AI
  */
 
-import { ollamaClient } from './ollama-client';
-import { prisma } from '@/lib/prisma';
+import { ollamaClient } from './ollama-client'
+import { prisma } from '@/lib/prisma'
 
 export interface ProductSEOOptions {
-  productId: string;
-  productName: string;
-  productCategory?: string;
-  city?: string;
-  state?: string;
-  wordCount?: number;
-  temperature?: number;
-  forceRegenerate?: boolean;
+  productId: string
+  productName: string
+  productCategory?: string
+  city?: string
+  state?: string
+  wordCount?: number
+  temperature?: number
+  forceRegenerate?: boolean
 }
 
 export interface ProductSEOResult {
-  content: string;
-  wordCount: number;
-  generatedAt: Date;
-  model: string;
-  fromCache: boolean;
+  content: string
+  wordCount: number
+  generatedAt: Date
+  model: string
+  fromCache: boolean
 }
 
 /**
@@ -40,7 +40,7 @@ export async function generateProductSEO(options: ProductSEOOptions): Promise<Pr
     wordCount = 150,
     temperature = 0.7,
     forceRegenerate = false,
-  } = options;
+  } = options
 
   // Check cache first (unless force regenerate)
   if (!forceRegenerate) {
@@ -54,7 +54,7 @@ export async function generateProductSEO(options: ProductSEOOptions): Promise<Pr
       orderBy: {
         generatedAt: 'desc',
       },
-    });
+    })
 
     if (cached) {
       return {
@@ -63,13 +63,13 @@ export async function generateProductSEO(options: ProductSEOOptions): Promise<Pr
         generatedAt: cached.generatedAt,
         model: cached.model,
         fromCache: true,
-      };
+      }
     }
   }
 
   // Generate new content
-  const locationContext = city && state ? ` in ${city}, ${state}` : '';
-  const categoryContext = productCategory ? ` ${productCategory}` : '';
+  const locationContext = city && state ? ` in ${city}, ${state}` : ''
+  const categoryContext = productCategory ? ` ${productCategory}` : ''
 
   const prompt = `Write a compelling ${wordCount}-word introduction for premium${categoryContext} printing services${locationContext}.
 
@@ -84,9 +84,9 @@ Requirements:
 - Professional, engaging tone
 - NO bullet points, just flowing paragraphs
 
-IMPORTANT: Output ONLY the final content. No reasoning, no explanations, just the finished ${wordCount}-word introduction.`;
+IMPORTANT: Output ONLY the final content. No reasoning, no explanations, just the finished ${wordCount}-word introduction.`
 
-  const startTime = Date.now();
+  const startTime = Date.now()
 
   const content = await ollamaClient.generate({
     system:
@@ -94,10 +94,10 @@ IMPORTANT: Output ONLY the final content. No reasoning, no explanations, just th
     prompt,
     temperature,
     maxTokens: wordCount * 2, // Safety margin
-  });
+  })
 
-  const generationTime = Date.now() - startTime;
-  const actualWordCount = content.trim().split(/\s+/).length;
+  const generationTime = Date.now() - startTime
+  const actualWordCount = content.trim().split(/\s+/).length
 
   // Save to database
   const saved = await prisma.productSEOContent.create({
@@ -110,7 +110,7 @@ IMPORTANT: Output ONLY the final content. No reasoning, no explanations, just th
       model: process.env.OLLAMA_MODEL || 'qwen2.5:32b',
       approved: false, // Require manual approval
     },
-  });
+  })
 
   return {
     content: saved.content,
@@ -118,26 +118,26 @@ IMPORTANT: Output ONLY the final content. No reasoning, no explanations, just th
     generatedAt: saved.generatedAt,
     model: saved.model,
     fromCache: false,
-  };
+  }
 }
 
 /**
  * Generate SEO meta tags for a product
  */
 export async function generateProductMetaTags(options: {
-  productName: string;
-  productCategory?: string;
-  city?: string;
-  state?: string;
+  productName: string
+  productCategory?: string
+  city?: string
+  state?: string
 }): Promise<{
-  title: string;
-  description: string;
-  ogDescription: string;
+  title: string
+  description: string
+  ogDescription: string
 }> {
-  const { productName, productCategory = '', city, state } = options;
+  const { productName, productCategory = '', city, state } = options
 
-  const locationContext = city && state ? ` in ${city}, ${state}` : '';
-  const categoryContext = productCategory ? ` ${productCategory}` : '';
+  const locationContext = city && state ? ` in ${city}, ${state}` : ''
+  const categoryContext = productCategory ? ` ${productCategory}` : ''
 
   const prompt = `Generate SEO meta tags for${categoryContext} printing services${locationContext}.
 
@@ -155,23 +155,23 @@ Requirements:
 - Description: Compelling, benefit-focused, include CTA
 - OG Description: Social media optimized version
 
-IMPORTANT: Output ONLY valid JSON, no markdown formatting, no explanations.`;
+IMPORTANT: Output ONLY valid JSON, no markdown formatting, no explanations.`
 
   const response = await ollamaClient.generate({
     system: 'You are an SEO expert. Output ONLY valid JSON, no markdown or explanations.',
     prompt,
     temperature: 0.6,
     maxTokens: 400,
-  });
+  })
 
   try {
     // Extract JSON from response
-    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    const jsonMatch = response.match(/\{[\s\S]*\}/)
     if (!jsonMatch) {
-      throw new Error('No JSON found in response');
+      throw new Error('No JSON found in response')
     }
 
-    const metaTags = JSON.parse(jsonMatch[0]);
+    const metaTags = JSON.parse(jsonMatch[0])
 
     return {
       title: metaTags.title || `${productName} | GangRun Printing`,
@@ -179,15 +179,15 @@ IMPORTANT: Output ONLY valid JSON, no markdown formatting, no explanations.`;
         metaTags.description ||
         `Order premium ${productName}${locationContext}. Fast turnaround, professional quality.`,
       ogDescription: metaTags.ogDescription || metaTags.description || metaTags.title,
-    };
+    }
   } catch (error) {
-    console.error('[SEO Brain] Failed to parse meta tags:', error);
+    console.error('[SEO Brain] Failed to parse meta tags:', error)
     // Fallback to defaults
     return {
       title: `${productName}${locationContext} | GangRun Printing`,
       description: `Order premium ${productName}${locationContext}. Fast turnaround, professional quality, competitive pricing.`,
       ogDescription: `Premium ${productName}${locationContext} from GangRun Printing`,
-    };
+    }
   }
 }
 
@@ -201,7 +201,7 @@ export async function approveProductSEO(seoContentId: string): Promise<void> {
       approved: true,
       publishedAt: new Date(),
     },
-  });
+  })
 }
 
 /**
@@ -222,7 +222,7 @@ export async function getApprovedProductSEO(
     orderBy: {
       publishedAt: 'desc',
     },
-  });
+  })
 
-  return seoContent?.content || null;
+  return seoContent?.content || null
 }

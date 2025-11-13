@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface ChartData {
-  labels: string[];
+  labels: string[]
   datasets: {
-    label: string;
-    data: number[];
-    backgroundColor?: string[];
-  }[];
+    label: string
+    data: number[]
+    backgroundColor?: string[]
+  }[]
 }
 
 export function SalesByCategoryChart({ data }: { data?: ChartData }) {
@@ -21,10 +21,10 @@ export function SalesByCategoryChart({ data }: { data?: ChartData }) {
         backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
       },
     ],
-  };
+  }
 
-  const chartData = data || defaultData;
-  const total = chartData.datasets[0].data.reduce((a, b) => a + b, 0);
+  const chartData = data || defaultData
+  const total = chartData.datasets[0].data.reduce((a, b) => a + b, 0)
 
   return (
     <Card>
@@ -34,9 +34,9 @@ export function SalesByCategoryChart({ data }: { data?: ChartData }) {
       <CardContent>
         <div className="space-y-4">
           {chartData.labels.map((label, index) => {
-            const value = chartData.datasets[0].data[index];
-            const percentage = ((value / total) * 100).toFixed(1);
-            const color = chartData.datasets[0].backgroundColor?.[index] || '#3b82f6';
+            const value = chartData.datasets[0].data[index]
+            const percentage = ((value / total) * 100).toFixed(1)
+            const color = chartData.datasets[0].backgroundColor?.[index] || '#3b82f6'
 
             return (
               <div key={label} className="space-y-2">
@@ -57,10 +57,10 @@ export function SalesByCategoryChart({ data }: { data?: ChartData }) {
                   />
                 </div>
               </div>
-            );
+            )
           })}
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

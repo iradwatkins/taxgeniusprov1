@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 /**
  * Email Preview Client Component
@@ -6,39 +6,39 @@
  * Interactive UI for previewing all email templates
  */
 
-import { useState } from 'react';
-import { render } from '@react-email/render';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState } from 'react'
+import { render } from '@react-email/render'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 
 // Import all email templates
-import { OrderConfirmationEmail } from '@/lib/email/templates/order-confirmation';
-import { OrderInProductionEmail } from '@/lib/email/templates/order-in-production';
-import { PaymentDeclinedEmail } from '@/lib/email/templates/payment-declined';
-import { PaymentFailedEmail } from '@/lib/email/templates/payment-failed';
-import { OrderShippedEmail } from '@/lib/email/templates/order-shipped';
-import { OrderDeliveredEmail } from '@/lib/email/templates/order-delivered';
-import { OrderCancelledEmail } from '@/lib/email/templates/order-cancelled';
-import { OrderRefundedEmail } from '@/lib/email/templates/order-refunded';
-import { OrderOnHoldEmail } from '@/lib/email/templates/order-on-hold';
-import { InvoiceSentEmail } from '@/lib/email/templates/invoice-sent';
+import { OrderConfirmationEmail } from '@/lib/email/templates/order-confirmation'
+import { OrderInProductionEmail } from '@/lib/email/templates/order-in-production'
+import { PaymentDeclinedEmail } from '@/lib/email/templates/payment-declined'
+import { PaymentFailedEmail } from '@/lib/email/templates/payment-failed'
+import { OrderShippedEmail } from '@/lib/email/templates/order-shipped'
+import { OrderDeliveredEmail } from '@/lib/email/templates/order-delivered'
+import { OrderCancelledEmail } from '@/lib/email/templates/order-cancelled'
+import { OrderRefundedEmail } from '@/lib/email/templates/order-refunded'
+import { OrderOnHoldEmail } from '@/lib/email/templates/order-on-hold'
+import { InvoiceSentEmail } from '@/lib/email/templates/invoice-sent'
 
 interface EmailTemplate {
-  id: string;
-  name: string;
-  description: string;
-  category: 'payment' | 'order' | 'issues' | 'admin';
-  component: any;
-  sampleData: any;
+  id: string
+  name: string
+  description: string
+  category: 'payment' | 'order' | 'issues' | 'admin'
+  component: any
+  sampleData: any
 }
 
 const emailTemplates: EmailTemplate[] = [
@@ -254,23 +254,23 @@ const emailTemplates: EmailTemplate[] = [
       paymentTerms: 'Net 14 days. Late payments subject to 1.5% monthly interest.',
     },
   },
-];
+]
 
 export default function EmailPreviewClient() {
-  const [selectedEmail, setSelectedEmail] = useState<EmailTemplate | null>(null);
-  const [previewHtml, setPreviewHtml] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedEmail, setSelectedEmail] = useState<EmailTemplate | null>(null)
+  const [previewHtml, setPreviewHtml] = useState<string>('')
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
   const handlePreview = async (template: EmailTemplate) => {
-    setSelectedEmail(template);
+    setSelectedEmail(template)
     try {
-      const html = render(template.component(template.sampleData));
-      setPreviewHtml(html);
+      const html = render(template.component(template.sampleData))
+      setPreviewHtml(html)
     } catch (error) {
-      console.error('Error rendering email:', error);
-      setPreviewHtml('<p>Error rendering email template</p>');
+      console.error('Error rendering email:', error)
+      setPreviewHtml('<p>Error rendering email template</p>')
     }
-  };
+  }
 
   const categories = [
     { value: 'all', label: 'All Templates', count: emailTemplates.length },
@@ -294,19 +294,19 @@ export default function EmailPreviewClient() {
       label: 'Admin',
       count: emailTemplates.filter((t) => t.category === 'admin').length,
     },
-  ];
+  ]
 
   const filteredTemplates =
     selectedCategory === 'all'
       ? emailTemplates
-      : emailTemplates.filter((t) => t.category === selectedCategory);
+      : emailTemplates.filter((t) => t.category === selectedCategory)
 
   const categoryColors: Record<string, string> = {
     payment: 'bg-green-100 text-green-800',
     order: 'bg-blue-100 text-blue-800',
     issues: 'bg-red-100 text-red-800',
     admin: 'bg-purple-100 text-purple-800',
-  };
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -399,5 +399,5 @@ export default function EmailPreviewClient() {
         </div>
       </div>
     </div>
-  );
+  )
 }

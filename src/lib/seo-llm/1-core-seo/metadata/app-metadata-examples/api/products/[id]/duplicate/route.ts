@@ -1,11 +1,11 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { randomUUID } from 'crypto';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { randomUUID } from 'crypto'
 
 // POST /api/products/[id]/duplicate
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
+    const { id } = await params
 
     // Fetch the original product with all relationships using SET architecture
     const originalProduct = await prisma.product.findUnique({
@@ -48,17 +48,17 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           },
         },
       },
-    });
+    })
 
     if (!originalProduct) {
-      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
     // Generate a unique SKU and slug
-    const randomSuffix = Math.random().toString(36).substring(7);
-    const newSku = `${originalProduct.sku}-COPY-${randomSuffix}`.toUpperCase();
-    const newSlug = `${originalProduct.slug}-copy-${randomSuffix}`;
-    const newName = `${originalProduct.name} (Copy)`;
+    const randomSuffix = Math.random().toString(36).substring(7)
+    const newSku = `${originalProduct.sku}-COPY-${randomSuffix}`.toUpperCase()
+    const newSlug = `${originalProduct.slug}-copy-${randomSuffix}`
+    const newName = `${originalProduct.name} (Copy)`
 
     // Create the duplicated product
     const duplicatedProduct = await prisma.product.create({
@@ -207,21 +207,21 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           },
         },
       },
-    });
+    })
 
     return NextResponse.json({
       success: true,
       product: duplicatedProduct,
       message: `Product duplicated successfully as "${newName}"`,
-    });
+    })
   } catch (error) {
-    console.error('Error duplicating product:', error);
+    console.error('Error duplicating product:', error)
     return NextResponse.json(
       {
         error: 'Failed to duplicate product',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
-    );
+    )
   }
 }

@@ -1,26 +1,26 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import toast from '@/lib/toast';
-import { ArrowLeft, Save, Loader2 } from 'lucide-react';
+} from '@/components/ui/select'
+import toast from '@/lib/toast'
+import { ArrowLeft, Save, Loader2 } from 'lucide-react'
 
 export default function NewAddonPage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -35,39 +35,39 @@ export default function NewAddonPage() {
     percentage: 0,
     perPieceRate: 0,
     baseFee: 0,
-  });
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (!formData.name || !formData.pricingModel) {
-      toast.error('Please fill in required fields');
-      return;
+      toast.error('Please fill in required fields')
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
 
     try {
       // Build configuration based on pricing model
-      let configuration: any = {};
+      let configuration: any = {}
 
       switch (formData.pricingModel) {
         case 'FLAT':
-          configuration = { flatFee: formData.flatFee };
-          break;
+          configuration = { flatFee: formData.flatFee }
+          break
         case 'PERCENTAGE':
-          configuration = { percentage: formData.percentage / 100, appliesTo: 'base_price' };
-          break;
+          configuration = { percentage: formData.percentage / 100, appliesTo: 'base_price' }
+          break
         case 'PER_UNIT':
-          configuration = { perPieceRate: formData.perPieceRate };
-          break;
+          configuration = { perPieceRate: formData.perPieceRate }
+          break
         case 'CUSTOM':
           configuration = {
             baseFee: formData.baseFee,
             perPieceRate: formData.perPieceRate,
             formula: `$${formData.baseFee} + $${formData.perPieceRate}/piece`,
-          };
-          break;
+          }
+          break
       }
 
       const payload = {
@@ -80,28 +80,28 @@ export default function NewAddonPage() {
         sortOrder: formData.sortOrder,
         isActive: formData.isActive,
         adminNotes: formData.adminNotes || null,
-      };
+      }
 
       const response = await fetch('/api/addons', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-      });
+      })
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to create addon');
+        throw new Error(result.error || 'Failed to create addon')
       }
 
-      toast.success('Addon created successfully!');
-      router.push('/admin/addons');
+      toast.success('Addon created successfully!')
+      router.push('/admin/addons')
     } catch (error) {
-      toast.error((error as Error).message || 'Failed to create addon');
+      toast.error((error as Error).message || 'Failed to create addon')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="container mx-auto py-6 max-w-4xl">
@@ -352,5 +352,5 @@ export default function NewAddonPage() {
         </Card>
       </form>
     </div>
-  );
+  )
 }

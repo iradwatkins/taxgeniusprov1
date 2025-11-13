@@ -1,10 +1,10 @@
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import { prisma } from '@/lib/prisma'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   ArrowLeft,
   Package,
@@ -38,18 +38,18 @@ import {
   Eye,
   Factory,
   UserCheck,
-} from 'lucide-react';
-import { VendorAssignment } from '@/components/admin/vendor-assignment';
-import { OrderFilesManager } from '@/components/admin/files/order-files-manager';
-import { CollapsibleSection } from '@/components/admin/collapsible-section';
-import { EditableTracking } from '@/components/admin/orders/editable-tracking';
-import { EditableOrderStatus } from '@/components/admin/orders/editable-order-status';
-import { CustomerUploadsGallery } from '@/components/admin/orders/customer-uploads-gallery';
-import { PrintOrderButton } from '@/components/admin/orders/print-order-button';
+} from 'lucide-react'
+import { VendorAssignment } from '@/components/admin/vendor-assignment'
+import { OrderFilesManager } from '@/components/admin/files/order-files-manager'
+import { CollapsibleSection } from '@/components/admin/collapsible-section'
+import { EditableTracking } from '@/components/admin/orders/editable-tracking'
+import { EditableOrderStatus } from '@/components/admin/orders/editable-order-status'
+import { CustomerUploadsGallery } from '@/components/admin/orders/customer-uploads-gallery'
+import { PrintOrderButton } from '@/components/admin/orders/print-order-button'
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 async function getOrder(id: string) {
   const order = await prisma.order.findUnique({
@@ -68,22 +68,22 @@ async function getOrder(id: string) {
         },
       },
     },
-  });
+  })
 
   // Fetch airport if selectedAirportId exists
-  let airport = null;
+  let airport = null
   if (order?.selectedAirportId) {
     airport = await prisma.airport.findUnique({
       where: { id: order.selectedAirportId },
-    });
+    })
   }
 
   // Attach airport to order
-  (order as any).Airport = airport;
+  ;(order as any).Airport = airport
 
   // Get product category vendors for automatic assignment
   if (order && order.OrderItem.length > 0) {
-    const productSkus = order.OrderItem.map((item) => item.productSku);
+    const productSkus = order.OrderItem.map((item) => item.productSku)
     const products = await prisma.product.findMany({
       where: {
         sku: { in: productSkus },
@@ -106,23 +106,23 @@ async function getOrder(id: string) {
           },
         },
       },
-    });
+    })
 
     // Attach category vendor info to order
-    (order as any).categoryVendors = products
+    ;(order as any).categoryVendors = products
       .filter((p) => p.ProductCategory?.Vendor)
-      .map((p) => p.ProductCategory?.Vendor);
+      .map((p) => p.ProductCategory?.Vendor)
   }
 
-  return order;
+  return order
 }
 
 async function getVendors() {
   const vendors = await prisma.vendor.findMany({
     where: { isActive: true },
     orderBy: { name: 'asc' },
-  });
-  return vendors;
+  })
+  return vendors
 }
 
 const statusConfig: Record<string, { label: string; color: string; icon: any; next?: string[] }> = {
@@ -186,12 +186,12 @@ const statusConfig: Record<string, { label: string; color: string; icon: any; ne
     icon: AlertCircle,
     next: [],
   },
-};
+}
 
 // Generate order timeline based on order status
 function getOrderTimeline(order: any) {
-  const timeline: any[] = [];
-  const currentStatus = order.status;
+  const timeline: any[] = []
+  const currentStatus = order.status
 
   // Always show order placed
   timeline.push({
@@ -200,7 +200,7 @@ function getOrderTimeline(order: any) {
     description: `Order ${order.orderNumber} was placed`,
     icon: Package,
     completed: true,
-  });
+  })
 
   // Payment status
   if (order.status !== 'PENDING_PAYMENT') {
@@ -210,7 +210,7 @@ function getOrderTimeline(order: any) {
       description: 'Payment was successfully processed',
       icon: DollarSign,
       completed: true,
-    });
+    })
   }
 
   // Add current status if beyond payment
@@ -221,50 +221,50 @@ function getOrderTimeline(order: any) {
     'PACKAGING',
     'SHIPPED',
     'DELIVERED',
-  ];
-  const currentIndex = statusFlow.indexOf(currentStatus);
+  ]
+  const currentIndex = statusFlow.indexOf(currentStatus)
 
   if (currentIndex >= 0) {
     statusFlow.slice(0, currentIndex + 1).forEach((status, index) => {
-      const config = statusConfig[status];
+      const config = statusConfig[status]
       timeline.push({
         status: config.label,
         date: order.updatedAt, // In real app, would track each status change
         description: `Order is ${config.label.toLowerCase()}`,
         icon: config.icon,
         completed: index < currentIndex || status === currentStatus,
-      });
-    });
+      })
+    })
   }
 
   // Handle cancelled/refunded
   if (currentStatus === 'CANCELLED' || currentStatus === 'REFUNDED') {
-    const config = statusConfig[currentStatus];
+    const config = statusConfig[currentStatus]
     timeline.push({
       status: config.label,
       date: order.updatedAt,
       description: `Order was ${config.label.toLowerCase()}`,
       icon: config.icon,
       completed: true,
-    });
+    })
   }
 
-  return timeline;
+  return timeline
 }
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const [order, vendors] = await Promise.all([getOrder(id), getVendors()]);
+  const { id } = await params
+  const [order, vendors] = await Promise.all([getOrder(id), getVendors()])
 
   if (!order) {
-    notFound();
+    notFound()
   }
 
-  const status = statusConfig[order.status] || statusConfig.PENDING_PAYMENT;
-  const StatusIcon = status.icon;
-  const timeline = getOrderTimeline(order);
-  const shippingAddress = order.shippingAddress as any;
-  const billingAddress = order.billingAddress as any;
+  const status = statusConfig[order.status] || statusConfig.PENDING_PAYMENT
+  const StatusIcon = status.icon
+  const timeline = getOrderTimeline(order)
+  const shippingAddress = order.shippingAddress as any
+  const billingAddress = order.billingAddress as any
 
   return (
     <div className="space-y-6">
@@ -545,7 +545,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               <div className="space-y-4">
                 <h4 className="text-sm font-medium text-muted-foreground">Order Timeline</h4>
                 {timeline.map((event, index) => {
-                  const EventIcon = event.icon;
+                  const EventIcon = event.icon
                   return (
                     <div key={index} className="flex gap-3">
                       <div className="relative flex flex-col items-center">
@@ -579,7 +579,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                         </p>
                       </div>
                     </div>
-                  );
+                  )
                 })}
               </div>
             </div>
@@ -656,5 +656,5 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         </div>
       </div>
     </div>
-  );
+  )
 }

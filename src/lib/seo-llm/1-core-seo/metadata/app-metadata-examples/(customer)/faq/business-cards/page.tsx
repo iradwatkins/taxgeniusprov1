@@ -5,10 +5,10 @@
  * AI bots (ChatGPT, Claude, Perplexity) will index this content
  */
 
-import type { Metadata } from 'next';
-import { FAQPage } from '@/components/seo/FAQSchema';
-import { businessCardFAQs } from '@/data/faqs/business-cards';
-import Link from 'next/link';
+import type { Metadata } from 'next'
+import { FAQPage } from '@/components/seo/FAQSchema'
+import { businessCardFAQs } from '@/data/faqs/business-cards'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Business Card Printing FAQ - Common Questions Answered | GangRun Printing',
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
       'Get answers to your business card printing questions. Learn about sizes, paper options, turnaround times, and more.',
     type: 'website',
   },
-};
+}
 
 export default function BusinessCardFAQPage() {
   return (
@@ -104,5 +104,5 @@ export default function BusinessCardFAQPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,12 +1,12 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { DollarSign, CreditCard, FileText, TrendingUp } from 'lucide-react';
+import { useState } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { DollarSign, CreditCard, FileText, TrendingUp } from 'lucide-react'
 
 export default function BillingPage() {
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly')
 
   const stats = [
     {
@@ -33,7 +33,7 @@ export default function BillingPage() {
       icon: FileText,
       description: 'This month',
     },
-  ];
+  ]
 
   return (
     <div className="space-y-6">
@@ -164,5 +164,5 @@ export default function BillingPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

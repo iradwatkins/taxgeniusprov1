@@ -99,6 +99,15 @@ export const COMMISSION_RATES = {
   TAX_PREPARER: 0.7, // 70%
 } as const;
 
+// ============================================
+// SERVICE ENDPOINTS
+// ============================================
+
+/** External service endpoints */
+export const SERVICE_ENDPOINTS = {
+  N8N_BASE: process.env.N8N_BASE || 'http://localhost:5678',
+} as const;
+
 /** Advance loan percentages */
 export const ADVANCE_LOAN = {
   MIN_PERCENTAGE: 0.5, // 50%

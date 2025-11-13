@@ -9,8 +9,8 @@ export class LLMError extends Error {
     public service: 'ollama' | 'openai' | 'google',
     public isRetryable: boolean = false
   ) {
-    super(message);
-    this.name = 'LLMError';
+    super(message)
+    this.name = 'LLMError'
   }
 }
 
@@ -20,18 +20,18 @@ export async function withLLMFallback<T>(
   serviceName: string
 ): Promise<T> {
   try {
-    return await operation();
+    return await operation()
   } catch (error) {
-    console.error(`[${serviceName}] Operation failed, using fallback:`, error);
-    return fallback;
+    console.error(`[${serviceName}] Operation failed, using fallback:`, error)
+    return fallback
   }
 }
 
 export function handleLLMError(error: unknown, context: string): never {
   if (error instanceof LLMError) {
-    throw error;
+    throw error
   }
 
-  const message = error instanceof Error ? error.message : 'Unknown error';
-  throw new LLMError(`${context}: ${message}`, 'ollama', true);
+  const message = error instanceof Error ? error.message : 'Unknown error'
+  throw new LLMError(`${context}: ${message}`, 'ollama', true)
 }

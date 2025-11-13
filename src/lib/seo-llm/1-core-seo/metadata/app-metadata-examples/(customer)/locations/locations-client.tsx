@@ -1,18 +1,18 @@
-'use client';
+'use client'
 
-import { useState, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState, useMemo } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 import {
   MapPin,
   Phone,
@@ -24,8 +24,8 @@ import {
   Package,
   Truck,
   Info,
-} from 'lucide-react';
-import Link from 'next/link';
+} from 'lucide-react'
+import Link from 'next/link'
 
 // Retail locations data
 const retailLocations = [
@@ -57,37 +57,37 @@ const retailLocations = [
     },
     type: 'retail',
   },
-];
+]
 
 interface AirCargoLocation {
-  id: string;
-  code: string;
-  name: string;
-  carrier: string;
-  operator?: string | null;
-  address: string;
-  city: string;
-  state: string;
-  zip: string;
-  hours: Record<string, string>;
+  id: string
+  code: string
+  name: string
+  carrier: string
+  operator?: string | null
+  address: string
+  city: string
+  state: string
+  zip: string
+  hours: Record<string, string>
 }
 
 interface LocationsPageClientProps {
-  airCargoLocations: AirCargoLocation[];
+  airCargoLocations: AirCargoLocation[]
 }
 
 export default function LocationsPageClient({ airCargoLocations }: LocationsPageClientProps) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedState, setSelectedState] = useState('all');
-  const [activeTab, setActiveTab] = useState('retail');
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedState, setSelectedState] = useState('all')
+  const [activeTab, setActiveTab] = useState('retail')
 
   // Get unique states from all locations
   const states = useMemo(() => {
-    const allStates = new Set<string>();
-    retailLocations.forEach((loc) => allStates.add(loc.state));
-    airCargoLocations.forEach((loc) => allStates.add(loc.state));
-    return Array.from(allStates).sort();
-  }, [airCargoLocations]);
+    const allStates = new Set<string>()
+    retailLocations.forEach((loc) => allStates.add(loc.state))
+    airCargoLocations.forEach((loc) => allStates.add(loc.state))
+    return Array.from(allStates).sort()
+  }, [airCargoLocations])
 
   // Filter locations based on search and state
   const filteredRetailLocations = useMemo(() => {
@@ -97,13 +97,13 @@ export default function LocationsPageClient({ airCargoLocations }: LocationsPage
         location.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         location.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
         location.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        location.address.toLowerCase().includes(searchQuery.toLowerCase());
+        location.address.toLowerCase().includes(searchQuery.toLowerCase())
 
-      const matchesState = selectedState === 'all' || location.state === selectedState;
+      const matchesState = selectedState === 'all' || location.state === selectedState
 
-      return matchesSearch && matchesState;
-    });
-  }, [searchQuery, selectedState]);
+      return matchesSearch && matchesState
+    })
+  }, [searchQuery, selectedState])
 
   const filteredAirCargoLocations = useMemo(() => {
     return airCargoLocations.filter((location) => {
@@ -113,35 +113,35 @@ export default function LocationsPageClient({ airCargoLocations }: LocationsPage
         location.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
         location.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
         location.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        location.address.toLowerCase().includes(searchQuery.toLowerCase());
+        location.address.toLowerCase().includes(searchQuery.toLowerCase())
 
-      const matchesState = selectedState === 'all' || location.state === selectedState;
+      const matchesState = selectedState === 'all' || location.state === selectedState
 
-      return matchesSearch && matchesState;
-    });
-  }, [searchQuery, selectedState, airCargoLocations]);
+      return matchesSearch && matchesState
+    })
+  }, [searchQuery, selectedState, airCargoLocations])
 
   interface LocationData {
-    id: string;
-    name: string;
-    address: string;
-    city: string;
-    state: string;
-    zip: string;
-    code?: string;
-    carrier?: string;
-    operator?: string | null;
-    hours: Record<string, string | undefined>;
-    phone?: string;
-    type?: string;
+    id: string
+    name: string
+    address: string
+    city: string
+    state: string
+    zip: string
+    code?: string
+    carrier?: string
+    operator?: string | null
+    hours: Record<string, string | undefined>
+    phone?: string
+    type?: string
   }
 
   const LocationCard = ({
     location,
     type,
   }: {
-    location: LocationData;
-    type: 'retail' | 'cargo';
+    location: LocationData
+    type: 'retail' | 'cargo'
   }) => (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
@@ -211,7 +211,7 @@ export default function LocationsPageClient({ airCargoLocations }: LocationsPage
         </div>
       </CardContent>
     </Card>
-  );
+  )
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -450,5 +450,5 @@ export default function LocationsPageClient({ airCargoLocations }: LocationsPage
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -4,18 +4,18 @@
  * Records funnel visits, page views, and customer journey data.
  */
 
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { validateRequest } from '@/lib/auth';
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { validateRequest } from '@/lib/auth'
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body = await request.json()
 
-    const { funnelId, funnelStepId, pageUrl, referrer, utm, device, sessionId, timestamp } = body;
+    const { funnelId, funnelStepId, pageUrl, referrer, utm, device, sessionId, timestamp } = body
 
     // Get current user if logged in (optional)
-    const { user } = await validateRequest();
+    const { user } = await validateRequest()
 
     // Create funnel visit record
     const visit = await prisma.funnelVisit.create({
@@ -36,14 +36,14 @@ export async function POST(request: Request) {
         os: device?.os || 'unknown',
         timestamp: timestamp ? new Date(timestamp) : new Date(),
       },
-    });
+    })
 
     return NextResponse.json({
       success: true,
       visitId: visit.id,
-    });
+    })
   } catch (error) {
-    console.error('Error tracking funnel visit:', error);
+    console.error('Error tracking funnel visit:', error)
 
     // Don't expose internal errors to client
     return NextResponse.json(
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
         error: 'Failed to track visit',
       },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -62,26 +62,26 @@ export async function POST(request: Request) {
  */
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const sessionId = searchParams.get('sessionId');
+    const { searchParams } = new URL(request.url)
+    const sessionId = searchParams.get('sessionId')
 
     if (!sessionId) {
-      return NextResponse.json({ error: 'sessionId required' }, { status: 400 });
+      return NextResponse.json({ error: 'sessionId required' }, { status: 400 })
     }
 
     const visits = await prisma.funnelVisit.findMany({
       where: { sessionId },
       orderBy: { timestamp: 'desc' },
       take: 50, // Last 50 visits
-    });
+    })
 
     return NextResponse.json({
       sessionId,
       visits,
       count: visits.length,
-    });
+    })
   } catch (error) {
-    console.error('Error retrieving tracking data:', error);
-    return NextResponse.json({ error: 'Failed to retrieve tracking data' }, { status: 500 });
+    console.error('Error retrieving tracking data:', error)
+    return NextResponse.json({ error: 'Failed to retrieve tracking data' }, { status: 500 })
   }
 }

@@ -1,7 +1,7 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
-import { randomUUID } from 'crypto';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { z } from 'zod'
+import { randomUUID } from 'crypto'
 
 // Schema for creating/updating a design option
 const designOptionSchema = z.object({
@@ -16,7 +16,7 @@ const designOptionSchema = z.object({
   basePrice: z.number().default(0),
   sortOrder: z.number().int().min(0).default(0),
   isActive: z.boolean().default(true),
-});
+})
 
 // GET - List all design options
 export async function GET(): Promise<unknown> {
@@ -25,42 +25,42 @@ export async function GET(): Promise<unknown> {
       orderBy: {
         sortOrder: 'asc',
       },
-    });
+    })
 
-    return NextResponse.json(options);
+    return NextResponse.json(options)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch design options' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch design options' }, { status: 500 })
   }
 }
 
 // POST - Create a new design option
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const validatedData = designOptionSchema.parse(body);
+    const body = await request.json()
+    const validatedData = designOptionSchema.parse(body)
 
     // Check if name already exists
     const existingOption = await prisma.designOption.findUnique({
       where: { name: validatedData.name },
-    });
+    })
 
     if (existingOption) {
       return NextResponse.json(
         { error: 'A design option with this name already exists' },
         { status: 400 }
-      );
+      )
     }
 
     // Check if code already exists
     const existingCode = await prisma.designOption.findUnique({
       where: { code: validatedData.code },
-    });
+    })
 
     if (existingCode) {
       return NextResponse.json(
         { error: 'A design option with this code already exists' },
         { status: 400 }
-      );
+      )
     }
 
     // Create the design option
@@ -70,17 +70,17 @@ export async function POST(request: NextRequest) {
         ...validatedData,
         updatedAt: new Date(),
       },
-    });
+    })
 
-    return NextResponse.json(option);
+    return NextResponse.json(option)
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Validation error', details: error.issues },
         { status: 400 }
-      );
+      )
     }
 
-    return NextResponse.json({ error: 'Failed to create design option' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create design option' }, { status: 500 })
   }
 }

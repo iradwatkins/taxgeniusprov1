@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 /**
  * GET /api/orders/delivered
@@ -11,16 +11,16 @@ import { prisma } from '@/lib/prisma';
  */
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const daysAgo = parseInt(searchParams.get('daysAgo') || '3');
+    const { searchParams } = new URL(req.url)
+    const daysAgo = parseInt(searchParams.get('daysAgo') || '3')
 
     // Calculate date range for exact day match
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() - daysAgo);
-    targetDate.setHours(0, 0, 0, 0);
+    const targetDate = new Date()
+    targetDate.setDate(targetDate.getDate() - daysAgo)
+    targetDate.setHours(0, 0, 0, 0)
 
-    const nextDay = new Date(targetDate);
-    nextDay.setDate(nextDay.getDate() + 1);
+    const nextDay = new Date(targetDate)
+    nextDay.setDate(nextDay.getDate() + 1)
 
     // Fetch orders delivered exactly N days ago
     const orders = await prisma.order.findMany({
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
       orderBy: {
         deliveredAt: 'desc',
       },
-    });
+    })
 
     return NextResponse.json({
       success: true,
@@ -74,9 +74,9 @@ export async function GET(req: NextRequest) {
           total: item.total,
         })),
       })),
-    });
+    })
   } catch (error) {
-    console.error('[API] Fetch delivered orders error:', error);
-    return NextResponse.json({ error: 'Failed to fetch delivered orders' }, { status: 500 });
+    console.error('[API] Fetch delivered orders error:', error)
+    return NextResponse.json({ error: 'Failed to fetch delivered orders' }, { status: 500 })
   }
 }

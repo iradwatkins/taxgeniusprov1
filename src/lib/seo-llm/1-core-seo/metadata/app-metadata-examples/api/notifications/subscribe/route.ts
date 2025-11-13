@@ -1,14 +1,14 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { validateRequest } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { validateRequest } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
   try {
-    const { user, session } = await validateRequest();
-    const subscription = await request.json();
+    const { user, session } = await validateRequest()
+    const subscription = await request.json()
 
     if (!subscription || !subscription.endpoint) {
-      return NextResponse.json({ error: 'Invalid subscription' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid subscription' }, { status: 400 })
     }
 
     // Store subscription in database
@@ -31,13 +31,13 @@ export async function POST(request: NextRequest) {
         active: true,
         userId: user?.id,
       },
-    });
+    })
 
     return NextResponse.json({
       success: true,
       message: 'Subscription stored successfully',
-    });
+    })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to store subscription' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to store subscription' }, { status: 500 })
   }
 }

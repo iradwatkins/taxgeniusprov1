@@ -1,15 +1,15 @@
-import { validateRequest } from '@/lib/auth';
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { NotificationType } from '@prisma/client';
+import { validateRequest } from '@/lib/auth'
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { NotificationType } from '@prisma/client'
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
-    const { user } = await validateRequest();
+    const { id } = await params
+    const { user } = await validateRequest()
 
     if (!user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get the order with vendor information
@@ -20,14 +20,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         User: true,
         OrderItem: true,
       },
-    });
+    })
 
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     if (!order.Vendor) {
-      return NextResponse.json({ error: 'No vendor assigned to this order' }, { status: 400 });
+      return NextResponse.json({ error: 'No vendor assigned to this order' }, { status: 400 })
     }
 
     // Build order details for notification
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       total: order.total / 100,
       shippingAddress: order.shippingAddress,
       notes: order.adminNotes,
-    };
+    }
 
     // If vendor has n8n webhook, send notification
     if (order.Vendor.n8nWebhookUrl) {
@@ -64,13 +64,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             vendorName: order.Vendor.name,
             order: orderDetails,
           }),
-        });
+        })
 
         if (!webhookResponse.ok) {
-          throw new Error(`Webhook returned ${webhookResponse.status}`);
+          throw new Error(`Webhook returned ${webhookResponse.status}`)
         }
       } catch (webhookError) {
-        return NextResponse.json({ error: 'Failed to send webhook notification' }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to send webhook notification' }, { status: 500 })
       }
     }
 
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         sent: true,
         sentAt: new Date(),
       },
-    });
+    })
 
     // Update order notes
     await prisma.order.update({
@@ -106,13 +106,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       data: {
         adminNotes: `${order.adminNotes ? order.adminNotes + '\n' : ''}Vendor notified at ${new Date().toLocaleString()}`,
       },
-    });
+    })
 
     return NextResponse.json({
       success: true,
       message: 'Vendor notification sent successfully',
-    });
+    })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to notify vendor' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to notify vendor' }, { status: 500 })
   }
 }

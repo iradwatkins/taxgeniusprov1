@@ -1,10 +1,10 @@
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import { prisma } from '@/lib/prisma'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   ArrowLeft,
   Factory,
@@ -31,11 +31,11 @@ import {
   AlertCircle,
   Star,
   Activity,
-} from 'lucide-react';
+} from 'lucide-react'
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 async function getVendor(id: string) {
   const vendor = await prisma.vendor.findUnique({
@@ -59,17 +59,17 @@ async function getVendor(id: string) {
         },
       },
     },
-  });
+  })
 
-  return vendor;
+  return vendor
 }
 
 async function getVendorStats(vendorId: string) {
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-  const ninetyDaysAgo = new Date();
-  ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+  const ninetyDaysAgo = new Date()
+  ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
 
   // Get all orders for this vendor
   const allOrders = await prisma.order.findMany({
@@ -81,59 +81,59 @@ async function getVendorStats(vendorId: string) {
       createdAt: true,
       updatedAt: true,
     },
-  });
+  })
 
   // Calculate stats
-  const totalOrders = allOrders.length;
+  const totalOrders = allOrders.length
   const completedOrders = allOrders.filter((o) =>
     ['DELIVERED', 'SHIPPED'].includes(o.status)
-  ).length;
+  ).length
   const activeOrders = allOrders.filter(
     (o) => !['DELIVERED', 'CANCELLED', 'REFUNDED'].includes(o.status)
-  ).length;
-  const cancelledOrders = allOrders.filter((o) => o.status === 'CANCELLED').length;
+  ).length
+  const cancelledOrders = allOrders.filter((o) => o.status === 'CANCELLED').length
 
   // Revenue calculations
   const totalRevenue = allOrders
     .filter((o) => o.status !== 'CANCELLED' && o.status !== 'REFUNDED')
-    .reduce((sum, o) => sum + o.total, 0);
+    .reduce((sum, o) => sum + o.total, 0)
 
-  const recentOrders = allOrders.filter((o) => new Date(o.createdAt) >= thirtyDaysAgo);
+  const recentOrders = allOrders.filter((o) => new Date(o.createdAt) >= thirtyDaysAgo)
   const recentRevenue = recentOrders
     .filter((o) => o.status !== 'CANCELLED' && o.status !== 'REFUNDED')
-    .reduce((sum, o) => sum + o.total, 0);
+    .reduce((sum, o) => sum + o.total, 0)
 
   // Calculate average turnaround time (simplified - in production would track actual fulfillment times)
-  const deliveredOrders = allOrders.filter((o) => o.status === 'DELIVERED');
+  const deliveredOrders = allOrders.filter((o) => o.status === 'DELIVERED')
   const avgTurnaround =
     deliveredOrders.length > 0
       ? deliveredOrders.reduce((sum, o) => {
           const days = Math.floor(
             (new Date(o.updatedAt).getTime() - new Date(o.createdAt).getTime()) /
               (1000 * 60 * 60 * 24)
-          );
-          return sum + days;
+          )
+          return sum + days
         }, 0) / deliveredOrders.length
-      : 0;
+      : 0
 
   // Calculate performance metrics
-  const completionRate = totalOrders > 0 ? (completedOrders / totalOrders) * 100 : 0;
-  const cancellationRate = totalOrders > 0 ? (cancelledOrders / totalOrders) * 100 : 0;
+  const completionRate = totalOrders > 0 ? (completedOrders / totalOrders) * 100 : 0
+  const cancellationRate = totalOrders > 0 ? (cancelledOrders / totalOrders) * 100 : 0
 
   // Monthly trend data (simplified)
-  const monthlyData: any[] = [];
+  const monthlyData: any[] = []
   for (let i = 5; i >= 0; i--) {
-    const startDate = new Date();
-    startDate.setMonth(startDate.getMonth() - i);
-    startDate.setDate(1);
+    const startDate = new Date()
+    startDate.setMonth(startDate.getMonth() - i)
+    startDate.setDate(1)
 
-    const endDate = new Date(startDate);
-    endDate.setMonth(endDate.getMonth() + 1);
+    const endDate = new Date(startDate)
+    endDate.setMonth(endDate.getMonth() + 1)
 
     const monthOrders = allOrders.filter((o) => {
-      const orderDate = new Date(o.createdAt);
-      return orderDate >= startDate && orderDate < endDate;
-    });
+      const orderDate = new Date(o.createdAt)
+      return orderDate >= startDate && orderDate < endDate
+    })
 
     monthlyData.push({
       month: startDate.toLocaleDateString('en-US', { month: 'short' }),
@@ -142,7 +142,7 @@ async function getVendorStats(vendorId: string) {
         monthOrders
           .filter((o) => o.status !== 'CANCELLED' && o.status !== 'REFUNDED')
           .reduce((sum, o) => sum + o.total, 0) / 100,
-    });
+    })
   }
 
   return {
@@ -157,7 +157,7 @@ async function getVendorStats(vendorId: string) {
     cancellationRate: cancellationRate.toFixed(1),
     monthlyData,
     recentOrdersCount: recentOrders.length,
-  };
+  }
 }
 
 const statusConfig: Record<string, { label: string; color: string }> = {
@@ -171,17 +171,17 @@ const statusConfig: Record<string, { label: string; color: string }> = {
   DELIVERED: { label: 'Delivered', color: 'bg-emerald-100 text-emerald-800' },
   CANCELLED: { label: 'Cancelled', color: 'bg-gray-100 text-gray-800' },
   REFUNDED: { label: 'Refunded', color: 'bg-red-100 text-red-800' },
-};
+}
 
 export default async function VendorDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const [vendor, stats] = await Promise.all([getVendor(id), getVendorStats(id)]);
+  const { id } = await params
+  const [vendor, stats] = await Promise.all([getVendor(id), getVendorStats(id)])
 
   if (!vendor) {
-    notFound();
+    notFound()
   }
 
-  const address = vendor.address as any;
+  const address = vendor.address as any
 
   return (
     <div className="space-y-6">
@@ -341,7 +341,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
                     </TableRow>
                   ) : (
                     vendor.Order.map((order) => {
-                      const status = statusConfig[order.status] || statusConfig.PENDING_PAYMENT;
+                      const status = statusConfig[order.status] || statusConfig.PENDING_PAYMENT
                       return (
                         <TableRow key={order.id}>
                           <TableCell className="font-medium">
@@ -363,7 +363,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
                             </Link>
                           </TableCell>
                         </TableRow>
-                      );
+                      )
                     })
                   )}
                 </TableBody>
@@ -603,5 +603,5 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ i
         </TabsContent>
       </Tabs>
     </div>
-  );
+  )
 }

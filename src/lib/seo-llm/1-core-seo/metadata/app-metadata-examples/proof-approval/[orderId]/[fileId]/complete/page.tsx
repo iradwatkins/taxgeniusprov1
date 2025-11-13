@@ -1,19 +1,19 @@
-import { notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, Clock, ArrowRight, Mail, Phone, MessageSquare } from 'lucide-react';
-import Link from 'next/link';
+import { notFound } from 'next/navigation'
+import { prisma } from '@/lib/prisma'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { CheckCircle, XCircle, Clock, ArrowRight, Mail, Phone, MessageSquare } from 'lucide-react'
+import Link from 'next/link'
 
 interface PageProps {
   params: Promise<{
-    orderId: string;
-    fileId: string;
-  }>;
+    orderId: string
+    fileId: string
+  }>
   searchParams: Promise<{
-    status?: 'approved' | 'rejected';
-  }>;
+    status?: 'approved' | 'rejected'
+  }>
 }
 
 async function getCompletionData(orderId: string, fileId: string) {
@@ -25,10 +25,10 @@ async function getCompletionData(orderId: string, fileId: string) {
           select: { name: true },
         },
       },
-    });
+    })
 
     if (!order) {
-      return null;
+      return null
     }
 
     const file = await prisma.orderFile.findUnique({
@@ -36,10 +36,10 @@ async function getCompletionData(orderId: string, fileId: string) {
         id: fileId,
         orderId: orderId,
       },
-    });
+    })
 
     if (!file) {
-      return null;
+      return null
     }
 
     // Check if all proofs for this order are approved
@@ -48,7 +48,7 @@ async function getCompletionData(orderId: string, fileId: string) {
         orderId,
         fileType: 'ADMIN_PROOF',
       },
-    });
+    })
 
     const approvedProofs = await prisma.orderFile.count({
       where: {
@@ -56,9 +56,9 @@ async function getCompletionData(orderId: string, fileId: string) {
         fileType: 'ADMIN_PROOF',
         approvalStatus: 'APPROVED',
       },
-    });
+    })
 
-    const allProofsApproved = totalProofs > 0 && approvedProofs === totalProofs;
+    const allProofsApproved = totalProofs > 0 && approvedProofs === totalProofs
 
     return {
       order,
@@ -66,26 +66,26 @@ async function getCompletionData(orderId: string, fileId: string) {
       allProofsApproved,
       totalProofs,
       approvedProofs,
-    };
+    }
   } catch (error) {
-    console.error('Error fetching completion data:', error);
-    return null;
+    console.error('Error fetching completion data:', error)
+    return null
   }
 }
 
 export default async function ProofApprovalCompletePage({ params, searchParams }: PageProps) {
-  const { orderId, fileId } = await params;
-  const { status } = await searchParams;
+  const { orderId, fileId } = await params
+  const { status } = await searchParams
 
-  const data = await getCompletionData(orderId, fileId);
+  const data = await getCompletionData(orderId, fileId)
 
   if (!data) {
-    notFound();
+    notFound()
   }
 
-  const { order, file, allProofsApproved, totalProofs, approvedProofs } = data;
-  const isApproved = file.approvalStatus === 'APPROVED';
-  const isRejected = file.approvalStatus === 'REJECTED';
+  const { order, file, allProofsApproved, totalProofs, approvedProofs } = data
+  const isApproved = file.approvalStatus === 'APPROVED'
+  const isRejected = file.approvalStatus === 'REJECTED'
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -270,21 +270,21 @@ export default async function ProofApprovalCompletePage({ params, searchParams }
         </Card>
       </div>
     </div>
-  );
+  )
 }
 
 // Generate metadata
 export async function generateMetadata({ params }: { params: Promise<{ orderId: string }> }) {
-  const { orderId } = await params;
+  const { orderId } = await params
 
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     select: { orderNumber: true },
-  });
+  })
 
   return {
     title: `Proof Response Received - Order ${order?.orderNumber || orderId} | GangRun Printing`,
     description: "Thank you for your proof response. We'll process your feedback right away.",
     robots: 'noindex, nofollow',
-  };
+  }
 }

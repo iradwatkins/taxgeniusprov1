@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   BarChart3,
   TrendingUp,
@@ -15,8 +15,8 @@ import {
   ArrowLeft,
   Loader2,
   RefreshCw,
-} from 'lucide-react';
-import Link from 'next/link';
+} from 'lucide-react'
+import Link from 'next/link'
 import {
   BarChart,
   Bar,
@@ -29,90 +29,90 @@ import {
   ResponsiveContainer,
   Legend,
   Cell,
-} from 'recharts';
-import { format } from 'date-fns';
-import { toast } from 'sonner';
-import * as Icons from 'lucide-react';
+} from 'recharts'
+import { format } from 'date-fns'
+import { toast } from 'sonner'
+import * as Icons from 'lucide-react'
 
 interface StatusAnalytics {
-  slug: string;
-  name: string;
-  icon: string;
-  badgeColor: string;
-  orderCount: number;
-  avgTimeMs: number;
-  avgTimeHours: number;
-  avgTimeDays: number;
-  avgTimeFormatted: string;
+  slug: string
+  name: string
+  icon: string
+  badgeColor: string
+  orderCount: number
+  avgTimeMs: number
+  avgTimeHours: number
+  avgTimeDays: number
+  avgTimeFormatted: string
 }
 
 interface AnalyticsData {
-  success: boolean;
+  success: boolean
   dateRange: {
-    start: string;
-    end: string;
-  };
+    start: string
+    end: string
+  }
   summary: {
-    totalOrders: number;
-    activeStatuses: number;
-    totalStatuses: number;
-    avgProcessingTimeMs: number;
-    avgProcessingTimeDays: number;
-  };
-  statusAnalytics: StatusAnalytics[];
-  bottlenecks: StatusAnalytics[];
+    totalOrders: number
+    activeStatuses: number
+    totalStatuses: number
+    avgProcessingTimeMs: number
+    avgProcessingTimeDays: number
+  }
+  statusAnalytics: StatusAnalytics[]
+  bottlenecks: StatusAnalytics[]
   transitionMatrix: Array<{
-    from: string;
-    to: string;
-    count: number;
-  }>;
+    from: string
+    to: string
+    count: number
+  }>
   timeSeriesData: Array<{
-    date: string;
-    count: number;
-  }>;
+    date: string
+    count: number
+  }>
 }
 
 export default function OrderStatusAnalyticsPage() {
-  const [data, setData] = useState<AnalyticsData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<AnalyticsData | null>(null)
+  const [loading, setLoading] = useState(true)
   const [startDate, setStartDate] = useState<Date | undefined>(
     new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-  ); // 30 days ago
-  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  ) // 30 days ago
+  const [endDate, setEndDate] = useState<Date | undefined>(new Date())
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const fetchAnalytics = async () => {
     try {
-      setIsRefreshing(true);
-      const params = new URLSearchParams();
-      if (startDate) params.append('startDate', startDate.toISOString());
-      if (endDate) params.append('endDate', endDate.toISOString());
+      setIsRefreshing(true)
+      const params = new URLSearchParams()
+      if (startDate) params.append('startDate', startDate.toISOString())
+      if (endDate) params.append('endDate', endDate.toISOString())
 
-      const response = await fetch(`/api/admin/order-statuses/analytics?${params.toString()}`);
+      const response = await fetch(`/api/admin/order-statuses/analytics?${params.toString()}`)
 
       if (!response.ok) {
-        throw new Error('Failed to fetch analytics');
+        throw new Error('Failed to fetch analytics')
       }
 
-      const analyticsData: AnalyticsData = await response.json();
-      setData(analyticsData);
+      const analyticsData: AnalyticsData = await response.json()
+      setData(analyticsData)
     } catch (error) {
-      console.error('Error fetching analytics:', error);
-      toast.error('Failed to load analytics data');
+      console.error('Error fetching analytics:', error)
+      toast.error('Failed to load analytics data')
     } finally {
-      setLoading(false);
-      setIsRefreshing(false);
+      setLoading(false)
+      setIsRefreshing(false)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchAnalytics();
-  }, [startDate, endDate]);
+    fetchAnalytics()
+  }, [startDate, endDate])
 
   const getIconComponent = (iconName: string) => {
-    const IconComponent = (Icons as any)[iconName];
-    return IconComponent || Icons.Circle;
-  };
+    const IconComponent = (Icons as any)[iconName]
+    return IconComponent || Icons.Circle
+  }
 
   // Define a color palette for charts
   const CHART_COLORS = [
@@ -124,7 +124,7 @@ export default function OrderStatusAnalyticsPage() {
     '#ec4899', // pink
     '#14b8a6', // teal
     '#f97316', // orange
-  ];
+  ]
 
   if (loading) {
     return (
@@ -143,7 +143,7 @@ export default function OrderStatusAnalyticsPage() {
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   if (!data) {
@@ -165,7 +165,7 @@ export default function OrderStatusAnalyticsPage() {
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   return (
@@ -229,8 +229,8 @@ export default function OrderStatusAnalyticsPage() {
                 size="sm"
                 variant="outline"
                 onClick={() => {
-                  setStartDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
-                  setEndDate(new Date());
+                  setStartDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
+                  setEndDate(new Date())
                 }}
               >
                 Last 7 Days
@@ -239,8 +239,8 @@ export default function OrderStatusAnalyticsPage() {
                 size="sm"
                 variant="outline"
                 onClick={() => {
-                  setStartDate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
-                  setEndDate(new Date());
+                  setStartDate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
+                  setEndDate(new Date())
                 }}
               >
                 Last 30 Days
@@ -249,8 +249,8 @@ export default function OrderStatusAnalyticsPage() {
                 size="sm"
                 variant="outline"
                 onClick={() => {
-                  setStartDate(new Date(Date.now() - 90 * 24 * 60 * 60 * 1000));
-                  setEndDate(new Date());
+                  setStartDate(new Date(Date.now() - 90 * 24 * 60 * 60 * 1000))
+                  setEndDate(new Date())
                 }}
               >
                 Last 90 Days
@@ -326,7 +326,7 @@ export default function OrderStatusAnalyticsPage() {
           <CardContent>
             <div className="space-y-3">
               {data.bottlenecks.map((bottleneck, index) => {
-                const StatusIcon = getIconComponent(bottleneck.icon);
+                const StatusIcon = getIconComponent(bottleneck.icon)
                 return (
                   <div
                     key={bottleneck.slug}
@@ -350,7 +350,7 @@ export default function OrderStatusAnalyticsPage() {
                       </div>
                     </div>
                   </div>
-                );
+                )
               })}
             </div>
           </CardContent>
@@ -381,7 +381,7 @@ export default function OrderStatusAnalyticsPage() {
               <Tooltip
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
-                    const data = payload[0].payload as StatusAnalytics;
+                    const data = payload[0].payload as StatusAnalytics
                     return (
                       <div className="rounded-lg border bg-background p-2 shadow-sm">
                         <div className="grid gap-2">
@@ -394,9 +394,9 @@ export default function OrderStatusAnalyticsPage() {
                           </div>
                         </div>
                       </div>
-                    );
+                    )
                   }
-                  return null;
+                  return null
                 }}
               />
               <Bar dataKey="avgTimeDays" radius={[8, 8, 0, 0]}>
@@ -433,7 +433,7 @@ export default function OrderStatusAnalyticsPage() {
               <Tooltip
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
-                    const data = payload[0].payload;
+                    const data = payload[0].payload
                     return (
                       <div className="rounded-lg border bg-background p-2 shadow-sm">
                         <div className="grid gap-2">
@@ -445,9 +445,9 @@ export default function OrderStatusAnalyticsPage() {
                           </div>
                         </div>
                       </div>
-                    );
+                    )
                   }
-                  return null;
+                  return null
                 }}
               />
               <Line
@@ -475,8 +475,8 @@ export default function OrderStatusAnalyticsPage() {
               .filter((s) => s.orderCount > 0)
               .sort((a, b) => b.orderCount - a.orderCount)
               .map((status) => {
-                const StatusIcon = getIconComponent(status.icon);
-                const percentage = (status.orderCount / data.summary.totalOrders) * 100;
+                const StatusIcon = getIconComponent(status.icon)
+                const percentage = (status.orderCount / data.summary.totalOrders) * 100
                 return (
                   <div key={status.slug} className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -498,7 +498,7 @@ export default function OrderStatusAnalyticsPage() {
                       />
                     </div>
                   </div>
-                );
+                )
               })}
           </div>
         </CardContent>
@@ -537,5 +537,5 @@ export default function OrderStatusAnalyticsPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

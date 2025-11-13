@@ -1,7 +1,7 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { validateRequest } from '@/lib/auth';
-import { randomUUID } from 'crypto';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { validateRequest } from '@/lib/auth'
+import { randomUUID } from 'crypto'
 
 /**
  * GET /api/landing-page-sets
@@ -9,21 +9,21 @@ import { randomUUID } from 'crypto';
  */
 export async function GET(request: NextRequest) {
   try {
-    const { user, session } = await validateRequest();
+    const { user, session } = await validateRequest()
     if (!user || !session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     if (user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
 
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status');
+    const { searchParams } = new URL(request.url)
+    const status = searchParams.get('status')
 
-    const where: any = {};
+    const where: any = {}
     if (status) {
-      where.status = status;
+      where.status = status
     }
 
     const landingPageSets = await prisma.landingPageSet.findMany({
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: 'desc',
       },
-    });
+    })
 
     // Calculate aggregate metrics for each set
     const setsWithMetrics = await Promise.all(
@@ -66,16 +66,16 @@ export async function GET(request: NextRequest) {
             revenue: true,
             conversionRate: true,
           },
-        });
+        })
 
-        const totalViews = cityPages.reduce((sum, page) => sum + page.organicViews, 0);
-        const totalOrders = cityPages.reduce((sum, page) => sum + page.orders, 0);
-        const totalRevenue = cityPages.reduce((sum, page) => sum + page.revenue, 0);
+        const totalViews = cityPages.reduce((sum, page) => sum + page.organicViews, 0)
+        const totalOrders = cityPages.reduce((sum, page) => sum + page.orders, 0)
+        const totalRevenue = cityPages.reduce((sum, page) => sum + page.revenue, 0)
         const avgConversionRate =
           cityPages.length > 0
             ? cityPages.reduce((sum, page) => sum + (page.conversionRate || 0), 0) /
               cityPages.length
-            : 0;
+            : 0
 
         return {
           ...set,
@@ -86,14 +86,14 @@ export async function GET(request: NextRequest) {
             totalRevenue,
             avgConversionRate: Math.round(avgConversionRate * 100) / 100,
           },
-        };
+        }
       })
-    );
+    )
 
-    return NextResponse.json(setsWithMetrics);
+    return NextResponse.json(setsWithMetrics)
   } catch (error) {
-    console.error('[GET /api/landing-page-sets] Error:', error);
-    return NextResponse.json({ error: 'Failed to fetch landing page sets' }, { status: 500 });
+    console.error('[GET /api/landing-page-sets] Error:', error)
+    return NextResponse.json({ error: 'Failed to fetch landing page sets' }, { status: 500 })
   }
 }
 
@@ -103,16 +103,16 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const { user, session } = await validateRequest();
+    const { user, session } = await validateRequest()
     if (!user || !session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     if (user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
 
-    const body = await request.json();
+    const body = await request.json()
     const {
       name,
       paperStockSetId,
@@ -136,36 +136,36 @@ export async function POST(request: NextRequest) {
       discountEnabled,
       discountPercent,
       chatWidgetEnabled,
-    } = body;
+    } = body
 
     // Validate required fields
     if (!name || !paperStockSetId || !quantityGroupId || !sizeGroupId) {
       return NextResponse.json(
         { error: 'Missing required fields: name, paperStockSetId, quantityGroupId, sizeGroupId' },
         { status: 400 }
-      );
+      )
     }
 
     if (!titleTemplate || !metaDescTemplate || !h1Template || !contentTemplate) {
-      return NextResponse.json({ error: 'Missing required template fields' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing required template fields' }, { status: 400 })
     }
 
     // Generate slug from name
     const slug = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '');
+      .replace(/^-+|-+$/g, '')
 
     // Check if slug already exists
     const existing = await prisma.landingPageSet.findUnique({
       where: { slug },
-    });
+    })
 
     if (existing) {
       return NextResponse.json(
         { error: 'A landing page set with this name already exists' },
         { status: 400 }
-      );
+      )
     }
 
     // Verify foreign key references exist
@@ -173,13 +173,13 @@ export async function POST(request: NextRequest) {
       prisma.paperStockSet.findUnique({ where: { id: paperStockSetId } }),
       prisma.quantityGroup.findUnique({ where: { id: quantityGroupId } }),
       prisma.sizeGroup.findUnique({ where: { id: sizeGroupId } }),
-    ]);
+    ])
 
     if (!paperStockSet || !quantityGroup || !sizeGroup) {
       return NextResponse.json(
         { error: 'Invalid product configuration references' },
         { status: 400 }
-      );
+      )
     }
 
     // Create landing page set in DRAFT status
@@ -218,19 +218,19 @@ export async function POST(request: NextRequest) {
         AddOnSet: true,
         TurnaroundTimeSet: true,
       },
-    });
+    })
 
-    return NextResponse.json(landingPageSet, { status: 201 });
+    return NextResponse.json(landingPageSet, { status: 201 })
   } catch (error) {
-    console.error('[POST /api/landing-page-sets] Error:', error);
+    console.error('[POST /api/landing-page-sets] Error:', error)
 
     if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
       return NextResponse.json(
         { error: 'A landing page set with this slug already exists' },
         { status: 400 }
-      );
+      )
     }
 
-    return NextResponse.json({ error: 'Failed to create landing page set' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create landing page set' }, { status: 500 })
   }
 }

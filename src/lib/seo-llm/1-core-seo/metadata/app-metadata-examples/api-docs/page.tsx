@@ -1,22 +1,22 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
-import 'swagger-ui-react/swagger-ui.css';
+import { useEffect, useState } from 'react'
+import dynamic from 'next/dynamic'
+import 'swagger-ui-react/swagger-ui.css'
 
 // Dynamically import SwaggerUI to avoid SSR issues
-const SwaggerUI = dynamic(() => import('swagger-ui-react'), { ssr: false });
+const SwaggerUI = dynamic(() => import('swagger-ui-react'), { ssr: false })
 
 export default function APIDocsPage() {
-  const [spec, setSpec] = useState(null);
+  const [spec, setSpec] = useState(null)
 
   useEffect(() => {
     // Load the OpenAPI spec
     fetch('/api/openapi.json')
       .then((res) => res.json())
       .then((data) => setSpec(data))
-      .catch((error) => console.error('Failed to load API spec:', error));
-  }, []);
+      .catch((error) => console.error('Failed to load API spec:', error))
+  }, [])
 
   if (!spec) {
     return (
@@ -26,7 +26,7 @@ export default function APIDocsPage() {
           <p className="text-muted-foreground">Loading API Documentation...</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -62,5 +62,5 @@ export default function APIDocsPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

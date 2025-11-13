@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from 'next/link'
 import {
   ArrowRight,
   Package,
@@ -9,28 +9,28 @@ import {
   Zap,
   Users,
   TrendingUp,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from '@/components/ui/carousel';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { prisma } from '@/lib/prisma';
-import Image from 'next/image';
-import { HomepageHero } from '@/components/customer/homepage-hero';
-import { CategoryGrid } from '@/components/customer/category-grid';
+} from '@/components/ui/carousel'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { prisma } from '@/lib/prisma'
+import Image from 'next/image'
+import { HomepageHero } from '@/components/customer/homepage-hero'
+import { CategoryGrid } from '@/components/customer/category-grid'
 import {
   generateOrganizationSchema,
   generateWebSiteSchema,
   generateCombinedSchema,
   schemaToJsonLd,
-} from '@/lib/seo/schema';
+} from '@/lib/seo/schema'
 
 const testimonials = [
   {
@@ -60,7 +60,7 @@ const testimonials = [
     rating: 5,
     avatar: 'ED',
   },
-];
+]
 
 export default async function Home() {
   // Fetch real product categories from database (excluding hidden ones)
@@ -89,7 +89,7 @@ export default async function Home() {
       sortOrder: 'asc',
     },
     take: 6, // Show first 6 categories on homepage
-  });
+  })
 
   // Fetch featured products from database
   const featuredProducts = await prisma.product.findMany({
@@ -127,7 +127,7 @@ export default async function Home() {
     },
     orderBy: [{ isFeatured: 'desc' }, { createdAt: 'desc' }],
     take: 6,
-  });
+  })
 
   // If no featured products, get latest products
   const displayProducts =
@@ -172,13 +172,13 @@ export default async function Home() {
             createdAt: 'desc',
           },
           take: 6,
-        });
+        })
 
   // Generate schema markup
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://gangrunprinting.com';
-  const organizationSchema = generateOrganizationSchema(baseUrl);
-  const websiteSchema = generateWebSiteSchema(baseUrl);
-  const combinedSchema = generateCombinedSchema(organizationSchema, websiteSchema);
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://gangrunprinting.com'
+  const organizationSchema = generateOrganizationSchema(baseUrl)
+  const websiteSchema = generateWebSiteSchema(baseUrl)
+  const combinedSchema = generateCombinedSchema(organizationSchema, websiteSchema)
 
   return (
     <main className="min-h-screen">
@@ -291,7 +291,7 @@ export default async function Home() {
             <Carousel className="max-w-5xl mx-auto">
               <CarouselContent className="-ml-4">
                 {displayProducts.map((product) => {
-                  const primaryImage = product.ProductImage?.[0]?.Image;
+                  const primaryImage = product.ProductImage?.[0]?.Image
                   return (
                     <CarouselItem key={product.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
                       <Link href={`/products/${product.slug}`}>
@@ -331,7 +331,7 @@ export default async function Home() {
                         </Card>
                       </Link>
                     </CarouselItem>
-                  );
+                  )
                 })}
               </CarouselContent>
               <CarouselPrevious />
@@ -482,5 +482,5 @@ export default async function Home() {
         </div>
       </section>
     </main>
-  );
+  )
 }

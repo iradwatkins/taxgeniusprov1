@@ -4,30 +4,30 @@
  * Analyzes city page performance and identifies winners/losers
  */
 
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma'
 
 export interface PerformanceMetrics {
-  pageId: string;
-  city: string;
-  views: number;
-  conversions: number;
-  revenue: number;
-  conversionRate: number;
-  avgOrderValue: number;
-  performanceScore: number;
+  pageId: string
+  city: string
+  views: number
+  conversions: number
+  revenue: number
+  conversionRate: number
+  avgOrderValue: number
+  performanceScore: number
 }
 
 export interface PerformanceAnalysis {
-  campaignId: string;
-  totalPages: number;
-  totalViews: number;
-  totalConversions: number;
-  totalRevenue: number;
-  avgConversionRate: number;
-  winners: PerformanceMetrics[]; // Top 20%
-  losers: PerformanceMetrics[]; // Bottom 20%
-  avgScore: number;
-  timestamp: Date;
+  campaignId: string
+  totalPages: number
+  totalViews: number
+  totalConversions: number
+  totalRevenue: number
+  avgConversionRate: number
+  winners: PerformanceMetrics[] // Top 20%
+  losers: PerformanceMetrics[] // Bottom 20%
+  avgScore: number
+  timestamp: Date
 }
 
 /**
@@ -43,19 +43,19 @@ export async function analyzePerformance(campaignId: string): Promise<Performanc
           select: { orders: true },
         },
       },
-    });
+    })
 
     if (cityPages.length === 0) {
-      throw new Error('No city pages found for campaign');
+      throw new Error('No city pages found for campaign')
     }
 
     // Calculate metrics for each page
     const pageMetrics: PerformanceMetrics[] = cityPages.map((page) => {
-      const conversions = page._count.orders;
-      const views = page.views || 0;
-      const revenue = page.revenue.toNumber();
-      const conversionRate = views > 0 ? conversions / views : 0;
-      const avgOrderValue = conversions > 0 ? revenue / conversions : 0;
+      const conversions = page._count.orders
+      const views = page.views || 0
+      const revenue = page.revenue.toNumber()
+      const conversionRate = views > 0 ? conversions / views : 0
+      const avgOrderValue = conversions > 0 ? revenue / conversions : 0
 
       return {
         pageId: page.id,
@@ -70,26 +70,26 @@ export async function analyzePerformance(campaignId: string): Promise<Performanc
           views,
           revenue,
         }),
-      };
-    });
+      }
+    })
 
     // Sort by performance score
-    pageMetrics.sort((a, b) => b.performanceScore - a.performanceScore);
+    pageMetrics.sort((a, b) => b.performanceScore - a.performanceScore)
 
     // Calculate totals
-    const totalViews = pageMetrics.reduce((sum, m) => sum + m.views, 0);
-    const totalConversions = pageMetrics.reduce((sum, m) => sum + m.conversions, 0);
-    const totalRevenue = pageMetrics.reduce((sum, m) => sum + m.revenue, 0);
-    const avgConversionRate = totalViews > 0 ? totalConversions / totalViews : 0;
+    const totalViews = pageMetrics.reduce((sum, m) => sum + m.views, 0)
+    const totalConversions = pageMetrics.reduce((sum, m) => sum + m.conversions, 0)
+    const totalRevenue = pageMetrics.reduce((sum, m) => sum + m.revenue, 0)
+    const avgConversionRate = totalViews > 0 ? totalConversions / totalViews : 0
     const avgScore =
-      pageMetrics.reduce((sum, m) => sum + m.performanceScore, 0) / pageMetrics.length;
+      pageMetrics.reduce((sum, m) => sum + m.performanceScore, 0) / pageMetrics.length
 
     // Identify winners (top 20%) and losers (bottom 20%)
-    const winnerCount = Math.max(10, Math.ceil(pageMetrics.length * 0.2));
-    const loserCount = Math.max(10, Math.ceil(pageMetrics.length * 0.2));
+    const winnerCount = Math.max(10, Math.ceil(pageMetrics.length * 0.2))
+    const loserCount = Math.max(10, Math.ceil(pageMetrics.length * 0.2))
 
-    const winners = pageMetrics.slice(0, winnerCount);
-    const losers = pageMetrics.slice(-loserCount).reverse();
+    const winners = pageMetrics.slice(0, winnerCount)
+    const losers = pageMetrics.slice(-loserCount).reverse()
 
     return {
       campaignId,
@@ -102,10 +102,10 @@ export async function analyzePerformance(campaignId: string): Promise<Performanc
       losers,
       avgScore,
       timestamp: new Date(),
-    };
+    }
   } catch (error) {
-    console.error('[Performance Analyzer] Error:', error);
-    throw error;
+    console.error('[Performance Analyzer] Error:', error)
+    throw error
   }
 }
 
@@ -118,21 +118,21 @@ export async function analyzePerformance(campaignId: string): Promise<Performanc
  * - Revenue: 20%
  */
 export function calculatePerformanceScore(metrics: {
-  conversions: number;
-  views: number;
-  revenue: number;
+  conversions: number
+  views: number
+  revenue: number
 }): number {
-  const { conversions, views, revenue } = metrics;
+  const { conversions, views, revenue } = metrics
 
   // Normalize each metric to 0-100 scale
-  const conversionScore = Math.min(100, (conversions / 10) * 100);
-  const viewScore = Math.min(100, (views / 500) * 100);
-  const revenueScore = Math.min(100, (revenue / 1000) * 100);
+  const conversionScore = Math.min(100, (conversions / 10) * 100)
+  const viewScore = Math.min(100, (views / 500) * 100)
+  const revenueScore = Math.min(100, (revenue / 1000) * 100)
 
   // Apply weights
-  const weightedScore = conversionScore * 0.5 + viewScore * 0.3 + revenueScore * 0.2;
+  const weightedScore = conversionScore * 0.5 + viewScore * 0.3 + revenueScore * 0.2
 
-  return Math.round(weightedScore);
+  return Math.round(weightedScore)
 }
 
 /**
@@ -151,13 +151,13 @@ export async function createPerformanceSnapshot(analysis: PerformanceAnalysis): 
       conversionRate: metrics.conversionRate,
       avgOrderValue: metrics.avgOrderValue,
       performanceScore: metrics.performanceScore,
-    }));
+    }))
 
     await prisma.cityPerformanceSnapshot.createMany({
       data: snapshots,
-    });
+    })
   } catch (error) {
-    console.error('[Performance Analyzer] Snapshot error:', error);
+    console.error('[Performance Analyzer] Snapshot error:', error)
     // Don't throw - snapshots are optional
   }
 }
@@ -167,8 +167,8 @@ export async function createPerformanceSnapshot(analysis: PerformanceAnalysis): 
  */
 export async function getPerformanceTrend(cityPageId: string): Promise<PerformanceMetrics[]> {
   try {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
     const snapshots = await prisma.cityPerformanceSnapshot.findMany({
       where: {
@@ -176,7 +176,7 @@ export async function getPerformanceTrend(cityPageId: string): Promise<Performan
         timestamp: { gte: thirtyDaysAgo },
       },
       orderBy: { timestamp: 'asc' },
-    });
+    })
 
     return snapshots.map((snapshot) => ({
       pageId: snapshot.cityLandingPageId,
@@ -187,9 +187,9 @@ export async function getPerformanceTrend(cityPageId: string): Promise<Performan
       conversionRate: snapshot.conversionRate?.toNumber() || 0,
       avgOrderValue: snapshot.avgOrderValue?.toNumber() || 0,
       performanceScore: snapshot.performanceScore || 0,
-    }));
+    }))
   } catch (error) {
-    console.error('[Performance Analyzer] Trend error:', error);
-    return [];
+    console.error('[Performance Analyzer] Trend error:', error)
+    return []
   }
 }

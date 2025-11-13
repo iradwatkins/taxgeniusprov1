@@ -1,33 +1,33 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { createSquareCheckout, createOrUpdateSquareCustomer } from '@/lib/square';
-import { prisma } from '@/lib/prisma';
-import { validateRequest } from '@/lib/auth';
-import { randomUUID } from 'crypto';
+import { type NextRequest, NextResponse } from 'next/server'
+import { createSquareCheckout, createOrUpdateSquareCustomer } from '@/lib/square'
+import { prisma } from '@/lib/prisma'
+import { validateRequest } from '@/lib/auth'
+import { randomUUID } from 'crypto'
 
 interface CartItem {
-  id: string;
-  productName: string;
-  sku: string;
-  quantity: number;
-  price: number;
-  options?: any;
-  fileName?: string;
-  fileSize?: number;
+  id: string
+  productName: string
+  sku: string
+  quantity: number
+  price: number
+  options?: any
+  fileName?: string
+  fileSize?: number
 }
 
 interface UploadedImage {
-  id: string;
-  url: string;
-  thumbnailUrl?: string;
-  fileName: string;
-  fileSize?: number;
-  uploadedAt?: string;
+  id: string
+  url: string
+  thumbnailUrl?: string
+  fileName: string
+  fileSize?: number
+  uploadedAt?: string
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { user, session } = await validateRequest();
-    const body = await request.json();
+    const { user, session } = await validateRequest()
+    const body = await request.json()
 
     const {
       cartItems,
@@ -41,10 +41,10 @@ export async function POST(request: NextRequest) {
       tax,
       shipping,
       total,
-    } = body;
+    } = body
 
     // Normalize email to lowercase for consistent lookup
-    const normalizedEmail = customerInfo.email.toLowerCase();
+    const normalizedEmail = customerInfo.email.toLowerCase()
 
     // Find or create customer
     let customer = await prisma.user.findFirst({
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
           mode: 'insensitive',
         },
       },
-    });
+    })
 
     if (!customer) {
       // Create new customer
@@ -68,21 +68,21 @@ export async function POST(request: NextRequest) {
           emailVerified: false,
           updatedAt: new Date(),
         },
-      });
+      })
     }
 
     // Generate order number
-    const orderNumber = `GRP-${Date.now().toString(36).toUpperCase()}`;
+    const orderNumber = `GRP-${Date.now().toString(36).toUpperCase()}`
 
     // Create or update Square customer
     const squareCustomer = await createOrUpdateSquareCustomer(
       normalizedEmail,
       `${customerInfo.firstName} ${customerInfo.lastName}`,
       customerInfo.phone
-    );
+    )
 
     // Create order in database with PENDING_PAYMENT status
-    const orderId = `order_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    const orderId = `order_${Date.now()}_${Math.random().toString(36).substring(7)}`
     const order = await prisma.order.create({
       data: {
         id: orderId,
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
           })),
         },
       },
-    });
+    })
 
     // Create Square checkout
     const lineItems = cartItems.map((item: CartItem) => ({
@@ -132,14 +132,14 @@ export async function POST(request: NextRequest) {
         amount: BigInt(Math.round(item.price * 100)), // Convert to cents
         currency: 'USD',
       },
-    }));
+    }))
 
     const checkout = await createSquareCheckout({
       amount: Math.round(total * 100), // Convert to cents
       orderNumber: order.orderNumber,
       email: customerInfo.email,
       items: lineItems,
-    });
+    })
 
     // Update order with Square IDs
     await prisma.order.update({
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
       data: {
         squareOrderId: checkout.orderId,
       },
-    });
+    })
 
     // Note: Confirmation email will be sent by Square webhook after payment completes
     // Flow: Square webhook → OrderService.processPayment → OrderEmailService.sendOrderConfirmation
@@ -157,8 +157,8 @@ export async function POST(request: NextRequest) {
       checkoutUrl: checkout.url,
       orderId: order.id,
       orderNumber: order.orderNumber,
-    });
+    })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 })
   }
 }

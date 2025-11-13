@@ -1,15 +1,15 @@
-import { validateRequest } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
-import { FunnelsTable } from '@/components/funnels/funnels-table';
-import { CreateFunnelButton } from '@/components/funnels/create-funnel-button';
-import { FunnelStats } from '@/components/funnels/funnel-stats';
+import { validateRequest } from '@/lib/auth'
+import { redirect } from 'next/navigation'
+import { prisma } from '@/lib/prisma'
+import { FunnelsTable } from '@/components/funnels/funnels-table'
+import { CreateFunnelButton } from '@/components/funnels/create-funnel-button'
+import { FunnelStats } from '@/components/funnels/funnel-stats'
 
 export default async function FunnelsPage() {
-  const { user } = await validateRequest();
+  const { user } = await validateRequest()
 
   if (!user || user.role !== 'ADMIN') {
-    redirect('/login');
+    redirect('/login')
   }
 
   // Fetch funnels with stats
@@ -26,7 +26,7 @@ export default async function FunnelsPage() {
       },
     },
     orderBy: { createdAt: 'desc' },
-  });
+  })
 
   // Calculate aggregate stats
   const stats = {
@@ -34,7 +34,7 @@ export default async function FunnelsPage() {
     activeFunnels: funnels.filter((f) => f.status === 'ACTIVE').length,
     totalViews: funnels.reduce((sum, f) => sum + f.totalViews, 0),
     totalRevenue: funnels.reduce((sum, f) => sum + f.totalRevenue, 0),
-  };
+  }
 
   return (
     <div className="container mx-auto py-8">
@@ -54,5 +54,5 @@ export default async function FunnelsPage() {
         <FunnelsTable funnels={funnels} />
       </div>
     </div>
-  );
+  )
 }

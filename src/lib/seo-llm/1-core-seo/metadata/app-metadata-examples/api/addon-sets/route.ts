@@ -1,12 +1,12 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { randomUUID } from 'crypto';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { randomUUID } from 'crypto'
 
 // GET /api/addon-sets - List all addon sets
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams;
-    const include = searchParams.get('include') === 'items';
+    const searchParams = request.nextUrl.searchParams
+    const include = searchParams.get('include') === 'items'
 
     const addOnSets = await prisma.addOnSet.findMany({
       where: {
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
       orderBy: {
         sortOrder: 'asc',
       },
-    });
+    })
 
     // Transform PascalCase Prisma fields to camelCase for frontend
     const transformedSets = addOnSets.map((set) => ({
@@ -50,22 +50,22 @@ export async function GET(request: NextRequest) {
         productAddOnSets: set._count.ProductAddOnSet,
       },
       AddOnSetItem: undefined, // Remove PascalCase field
-    }));
+    }))
 
-    return NextResponse.json(transformedSets);
+    return NextResponse.json(transformedSets)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch addon sets' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch addon sets' }, { status: 500 })
   }
 }
 
 // POST /api/addon-sets - Create a new addon set
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { name, description, addOnIds = [] } = body;
+    const body = await request.json()
+    const { name, description, addOnIds = [] } = body
 
     if (!name) {
-      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Name is required' }, { status: 400 })
     }
 
     // Create the addon set
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
         isActive: true,
         updatedAt: new Date(),
       },
-    });
+    })
 
     // If addOnIds provided, create the addon set items
     if (addOnIds.length > 0) {
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
           isDefault: false,
           updatedAt: new Date(),
         })),
-      });
+      })
     }
 
     // Fetch the complete addon set with items
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
           },
         },
       },
-    });
+    })
 
     // Transform PascalCase to camelCase
     const transformed = completeAddOnSet
@@ -131,10 +131,10 @@ export async function POST(request: NextRequest) {
           },
           AddOnSetItem: undefined,
         }
-      : null;
+      : null
 
-    return NextResponse.json(transformed, { status: 201 });
+    return NextResponse.json(transformed, { status: 201 })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create addon set' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create addon set' }, { status: 500 })
   }
 }

@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const baseUrl = 'https://gangrunprinting.com';
+  const baseUrl = 'https://gangrunprinting.com'
 
   try {
     // Fetch all active products
@@ -16,7 +16,7 @@ export async function GET() {
         slug: true,
         updatedAt: true,
       },
-    });
+    })
 
     // Fetch all active categories
     const categories = await prisma.productCategory.findMany({
@@ -28,7 +28,7 @@ export async function GET() {
         slug: true,
         updatedAt: true,
       },
-    });
+    })
 
     // Static pages with priority and change frequency
     const staticPages = [
@@ -38,7 +38,7 @@ export async function GET() {
       { url: '/contact', changefreq: 'monthly', priority: 0.7 },
       { url: '/locations', changefreq: 'weekly', priority: 0.8 },
       { url: '/pricing', changefreq: 'weekly', priority: 0.8 },
-    ];
+    ]
 
     // Generate sitemap XML
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -76,16 +76,16 @@ export async function GET() {
   </url>`
     )
     .join('')}
-</urlset>`;
+</urlset>`
 
     return new NextResponse(sitemap, {
       headers: {
         'Content-Type': 'application/xml',
         'Cache-Control': 'public, max-age=3600, s-maxage=3600',
       },
-    });
+    })
   } catch (error) {
-    console.error('Sitemap generation error:', error);
-    return new NextResponse('Error generating sitemap', { status: 500 });
+    console.error('Sitemap generation error:', error)
+    return new NextResponse('Error generating sitemap', { status: 500 })
   }
 }

@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 /**
  * GET /api/marketing/customers/inactive
@@ -14,14 +14,14 @@ import { prisma } from '@/lib/prisma';
  */
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const minDays = parseInt(searchParams.get('minDays') || '60', 10);
-    const maxDays = parseInt(searchParams.get('maxDays') || '365', 10);
-    const limit = parseInt(searchParams.get('limit') || '50', 10);
+    const { searchParams } = new URL(req.url)
+    const minDays = parseInt(searchParams.get('minDays') || '60', 10)
+    const maxDays = parseInt(searchParams.get('maxDays') || '365', 10)
+    const limit = parseInt(searchParams.get('limit') || '50', 10)
 
-    const now = new Date();
-    const minDate = new Date(now.getTime() - maxDays * 24 * 60 * 60 * 1000);
-    const maxDate = new Date(now.getTime() - minDays * 24 * 60 * 60 * 1000);
+    const now = new Date()
+    const minDate = new Date(now.getTime() - maxDays * 24 * 60 * 60 * 1000)
+    const maxDate = new Date(now.getTime() - minDays * 24 * 60 * 60 * 1000)
 
     // Find users with at least one order, but last order was between minDays and maxDays ago
     const inactiveCustomers = await prisma.user.findMany({
@@ -48,21 +48,21 @@ export async function GET(req: NextRequest) {
         },
       },
       take: limit * 2, // Fetch more to filter
-    });
+    })
 
     // Filter to only users whose last order is within date range
     const filteredCustomers = inactiveCustomers
       .filter((user) => {
-        if (user.Order.length === 0) return false;
-        const lastOrderDate = new Date(user.Order[0].createdAt);
-        return lastOrderDate >= minDate && lastOrderDate <= maxDate;
+        if (user.Order.length === 0) return false
+        const lastOrderDate = new Date(user.Order[0].createdAt)
+        return lastOrderDate >= minDate && lastOrderDate <= maxDate
       })
       .slice(0, limit) // Limit results
       .map((user) => {
-        const lastOrder = user.Order[0];
+        const lastOrder = user.Order[0]
         const daysSinceLastOrder = Math.floor(
           (now.getTime() - new Date(lastOrder.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-        );
+        )
 
         return {
           userId: user.id,
@@ -72,8 +72,8 @@ export async function GET(req: NextRequest) {
           lastOrderNumber: lastOrder.orderNumber,
           lastOrderTotal: lastOrder.total,
           daysSinceLastOrder,
-        };
-      });
+        }
+      })
 
     return NextResponse.json({
       success: true,
@@ -85,9 +85,9 @@ export async function GET(req: NextRequest) {
         maxDate: maxDate.toISOString(),
       },
       customers: filteredCustomers,
-    });
+    })
   } catch (error) {
-    console.error('[API] Fetch inactive customers error:', error);
-    return NextResponse.json({ error: 'Failed to fetch inactive customers' }, { status: 500 });
+    console.error('[API] Fetch inactive customers error:', error)
+    return NextResponse.json({ error: 'Failed to fetch inactive customers' }, { status: 500 })
   }
 }

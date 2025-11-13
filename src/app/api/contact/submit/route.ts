@@ -196,6 +196,7 @@ ${message}
             message,
             submittedAt: new Date(),
             locale: (locale as 'en' | 'es') || 'en', // Pass locale for email translations
+            recipientName: recipients.recipientName, // Pass recipient name for personalized greeting
           }),
         });
 

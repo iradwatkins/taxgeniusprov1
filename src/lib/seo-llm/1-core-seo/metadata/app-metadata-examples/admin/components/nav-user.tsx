@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import { ChevronsUpDown, LogOut, User } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { ChevronsUpDown, LogOut, User } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,45 +12,45 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu'
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from '@/components/ui/sidebar';
+} from '@/components/ui/sidebar'
 
 export function NavUser({
   user,
 }: {
   user: {
-    name?: string;
-    email?: string;
-    avatar?: string;
-  };
+    name?: string
+    email?: string
+    avatar?: string
+  }
 }) {
-  const { isMobile } = useSidebar();
-  const router = useRouter();
+  const { isMobile } = useSidebar()
+  const router = useRouter()
 
   const handleSignOut = async () => {
     try {
       const response = await fetch('/api/auth/signout', {
         method: 'POST',
         credentials: 'include',
-      });
+      })
 
       if (response.ok) {
         // Redirect to signin page after successful logout
-        router.push('/auth/signin?message=signed_out');
+        router.push('/auth/signin?message=signed_out')
       } else {
         // Still redirect to signin even if logout failed
-        router.push('/auth/signin');
+        router.push('/auth/signin')
       }
     } catch (error) {
       // Still redirect to signin even if logout failed
-      router.push('/auth/signin');
+      router.push('/auth/signin')
     }
-  };
+  }
 
   return (
     <SidebarMenu>
@@ -118,5 +118,5 @@ export function NavUser({
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  );
+  )
 }

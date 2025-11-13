@@ -1,11 +1,11 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 import {
   unifiedPricingEngine,
   type UnifiedPricingRequest,
-} from '@/lib/pricing/unified-pricing-engine';
-import { pricingCalculationRequestSchema } from '@/lib/validation';
-import { z } from 'zod';
+} from '@/lib/pricing/unified-pricing-engine'
+import { pricingCalculationRequestSchema } from '@/lib/validation'
+import { z } from 'zod'
 
 /**
  * POST /api/pricing/calculate
@@ -14,15 +14,15 @@ import { z } from 'zod';
  * Connects frontend to existing UnifiedPricingEngine
  */
 export async function POST(request: NextRequest) {
-  const startTime = performance.now();
+  const startTime = performance.now()
 
   try {
     // Parse and validate request body
-    const body = await request.json();
-    const validatedRequest = pricingCalculationRequestSchema.parse(body);
+    const body = await request.json()
+    const validatedRequest = pricingCalculationRequestSchema.parse(body)
 
     // Fetch catalog data from database
-    const catalog = await fetchCatalogData(validatedRequest);
+    const catalog = await fetchCatalogData(validatedRequest)
 
     // Build pricing engine request
     const pricingRequest: UnifiedPricingRequest = {
@@ -53,10 +53,10 @@ export async function POST(request: NextRequest) {
       // Customer type
       isBroker: validatedRequest.isBroker || false,
       brokerCategoryDiscounts: validatedRequest.brokerCategoryDiscounts || [],
-    };
+    }
 
     // Calculate price using UnifiedPricingEngine
-    const result = unifiedPricingEngine.calculatePrice(pricingRequest, catalog);
+    const result = unifiedPricingEngine.calculatePrice(pricingRequest, catalog)
 
     // Check if calculation was valid
     if (!result.validation.isValid) {
@@ -67,12 +67,12 @@ export async function POST(request: NextRequest) {
           validation: result.validation,
         },
         { status: 400 }
-      );
+      )
     }
 
     // Calculate response time
-    const endTime = performance.now();
-    const responseTime = endTime - startTime;
+    const endTime = performance.now()
+    const responseTime = endTime - startTime
 
     // Return successful response
     return NextResponse.json({
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
       meta: {
         responseTimeMs: Math.round(responseTime),
       },
-    });
+    })
   } catch (error) {
     // Handle validation errors from Zod
     if (error instanceof z.ZodError) {
@@ -139,11 +139,11 @@ export async function POST(request: NextRequest) {
           },
         },
         { status: 400 }
-      );
+      )
     }
 
     // Handle other errors
-    console.error('Pricing calculation error:', error);
+    console.error('Pricing calculation error:', error)
 
     return NextResponse.json(
       {
@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
         },
       },
       { status: 500 }
-    );
+    )
   }
 }
 
@@ -169,14 +169,14 @@ async function fetchCatalogData(request: z.infer<typeof pricingCalculationReques
     ? await prisma.sizeGroup.findMany({
         where: { isActive: true },
       })
-    : [];
+    : []
 
   // Fetch quantities
   const quantities = request.standardQuantityId
     ? await prisma.quantityGroup.findMany({
         where: { isActive: true },
       })
-    : [];
+    : []
 
   // Fetch paper stocks
   const paperStocks = request.paperStockId
@@ -195,14 +195,14 @@ async function fetchCatalogData(request: z.infer<typeof pricingCalculationReques
           },
         },
       })
-    : [];
+    : []
 
   // Fetch turnaround times
   const turnarounds = request.turnaroundId
     ? await prisma.turnaroundTime.findMany({
         where: { isActive: true },
       })
-    : [];
+    : []
 
   // Fetch add-ons
   const addons =
@@ -216,7 +216,7 @@ async function fetchCatalogData(request: z.infer<typeof pricingCalculationReques
             addOnSubOptions: true,
           },
         })
-      : [];
+      : []
 
   // Transform database data to pricing engine format
   return {
@@ -261,7 +261,7 @@ async function fetchCatalogData(request: z.infer<typeof pricingCalculationReques
     addons: addons.map((a) => {
       // Parse configuration from JSON
       const config =
-        typeof a.configuration === 'object' ? (a.configuration as Record<string, any>) : {};
+        typeof a.configuration === 'object' ? (a.configuration as Record<string, any>) : {}
 
       return {
         id: a.id,
@@ -281,7 +281,7 @@ async function fetchCatalogData(request: z.infer<typeof pricingCalculationReques
         requiresConfiguration: false,
         conflictsWith: [],
         requiredFor: [],
-      };
+      }
     }),
-  };
+  }
 }

@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import { Suspense, useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useMemo, useState } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import {
   ArrowUpDown,
   ChevronDown,
@@ -14,13 +14,13 @@ import {
   Search,
   SlidersHorizontal,
   X,
-} from 'lucide-react';
+} from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,9 +28,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Sheet,
   SheetContent,
@@ -38,219 +38,219 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui/sheet';
-import { Skeleton } from '@/components/ui/skeleton';
+} from '@/components/ui/sheet'
+import { Skeleton } from '@/components/ui/skeleton'
 
 // Types for API data
 type ProductCategory = {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  sortOrder: number;
-  isActive: boolean;
+  id: string
+  name: string
+  slug: string
+  description?: string
+  sortOrder: number
+  isActive: boolean
   _count: {
-    products: number;
-  };
-};
+    products: number
+  }
+}
 
 type Product = {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-  shortDescription?: string;
-  basePrice: number;
-  isActive: boolean;
-  isFeatured: boolean;
-  productCategory?: ProductCategory;
-  ProductCategory?: ProductCategory; // For backward compatibility
+  id: string
+  name: string
+  slug: string
+  description?: string
+  shortDescription?: string
+  basePrice: number
+  isActive: boolean
+  isFeatured: boolean
+  productCategory?: ProductCategory
+  ProductCategory?: ProductCategory // For backward compatibility
   productImages?: Array<{
-    url: string;
-    thumbnailUrl?: string;
-    alt?: string;
-    isPrimary: boolean;
-  }>;
+    url: string
+    thumbnailUrl?: string
+    alt?: string
+    isPrimary: boolean
+  }>
   ProductImage?: Array<{
-    url: string;
-    thumbnailUrl?: string;
-    alt?: string;
-    isPrimary: boolean;
-  }>; // For backward compatibility
-};
+    url: string
+    thumbnailUrl?: string
+    alt?: string
+    isPrimary: boolean
+  }> // For backward compatibility
+}
 const sortOptions = [
   { label: 'Featured', value: 'featured' },
   { label: 'Price: Low to High', value: 'price-asc' },
   { label: 'Price: High to Low', value: 'price-desc' },
   { label: 'Name A-Z', value: 'name-asc' },
-];
+]
 
 function ProductsPageContent() {
-  const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState('featured');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [isLoading, setIsLoading] = useState(true);
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const searchParams = useSearchParams()
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [sortBy, setSortBy] = useState('featured')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [isLoading, setIsLoading] = useState(true)
+  const [showMobileFilters, setShowMobileFilters] = useState(false)
 
   // API data state
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<ProductCategory[]>([]);
-  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>([])
+  const [categories, setCategories] = useState<ProductCategory[]>([])
+  const [fetchError, setFetchError] = useState<string | null>(null)
 
   // Category expansion state for dropdowns
-  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
-  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([])
+  const [selectedProducts, setSelectedProducts] = useState<string[]>([])
 
   // Fetch categories and products
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(true);
-        setFetchError(null);
+        setIsLoading(true)
+        setFetchError(null)
 
         // Fetch categories and products in parallel
         const [categoriesResponse, productsResponse] = await Promise.all([
           fetch('/api/product-categories?active=true&withProducts=true'),
           fetch('/api/products?isActive=true'),
-        ]);
+        ])
 
         if (!categoriesResponse.ok) {
-          throw new Error('Failed to fetch categories');
+          throw new Error('Failed to fetch categories')
         }
         if (!productsResponse.ok) {
-          throw new Error('Failed to fetch products');
+          throw new Error('Failed to fetch products')
         }
 
         const [categoriesData, productsData] = await Promise.all([
           categoriesResponse.json(),
           productsResponse.json(),
-        ]);
+        ])
 
-        setCategories(categoriesData);
+        setCategories(categoriesData)
         // API returns { data: [...], pagination: {...} } so extract the data array
-        setProducts(productsData.data || productsData);
+        setProducts(productsData.data || productsData)
       } catch (error) {
-        setFetchError(error instanceof Error ? error.message : 'Failed to load data');
+        setFetchError(error instanceof Error ? error.message : 'Failed to load data')
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
   // Handle URL search parameters
   useEffect(() => {
-    const categoryParam = searchParams.get('category');
+    const categoryParam = searchParams.get('category')
     if (categoryParam && categories.length > 0) {
       // Find category by slug
-      const category = categories.find((cat) => cat.slug === categoryParam);
+      const category = categories.find((cat) => cat.slug === categoryParam)
       if (category && !selectedCategories.includes(category.name)) {
-        setSelectedCategories([category.name]);
+        setSelectedCategories([category.name])
       }
     }
-  }, [searchParams, selectedCategories, categories]);
+  }, [searchParams, selectedCategories, categories])
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
-      const name = product.name || '';
-      const description = product.description || '';
-      const shortDescription = product.shortDescription || '';
+      const name = product.name || ''
+      const description = product.description || ''
+      const shortDescription = product.shortDescription || ''
 
       const matchesSearch =
         name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (description && description.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (shortDescription && shortDescription.toLowerCase().includes(searchQuery.toLowerCase()));
+        (shortDescription && shortDescription.toLowerCase().includes(searchQuery.toLowerCase()))
 
-      const category = product.productCategory;
-      const categoryName = category?.name || '';
-      const productId = product.id || '';
+      const category = product.productCategory
+      const categoryName = category?.name || ''
+      const productId = product.id || ''
 
       const matchesSelection =
         (selectedCategories.length === 0 && selectedProducts.length === 0) ||
         (categoryName && selectedCategories.includes(categoryName)) ||
-        selectedProducts.includes(productId);
+        selectedProducts.includes(productId)
 
-      return matchesSearch && matchesSelection;
-    });
-  }, [searchQuery, selectedCategories, selectedProducts, products]);
+      return matchesSearch && matchesSelection
+    })
+  }, [searchQuery, selectedCategories, selectedProducts, products])
 
   const sortedProducts = useMemo(() => {
-    const sorted = [...filteredProducts];
+    const sorted = [...filteredProducts]
     switch (sortBy) {
       case 'price-asc':
-        return sorted.sort((a, b) => (a.basePrice || 0) - (b.basePrice || 0));
+        return sorted.sort((a, b) => (a.basePrice || 0) - (b.basePrice || 0))
       case 'price-desc':
-        return sorted.sort((a, b) => (b.basePrice || 0) - (a.basePrice || 0));
+        return sorted.sort((a, b) => (b.basePrice || 0) - (a.basePrice || 0))
       case 'name-asc':
         return sorted.sort((a, b) => {
-          const aName = a.name || '';
-          const bName = b.name || '';
-          return aName.localeCompare(bName);
-        });
+          const aName = a.name || ''
+          const bName = b.name || ''
+          return aName.localeCompare(bName)
+        })
       default: // featured
         return sorted.sort((a, b) => {
-          const aFeatured = a.isFeatured ?? false;
-          const bFeatured = b.isFeatured ?? false;
-          return (bFeatured ? 1 : 0) - (aFeatured ? 1 : 0);
-        });
+          const aFeatured = a.isFeatured ?? false
+          const bFeatured = b.isFeatured ?? false
+          return (bFeatured ? 1 : 0) - (aFeatured ? 1 : 0)
+        })
     }
-  }, [filteredProducts, sortBy]);
+  }, [filteredProducts, sortBy])
 
   const toggleCategory = (category: string) => {
     setSelectedCategories((prev) =>
       prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
-    );
+    )
     // Clear any individually selected products from this category when toggling category
     if (!selectedCategories.includes(category)) {
       const categoryProducts = products
         .filter((p) => {
-          const cat = p.productCategory || p.ProductCategory;
-          return cat && cat.name === category;
+          const cat = p.productCategory || p.ProductCategory
+          return cat && cat.name === category
         })
-        .map((p) => p.id);
-      setSelectedProducts((prev) => prev.filter((id) => !categoryProducts.includes(id)));
+        .map((p) => p.id)
+      setSelectedProducts((prev) => prev.filter((id) => !categoryProducts.includes(id)))
     }
-  };
+  }
 
   const toggleProduct = (productId: string) => {
     setSelectedProducts((prev) =>
       prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]
-    );
-  };
+    )
+  }
 
   const toggleCategoryExpansion = (categoryId: string) => {
     setExpandedCategories((prev) =>
       prev.includes(categoryId) ? prev.filter((id) => id !== categoryId) : [...prev, categoryId]
-    );
-  };
+    )
+  }
 
   const clearFilters = () => {
-    setSelectedCategories([]);
-    setSelectedProducts([]);
-    setSearchQuery('');
-  };
+    setSelectedCategories([])
+    setSelectedProducts([])
+    setSearchQuery('')
+  }
 
-  const activeFiltersCount = selectedCategories.length + selectedProducts.length;
+  const activeFiltersCount = selectedCategories.length + selectedProducts.length
 
   // Group products by category for dropdown display
   const productsByCategory = useMemo(() => {
-    const grouped: Record<string, Product[]> = {};
+    const grouped: Record<string, Product[]> = {}
     products.forEach((product) => {
       // Skip products without a category
-      const category = product.productCategory || product.ProductCategory;
-      if (!category || !category.name) return;
+      const category = product.productCategory || product.ProductCategory
+      if (!category || !category.name) return
 
-      const categoryName = category.name;
+      const categoryName = category.name
       if (!grouped[categoryName]) {
-        grouped[categoryName] = [];
+        grouped[categoryName] = []
       }
-      grouped[categoryName].push(product);
-    });
-    return grouped;
-  }, [products]);
+      grouped[categoryName].push(product)
+    })
+    return grouped
+  }, [products])
 
   const FilterContent = () => (
     <div className="space-y-4">
@@ -260,9 +260,9 @@ function ProductsPageContent() {
           .filter((category) => category && category.isActive)
           .sort((a, b) => (a?.sortOrder || 0) - (b?.sortOrder || 0))
           .map((category) => {
-            if (!category || !category.name) return null;
-            const categoryProducts = productsByCategory[category.name] || [];
-            const isExpanded = expandedCategories.includes(category.id);
+            if (!category || !category.name) return null
+            const categoryProducts = productsByCategory[category.name] || []
+            const isExpanded = expandedCategories.includes(category.id)
 
             return (
               <div key={category.id} className="border rounded-lg">
@@ -302,7 +302,7 @@ function ProductsPageContent() {
                   <CollapsibleContent className="px-6 pb-3">
                     <div className="space-y-2 border-t pt-2">
                       {categoryProducts.map((product) => {
-                        if (!product || !product.id || !product.name) return null;
+                        if (!product || !product.id || !product.name) return null
                         return (
                           <div key={product.id} className="flex items-center space-x-2 pl-4">
                             <Checkbox
@@ -318,13 +318,13 @@ function ProductsPageContent() {
                               {product.name}
                             </Label>
                           </div>
-                        );
+                        )
                       })}
                     </div>
                   </CollapsibleContent>
                 </Collapsible>
               </div>
-            );
+            )
           })}
       </div>
 
@@ -334,7 +334,7 @@ function ProductsPageContent() {
         </Button>
       )}
     </div>
-  );
+  )
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -452,7 +452,7 @@ function ProductsPageContent() {
               </Badge>
             ))}
             {selectedProducts.map((productId) => {
-              const product = products.find((p) => p.id === productId);
+              const product = products.find((p) => p.id === productId)
               return product ? (
                 <Badge
                   key={`product-${productId}`}
@@ -467,7 +467,7 @@ function ProductsPageContent() {
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
-              ) : null;
+              ) : null
             })}
           </div>
         )}
@@ -515,10 +515,10 @@ function ProductsPageContent() {
           ) : viewMode === 'grid' ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               {sortedProducts.map((product) => {
-                const images = product.productImages || [];
-                const primaryImage = images.find((img) => img.isPrimary) || images[0];
-                const slug = product.slug || product.id;
-                const productName = product.name || 'Product';
+                const images = product.productImages || []
+                const primaryImage = images.find((img) => img.isPrimary) || images[0]
+                const slug = product.slug || product.id
+                const productName = product.name || 'Product'
                 return (
                   <Link key={product.id} href={`/products/${slug}`}>
                     <Card className="overflow-hidden hover:shadow-lg transition-all hover:border-primary/50 group cursor-pointer h-full">
@@ -563,16 +563,16 @@ function ProductsPageContent() {
                       </CardContent>
                     </Card>
                   </Link>
-                );
+                )
               })}
             </div>
           ) : (
             <div className="space-y-4">
               {sortedProducts.map((product) => {
-                const images = product.productImages || [];
-                const primaryImage = images.find((img) => img.isPrimary) || images[0];
-                const slug = product.slug || product.id;
-                const productName = product.name || 'Product';
+                const images = product.productImages || []
+                const primaryImage = images.find((img) => img.isPrimary) || images[0]
+                const slug = product.slug || product.id
+                const productName = product.name || 'Product'
                 return (
                   <Link key={product.id} href={`/products/${slug}`}>
                     <Card className="overflow-hidden hover:shadow-lg transition-all hover:border-primary/50 group cursor-pointer">
@@ -621,7 +621,7 @@ function ProductsPageContent() {
                       </div>
                     </Card>
                   </Link>
-                );
+                )
               })}
             </div>
           )}
@@ -655,7 +655,7 @@ function ProductsPageContent() {
         </aside>
       </div>
     </div>
-  );
+  )
 }
 
 export default function ProductsPage() {
@@ -687,5 +687,5 @@ export default function ProductsPage() {
     >
       <ProductsPageContent />
     </Suspense>
-  );
+  )
 }

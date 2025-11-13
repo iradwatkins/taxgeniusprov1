@@ -9,57 +9,56 @@
  * - Cache warming capabilities
  */
 
-import Redis from 'ioredis';
-import { logger } from '@/lib/logger';
+import Redis from 'ioredis'
 
 export interface CacheOptions {
-  ttl?: number; // Time to live in seconds (default: 24 hours)
-  prefix?: string; // Cache key prefix
+  ttl?: number // Time to live in seconds (default: 24 hours)
+  prefix?: string // Cache key prefix
 }
 
 export class LLMCache {
-  private redis: Redis;
-  private defaultTTL: number = 86400; // 24 hours
+  private redis: Redis
+  private defaultTTL: number = 86400 // 24 hours
 
   constructor(redisUrl?: string) {
-    const url = redisUrl || process.env.REDIS_URL || 'redis://localhost:6379';
+    const url = redisUrl || process.env.REDIS_URL || 'redis://localhost:6379'
     this.redis = new Redis(url, {
       maxRetriesPerRequest: 3,
       retryStrategy: (times) => {
-        if (times > 3) return null;
-        return Math.min(times * 100, 2000);
+        if (times > 3) return null
+        return Math.min(times * 100, 2000)
       },
-    });
+    })
 
     this.redis.on('error', (error) => {
-      console.error('[Redis] Connection error:', error);
-    });
+      console.error('[Redis] Connection error:', error)
+    })
 
     this.redis.on('connect', () => {
-      logger.info('[Redis] Connected successfully');
-    });
+      console.log('[Redis] Connected successfully')
+    })
   }
 
   /**
    * Generate cache key from prompt and options
    */
   private generateKey(service: string, prompt: string, options?: Record<string, any>): string {
-    const optionsStr = options ? JSON.stringify(options) : '';
-    const hash = this.simpleHash(prompt + optionsStr);
-    return `llm:${service}:${hash}`;
+    const optionsStr = options ? JSON.stringify(options) : ''
+    const hash = this.simpleHash(prompt + optionsStr)
+    return `llm:${service}:${hash}`
   }
 
   /**
    * Simple hash function for cache keys
    */
   private simpleHash(str: string): string {
-    let hash = 0;
+    let hash = 0
     for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash = hash & hash; // Convert to 32bit integer
+      const char = str.charCodeAt(i)
+      hash = (hash << 5) - hash + char
+      hash = hash & hash // Convert to 32bit integer
     }
-    return Math.abs(hash).toString(36);
+    return Math.abs(hash).toString(36)
   }
 
   /**
@@ -71,19 +70,19 @@ export class LLMCache {
     options?: Record<string, any>
   ): Promise<T | null> {
     try {
-      const key = this.generateKey(service, prompt, options);
-      const cached = await this.redis.get(key);
+      const key = this.generateKey(service, prompt, options)
+      const cached = await this.redis.get(key)
 
       if (cached) {
-        logger.info(`[Cache] HIT: ${service}`);
-        return JSON.parse(cached) as T;
+        console.log(`[Cache] HIT: ${service}`)
+        return JSON.parse(cached) as T
       }
 
-      logger.info(`[Cache] MISS: ${service}`);
-      return null;
+      console.log(`[Cache] MISS: ${service}`)
+      return null
     } catch (error) {
-      console.error('[Cache] Get error:', error);
-      return null;
+      console.error('[Cache] Get error:', error)
+      return null
     }
   }
 
@@ -97,14 +96,14 @@ export class LLMCache {
     options?: CacheOptions
   ): Promise<void> {
     try {
-      const key = this.generateKey(service, prompt, options);
-      const ttl = options?.ttl || this.defaultTTL;
-      const value = JSON.stringify(response);
+      const key = this.generateKey(service, prompt, options)
+      const ttl = options?.ttl || this.defaultTTL
+      const value = JSON.stringify(response)
 
-      await this.redis.setex(key, ttl, value);
-      logger.info(`[Cache] SET: ${service} (TTL: ${ttl}s)`);
+      await this.redis.setex(key, ttl, value)
+      console.log(`[Cache] SET: ${service} (TTL: ${ttl}s)`)
     } catch (error) {
-      console.error('[Cache] Set error:', error);
+      console.error('[Cache] Set error:', error)
     }
   }
 
@@ -114,24 +113,24 @@ export class LLMCache {
   async cachedOllamaGenerate(
     prompt: string,
     options: {
-      system?: string;
-      temperature?: number;
-      maxTokens?: number;
+      system?: string
+      temperature?: number
+      maxTokens?: number
     },
     generator: () => Promise<string>,
     cacheTTL: number = this.defaultTTL
   ): Promise<string> {
     // Check cache first
-    const cached = await this.get<string>('ollama', prompt, options);
-    if (cached) return cached;
+    const cached = await this.get<string>('ollama', prompt, options)
+    if (cached) return cached
 
     // Generate fresh response
-    const response = await generator();
+    const response = await generator()
 
     // Cache for future use
-    await this.set('ollama', prompt, response, { ttl: cacheTTL });
+    await this.set('ollama', prompt, response, { ttl: cacheTTL })
 
-    return response;
+    return response
   }
 
   /**
@@ -144,19 +143,19 @@ export class LLMCache {
     translator: () => Promise<{ translatedText: string; confidence: number }>,
     cacheTTL: number = 604800 // 7 days for translations
   ): Promise<{ translatedText: string; confidence: number }> {
-    const cacheKey = `${sourceLocale}:${targetLocale}`;
+    const cacheKey = `${sourceLocale}:${targetLocale}`
     const cached = await this.get<{ translatedText: string; confidence: number }>(
       'translation',
       text,
       { locale: cacheKey }
-    );
+    )
 
-    if (cached) return cached;
+    if (cached) return cached
 
-    const response = await translator();
-    await this.set('translation', text, response, { ttl: cacheTTL });
+    const response = await translator()
+    await this.set('translation', text, response, { ttl: cacheTTL })
 
-    return response;
+    return response
   }
 
   /**
@@ -168,13 +167,13 @@ export class LLMCache {
     generator: () => Promise<string>,
     cacheTTL: number = 2592000 // 30 days
   ): Promise<string> {
-    const cached = await this.get<string>('image', prompt, options);
-    if (cached) return cached;
+    const cached = await this.get<string>('image', prompt, options)
+    if (cached) return cached
 
-    const imageUrl = await generator();
-    await this.set('image', prompt, imageUrl, { ttl: cacheTTL });
+    const imageUrl = await generator()
+    await this.set('image', prompt, imageUrl, { ttl: cacheTTL })
 
-    return imageUrl;
+    return imageUrl
   }
 
   /**
@@ -182,15 +181,15 @@ export class LLMCache {
    */
   async invalidate(pattern: string): Promise<number> {
     try {
-      const keys = await this.redis.keys(pattern);
-      if (keys.length === 0) return 0;
+      const keys = await this.redis.keys(pattern)
+      if (keys.length === 0) return 0
 
-      const deleted = await this.redis.del(...keys);
-      logger.info(`[Cache] Invalidated ${deleted} keys matching: ${pattern}`);
-      return deleted;
+      const deleted = await this.redis.del(...keys)
+      console.log(`[Cache] Invalidated ${deleted} keys matching: ${pattern}`)
+      return deleted
     } catch (error) {
-      console.error('[Cache] Invalidate error:', error);
-      return 0;
+      console.error('[Cache] Invalidate error:', error)
+      return 0
     }
   }
 
@@ -198,21 +197,21 @@ export class LLMCache {
    * Get cache statistics
    */
   async getStats(): Promise<{
-    totalKeys: number;
-    ollamaKeys: number;
-    translationKeys: number;
-    imageKeys: number;
-    memoryUsage: string;
+    totalKeys: number
+    ollamaKeys: number
+    translationKeys: number
+    imageKeys: number
+    memoryUsage: string
   }> {
     try {
-      const allKeys = await this.redis.keys('llm:*');
-      const ollamaKeys = await this.redis.keys('llm:ollama:*');
-      const translationKeys = await this.redis.keys('llm:translation:*');
-      const imageKeys = await this.redis.keys('llm:image:*');
+      const allKeys = await this.redis.keys('llm:*')
+      const ollamaKeys = await this.redis.keys('llm:ollama:*')
+      const translationKeys = await this.redis.keys('llm:translation:*')
+      const imageKeys = await this.redis.keys('llm:image:*')
 
-      const info = await this.redis.info('memory');
-      const memoryMatch = info.match(/used_memory_human:(.+)/);
-      const memoryUsage = memoryMatch ? memoryMatch[1].trim() : 'Unknown';
+      const info = await this.redis.info('memory')
+      const memoryMatch = info.match(/used_memory_human:(.+)/)
+      const memoryUsage = memoryMatch ? memoryMatch[1].trim() : 'Unknown'
 
       return {
         totalKeys: allKeys.length,
@@ -220,16 +219,16 @@ export class LLMCache {
         translationKeys: translationKeys.length,
         imageKeys: imageKeys.length,
         memoryUsage,
-      };
+      }
     } catch (error) {
-      console.error('[Cache] Stats error:', error);
+      console.error('[Cache] Stats error:', error)
       return {
         totalKeys: 0,
         ollamaKeys: 0,
         translationKeys: 0,
         imageKeys: 0,
         memoryUsage: 'Error',
-      };
+      }
     }
   }
 
@@ -239,54 +238,54 @@ export class LLMCache {
   async warmCache(
     prompts: Array<{ service: string; prompt: string; generator: () => Promise<any> }>
   ): Promise<void> {
-    logger.info(`[Cache] Warming cache with ${prompts.length} prompts...`);
+    console.log(`[Cache] Warming cache with ${prompts.length} prompts...`)
 
     for (const { service, prompt, generator } of prompts) {
-      const cached = await this.get(service, prompt);
+      const cached = await this.get(service, prompt)
       if (!cached) {
-        const response = await generator();
-        await this.set(service, prompt, response);
+        const response = await generator()
+        await this.set(service, prompt, response)
       }
     }
 
-    logger.info('[Cache] Cache warming complete');
+    console.log('[Cache] Cache warming complete')
   }
 
   /**
    * Close Redis connection
    */
   async disconnect(): Promise<void> {
-    await this.redis.quit();
+    await this.redis.quit()
   }
 }
 
 /**
  * Singleton instance
  */
-let cacheInstance: LLMCache | null = null;
+let cacheInstance: LLMCache | null = null
 
 export function getLLMCache(): LLMCache {
   if (!cacheInstance) {
-    cacheInstance = new LLMCache();
+    cacheInstance = new LLMCache()
   }
-  return cacheInstance;
+  return cacheInstance
 }
 
 /**
  * Example usage in Ollama client
  */
 export async function cachedOllamaExample() {
-  const cache = getLLMCache();
+  const cache = getLLMCache()
 
   const response = await cache.cachedOllamaGenerate(
     'Write a 50-word description of business cards',
     { temperature: 0.7, maxTokens: 200 },
     async () => {
       // Your actual Ollama API call here
-      return 'Generated description...';
+      return 'Generated description...'
     },
     86400 // 24 hours TTL
-  );
+  )
 
-  return response;
+  return response
 }

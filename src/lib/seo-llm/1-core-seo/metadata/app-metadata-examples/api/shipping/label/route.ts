@@ -1,33 +1,33 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-import { prisma } from '@/lib/prisma';
-import { validateRequest } from '@/lib/auth';
-import { shippingCalculator, type ShippingAddress, type ShippingPackage } from '@/lib/shipping';
+import { type NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { prisma } from '@/lib/prisma'
+import { validateRequest } from '@/lib/auth'
+import { shippingCalculator, type ShippingAddress, type ShippingPackage } from '@/lib/shipping'
 
 const createLabelSchema = z.object({
   orderId: z.string(),
-});
+})
 
 export async function POST(request: NextRequest) {
   try {
-    const { user } = await validateRequest();
+    const { user } = await validateRequest()
 
     // Only admins can create shipping labels
     if (!user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
-    const body = await request.json();
-    const validation = createLabelSchema.safeParse(body);
+    const body = await request.json()
+    const validation = createLabelSchema.safeParse(body)
 
     if (!validation.success) {
       return NextResponse.json(
         { error: 'Invalid request', details: validation.error.flatten() },
         { status: 400 }
-      );
+      )
     }
 
-    const { orderId } = validation.data;
+    const { orderId } = validation.data
 
     // Get order details
     const order = await prisma.order.findUnique({
@@ -39,17 +39,17 @@ export async function POST(request: NextRequest) {
           },
         },
       },
-    });
+    })
 
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     if (!order.carrier || !order.shippingServiceCode) {
       return NextResponse.json(
         { error: 'No shipping method selected for this order' },
         { status: 400 }
-      );
+      )
     }
 
     // Parse addresses
@@ -60,9 +60,9 @@ export async function POST(request: NextRequest) {
       zipCode: '77001',
       country: 'US',
       isResidential: false,
-    };
+    }
 
-    const shippingAddr = order.shippingAddress as any;
+    const shippingAddr = order.shippingAddress as any
     const toAddress: ShippingAddress = {
       street: shippingAddr.street || shippingAddr.address,
       street2: shippingAddr.street2,
@@ -71,27 +71,27 @@ export async function POST(request: NextRequest) {
       zipCode: shippingAddr.zipCode || shippingAddr.zip,
       country: shippingAddr.country || 'US',
       isResidential: shippingAddr.isResidential !== false,
-    };
+    }
 
     // Calculate package weight
-    const packages: ShippingPackage[] = [];
+    const packages: ShippingPackage[] = []
 
     if (order.totalWeight) {
       // Use pre-calculated weight if available
       packages.push({
         weight: order.totalWeight,
         dimensions: order.packageDimensions as any,
-      });
+      })
     } else {
       // Calculate weight from items
-      let totalWeight = 0;
+      let totalWeight = 0
       for (const item of order.OrderItem) {
         if (item.calculatedWeight) {
-          totalWeight += item.calculatedWeight;
+          totalWeight += item.calculatedWeight
         } else if (item.paperStock && item.dimensions) {
-          const dims = item.dimensions as any;
-          const weight = item.paperStock.weight * dims.width * dims.height * item.quantity;
-          totalWeight += weight;
+          const dims = item.dimensions as any
+          const weight = item.paperStock.weight * dims.width * dims.height * item.quantity
+          totalWeight += weight
         }
       }
 
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
           height: 9,
           length: 16,
         },
-      });
+      })
     }
 
     // Create shipping label
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
       toAddress,
       packages,
       order.shippingServiceCode
-    );
+    )
 
     // Update order with tracking info
     await prisma.order.update({
@@ -121,13 +121,13 @@ export async function POST(request: NextRequest) {
         trackingNumber: label.trackingNumber,
         shippingLabelUrl: label.labelUrl,
       },
-    });
+    })
 
     return NextResponse.json({
       success: true,
       label,
-    });
+    })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create shipping label' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create shipping label' }, { status: 500 })
   }
 }

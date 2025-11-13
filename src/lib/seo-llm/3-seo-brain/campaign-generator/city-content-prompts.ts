@@ -6,23 +6,23 @@
  * Uses Google Imagen 4 for city hero images
  */
 
-import type { CityData } from './city-data-types';
+import type { CityData } from './city-data-types'
 
 /**
  * Generate city-specific introduction (500 words)
  */
 export function generateCityIntroPrompt(params: {
-  city: CityData;
-  productName: string;
+  city: CityData
+  productName: string
   productSpec: {
-    quantity: number;
-    size: string;
-    material: string;
-    turnaround: string;
-    price: number;
-  };
+    quantity: number
+    size: string
+    material: string
+    turnaround: string
+    price: number
+  }
 }): string {
-  const { city, productName, productSpec } = params;
+  const { city, productName, productSpec } = params
 
   return `You are an expert local marketing copywriter for a printing company.
 
@@ -67,18 +67,18 @@ OUTPUT FORMAT (Plain text, no markdown):
 EXAMPLE OPENING (Do NOT copy, just style reference):
 "In the heart of ${city.name}'s bustling ${city.neighborhoods?.[0] || 'downtown'} district, businesses need marketing materials that match the city's energy. Whether you're promoting the latest event at ${city.venues?.[0] || 'a local venue'} or expanding your ${city.industries?.[0] || 'business'} presence across ${city.neighborhoods?.[1] || 'the metro area'}, our ${productName} delivers the quality and speed ${city.name} demands..."
 
-Write now (500 words, ${city.name}-specific):`;
+Write now (500 words, ${city.name}-specific):`
 }
 
 /**
  * Generate city-specific benefits (10 benefits)
  */
 export function generateCityBenefitsPrompt(params: {
-  city: CityData;
-  productName: string;
-  productSpec: any;
+  city: CityData
+  productName: string
+  productSpec: any
 }): string {
-  const { city, productName, productSpec } = params;
+  const { city, productName, productSpec } = params
 
   return `Generate 10 compelling benefits for ${productName} specifically for customers in ${city.name}, ${city.state}.
 
@@ -104,18 +104,18 @@ OUTPUT FORMAT (JSON):
   ]
 }
 
-Generate all 10 benefits now (JSON only):`;
+Generate all 10 benefits now (JSON only):`
 }
 
 /**
  * Generate city-specific FAQs (15 questions & answers)
  */
 export function generateCityFAQsPrompt(params: {
-  city: CityData;
-  productName: string;
-  productSpec: any;
+  city: CityData
+  productName: string
+  productSpec: any
 }): string {
-  const { city, productName, productSpec } = params;
+  const { city, productName, productSpec } = params
 
   return `Generate 15 frequently asked questions and detailed answers for ${productName} in ${city.name}, ${city.state}.
 
@@ -158,18 +158,18 @@ OUTPUT FORMAT (JSON):
   ]
 }
 
-Generate all 15 FAQs now (JSON only):`;
+Generate all 15 FAQs now (JSON only):`
 }
 
 /**
  * Generate Google AI image prompt for city hero image
  */
 export function generateCityHeroImagePrompt(params: {
-  city: CityData;
-  productName: string;
-  productSpec: any;
+  city: CityData
+  productName: string
+  productSpec: any
 }): string {
-  const { city, productName, productSpec } = params;
+  const { city, productName, productSpec } = params
 
   // Extract product type (flyers, business cards, etc.)
   const productType = productName.toLowerCase().includes('flyer')
@@ -180,12 +180,12 @@ export function generateCityHeroImagePrompt(params: {
         ? 'postcards'
         : productName.toLowerCase().includes('brochure')
           ? 'brochures'
-          : 'printed materials';
+          : 'printed materials'
 
   // Get city's most iconic landmark/characteristic
-  const cityCharacteristic = getCityCharacteristic(city);
+  const cityCharacteristic = getCityCharacteristic(city)
 
-  return `Professional product photography of ${productSpec.size} ${productType}, ${cityCharacteristic}, studio lighting with soft shadows, high-end marketing photography, ultra sharp focus, premium paper texture visible, 4k resolution, sophisticated composition`;
+  return `Professional product photography of ${productSpec.size} ${productType}, ${cityCharacteristic}, studio lighting with soft shadows, high-end marketing photography, ultra sharp focus, premium paper texture visible, 4k resolution, sophisticated composition`
 }
 
 /**
@@ -214,69 +214,69 @@ function getCityCharacteristic(city: CityData): string {
     Atlanta: 'on polished surface with Southern modern aesthetic',
     Philadelphia: 'on classic desk with historic architecture visible',
     Washington: 'on elegant marble surface with monuments in soft background',
-  };
+  }
 
   // Check if city has specific style
-  const cityName = city.name.split(',')[0]; // Remove state if present
+  const cityName = city.name.split(',')[0] // Remove state if present
   if (cityImageStyles[cityName]) {
-    return cityImageStyles[cityName];
+    return cityImageStyles[cityName]
   }
 
   // Default based on city characteristics
   if (city.famousFor?.some((f) => f.toLowerCase().includes('beach'))) {
-    return 'on white surface with coastal/beach aesthetic and natural lighting';
+    return 'on white surface with coastal/beach aesthetic and natural lighting'
   }
   if (city.famousFor?.some((f) => f.toLowerCase().includes('mountain'))) {
-    return 'on wooden surface with mountain landscape visible in background';
+    return 'on wooden surface with mountain landscape visible in background'
   }
   if (city.famousFor?.some((f) => f.toLowerCase().includes('tech'))) {
-    return 'on minimalist modern desk with tech startup aesthetic';
+    return 'on minimalist modern desk with tech startup aesthetic'
   }
 
   // Generic but professional
-  return `fanned out on clean white surface with ${city.state} map subtly visible in background`;
+  return `fanned out on clean white surface with ${city.state} map subtly visible in background`
 }
 
 /**
  * Generate complete city page content (all-in-one)
  */
 export async function generateCompleteCityContent(params: {
-  city: CityData;
-  productName: string;
-  productSpec: any;
-  ollamaClient: any;
+  city: CityData
+  productName: string
+  productSpec: any
+  ollamaClient: any
 }): Promise<{
-  introduction: string;
-  benefits: string[];
-  faqs: Array<{ question: string; answer: string }>;
-  imagePrompt: string;
+  introduction: string
+  benefits: string[]
+  faqs: Array<{ question: string; answer: string }>
+  imagePrompt: string
 }> {
-  const { city, productName, productSpec, ollamaClient } = params;
+  const { city, productName, productSpec, ollamaClient } = params
 
   // Generate introduction (500 words)
-  const introPrompt = generateCityIntroPrompt({ city, productName, productSpec });
-  const introResponse = await ollamaClient.generate(introPrompt);
-  const introduction = introResponse.trim();
+  const introPrompt = generateCityIntroPrompt({ city, productName, productSpec })
+  const introResponse = await ollamaClient.generate(introPrompt)
+  const introduction = introResponse.trim()
 
   // Generate benefits (10 items)
-  const benefitsPrompt = generateCityBenefitsPrompt({ city, productName, productSpec });
-  const benefitsResponse = await ollamaClient.generate(benefitsPrompt);
-  const benefitsData = JSON.parse(benefitsResponse);
-  const benefits = benefitsData.benefits;
+  const benefitsPrompt = generateCityBenefitsPrompt({ city, productName, productSpec })
+  const benefitsResponse = await ollamaClient.generate(benefitsPrompt)
+  const benefitsData = JSON.parse(benefitsResponse)
+  const benefits = benefitsData.benefits
 
   // Generate FAQs (15 items)
-  const faqsPrompt = generateCityFAQsPrompt({ city, productName, productSpec });
-  const faqsResponse = await ollamaClient.generate(faqsPrompt);
-  const faqsData = JSON.parse(faqsResponse);
-  const faqs = faqsData.faqs;
+  const faqsPrompt = generateCityFAQsPrompt({ city, productName, productSpec })
+  const faqsResponse = await ollamaClient.generate(faqsPrompt)
+  const faqsData = JSON.parse(faqsResponse)
+  const faqs = faqsData.faqs
 
   // Generate image prompt
-  const imagePrompt = generateCityHeroImagePrompt({ city, productName, productSpec });
+  const imagePrompt = generateCityHeroImagePrompt({ city, productName, productSpec })
 
   return {
     introduction,
     benefits,
     faqs,
     imagePrompt,
-  };
+  }
 }

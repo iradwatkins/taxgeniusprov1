@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import {
   ArrowLeft,
   Edit,
@@ -16,83 +16,83 @@ import {
   ShoppingCart,
   DollarSign,
   MapPin,
-} from 'lucide-react';
-import toast from '@/lib/toast';
+} from 'lucide-react'
+import toast from '@/lib/toast'
 
 interface LandingPageSet {
-  id: string;
-  name: string;
-  slug: string;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  name: string
+  slug: string
+  status: string
+  createdAt: string
+  updatedAt: string
 
   // Product Configuration
-  PaperStockSet: { name: string };
-  QuantityGroup: { name: string };
-  SizeGroup: { name: string };
-  AddOnSet: { name: string } | null;
-  TurnaroundTimeSet: { name: string } | null;
+  PaperStockSet: { name: string }
+  QuantityGroup: { name: string }
+  SizeGroup: { name: string }
+  AddOnSet: { name: string } | null
+  TurnaroundTimeSet: { name: string } | null
 
   // Content Templates
-  titleTemplate: string;
-  metaDescTemplate: string;
-  h1Template: string;
-  contentTemplate: string;
+  titleTemplate: string
+  metaDescTemplate: string
+  h1Template: string
+  contentTemplate: string
 
   // AI Generation Settings
-  generateIntro: boolean;
-  generateBenefits: boolean;
-  generateFAQs: boolean;
-  generateCaseStudy: boolean;
+  generateIntro: boolean
+  generateBenefits: boolean
+  generateFAQs: boolean
+  generateCaseStudy: boolean
 
   // SEO Settings
-  robotsIndex: boolean;
-  robotsFollow: boolean;
+  robotsIndex: boolean
+  robotsFollow: boolean
 
   // Metrics
   metrics: {
-    citiesGenerated: number;
-    totalViews: number;
-    totalOrders: number;
-    totalRevenue: number;
-    avgConversionRate: number;
-  };
+    citiesGenerated: number
+    totalViews: number
+    totalOrders: number
+    totalRevenue: number
+    avgConversionRate: number
+  }
 }
 
 export default function LandingPageSetDetailPage({ params }: { params: { id: string } }) {
-  const router = useRouter();
-  const [landingPageSet, setLandingPageSet] = useState<LandingPageSet | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [publishing, setPublishing] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const router = useRouter()
+  const [landingPageSet, setLandingPageSet] = useState<LandingPageSet | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [publishing, setPublishing] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
-    fetchLandingPageSet();
-  }, []);
+    fetchLandingPageSet()
+  }, [])
 
   const fetchLandingPageSet = async () => {
     try {
-      setLoading(true);
-      const response = await fetch(`/api/landing-page-sets/${params.id}`);
+      setLoading(true)
+      const response = await fetch(`/api/landing-page-sets/${params.id}`)
 
       if (!response.ok) {
-        throw new Error('Failed to fetch landing page set');
+        throw new Error('Failed to fetch landing page set')
       }
 
-      const data = await response.json();
-      setLandingPageSet(data);
+      const data = await response.json()
+      setLandingPageSet(data)
     } catch (error) {
-      console.error('Error fetching landing page set:', error);
-      toast.error('Failed to load landing page set');
-      router.push('/admin/landing-pages');
+      console.error('Error fetching landing page set:', error)
+      toast.error('Failed to load landing page set')
+      router.push('/admin/landing-pages')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handlePublish = async () => {
-    if (!landingPageSet) return;
+    if (!landingPageSet) return
 
     if (
       !confirm(
@@ -105,43 +105,43 @@ export default function LandingPageSetDetailPage({ params }: { params: { id: str
           `This process may take 5-10 minutes.`
       )
     ) {
-      return;
+      return
     }
 
     try {
-      setPublishing(true);
-      toast.loading('Publishing landing page set...', { id: 'publish' });
+      setPublishing(true)
+      toast.loading('Publishing landing page set...', { id: 'publish' })
 
       const response = await fetch(`/api/landing-page-sets/${params.id}/publish`, {
         method: 'POST',
-      });
+      })
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to publish landing page set');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to publish landing page set')
       }
 
-      const result = await response.json();
+      const result = await response.json()
 
       toast.success(`Successfully generated ${result.citiesGenerated} city landing pages!`, {
         id: 'publish',
         duration: 5000,
-      });
+      })
 
       // Refresh data
-      await fetchLandingPageSet();
+      await fetchLandingPageSet()
     } catch (error) {
-      console.error('Error publishing landing page set:', error);
+      console.error('Error publishing landing page set:', error)
       toast.error(error instanceof Error ? error.message : 'Failed to publish landing page set', {
         id: 'publish',
-      });
+      })
     } finally {
-      setPublishing(false);
+      setPublishing(false)
     }
-  };
+  }
 
   const handleDelete = async () => {
-    if (!landingPageSet) return;
+    if (!landingPageSet) return
 
     if (
       !confirm(
@@ -154,38 +154,38 @@ export default function LandingPageSetDetailPage({ params }: { params: { id: str
           `Type "DELETE" to confirm`
       )
     ) {
-      return;
+      return
     }
 
-    const confirmText = prompt('Type "DELETE" to confirm deletion:');
+    const confirmText = prompt('Type "DELETE" to confirm deletion:')
     if (confirmText !== 'DELETE') {
-      toast.error('Deletion cancelled - confirmation text did not match');
-      return;
+      toast.error('Deletion cancelled - confirmation text did not match')
+      return
     }
 
     try {
-      setDeleting(true);
-      toast.loading('Deleting landing page set...', { id: 'delete' });
+      setDeleting(true)
+      toast.loading('Deleting landing page set...', { id: 'delete' })
 
       const response = await fetch(`/api/landing-page-sets/${params.id}`, {
         method: 'DELETE',
-      });
+      })
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete landing page set');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to delete landing page set')
       }
 
-      toast.success('Landing page set deleted successfully', { id: 'delete' });
-      router.push('/admin/landing-pages');
+      toast.success('Landing page set deleted successfully', { id: 'delete' })
+      router.push('/admin/landing-pages')
     } catch (error) {
-      console.error('Error deleting landing page set:', error);
+      console.error('Error deleting landing page set:', error)
       toast.error(error instanceof Error ? error.message : 'Failed to delete landing page set', {
         id: 'delete',
-      });
-      setDeleting(false);
+      })
+      setDeleting(false)
     }
-  };
+  }
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
@@ -193,20 +193,20 @@ export default function LandingPageSetDetailPage({ params }: { params: { id: str
       generating: 'outline',
       published: 'default',
       archived: 'destructive',
-    };
-    return <Badge variant={variants[status] || 'default'}>{status.toUpperCase()}</Badge>;
-  };
+    }
+    return <Badge variant={variants[status] || 'default'}>{status.toUpperCase()}</Badge>
+  }
 
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('en-US').format(num);
-  };
+    return new Intl.NumberFormat('en-US').format(num)
+  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-    }).format(amount);
-  };
+    }).format(amount)
+  }
 
   if (loading) {
     return (
@@ -215,7 +215,7 @@ export default function LandingPageSetDetailPage({ params }: { params: { id: str
           <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
         </div>
       </div>
-    );
+    )
   }
 
   if (!landingPageSet) {
@@ -228,7 +228,7 @@ export default function LandingPageSetDetailPage({ params }: { params: { id: str
           </Button>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -509,5 +509,5 @@ export default function LandingPageSetDetailPage({ params }: { params: { id: str
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

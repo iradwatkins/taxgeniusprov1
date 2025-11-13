@@ -1,9 +1,9 @@
-import { type NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server'
 
-import { SERVICE_ENDPOINTS } from '@/config/constants';
+import { SERVICE_ENDPOINTS } from '@/lib/constants'
 
-const OLLAMA_URL = SERVICE_ENDPOINTS.OLLAMA;
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3';
+const OLLAMA_URL = SERVICE_ENDPOINTS.OLLAMA
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3'
 
 // System prompt for the printing assistant
 const SYSTEM_PROMPT = `You are a helpful assistant for GangRun Printing, a professional printing company.
@@ -28,14 +28,14 @@ Available products include:
 - Greeting Cards
 - Presentation Folders
 
-We offer various paper stocks, sizes, quantities, and finishing options like lamination, UV coating, and foil stamping.`;
+We offer various paper stocks, sizes, quantities, and finishing options like lamination, UV coating, and foil stamping.`
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, conversationHistory = [] } = await request.json();
+    const { message, conversationHistory = [] } = await request.json()
 
     if (!message) {
-      return NextResponse.json({ error: 'Message is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Message is required' }, { status: 400 })
     }
 
     // Prepare messages for Ollama
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       { role: 'system', content: SYSTEM_PROMPT },
       ...conversationHistory,
       { role: 'user', content: message },
-    ];
+    ]
 
     // Call Ollama API
     const response = await fetch(`${OLLAMA_URL}/api/chat`, {
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
           max_tokens: 500,
         },
       }),
-    });
+    })
 
     if (!response.ok) {
       // Fallback response if Ollama is not available
@@ -68,26 +68,26 @@ export async function POST(request: NextRequest) {
         response:
           "I apologize, but I'm temporarily unable to process your request. Please try again later or contact our support team at support@gangrunprinting.com for immediate assistance.",
         fallback: true,
-      });
+      })
     }
 
-    const data = await response.json();
+    const data = await response.json()
 
     // Extract the assistant's response
     const aiResponse =
-      data.message?.content || data.response || "I'm sorry, I couldn't generate a response.";
+      data.message?.content || data.response || "I'm sorry, I couldn't generate a response."
 
     // Check if the response suggests connecting with a human
     const needsHuman =
       aiResponse.toLowerCase().includes('representative') ||
       aiResponse.toLowerCase().includes('support team') ||
-      aiResponse.toLowerCase().includes('contact us');
+      aiResponse.toLowerCase().includes('contact us')
 
     return NextResponse.json({
       response: aiResponse,
       needsHuman,
       model: OLLAMA_MODEL,
-    });
+    })
   } catch (error) {
     // Return a helpful fallback message
     return NextResponse.json({
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
         "I apologize, but I'm having trouble connecting to our chat service. For immediate assistance, please email us at support@gangrunprinting.com or call during business hours.",
       fallback: true,
       error: true,
-    });
+    })
   }
 }
 
@@ -103,31 +103,31 @@ export async function POST(request: NextRequest) {
 export async function GET(): Promise<unknown> {
   try {
     // Check if Ollama is running
-    const response = await fetch(`${OLLAMA_URL}/api/tags`);
+    const response = await fetch(`${OLLAMA_URL}/api/tags`)
 
     if (response.ok) {
-      const data = await response.json();
+      const data = await response.json()
       const hasModel = data.models?.some((m: Record<string, unknown>) => {
-        const name = m.name as string;
-        return name?.includes(OLLAMA_MODEL) || false;
-      });
+        const name = m.name as string
+        return name?.includes(OLLAMA_MODEL) || false
+      })
 
       return NextResponse.json({
         status: 'online',
         model: OLLAMA_MODEL,
         modelAvailable: hasModel,
         endpoint: OLLAMA_URL,
-      });
+      })
     }
 
     return NextResponse.json({
       status: 'offline',
       message: 'Ollama service is not responding',
-    });
+    })
   } catch (error) {
     return NextResponse.json({
       status: 'error',
       message: 'Unable to connect to Ollama service',
-    });
+    })
   }
 }

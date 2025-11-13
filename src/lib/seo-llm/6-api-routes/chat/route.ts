@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
-import { SERVICE_ENDPOINTS } from '@/config/constants'
+import { SERVICE_ENDPOINTS } from '@/lib/constants'
 
 const OLLAMA_URL = SERVICE_ENDPOINTS.OLLAMA
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3'

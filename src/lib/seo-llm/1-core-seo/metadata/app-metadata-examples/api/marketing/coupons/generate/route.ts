@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { nanoid } from 'nanoid';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { nanoid } from 'nanoid'
 
 /**
  * POST /api/marketing/coupons/generate
@@ -22,7 +22,7 @@ import { nanoid } from 'nanoid';
  */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body = await req.json()
     const {
       type,
       value,
@@ -32,18 +32,18 @@ export async function POST(req: NextRequest) {
       maxDiscount,
       expiresInDays = 7,
       campaign,
-    } = body;
+    } = body
 
     // Validate required fields
     if (!type || value === undefined) {
-      return NextResponse.json({ error: 'Missing required fields: type, value' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing required fields: type, value' }, { status: 400 })
     }
 
     if (type !== 'PERCENTAGE' && type !== 'FIXED_AMOUNT') {
       return NextResponse.json(
         { error: 'Invalid type. Must be PERCENTAGE or FIXED_AMOUNT' },
         { status: 400 }
-      );
+      )
     }
 
     // Generate unique coupon code
@@ -54,16 +54,16 @@ export async function POST(req: NextRequest) {
           ? 'BACK'
           : campaign === 'anniversary'
             ? 'YEAR'
-            : 'SAVE';
+            : 'SAVE'
 
     const randomPart = nanoid(8)
       .toUpperCase()
-      .replace(/[^A-Z0-9]/g, '');
-    const code = `${prefix}${randomPart}`;
+      .replace(/[^A-Z0-9]/g, '')
+    const code = `${prefix}${randomPart}`
 
     // Calculate expiration date
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + expiresInDays);
+    const expiresAt = new Date()
+    expiresAt.setDate(expiresAt.getDate() + expiresInDays)
 
     // Create coupon
     const coupon = await prisma.coupon.create({
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
           generatedAt: new Date().toISOString(),
         },
       },
-    });
+    })
 
     return NextResponse.json({
       success: true,
@@ -99,10 +99,10 @@ export async function POST(req: NextRequest) {
         expiresAt: coupon.expiresAt,
         expiresInDays,
       },
-    });
+    })
   } catch (error) {
-    console.error('[API] Coupon generation error:', error);
-    return NextResponse.json({ error: 'Failed to generate coupon' }, { status: 500 });
+    console.error('[API] Coupon generation error:', error)
+    return NextResponse.json({ error: 'Failed to generate coupon' }, { status: 500 })
   }
 }
 
@@ -113,19 +113,19 @@ export async function POST(req: NextRequest) {
  */
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const code = searchParams.get('code');
+    const { searchParams } = new URL(req.url)
+    const code = searchParams.get('code')
 
     if (!code) {
-      return NextResponse.json({ error: 'Missing code parameter' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing code parameter' }, { status: 400 })
     }
 
     const coupon = await prisma.coupon.findUnique({
       where: { code: code.toUpperCase() },
-    });
+    })
 
     if (!coupon) {
-      return NextResponse.json({ valid: false, error: 'Coupon not found' }, { status: 404 });
+      return NextResponse.json({ valid: false, error: 'Coupon not found' }, { status: 404 })
     }
 
     // Check if active
@@ -133,7 +133,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         valid: false,
         error: 'This coupon is no longer active',
-      });
+      })
     }
 
     // Check expiration
@@ -141,7 +141,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         valid: false,
         error: 'This coupon has expired',
-      });
+      })
     }
 
     // Check usage limit
@@ -149,7 +149,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         valid: false,
         error: 'This coupon has already been used',
-      });
+      })
     }
 
     return NextResponse.json({
@@ -163,9 +163,9 @@ export async function GET(req: NextRequest) {
         maxDiscount: coupon.maxDiscount,
         expiresAt: coupon.expiresAt,
       },
-    });
+    })
   } catch (error) {
-    console.error('[API] Coupon validation error:', error);
-    return NextResponse.json({ error: 'Failed to validate coupon' }, { status: 500 });
+    console.error('[API] Coupon validation error:', error)
+    return NextResponse.json({ error: 'Failed to validate coupon' }, { status: 500 })
   }
 }

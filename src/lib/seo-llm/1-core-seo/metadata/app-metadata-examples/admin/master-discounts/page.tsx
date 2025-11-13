@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Percent, Save, Loader2, Package } from 'lucide-react';
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Percent, Save, Loader2, Package } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -13,68 +13,68 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import toast from '@/lib/toast';
+} from '@/components/ui/table'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import toast from '@/lib/toast'
 
 interface Category {
-  id: string;
-  name: string;
-  brokerDiscount: number;
+  id: string
+  name: string
+  brokerDiscount: number
   _count?: {
-    Product: number;
-  };
+    Product: number
+  }
 }
 
 export default function MasterDiscountsPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [savingIds, setSavingIds] = useState<Set<string>>(new Set());
-  const [editedDiscounts, setEditedDiscounts] = useState<Record<string, number>>({});
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
+  const [savingIds, setSavingIds] = useState<Set<string>>(new Set())
+  const [editedDiscounts, setEditedDiscounts] = useState<Record<string, number>>({})
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    fetchCategories()
+  }, [])
 
   const fetchCategories = async () => {
     try {
-      setLoading(true);
-      const response = await fetch('/api/product-categories?active=true&topLevel=true');
-      const data = await response.json();
+      setLoading(true)
+      const response = await fetch('/api/product-categories?active=true&topLevel=true')
+      const data = await response.json()
 
       // Filter out hidden categories and sort by name
       const filteredCategories = data
         .filter((cat: any) => !cat.isHidden)
-        .sort((a: any, b: any) => a.name.localeCompare(b.name));
+        .sort((a: any, b: any) => a.name.localeCompare(b.name))
 
-      setCategories(filteredCategories);
+      setCategories(filteredCategories)
     } catch (error) {
-      toast.error('Failed to load categories');
+      toast.error('Failed to load categories')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleDiscountChange = (categoryId: string, value: string) => {
-    const numValue = parseFloat(value);
+    const numValue = parseFloat(value)
 
     if (value === '') {
-      setEditedDiscounts({ ...editedDiscounts, [categoryId]: 0 });
-      return;
+      setEditedDiscounts({ ...editedDiscounts, [categoryId]: 0 })
+      return
     }
 
     if (isNaN(numValue) || numValue < 0 || numValue > 100) {
-      return; // Don't update with invalid values
+      return // Don't update with invalid values
     }
 
-    setEditedDiscounts({ ...editedDiscounts, [categoryId]: numValue });
-  };
+    setEditedDiscounts({ ...editedDiscounts, [categoryId]: numValue })
+  }
 
   const handleSave = async (category: Category) => {
-    const newDiscount = editedDiscounts[category.id] ?? category.brokerDiscount;
+    const newDiscount = editedDiscounts[category.id] ?? category.brokerDiscount
 
     try {
-      setSavingIds(new Set(savingIds).add(category.id));
+      setSavingIds(new Set(savingIds).add(category.id))
 
       const response = await fetch(`/api/product-categories/${category.id}`, {
         method: 'PUT',
@@ -83,45 +83,45 @@ export default function MasterDiscountsPage() {
           name: category.name,
           brokerDiscount: newDiscount,
         }),
-      });
+      })
 
       if (!response.ok) {
-        throw new Error('Failed to update');
+        throw new Error('Failed to update')
       }
 
-      toast.success(`Updated ${category.name} discount to ${newDiscount}%`);
+      toast.success(`Updated ${category.name} discount to ${newDiscount}%`)
 
       // Update local state
       setCategories(
         categories.map((cat) =>
           cat.id === category.id ? { ...cat, brokerDiscount: newDiscount } : cat
         )
-      );
+      )
 
       // Clear edited state
-      const newEdited = { ...editedDiscounts };
-      delete newEdited[category.id];
-      setEditedDiscounts(newEdited);
+      const newEdited = { ...editedDiscounts }
+      delete newEdited[category.id]
+      setEditedDiscounts(newEdited)
     } catch (error) {
-      toast.error('Failed to update discount');
+      toast.error('Failed to update discount')
     } finally {
       setSavingIds((prev) => {
-        const next = new Set(prev);
-        next.delete(category.id);
-        return next;
-      });
+        const next = new Set(prev)
+        next.delete(category.id)
+        return next
+      })
     }
-  };
+  }
 
   const getCurrentDiscount = (category: Category) => {
-    return editedDiscounts[category.id] ?? category.brokerDiscount;
-  };
+    return editedDiscounts[category.id] ?? category.brokerDiscount
+  }
 
   const isEdited = (categoryId: string) => {
-    return categoryId in editedDiscounts;
-  };
+    return categoryId in editedDiscounts
+  }
 
-  const totalWithDiscounts = categories.filter((cat) => cat.brokerDiscount > 0).length;
+  const totalWithDiscounts = categories.filter((cat) => cat.brokerDiscount > 0).length
 
   return (
     <div className="container mx-auto py-6">
@@ -177,9 +177,9 @@ export default function MasterDiscountsPage() {
                 </TableHeader>
                 <TableBody>
                   {categories.map((category) => {
-                    const currentDiscount = getCurrentDiscount(category);
-                    const edited = isEdited(category.id);
-                    const isSaving = savingIds.has(category.id);
+                    const currentDiscount = getCurrentDiscount(category)
+                    const edited = isEdited(category.id)
+                    const isSaving = savingIds.has(category.id)
 
                     return (
                       <TableRow key={category.id}>
@@ -231,7 +231,7 @@ export default function MasterDiscountsPage() {
                           </Button>
                         </TableCell>
                       </TableRow>
-                    );
+                    )
                   })}
                 </TableBody>
               </Table>
@@ -254,5 +254,5 @@ export default function MasterDiscountsPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

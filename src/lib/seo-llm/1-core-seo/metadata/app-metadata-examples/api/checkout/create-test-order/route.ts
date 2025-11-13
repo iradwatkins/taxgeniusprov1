@@ -1,33 +1,33 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { validateRequest } from '@/lib/auth';
-import { OrderEmailService } from '@/lib/email/order-email-service';
-import { randomUUID } from 'crypto';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { validateRequest } from '@/lib/auth'
+import { OrderEmailService } from '@/lib/email/order-email-service'
+import { randomUUID } from 'crypto'
 
 interface CartItem {
-  id: string;
-  productName: string;
-  sku: string;
-  quantity: number;
-  price: number;
-  options?: any;
-  fileName?: string;
-  fileSize?: number;
+  id: string
+  productName: string
+  sku: string
+  quantity: number
+  price: number
+  options?: any
+  fileName?: string
+  fileSize?: number
 }
 
 interface UploadedImage {
-  id: string;
-  url: string;
-  thumbnailUrl?: string;
-  fileName: string;
-  fileSize?: number;
-  uploadedAt?: string;
+  id: string
+  url: string
+  thumbnailUrl?: string
+  fileName: string
+  fileSize?: number
+  uploadedAt?: string
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { user, session } = await validateRequest();
-    const body = await request.json();
+    const { user, session } = await validateRequest()
+    const body = await request.json()
 
     const {
       cartItems,
@@ -41,10 +41,10 @@ export async function POST(request: NextRequest) {
       tax,
       shipping,
       total,
-    } = body;
+    } = body
 
     // Normalize email to lowercase for consistent lookup
-    const normalizedEmail = customerInfo.email.toLowerCase();
+    const normalizedEmail = customerInfo.email.toLowerCase()
 
     // Find or create customer
     let customer = await prisma.user.findFirst({
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
           mode: 'insensitive',
         },
       },
-    });
+    })
 
     if (!customer) {
       // Create new customer
@@ -68,14 +68,14 @@ export async function POST(request: NextRequest) {
           emailVerified: false,
           updatedAt: new Date(),
         },
-      });
+      })
     }
 
     // Generate order number with TEST prefix
-    const orderNumber = `TEST-${Date.now().toString(36).toUpperCase()}`;
+    const orderNumber = `TEST-${Date.now().toString(36).toUpperCase()}`
 
     // Create order in database with CONFIRMATION status (test orders are pre-paid)
-    const orderId = `test_order_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    const orderId = `test_order_${Date.now()}_${Math.random().toString(36).substring(7)}`
     const order = await prisma.order.create({
       data: {
         id: orderId,
@@ -124,15 +124,15 @@ export async function POST(request: NextRequest) {
         OrderItem: true,
         User: true,
       },
-    });
+    })
 
     // Send confirmation email for test orders
     try {
-      await OrderEmailService.sendOrderConfirmation(order);
+      await OrderEmailService.sendOrderConfirmation(order)
       //   `[Test Order] Confirmation email sent to ${order.email} for order ${order.orderNumber}`
       // )
     } catch (emailError) {
-      console.error('[Test Order] Failed to send confirmation email:', emailError);
+      console.error('[Test Order] Failed to send confirmation email:', emailError)
       // Don't fail the order creation if email fails
     }
 
@@ -140,15 +140,15 @@ export async function POST(request: NextRequest) {
       success: true,
       orderId: order.id,
       orderNumber: order.orderNumber,
-    });
+    })
   } catch (error) {
-    console.error('Test order creation error:', error);
+    console.error('Test order creation error:', error)
     return NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to create test order',
       },
       { status: 500 }
-    );
+    )
   }
 }

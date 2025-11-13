@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -10,53 +10,53 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Plus, Eye, Edit, Trash2, BarChart3, Loader2 } from 'lucide-react';
-import toast from '@/lib/toast';
+} from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import { Plus, Eye, Edit, Trash2, BarChart3, Loader2 } from 'lucide-react'
+import toast from '@/lib/toast'
 
 interface LandingPageSet {
-  id: string;
-  name: string;
-  slug: string;
-  status: string;
-  createdAt: string;
+  id: string
+  name: string
+  slug: string
+  status: string
+  createdAt: string
   metrics: {
-    citiesGenerated: number;
-    totalViews: number;
-    totalOrders: number;
-    totalRevenue: number;
-    avgConversionRate: number;
-  };
+    citiesGenerated: number
+    totalViews: number
+    totalOrders: number
+    totalRevenue: number
+    avgConversionRate: number
+  }
 }
 
 export default function LandingPagesListPage() {
-  const router = useRouter();
-  const [landingPageSets, setLandingPageSets] = useState<LandingPageSet[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const router = useRouter()
+  const [landingPageSets, setLandingPageSets] = useState<LandingPageSet[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchLandingPageSets();
-  }, []);
+    fetchLandingPageSets()
+  }, [])
 
   const fetchLandingPageSets = async () => {
     try {
-      setLoading(true);
-      const response = await fetch('/api/landing-page-sets');
+      setLoading(true)
+      const response = await fetch('/api/landing-page-sets')
 
       if (!response.ok) {
-        throw new Error('Failed to fetch landing page sets');
+        throw new Error('Failed to fetch landing page sets')
       }
 
-      const data = await response.json();
-      setLandingPageSets(data);
+      const data = await response.json()
+      setLandingPageSets(data)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
@@ -64,20 +64,20 @@ export default function LandingPagesListPage() {
       generating: 'outline',
       published: 'default',
       archived: 'destructive',
-    };
-    return <Badge variant={variants[status] || 'default'}>{status.toUpperCase()}</Badge>;
-  };
+    }
+    return <Badge variant={variants[status] || 'default'}>{status.toUpperCase()}</Badge>
+  }
 
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('en-US').format(num);
-  };
+    return new Intl.NumberFormat('en-US').format(num)
+  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-    }).format(amount);
-  };
+    }).format(amount)
+  }
 
   if (loading) {
     return (
@@ -86,7 +86,7 @@ export default function LandingPagesListPage() {
           <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -219,5 +219,5 @@ export default function LandingPagesListPage() {
         </div>
       )}
     </div>
-  );
+  )
 }

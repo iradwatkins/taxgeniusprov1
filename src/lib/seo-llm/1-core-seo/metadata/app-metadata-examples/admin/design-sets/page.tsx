@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Textarea } from '@/components/ui/textarea';
-import { Plus, Edit, Trash2, Search, Save, Palette, ChevronDown, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Textarea } from '@/components/ui/textarea'
+import { Plus, Edit, Trash2, Search, Save, Palette, ChevronDown, ChevronRight } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -17,7 +17,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
@@ -25,46 +25,46 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import toast from '@/lib/toast';
+} from '@/components/ui/dialog'
+import toast from '@/lib/toast'
 
 interface DesignOption {
-  id: string;
-  name: string;
-  code: string;
-  pricingType: string;
-  isActive: boolean;
+  id: string
+  name: string
+  code: string
+  pricingType: string
+  isActive: boolean
 }
 
 interface DesignSetItem {
-  id: string;
-  designOptionId: string;
-  isDefault: boolean;
-  sortOrder: number;
-  designOption: DesignOption;
+  id: string
+  designOptionId: string
+  isDefault: boolean
+  sortOrder: number
+  designOption: DesignOption
 }
 
 interface DesignSet {
-  id: string;
-  name: string;
-  description: string | null;
-  sortOrder: number;
-  isActive: boolean;
-  designOptionItems?: DesignSetItem[];
-  productDesignSets?: any[];
+  id: string
+  name: string
+  description: string | null
+  sortOrder: number
+  isActive: boolean
+  designOptionItems?: DesignSetItem[]
+  productDesignSets?: any[]
 }
 
 export default function DesignSetsPage() {
-  const [sets, setSets] = useState<DesignSet[]>([]);
-  const [options, setOptions] = useState<DesignOption[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [setToDelete, setSetToDelete] = useState<DesignSet | null>(null);
-  const [editingSet, setEditingSet] = useState<DesignSet | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [expandedSet, setExpandedSet] = useState<string | null>(null);
+  const [sets, setSets] = useState<DesignSet[]>([])
+  const [options, setOptions] = useState<DesignOption[]>([])
+  const [loading, setLoading] = useState(true)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [setToDelete, setSetToDelete] = useState<DesignSet | null>(null)
+  const [editingSet, setEditingSet] = useState<DesignSet | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [expandedSet, setExpandedSet] = useState<string | null>(null)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -72,58 +72,58 @@ export default function DesignSetsPage() {
     description: '',
     sortOrder: 0,
     isActive: true,
-  });
+  })
   const [selectedOptions, setSelectedOptions] = useState<{
     [key: string]: {
-      isDefault: boolean;
-      sortOrder: number;
-    };
-  }>({});
+      isDefault: boolean
+      sortOrder: number
+    }
+  }>({})
 
   useEffect(() => {
-    fetchSets();
-    fetchOptions();
-  }, []);
+    fetchSets()
+    fetchOptions()
+  }, [])
 
   const fetchSets = async () => {
     try {
-      setLoading(true);
-      const response = await fetch('/api/design-sets');
-      if (!response.ok) throw new Error('Failed to fetch');
-      const data = await response.json();
-      setSets(Array.isArray(data) ? data : []);
+      setLoading(true)
+      const response = await fetch('/api/design-sets')
+      if (!response.ok) throw new Error('Failed to fetch')
+      const data = await response.json()
+      setSets(Array.isArray(data) ? data : [])
     } catch (error) {
-      toast.error('Failed to fetch design sets');
-      setSets([]);
+      toast.error('Failed to fetch design sets')
+      setSets([])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const fetchOptions = async () => {
     try {
-      const response = await fetch('/api/design-options');
-      if (!response.ok) throw new Error('Failed to fetch');
-      const data = await response.json();
-      setOptions(Array.isArray(data) ? data.filter((opt: DesignOption) => opt.isActive) : []);
+      const response = await fetch('/api/design-options')
+      if (!response.ok) throw new Error('Failed to fetch')
+      const data = await response.json()
+      setOptions(Array.isArray(data) ? data.filter((opt: DesignOption) => opt.isActive) : [])
     } catch (error) {
-      toast.error('Failed to fetch design options');
-      setOptions([]);
+      toast.error('Failed to fetch design options')
+      setOptions([])
     }
-  };
+  }
 
   const handleSubmit = async () => {
     try {
-      setSaving(true);
+      setSaving(true)
 
       const designOptions = Object.entries(selectedOptions).map(([id, config], index) => ({
         id,
         isDefault: config.isDefault,
         sortOrder: config.sortOrder || index,
-      }));
+      }))
 
-      const url = editingSet ? `/api/design-sets/${editingSet.id}` : '/api/design-sets';
-      const method = editingSet ? 'PUT' : 'POST';
+      const url = editingSet ? `/api/design-sets/${editingSet.id}` : '/api/design-sets'
+      const method = editingSet ? 'PUT' : 'POST'
 
       const response = await fetch(url, {
         method,
@@ -135,47 +135,47 @@ export default function DesignSetsPage() {
           isActive: formData.isActive,
           designOptions: designOptions.length > 0 ? designOptions : undefined,
         }),
-      });
+      })
 
       if (response.ok) {
         toast.success(
           editingSet ? 'Design set updated successfully' : 'Design set created successfully'
-        );
-        setDialogOpen(false);
-        resetForm();
-        fetchSets();
+        )
+        setDialogOpen(false)
+        resetForm()
+        fetchSets()
       } else {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to save design set');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to save design set')
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to save design set');
+      toast.error(error instanceof Error ? error.message : 'Failed to save design set')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   const handleDelete = async () => {
-    if (!setToDelete) return;
+    if (!setToDelete) return
 
     try {
       const response = await fetch(`/api/design-sets/${setToDelete.id}`, {
         method: 'DELETE',
-      });
+      })
 
       if (response.ok) {
-        toast.success('Design set deleted successfully');
-        setDeleteDialogOpen(false);
-        setSetToDelete(null);
-        fetchSets();
+        toast.success('Design set deleted successfully')
+        setDeleteDialogOpen(false)
+        setSetToDelete(null)
+        fetchSets()
       } else {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete design set');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to delete design set')
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to delete design set');
+      toast.error(error instanceof Error ? error.message : 'Failed to delete design set')
     }
-  };
+  }
 
   const handleToggleActive = async (set: DesignSet) => {
     try {
@@ -183,18 +183,18 @@ export default function DesignSetsPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isActive: !set.isActive }),
-      });
+      })
 
       if (response.ok) {
-        toast.success(`Design set ${!set.isActive ? 'activated' : 'deactivated'} successfully`);
-        fetchSets();
+        toast.success(`Design set ${!set.isActive ? 'activated' : 'deactivated'} successfully`)
+        fetchSets()
       } else {
-        throw new Error('Failed to update design set status');
+        throw new Error('Failed to update design set status')
       }
     } catch (error) {
-      toast.error('Failed to update design set status');
+      toast.error('Failed to update design set status')
     }
-  };
+  }
 
   const resetForm = () => {
     setFormData({
@@ -202,25 +202,25 @@ export default function DesignSetsPage() {
       description: '',
       sortOrder: 0,
       isActive: true,
-    });
-    setSelectedOptions({});
-    setEditingSet(null);
-  };
+    })
+    setSelectedOptions({})
+    setEditingSet(null)
+  }
 
   const handleToggleOption = (optionId: string) => {
     setSelectedOptions((prev) => {
-      const newSelected = { ...prev };
+      const newSelected = { ...prev }
       if (newSelected[optionId]) {
-        delete newSelected[optionId];
+        delete newSelected[optionId]
       } else {
         newSelected[optionId] = {
           isDefault: false,
           sortOrder: Object.keys(newSelected).length,
-        };
+        }
       }
-      return newSelected;
-    });
-  };
+      return newSelected
+    })
+  }
 
   const handleOptionConfigChange = (
     optionId: string,
@@ -233,36 +233,36 @@ export default function DesignSetsPage() {
         ...prev[optionId],
         [field]: value,
       },
-    }));
-  };
+    }))
+  }
 
   const openEditDialog = (set: DesignSet) => {
-    setEditingSet(set);
+    setEditingSet(set)
     setFormData({
       name: set.name,
       description: set.description || '',
       sortOrder: set.sortOrder,
       isActive: set.isActive,
-    });
+    })
 
     // Populate selected options
-    const selectedData: typeof selectedOptions = {};
+    const selectedData: typeof selectedOptions = {}
     if (set.designOptionItems) {
       set.designOptionItems.forEach((item) => {
         selectedData[item.designOptionId] = {
           isDefault: item.isDefault,
           sortOrder: item.sortOrder,
-        };
-      });
+        }
+      })
     }
-    setSelectedOptions(selectedData);
-    setDialogOpen(true);
-  };
+    setSelectedOptions(selectedData)
+    setDialogOpen(true)
+  }
 
   const openDeleteDialog = (set: DesignSet) => {
-    setSetToDelete(set);
-    setDeleteDialogOpen(true);
-  };
+    setSetToDelete(set)
+    setDeleteDialogOpen(true)
+  }
 
   const filteredSets = Array.isArray(sets)
     ? sets.filter(
@@ -270,7 +270,7 @@ export default function DesignSetsPage() {
           set.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           set.description?.toLowerCase().includes(searchTerm.toLowerCase())
       )
-    : [];
+    : []
 
   return (
     <div className="container mx-auto py-6">
@@ -283,8 +283,8 @@ export default function DesignSetsPage() {
             </div>
             <Button
               onClick={() => {
-                resetForm();
-                setDialogOpen(true);
+                resetForm()
+                setDialogOpen(true)
               }}
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -514,8 +514,8 @@ export default function DesignSetsPage() {
               disabled={saving}
               variant="outline"
               onClick={() => {
-                setDialogOpen(false);
-                resetForm();
+                setDialogOpen(false)
+                resetForm()
               }}
             >
               Cancel
@@ -551,8 +551,8 @@ export default function DesignSetsPage() {
             <Button
               variant="outline"
               onClick={() => {
-                setDeleteDialogOpen(false);
-                setSetToDelete(null);
+                setDeleteDialogOpen(false)
+                setSetToDelete(null)
               }}
             >
               Cancel
@@ -564,5 +564,5 @@ export default function DesignSetsPage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }

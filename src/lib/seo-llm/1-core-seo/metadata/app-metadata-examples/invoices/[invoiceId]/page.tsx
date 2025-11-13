@@ -1,9 +1,9 @@
-import { notFound } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { notFound } from 'next/navigation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   Table,
   TableBody,
@@ -11,7 +11,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   FileText,
   Calendar,
@@ -24,47 +24,47 @@ import {
   CheckCircle,
   Clock,
   CreditCard,
-} from 'lucide-react';
-import { PayInvoiceButton } from '@/components/invoices/pay-invoice-button';
+} from 'lucide-react'
+import { PayInvoiceButton } from '@/components/invoices/pay-invoice-button'
 
 // Force dynamic rendering for real-time invoice status
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 interface InvoicePageProps {
-  params: Promise<{ invoiceId: string }>;
+  params: Promise<{ invoiceId: string }>
 }
 
 async function getInvoice(invoiceId: string) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3002';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3002'
     const response = await fetch(`${baseUrl}/api/invoices/${invoiceId}`, {
       cache: 'no-store',
-    });
+    })
 
     if (!response.ok) {
-      return null;
+      return null
     }
 
-    const data = await response.json();
-    return data.invoice;
+    const data = await response.json()
+    return data.invoice
   } catch (error) {
-    console.error('Error fetching invoice:', error);
-    return null;
+    console.error('Error fetching invoice:', error)
+    return null
   }
 }
 
 export default async function InvoicePage({ params }: InvoicePageProps) {
-  const { invoiceId } = await params;
-  const invoice = await getInvoice(invoiceId);
+  const { invoiceId } = await params
+  const invoice = await getInvoice(invoiceId)
 
   if (!invoice) {
-    notFound();
+    notFound()
   }
 
-  const dueDate = new Date(invoice.paymentDueDate);
-  const isOverdue = dueDate < new Date() && invoice.status !== 'paid';
-  const isPaid = invoice.status === 'paid';
+  const dueDate = new Date(invoice.paymentDueDate)
+  const isOverdue = dueDate < new Date() && invoice.status !== 'paid'
+  const isPaid = invoice.status === 'paid'
 
   const statusConfig = {
     pending: {
@@ -87,11 +87,11 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
       color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
       icon: AlertCircle,
     },
-  };
+  }
 
-  const currentStatus = isOverdue ? 'overdue' : invoice.status;
-  const status = statusConfig[currentStatus as keyof typeof statusConfig];
-  const StatusIcon = status.icon;
+  const currentStatus = isOverdue ? 'overdue' : invoice.status
+  const status = statusConfig[currentStatus as keyof typeof statusConfig]
+  const StatusIcon = status.icon
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-12 px-4">
@@ -298,5 +298,5 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   TrendingDown,
   TrendingUp,
@@ -12,100 +12,100 @@ import {
   CheckCircle2,
   BarChart3,
   Activity,
-} from 'lucide-react';
-import { subDays } from 'date-fns';
+} from 'lucide-react'
+import { subDays } from 'date-fns'
 
 // Import new SEO dashboard components
 import {
   SEOMetricsChart,
   type SEOMetricsDataPoint,
-} from '@/components/seo/dashboard/SEOMetricsChart';
-import { TrafficChart, type TrafficDataPoint } from '@/components/seo/dashboard/TrafficChart';
+} from '@/components/seo/dashboard/SEOMetricsChart'
+import { TrafficChart, type TrafficDataPoint } from '@/components/seo/dashboard/TrafficChart'
 import {
   CoreWebVitalsCard,
   type CoreWebVitalsData,
-} from '@/components/seo/dashboard/CoreWebVitalsCard';
-import { DateRangePicker, type DateRange } from '@/components/seo/dashboard/DateRangePicker';
-import { ExportButton } from '@/components/seo/dashboard/ExportButton';
-import { DataRefreshIndicator } from '@/components/seo/dashboard/DataRefreshIndicator';
-import { ComparisonModeToggle } from '@/components/seo/dashboard/ComparisonModeToggle';
-import { CrawlerActivityDashboard } from '@/components/admin/seo/CrawlerActivityDashboard';
+} from '@/components/seo/dashboard/CoreWebVitalsCard'
+import { DateRangePicker, type DateRange } from '@/components/seo/dashboard/DateRangePicker'
+import { ExportButton } from '@/components/seo/dashboard/ExportButton'
+import { DataRefreshIndicator } from '@/components/seo/dashboard/DataRefreshIndicator'
+import { ComparisonModeToggle } from '@/components/seo/dashboard/ComparisonModeToggle'
+import { CrawlerActivityDashboard } from '@/components/admin/seo/CrawlerActivityDashboard'
 
 interface SEOAlert {
-  type: string;
-  severity: string;
-  keyword: string;
-  oldValue: number;
-  newValue: number;
-  change: number;
-  suggestion: string;
+  type: string
+  severity: string
+  keyword: string
+  oldValue: number
+  newValue: number
+  change: number
+  suggestion: string
 }
 
 interface ProductReport {
-  productName: string;
-  slug: string;
-  alerts: SEOAlert[];
+  productName: string
+  slug: string
+  alerts: SEOAlert[]
   summary: {
-    totalClicks: number;
-    totalImpressions: number;
-    avgPosition: number;
-    totalKeywords: number;
-  };
+    totalClicks: number
+    totalImpressions: number
+    avgPosition: number
+    totalKeywords: number
+  }
   rankings?: Array<{
-    keyword: string;
-    position: number;
-    clicks: number;
-    impressions: number;
-    ctr: number;
-    positionChange?: number;
-  }>;
+    keyword: string
+    position: number
+    clicks: number
+    impressions: number
+    ctr: number
+    positionChange?: number
+  }>
 }
 
 interface AnalyticsData {
-  sessions: number;
-  users: number;
-  pageviews: number;
-  bounceRate: number;
+  sessions: number
+  users: number
+  pageviews: number
+  bounceRate: number
 }
 
 interface PageSpeedData {
   scores: {
-    performance: number;
-    accessibility: number;
-    bestPractices: number;
-    seo: number;
-  };
-  vitals: CoreWebVitalsData;
+    performance: number
+    accessibility: number
+    bestPractices: number
+    seo: number
+  }
+  vitals: CoreWebVitalsData
 }
 
 export default function SEOPerformancePage() {
-  const [products, setProducts] = useState<ProductReport[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [products, setProducts] = useState<ProductReport[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
 
   // New state for enhanced features
   const [dateRange, setDateRange] = useState<DateRange>({
     start: subDays(new Date(), 30),
     end: new Date(),
-  });
-  const [comparisonMode, setComparisonMode] = useState(false);
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
-  const [pageSpeedData, setPageSpeedData] = useState<PageSpeedData | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
+  })
+  const [comparisonMode, setComparisonMode] = useState(false)
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
+  const [pageSpeedData, setPageSpeedData] = useState<PageSpeedData | null>(null)
+  const [selectedProduct, setSelectedProduct] = useState<string | null>(null)
 
   // Mock chart data (replace with real API calls)
-  const [metricsChartData, setMetricsChartData] = useState<SEOMetricsDataPoint[]>([]);
-  const [trafficChartData, setTrafficChartData] = useState<TrafficDataPoint[]>([]);
+  const [metricsChartData, setMetricsChartData] = useState<SEOMetricsDataPoint[]>([])
+  const [trafficChartData, setTrafficChartData] = useState<TrafficDataPoint[]>([])
 
   const loadSEOData = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
       // Fetch all products with SEO metrics
-      const response = await fetch('/api/products?includeSEOMetrics=true');
-      const result = await response.json();
+      const response = await fetch('/api/products?includeSEOMetrics=true')
+      const result = await response.json()
 
       // API returns { data: [...products] }
-      const products = result.data || [];
+      const products = result.data || []
 
       const productsWithMetrics = products
         .filter((p: any) => p.seoMetrics)
@@ -120,138 +120,138 @@ export default function SEOPerformancePage() {
             totalKeywords: 0,
           },
           rankings: p.seoMetrics.rankings || [],
-        }));
+        }))
 
-      setProducts(productsWithMetrics);
-      setLastUpdated(new Date());
+      setProducts(productsWithMetrics)
+      setLastUpdated(new Date())
 
       // Generate chart data from products
-      generateChartData(productsWithMetrics);
+      generateChartData(productsWithMetrics)
     } catch (error) {
-      console.error('Failed to load SEO data:', error);
+      console.error('Failed to load SEO data:', error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const generateChartData = (products: ProductReport[]) => {
     // Generate mock time series data (replace with real historical data)
-    const days = 30;
-    const metricsData: SEOMetricsDataPoint[] = [];
-    const trafficData: TrafficDataPoint[] = [];
+    const days = 30
+    const metricsData: SEOMetricsDataPoint[] = []
+    const trafficData: TrafficDataPoint[] = []
 
     for (let i = days; i >= 0; i--) {
-      const date = subDays(new Date(), i);
-      const dateStr = date.toISOString().split('T')[0];
+      const date = subDays(new Date(), i)
+      const dateStr = date.toISOString().split('T')[0]
 
       // Aggregate data from all products
-      const totalClicks = products.reduce((sum, p) => sum + p.summary.totalClicks, 0);
-      const totalImpressions = products.reduce((sum, p) => sum + p.summary.totalImpressions, 0);
+      const totalClicks = products.reduce((sum, p) => sum + p.summary.totalClicks, 0)
+      const totalImpressions = products.reduce((sum, p) => sum + p.summary.totalImpressions, 0)
       const avgPosition =
-        products.reduce((sum, p) => sum + p.summary.avgPosition, 0) / (products.length || 1);
+        products.reduce((sum, p) => sum + p.summary.avgPosition, 0) / (products.length || 1)
 
       metricsData.push({
         date: dateStr,
         position: avgPosition + (Math.random() - 0.5) * 5, // Add some variation
         clicks: totalClicks / days + (Math.random() - 0.5) * 10,
         impressions: totalImpressions / days + (Math.random() - 0.5) * 100,
-      });
+      })
 
       trafficData.push({
         date: dateStr,
         clicks: Math.floor(totalClicks / days + (Math.random() - 0.5) * 10),
         impressions: Math.floor(totalImpressions / days + (Math.random() - 0.5) * 100),
         ctr: totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0,
-      });
+      })
     }
 
-    setMetricsChartData(metricsData);
-    setTrafficChartData(trafficData);
-  };
+    setMetricsChartData(metricsData)
+    setTrafficChartData(trafficData)
+  }
 
   const loadAnalyticsData = async () => {
     try {
-      const startDate = dateRange.start.toISOString().split('T')[0];
-      const endDate = dateRange.end.toISOString().split('T')[0];
+      const startDate = dateRange.start.toISOString().split('T')[0]
+      const endDate = dateRange.end.toISOString().split('T')[0]
 
       const response = await fetch(
         `/api/seo/analytics?type=traffic&startDate=${startDate}&endDate=${endDate}`
-      );
+      )
 
       if (response.ok) {
-        const result = await response.json();
-        setAnalyticsData(result.data);
+        const result = await response.json()
+        setAnalyticsData(result.data)
       }
     } catch (error) {
-      console.error('Failed to load analytics data:', error);
+      console.error('Failed to load analytics data:', error)
     }
-  };
+  }
 
   const loadPageSpeedData = async () => {
     try {
       // Get first product URL for PageSpeed analysis
-      const firstProduct = products[0];
-      if (!firstProduct) return;
+      const firstProduct = products[0]
+      if (!firstProduct) return
 
-      const url = `https://gangrunprinting.com/products/${firstProduct.slug}`;
-      const response = await fetch(`/api/seo/pagespeed?url=${encodeURIComponent(url)}&type=full`);
+      const url = `https://gangrunprinting.com/products/${firstProduct.slug}`
+      const response = await fetch(`/api/seo/pagespeed?url=${encodeURIComponent(url)}&type=full`)
 
       if (response.ok) {
-        const result = await response.json();
-        setPageSpeedData(result.data);
+        const result = await response.json()
+        setPageSpeedData(result.data)
       }
     } catch (error) {
-      console.error('Failed to load PageSpeed data:', error);
+      console.error('Failed to load PageSpeed data:', error)
     }
-  };
+  }
 
   useEffect(() => {
-    loadSEOData();
-  }, []);
+    loadSEOData()
+  }, [])
 
   useEffect(() => {
     if (products.length > 0) {
-      loadAnalyticsData();
-      loadPageSpeedData();
+      loadAnalyticsData()
+      loadPageSpeedData()
     }
-  }, [dateRange, products]);
+  }, [dateRange, products])
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'CRITICAL':
-        return 'destructive';
+        return 'destructive'
       case 'HIGH':
-        return 'warning';
+        return 'warning'
       case 'MEDIUM':
-        return 'secondary';
+        return 'secondary'
       default:
-        return 'default';
+        return 'default'
     }
-  };
+  }
 
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
       case 'CRITICAL':
-        return <AlertTriangle className="h-4 w-4 text-red-500" />;
+        return <AlertTriangle className="h-4 w-4 text-red-500" />
       case 'HIGH':
-        return <TrendingDown className="h-4 w-4 text-orange-500" />;
+        return <TrendingDown className="h-4 w-4 text-orange-500" />
       default:
-        return <CheckCircle2 className="h-4 w-4 text-blue-500" />;
+        return <CheckCircle2 className="h-4 w-4 text-blue-500" />
     }
-  };
+  }
 
   const criticalIssues = products.reduce(
     (sum, p) => sum + p.alerts.filter((a) => a.severity === 'CRITICAL').length,
     0
-  );
+  )
   const highIssues = products.reduce(
     (sum, p) => sum + p.alerts.filter((a) => a.severity === 'HIGH').length,
     0
-  );
+  )
   const improvements = products.reduce(
     (sum, p) => sum + p.alerts.filter((a) => a.type === 'RANKING_IMPROVE').length,
     0
-  );
+  )
 
   // Prepare export data
   const exportData = {
@@ -269,7 +269,7 @@ export default function SEOPerformancePage() {
       totalKeywords: products.reduce((sum, p) => sum + p.summary.totalKeywords, 0),
     },
     alerts: products.flatMap((p) => p.alerts),
-  };
+  }
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -550,5 +550,5 @@ export default function SEOPerformancePage() {
         )}
       </div>
     </div>
-  );
+  )
 }

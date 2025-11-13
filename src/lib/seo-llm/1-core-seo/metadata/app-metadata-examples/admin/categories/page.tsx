@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Plus,
   Edit,
@@ -20,7 +20,7 @@ import {
   EyeOff,
   Folder,
   FolderTree,
-} from 'lucide-react';
+} from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -28,7 +28,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
@@ -36,64 +36,64 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import toast from '@/lib/toast';
+} from '@/components/ui/select'
+import toast from '@/lib/toast'
 
 interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  sortOrder: number;
-  isActive: boolean;
-  isHidden: boolean;
-  parentCategoryId: string | null;
-  vendorId: string | null;
-  brokerDiscount: number;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  sortOrder: number
+  isActive: boolean
+  isHidden: boolean
+  parentCategoryId: string | null
+  vendorId: string | null
+  brokerDiscount: number
+  createdAt: string
+  updatedAt: string
   _count?: {
-    Product: number;
-    Subcategories: number;
-  };
+    Product: number
+    Subcategories: number
+  }
   ParentCategory?: {
-    id: string;
-    name: string;
-    slug: string;
-  } | null;
+    id: string
+    name: string
+    slug: string
+  } | null
   Vendor?: {
-    id: string;
-    name: string;
-    contactEmail: string;
-    phone: string | null;
-  } | null;
+    id: string
+    name: string
+    contactEmail: string
+    phone: string | null
+  } | null
 }
 
 interface Vendor {
-  id: string;
-  name: string;
-  contactEmail: string;
-  phone: string | null;
-  supportedCarriers: string[];
+  id: string
+  name: string
+  contactEmail: string
+  phone: string | null
+  supportedCarriers: string[]
 }
 
 export default function CategoriesPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [vendors, setVendors] = useState<Vendor[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([])
+  const [vendors, setVendors] = useState<Vendor[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null)
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
+  const [saving, setSaving] = useState(false)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -111,100 +111,100 @@ export default function CategoriesPage() {
     parentCategoryId: '',
     vendorId: '',
     brokerDiscount: 0,
-  });
+  })
 
   useEffect(() => {
-    fetchCategories();
-    fetchVendors();
-  }, []);
+    fetchCategories()
+    fetchVendors()
+  }, [])
 
   const fetchCategories = async () => {
     try {
-      setLoading(true);
-      const response = await fetch('/api/product-categories');
-      if (!response.ok) throw new Error('Failed to fetch');
-      const data = await response.json();
-      setCategories(data);
+      setLoading(true)
+      const response = await fetch('/api/product-categories')
+      if (!response.ok) throw new Error('Failed to fetch')
+      const data = await response.json()
+      setCategories(data)
     } catch (error) {
-      toast.error('Failed to fetch categories');
+      toast.error('Failed to fetch categories')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const fetchVendors = async () => {
     try {
-      const response = await fetch('/api/vendors');
-      if (!response.ok) throw new Error('Failed to fetch vendors');
-      const data = await response.json();
-      setVendors(data);
+      const response = await fetch('/api/vendors')
+      if (!response.ok) throw new Error('Failed to fetch vendors')
+      const data = await response.json()
+      setVendors(data)
     } catch (error) {
-      console.error('Failed to fetch vendors:', error);
+      console.error('Failed to fetch vendors:', error)
     }
-  };
+  }
 
   const handleSubmit = async () => {
     try {
-      setSaving(true);
+      setSaving(true)
 
       // Validation
       if (!formData.name) {
-        toast.error('Name is required');
-        setSaving(false);
-        return;
+        toast.error('Name is required')
+        setSaving(false)
+        return
       }
 
       const url = editingCategory
         ? `/api/product-categories/${editingCategory.id}`
-        : '/api/product-categories';
+        : '/api/product-categories'
 
-      const method = editingCategory ? 'PUT' : 'POST';
+      const method = editingCategory ? 'PUT' : 'POST'
 
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
-      });
+      })
 
       if (response.ok) {
         toast.success(
           editingCategory ? 'Category updated successfully' : 'Category created successfully'
-        );
-        setDialogOpen(false);
-        resetForm();
-        fetchCategories();
+        )
+        setDialogOpen(false)
+        resetForm()
+        fetchCategories()
       } else {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to save category');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to save category')
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to save category');
+      toast.error(error instanceof Error ? error.message : 'Failed to save category')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   const handleDelete = async () => {
-    if (!categoryToDelete) return;
+    if (!categoryToDelete) return
 
     try {
       const response = await fetch(`/api/product-categories/${categoryToDelete.id}`, {
         method: 'DELETE',
-      });
+      })
 
       if (response.ok) {
-        const result = await response.json();
-        toast.success(result.message || 'Category deleted successfully');
-        setDeleteDialogOpen(false);
-        setCategoryToDelete(null);
-        fetchCategories();
+        const result = await response.json()
+        toast.success(result.message || 'Category deleted successfully')
+        setDeleteDialogOpen(false)
+        setCategoryToDelete(null)
+        fetchCategories()
       } else {
-        throw new Error('Failed to delete category');
+        throw new Error('Failed to delete category')
       }
     } catch (error) {
-      toast.error('Failed to delete category');
+      toast.error('Failed to delete category')
     }
-  };
+  }
 
   const resetForm = () => {
     setFormData({
@@ -222,12 +222,12 @@ export default function CategoriesPage() {
       parentCategoryId: '',
       vendorId: '',
       brokerDiscount: 0,
-    });
-    setEditingCategory(null);
-  };
+    })
+    setEditingCategory(null)
+  }
 
   const openEditDialog = (category: Category) => {
-    setEditingCategory(category);
+    setEditingCategory(category)
     setFormData({
       name: category.name,
       slug: category.slug,
@@ -243,38 +243,38 @@ export default function CategoriesPage() {
       parentCategoryId: category.parentCategoryId || '',
       vendorId: category.vendorId || '',
       brokerDiscount: category.brokerDiscount || 0,
-    });
-    setDialogOpen(true);
-  };
+    })
+    setDialogOpen(true)
+  }
 
   const openDeleteDialog = (category: Category) => {
-    setCategoryToDelete(category);
-    setDeleteDialogOpen(true);
-  };
+    setCategoryToDelete(category)
+    setDeleteDialogOpen(true)
+  }
 
   const generateSlug = (name: string) => {
     return name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
-  };
+      .replace(/^-|-$/g, '')
+  }
 
   const handleNameChange = (name: string) => {
     setFormData({
       ...formData,
       name,
       slug: !editingCategory ? generateSlug(name) : formData.slug,
-    });
-  };
+    })
+  }
 
   const filteredCategories = categories.filter(
     (category) =>
       category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       category.slug.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  )
 
   // Get parent categories for dropdown
-  const parentCategories = categories.filter((cat) => !cat.parentCategoryId);
+  const parentCategories = categories.filter((cat) => !cat.parentCategoryId)
 
   return (
     <div className="container mx-auto py-6">
@@ -289,8 +289,8 @@ export default function CategoriesPage() {
             </div>
             <Button
               onClick={() => {
-                resetForm();
-                setDialogOpen(true);
+                resetForm()
+                setDialogOpen(true)
               }}
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -726,8 +726,8 @@ export default function CategoriesPage() {
               disabled={saving}
               variant="outline"
               onClick={() => {
-                setDialogOpen(false);
-                resetForm();
+                setDialogOpen(false)
+                resetForm()
               }}
             >
               Cancel
@@ -768,8 +768,8 @@ export default function CategoriesPage() {
             <Button
               variant="outline"
               onClick={() => {
-                setDeleteDialogOpen(false);
-                setCategoryToDelete(null);
+                setDeleteDialogOpen(false)
+                setCategoryToDelete(null)
               }}
             >
               Cancel
@@ -784,5 +784,5 @@ export default function CategoriesPage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }

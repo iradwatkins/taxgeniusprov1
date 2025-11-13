@@ -1,8 +1,8 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { validateRequest } from '@/lib/auth';
-import { generateCityContent } from '@/lib/landing-page/content-generator';
-import { randomUUID } from 'crypto';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { validateRequest } from '@/lib/auth'
+import { generateCityContent } from '@/lib/landing-page/content-generator'
+import { randomUUID } from 'crypto'
 
 /**
  * POST /api/landing-page-sets/[id]/publish
@@ -15,13 +15,13 @@ import { randomUUID } from 'crypto';
  */
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { user, session } = await validateRequest();
+    const { user, session } = await validateRequest()
     if (!user || !session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     if (user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
     }
 
     // Get landing page set
@@ -32,43 +32,43 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         QuantityGroup: true,
         SizeGroup: true,
       },
-    });
+    })
 
     if (!landingPageSet) {
-      return NextResponse.json({ error: 'Landing page set not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Landing page set not found' }, { status: 404 })
     }
 
     if (landingPageSet.status === 'published') {
-      return NextResponse.json({ error: 'Landing page set is already published' }, { status: 400 });
+      return NextResponse.json({ error: 'Landing page set is already published' }, { status: 400 })
     }
 
     // Update status to generating
     await prisma.landingPageSet.update({
       where: { id: params.id },
       data: { status: 'generating' },
-    });
+    })
 
     // Get all active cities (top 200)
     const cities = await prisma.city.findMany({
       where: { isActive: true },
       orderBy: { rank: 'asc' },
       take: 200,
-    });
+    })
 
     if (cities.length === 0) {
       await prisma.landingPageSet.update({
         where: { id: params.id },
         data: { status: 'draft' },
-      });
-      return NextResponse.json({ error: 'No active cities found in database' }, { status: 400 });
+      })
+      return NextResponse.json({ error: 'No active cities found in database' }, { status: 400 })
     }
 
     // Extract product type from name (e.g., "Postcards 4x6 Landing Pages" -> "Postcards 4x6")
-    const productType = landingPageSet.name.replace(/\s*landing\s*pages?$/i, '').trim();
+    const productType = landingPageSet.name.replace(/\s*landing\s*pages?$/i, '').trim()
 
     // Generate landing pages for each city
-    const generatedPages: string[] = [];
-    const errors: Array<{ city: string; error: string }> = [];
+    const generatedPages: string[] = []
+    const errors: Array<{ city: string; error: string }> = []
 
     for (const city of cities) {
       try {
@@ -83,13 +83,13 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             contentTemplate: landingPageSet.contentTemplate,
           },
           productType
-        );
+        )
 
         // Create slug: product-type-city-state (e.g., "postcards-4x6-new-york-ny")
         const slug =
           `${landingPageSet.slug}-${city.name.toLowerCase()}-${city.stateCode.toLowerCase()}`
             .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-+|-+$/g, '');
+            .replace(/^-+|-+$/g, '')
 
         // Check if this city page already exists
         const existing = await prisma.cityLandingPage.findFirst({
@@ -97,11 +97,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             landingPageSetId: landingPageSet.id,
             cityId: city.id,
           },
-        });
+        })
 
         if (existing) {
-          generatedPages.push(existing.id);
-          continue;
+          generatedPages.push(existing.id)
+          continue
         }
 
         // Create city landing page with AI-generated content
@@ -125,16 +125,16 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             published: true,
             publishedAt: new Date(),
           },
-        });
+        })
 
-        generatedPages.push(cityLandingPage.id);
+        generatedPages.push(cityLandingPage.id)
       } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-        console.error(`    ❌ Error for ${city.name}, ${city.stateCode}:`, errorMsg);
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+        console.error(`    ❌ Error for ${city.name}, ${city.stateCode}:`, errorMsg)
         errors.push({
           city: `${city.name}, ${city.stateCode}`,
           error: errorMsg,
-        });
+        })
       }
     }
 
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     await prisma.landingPageSet.update({
       where: { id: params.id },
       data: { status: 'published' },
-    });
+    })
 
     return NextResponse.json({
       success: true,
@@ -151,18 +151,18 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       totalCities: cities.length,
       errors: errors.length > 0 ? errors : undefined,
       message: `Successfully generated ${generatedPages.length} city landing pages${errors.length > 0 ? ` (${errors.length} errors)` : ''}`,
-    });
+    })
   } catch (error) {
-    console.error(`[POST /api/landing-page-sets/${params.id}/publish] Error:`, error);
+    console.error(`[POST /api/landing-page-sets/${params.id}/publish] Error:`, error)
 
     // Revert status to draft on error
     try {
       await prisma.landingPageSet.update({
         where: { id: params.id },
         data: { status: 'draft' },
-      });
+      })
     } catch (revertError) {
-      console.error('Failed to revert status:', revertError);
+      console.error('Failed to revert status:', revertError)
     }
 
     return NextResponse.json(
@@ -171,6 +171,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
-    );
+    )
   }
 }

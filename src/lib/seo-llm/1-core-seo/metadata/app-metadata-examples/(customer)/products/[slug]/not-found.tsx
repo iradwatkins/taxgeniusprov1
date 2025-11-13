@@ -1,7 +1,7 @@
-import Link from 'next/link';
-import { ArrowLeft, Search, Package } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from 'next/link'
+import { ArrowLeft, Search, Package } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function ProductNotFound() {
   return (
@@ -53,5 +53,5 @@ export default function ProductNotFound() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

@@ -1,26 +1,26 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { getMinioClient } from '@/lib/minio';
+import { type NextRequest, NextResponse } from 'next/server'
+import { getMinioClient } from '@/lib/minio'
 
 export async function GET(request: NextRequest, { params }: { params: { path: string[] } }) {
   try {
-    const path = params.path.join('/');
+    const path = params.path.join('/')
 
     if (!path) {
-      return new NextResponse('Path required', { status: 400 });
+      return new NextResponse('Path required', { status: 400 })
     }
 
-    const bucketName = 'gangrun-uploads';
+    const bucketName = 'gangrun-uploads'
 
-    const client = getMinioClient();
-    const stream = await client.getObject(bucketName, path);
+    const client = getMinioClient()
+    const stream = await client.getObject(bucketName, path)
 
-    const chunks: Buffer[] = [];
+    const chunks: Buffer[] = []
     for await (const chunk of stream) {
-      chunks.push(chunk);
+      chunks.push(chunk)
     }
-    const buffer = Buffer.concat(chunks);
+    const buffer = Buffer.concat(chunks)
 
-    const contentType = getContentType(path);
+    const contentType = getContentType(path)
 
     return new NextResponse(buffer, {
       headers: {
@@ -28,14 +28,14 @@ export async function GET(request: NextRequest, { params }: { params: { path: st
         'Cache-Control': 'public, max-age=31536000, immutable',
         'Content-Disposition': 'inline',
       },
-    });
+    })
   } catch (error) {
-    return new NextResponse('File not found', { status: 404 });
+    return new NextResponse('File not found', { status: 404 })
   }
 }
 
 function getContentType(path: string): string {
-  const extension = path.split('.').pop()?.toLowerCase();
+  const extension = path.split('.').pop()?.toLowerCase()
 
   const mimeTypes: Record<string, string> = {
     jpg: 'image/jpeg',
@@ -52,7 +52,7 @@ function getContentType(path: string): string {
     css: 'text/css',
     js: 'application/javascript',
     json: 'application/json',
-  };
+  }
 
-  return mimeTypes[extension || ''] || 'application/octet-stream';
+  return mimeTypes[extension || ''] || 'application/octet-stream'
 }

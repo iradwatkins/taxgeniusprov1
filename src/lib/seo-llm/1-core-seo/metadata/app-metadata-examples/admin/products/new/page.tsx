@@ -1,32 +1,32 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { ProductImageUpload } from '@/components/admin/product-image-upload'; // Multi-image upload component
-import { AIProductDesigner } from '@/components/admin/ai-product-designer';
-import { useProductForm } from '@/hooks/use-product-form';
-import toast from '@/lib/toast';
-import { ArrowLeft, Save, Loader2, AlertCircle, RefreshCw } from 'lucide-react';
-import { responseToJsonSafely } from '@/lib/safe-json';
+} from '@/components/ui/select'
+import { ProductImageUpload } from '@/components/admin/product-image-upload' // Multi-image upload component
+import { AIProductDesigner } from '@/components/admin/ai-product-designer'
+import { useProductForm } from '@/hooks/use-product-form'
+import toast from '@/lib/toast'
+import { ArrowLeft, Save, Loader2, AlertCircle, RefreshCw } from 'lucide-react'
+import { responseToJsonSafely } from '@/lib/safe-json'
 
 export default function NewProductPage() {
-  const router = useRouter();
-  const [submitting, setSubmitting] = useState(false);
+  const router = useRouter()
+  const [submitting, setSubmitting] = useState(false)
 
   const {
     formData,
@@ -37,11 +37,11 @@ export default function NewProductPage() {
     fetchOptions,
     validateForm,
     transformForSubmission,
-  } = useProductForm();
+  } = useProductForm()
 
   useEffect(() => {
-    fetchOptions();
-  }, []);
+    fetchOptions()
+  }, [])
 
   const handleSubmit = async () => {
     // DEBUG: Log form state before validation to diagnose issues
@@ -56,26 +56,26 @@ export default function NewProductPage() {
     // })
 
     // Enhanced validation with specific error messages
-    const validationErrors = [];
-    if (!formData.name) validationErrors.push('Product name is required');
-    if (!formData.categoryId) validationErrors.push('Category must be selected');
-    if (!formData.selectedQuantityGroup) validationErrors.push('Quantity group must be selected');
-    if (!formData.selectedSizeGroup) validationErrors.push('Size group must be selected');
-    if (!formData.selectedPaperStockSet) validationErrors.push('Paper stock must be selected');
+    const validationErrors = []
+    if (!formData.name) validationErrors.push('Product name is required')
+    if (!formData.categoryId) validationErrors.push('Category must be selected')
+    if (!formData.selectedQuantityGroup) validationErrors.push('Quantity group must be selected')
+    if (!formData.selectedSizeGroup) validationErrors.push('Size group must be selected')
+    if (!formData.selectedPaperStockSet) validationErrors.push('Paper stock must be selected')
 
     if (validationErrors.length > 0) {
-      toast.error(`Please fix the following:\n${validationErrors.join('\n')}`);
-      return;
+      toast.error(`Please fix the following:\n${validationErrors.join('\n')}`)
+      return
     }
 
-    if (!validateForm()) return;
+    if (!validateForm()) return
 
-    setSubmitting(true);
+    setSubmitting(true)
 
     try {
-      const productData = await transformForSubmission();
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      const productData = await transformForSubmission()
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 30000)
 
       const response = await fetch('/api/products', {
         method: 'POST',
@@ -83,50 +83,50 @@ export default function NewProductPage() {
         body: JSON.stringify(productData),
         credentials: 'include', // CRITICAL: Send auth cookies with request
         signal: controller.signal,
-      });
+      })
 
-      clearTimeout(timeoutId);
+      clearTimeout(timeoutId)
 
       if (!response.ok) {
-        let errorMessage = 'Failed to create product';
+        let errorMessage = 'Failed to create product'
         try {
-          const errorData = await response.json();
-          errorMessage = errorData.error || errorData.data?.error || errorMessage;
+          const errorData = await response.json()
+          errorMessage = errorData.error || errorData.data?.error || errorMessage
 
           if (errorData.details?.validationErrors) {
             const validationMessages = errorData.details.validationErrors
               .map((err: Record<string, unknown>) => `${err.field}: ${err.message}`)
-              .join(', ');
-            errorMessage = `Validation failed: ${validationMessages}`;
+              .join(', ')
+            errorMessage = `Validation failed: ${validationMessages}`
           }
         } catch (parseError) {
-          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`
         }
-        throw new Error(errorMessage);
+        throw new Error(errorMessage)
       }
 
-      const responseData = await response.json();
-      const product = responseData.data || responseData;
+      const responseData = await response.json()
+      const product = responseData.data || responseData
       if (!product || !product.id) {
-        throw new Error('Invalid product response: missing product data');
+        throw new Error('Invalid product response: missing product data')
       }
 
-      toast.success('Product created successfully');
-      router.push('/admin/products');
-      router.refresh(); // Force Next.js cache invalidation to show new product
+      toast.success('Product created successfully')
+      router.push('/admin/products')
+      router.refresh() // Force Next.js cache invalidation to show new product
     } catch (error) {
-      const err = error as Error;
+      const err = error as Error
       if (err.name === 'AbortError') {
-        toast.error('Request timeout. Please try again.');
+        toast.error('Request timeout. Please try again.')
       } else if (err.message?.includes('fetch')) {
-        toast.error('Network error. Please check your internet connection.');
+        toast.error('Network error. Please check your internet connection.')
       } else {
-        toast.error(err.message || 'Failed to create product');
+        toast.error(err.message || 'Failed to create product')
       }
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   // Loading skeleton component
   const LoadingSkeleton = () => (
@@ -145,10 +145,10 @@ export default function NewProductPage() {
         <Skeleton key={i} className="h-64 w-full" />
       ))}
     </div>
-  );
+  )
 
   if (loading) {
-    return <LoadingSkeleton />;
+    return <LoadingSkeleton />
   }
 
   const criticalErrors = [
@@ -156,7 +156,7 @@ export default function NewProductPage() {
     errors.paperStockSets,
     errors.quantityGroups,
     errors.sizeGroups,
-  ].filter(Boolean);
+  ].filter(Boolean)
 
   if (criticalErrors.length > 0) {
     return (
@@ -191,7 +191,7 @@ export default function NewProductPage() {
           </AlertDescription>
         </Alert>
       </div>
-    );
+    )
   }
 
   // Handle AI-generated content
@@ -199,10 +199,10 @@ export default function NewProductPage() {
     updateFormData({
       name: seoContent.name || formData.name,
       description: seoContent.description || formData.description,
-    });
+    })
 
-    toast.success('AI content applied! Review and adjust as needed.');
-  };
+    toast.success('AI content applied! Review and adjust as needed.')
+  }
 
   // Quick fill for testing
   const handleQuickFill = () => {
@@ -218,7 +218,7 @@ export default function NewProductPage() {
           (cat: any) => cat.name === 'Business Card' || cat.slug === 'business-card'
         ) ||
         options.categories.find((cat: any) => !cat.isHidden) ||
-        options.categories[0];
+        options.categories[0]
 
       updateFormData({
         name: 'Test Product ' + Date.now(),
@@ -232,12 +232,12 @@ export default function NewProductPage() {
           options.turnaroundTimeSets.length > 0 ? options.turnaroundTimeSets[0].id : '',
         isActive: true,
         isFeatured: false,
-      });
-      toast.success(`Form filled with test data (Category: ${visibleCategory.name})`);
+      })
+      toast.success(`Form filled with test data (Category: ${visibleCategory.name})`)
     } else {
-      toast.error('Configuration options not loaded yet');
+      toast.error('Configuration options not loaded yet')
     }
-  };
+  }
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -339,9 +339,9 @@ export default function NewProductPage() {
                 onImagesChange={(imagesOrCallback) => {
                   // Handle both array and callback forms
                   if (typeof imagesOrCallback === 'function') {
-                    updateFormData((prev) => ({ images: imagesOrCallback(prev.images) }));
+                    updateFormData((prev) => ({ images: imagesOrCallback(prev.images) }))
                   } else {
-                    updateFormData({ images: imagesOrCallback });
+                    updateFormData({ images: imagesOrCallback })
                   }
                 }}
               />
@@ -408,8 +408,8 @@ export default function NewProductPage() {
                 {(() => {
                   const selectedGroup = options.quantityGroups.find(
                     (g) => g.id === formData.selectedQuantityGroup
-                  );
-                  if (!selectedGroup) return null;
+                  )
+                  if (!selectedGroup) return null
 
                   return (
                     <div>
@@ -430,7 +430,7 @@ export default function NewProductPage() {
                         ))}
                       </div>
                     </div>
-                  );
+                  )
                 })()}
               </div>
             )}
@@ -479,8 +479,8 @@ export default function NewProductPage() {
                 {(() => {
                   const selectedGroup = options.paperStockSets.find(
                     (g) => g.id === formData.selectedPaperStockSet
-                  );
-                  if (!selectedGroup) return null;
+                  )
+                  if (!selectedGroup) return null
 
                   return (
                     <div>
@@ -506,7 +506,7 @@ export default function NewProductPage() {
                         ))}
                       </div>
                     </div>
-                  );
+                  )
                 })()}
               </div>
             )}
@@ -555,8 +555,8 @@ export default function NewProductPage() {
                 {(() => {
                   const selectedGroup = options.sizeGroups.find(
                     (g) => g.id === formData.selectedSizeGroup
-                  );
-                  if (!selectedGroup) return null;
+                  )
+                  if (!selectedGroup) return null
 
                   return (
                     <div>
@@ -584,7 +584,7 @@ export default function NewProductPage() {
                         </p>
                       )}
                     </div>
-                  );
+                  )
                 })()}
               </div>
             )}
@@ -638,8 +638,8 @@ export default function NewProductPage() {
                 {(() => {
                   const selectedSet = options.turnaroundTimeSets.find(
                     (s) => s.id === formData.selectedTurnaroundTimeSet
-                  );
-                  if (!selectedSet) return null;
+                  )
+                  if (!selectedSet) return null
 
                   return (
                     <div>
@@ -664,7 +664,7 @@ export default function NewProductPage() {
                         ))}
                       </div>
                     </div>
-                  );
+                  )
                 })()}
               </div>
             )}
@@ -716,8 +716,8 @@ export default function NewProductPage() {
                 {(() => {
                   const selectedSet = options.designSets.find(
                     (s) => s.id === formData.selectedDesignSet
-                  );
-                  if (!selectedSet) return null;
+                  )
+                  if (!selectedSet) return null
 
                   return (
                     <div>
@@ -741,7 +741,7 @@ export default function NewProductPage() {
                         ))}
                       </div>
                     </div>
-                  );
+                  )
                 })()}
               </div>
             )}
@@ -793,8 +793,8 @@ export default function NewProductPage() {
                 {(() => {
                   const selectedSet = options.addOnSets.find(
                     (s) => s.id === formData.selectedAddOnSet
-                  );
-                  if (!selectedSet) return null;
+                  )
+                  if (!selectedSet) return null
 
                   return (
                     <div>
@@ -818,7 +818,7 @@ export default function NewProductPage() {
                         )}
                       </div>
                     </div>
-                  );
+                  )
                 })()}
               </div>
             )}
@@ -838,5 +838,5 @@ export default function NewProductPage() {
         </Button>
       </div>
     </div>
-  );
+  )
 }

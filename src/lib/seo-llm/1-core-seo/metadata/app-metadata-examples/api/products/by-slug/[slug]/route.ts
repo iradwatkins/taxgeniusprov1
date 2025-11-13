@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 // GET /api/products/by-slug/[slug] - Get product by slug or SKU with all related data
 export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
@@ -60,10 +60,10 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
           orderBy: { sortOrder: 'asc' },
         },
       },
-    });
+    })
 
     if (!product) {
-      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
     return NextResponse.json(
@@ -72,8 +72,8 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
         product,
       },
       { status: 200 }
-    );
+    )
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch product' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch product' }, { status: 500 })
   }
 }

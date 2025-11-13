@@ -1,13 +1,13 @@
-import { type Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
-import { CityLandingPageContent } from '@/components/landing-pages/CityLandingPageContent';
+import { type Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import { prisma } from '@/lib/prisma'
+import { CityLandingPageContent } from '@/components/landing-pages/CityLandingPageContent'
 
 interface PageProps {
   params: {
-    productSlug: string;
-    citySlug: string;
-  };
+    productSlug: string
+    citySlug: string
+  }
 }
 
 /**
@@ -21,13 +21,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       City: true,
       LandingPageSet: true,
     },
-  });
+  })
 
   if (!cityLandingPage) {
     return {
       title: 'Page Not Found | GangRun Printing',
       description: 'The page you are looking for could not be found.',
-    };
+    }
   }
 
   const robotsValue =
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       ? 'index, follow'
       : cityLandingPage.LandingPageSet?.robotsIndex
         ? 'index, nofollow'
-        : 'noindex, nofollow';
+        : 'noindex, nofollow'
 
   return {
     title: cityLandingPage.title,
@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         cityLandingPage.LandingPageSet?.canonicalUrl ||
         `https://gangrunprinting.com/${params.productSlug}/${params.citySlug}`,
     },
-  };
+  }
 }
 
 /**
@@ -133,11 +133,11 @@ export default async function CityLandingPage({ params }: PageProps) {
         },
       },
     },
-  });
+  })
 
   // 404 if not found or not published
   if (!cityLandingPage || !cityLandingPage.published) {
-    notFound();
+    notFound()
   }
 
   // Track view (increment organicViews)
@@ -153,11 +153,11 @@ export default async function CityLandingPage({ params }: PageProps) {
     })
     .catch((err) => {
       // Don't block page render if analytics update fails
-      console.error('Failed to track view:', err);
-    });
+      console.error('Failed to track view:', err)
+    })
 
   // Generate schema markup (7 types for maximum SEO)
-  const schemaMarkup = generateSchemaMarkup(cityLandingPage);
+  const schemaMarkup = generateSchemaMarkup(cityLandingPage)
 
   return (
     <>
@@ -174,7 +174,7 @@ export default async function CityLandingPage({ params }: PageProps) {
         landingPageSet={cityLandingPage.LandingPageSet!}
       />
     </>
-  );
+  )
 }
 
 /**
@@ -182,8 +182,8 @@ export default async function CityLandingPage({ params }: PageProps) {
  * 7 schema types for maximum Google visibility
  */
 function generateSchemaMarkup(cityLandingPage: any) {
-  const city = cityLandingPage.City;
-  const landingPageSet = cityLandingPage.LandingPageSet;
+  const city = cityLandingPage.City
+  const landingPageSet = cityLandingPage.LandingPageSet
 
   return {
     '@context': 'https://schema.org',
@@ -347,7 +347,7 @@ function generateSchemaMarkup(cityLandingPage: any) {
         ],
       },
     ],
-  };
+  }
 }
 
 /**
@@ -362,7 +362,7 @@ export async function generateStaticParams() {
   // Skip static generation during Docker builds (no DB available)
   // Pages will be generated on-demand at runtime using ISR
   if (process.env.DOCKER_BUILD === 'true' || !process.env.DATABASE_URL?.includes('localhost')) {
-    return [];
+    return []
   }
 
   try {
@@ -381,25 +381,25 @@ export async function generateStaticParams() {
         slug: true,
       },
       take: 50,
-    });
+    })
 
     return topCityPages.map((page) => {
-      const parts = page.slug.split('-');
-      const citySlug = parts.slice(-2).join('-'); // last 2 parts: "new-york" or "los-angeles"
-      const productSlug = parts.slice(0, -2).join('-'); // everything before city
+      const parts = page.slug.split('-')
+      const citySlug = parts.slice(-2).join('-') // last 2 parts: "new-york" or "los-angeles"
+      const productSlug = parts.slice(0, -2).join('-') // everything before city
 
       return {
         productSlug,
         citySlug,
-      };
-    });
+      }
+    })
   } catch (error) {
     // DB not available during build - return empty array
     // Pages will be generated on-demand at runtime (ISR)
-    console.warn('Database unavailable during build, skipping static generation:', error);
-    return [];
+    console.warn('Database unavailable during build, skipping static generation:', error)
+    return []
   }
 }
 
 // ISR: Revalidate every 24 hours
-export const revalidate = 86400;
+export const revalidate = 86400

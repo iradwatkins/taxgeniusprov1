@@ -15,6 +15,7 @@ export const EMAIL_ROUTING = {
   EN: {
     primary: 'taxgenius.taxes@gmail.com',  // Ray Hamilton - Tax Preparer on behalf of Owliver Owl
     cc: 'taxgenius.tax@gmail.com',          // Owliver Owl - Courtesy copy
+    recipientName: 'Ray',                   // First name for personalized greeting
   },
 
   /**
@@ -23,6 +24,7 @@ export const EMAIL_ROUTING = {
   ES: {
     primary: 'Goldenprotaxes@gmail.com',    // Ale Hamilton - Tax Preparer on behalf of Owliver Owl
     cc: 'taxgenius.tax@gmail.com',          // Owliver Owl - Courtesy copy
+    recipientName: 'Ale',                   // First name for personalized greeting
   },
 } as const;
 
@@ -46,4 +48,5 @@ export function getEmailRecipients(locale: 'en' | 'es' = 'en') {
 export type EmailRecipients = {
   primary: string;
   cc: string;
+  recipientName: string;
 };

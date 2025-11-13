@@ -1,17 +1,17 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { validateRequest } from '@/lib/auth';
-import { z } from 'zod';
-import { withApiHandler, ApiError, createSuccessResponse } from '@/lib/api/error-handler';
-import { logger } from '@/lib/logger-safe';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { validateRequest } from '@/lib/auth'
+import { z } from 'zod'
+import { withApiHandler, ApiError, createSuccessResponse } from '@/lib/api/error-handler'
+import { logger } from '@/lib/logger-safe'
 
 // GET - List all files for an order
 export const GET = withApiHandler(async (request: NextRequest, context, params: { id: string }) => {
-  const { user } = await validateRequest();
-  const orderId = params.id;
+  const { user } = await validateRequest()
+  const orderId = params.id
 
   if (!user) {
-    throw ApiError.authentication();
+    throw ApiError.authentication()
   }
 
   // Verify order exists and user has access
@@ -20,18 +20,18 @@ export const GET = withApiHandler(async (request: NextRequest, context, params: 
     include: {
       User: true,
     },
-  });
+  })
 
   if (!order) {
-    throw ApiError.notFound('Order');
+    throw ApiError.notFound('Order')
   }
 
   // Check permissions
-  const isAdmin = user.role === 'ADMIN';
-  const isOwner = user.email === order.email || (order.userId && order.userId === user.id);
+  const isAdmin = user.role === 'ADMIN'
+  const isOwner = user.email === order.email || (order.userId && order.userId === user.id)
 
   if (!isAdmin && !isOwner) {
-    throw ApiError.authorization('You do not have access to this order');
+    throw ApiError.authorization('You do not have access to this order')
   }
 
   logger.info('Fetching order files', {
@@ -39,7 +39,7 @@ export const GET = withApiHandler(async (request: NextRequest, context, params: 
     userId: user.id,
     userRole: user.role,
     requestId: context.requestId,
-  });
+  })
 
   // Get all files for the order
   const files = await prisma.orderFile.findMany({
@@ -59,12 +59,12 @@ export const GET = withApiHandler(async (request: NextRequest, context, params: 
     orderBy: {
       createdAt: 'desc',
     },
-  });
+  })
 
   // Filter out admin-only files for customers
   const visibleFiles = isAdmin
     ? files
-    : files.filter((file) => file.notifyCustomer || file.uploadedByRole === 'CUSTOMER');
+    : files.filter((file) => file.notifyCustomer || file.uploadedByRole === 'CUSTOMER')
 
   logger.info('Order files fetched successfully', {
     orderId,
@@ -72,13 +72,13 @@ export const GET = withApiHandler(async (request: NextRequest, context, params: 
     visibleFiles: visibleFiles.length,
     userId: user.id,
     requestId: context.requestId,
-  });
+  })
 
   return createSuccessResponse({
     files: visibleFiles,
     count: visibleFiles.length,
-  });
-});
+  })
+})
 
 // POST - Upload a new file
 const uploadSchema = z.object({
@@ -93,40 +93,40 @@ const uploadSchema = z.object({
   label: z.string().optional(),
   approvalStatus: z.enum(['WAITING', 'APPROVED', 'REJECTED', 'NOT_REQUIRED']).optional(),
   message: z.string().optional(), // Optional message with upload
-});
+})
 
 export const POST = withApiHandler(
   async (request: NextRequest, context, params: { id: string }) => {
-    const { user } = await validateRequest();
-    const orderId = params.id;
+    const { user } = await validateRequest()
+    const orderId = params.id
 
     if (!user) {
-      throw ApiError.authentication();
+      throw ApiError.authentication()
     }
 
     // Parse and validate request body
-    const body = await request.json();
-    const data = uploadSchema.parse(body);
+    const body = await request.json()
+    const data = uploadSchema.parse(body)
 
     // Verify order exists and user has access
     const order = await prisma.order.findUnique({
       where: { id: orderId },
-    });
+    })
 
     if (!order) {
-      throw ApiError.notFound('Order');
+      throw ApiError.notFound('Order')
     }
 
-    const isAdmin = user.role === 'ADMIN';
-    const isOwner = user.email === order.email || (order.userId && order.userId === user.id);
+    const isAdmin = user.role === 'ADMIN'
+    const isOwner = user.email === order.email || (order.userId && order.userId === user.id)
 
     if (!isAdmin && !isOwner) {
-      throw ApiError.authorization('You do not have access to this order');
+      throw ApiError.authorization('You do not have access to this order')
     }
 
     // Enhanced file validation
     if (data.filename && data.fileSize && data.mimeType) {
-      const { validateFileAdvanced } = await import('@/lib/security/advanced-file-validator');
+      const { validateFileAdvanced } = await import('@/lib/security/advanced-file-validator')
 
       const validationResult = await validateFileAdvanced(
         data.filename,
@@ -134,17 +134,17 @@ export const POST = withApiHandler(
         data.mimeType,
         undefined, // No file content for URL-based uploads
         orderId
-      );
+      )
 
       if (!validationResult.valid) {
         throw ApiError.fileUpload(validationResult.error!, {
           threatLevel: validationResult.threatLevel,
           warnings: validationResult.warnings,
-        });
+        })
       }
 
       // Use sanitized filename
-      data.filename = validationResult.sanitizedFilename || data.filename;
+      data.filename = validationResult.sanitizedFilename || data.filename
 
       // Log security warnings
       if (validationResult.threatLevel && validationResult.threatLevel !== 'low') {
@@ -155,14 +155,14 @@ export const POST = withApiHandler(
           orderId,
           userId: user.id,
           requestId: context.requestId,
-        });
+        })
       }
     }
 
     // Determine upload role and approval status
-    const uploadedByRole = isAdmin ? 'ADMIN' : 'CUSTOMER';
+    const uploadedByRole = isAdmin ? 'ADMIN' : 'CUSTOMER'
     const approvalStatus =
-      data.approvalStatus || (uploadedByRole === 'ADMIN' ? 'WAITING' : 'NOT_REQUIRED');
+      data.approvalStatus || (uploadedByRole === 'ADMIN' ? 'WAITING' : 'NOT_REQUIRED')
 
     logger.info('Creating order file record', {
       orderId,
@@ -172,7 +172,7 @@ export const POST = withApiHandler(
       approvalStatus,
       userId: user.id,
       requestId: context.requestId,
-    });
+    })
 
     // Create the file record
     const orderFile = await prisma.orderFile.create({
@@ -191,7 +191,7 @@ export const POST = withApiHandler(
         notifyCustomer: uploadedByRole === 'ADMIN',
         notifyAdmin: uploadedByRole === 'CUSTOMER',
       },
-    });
+    })
 
     // Add initial message if provided
     if (data.message) {
@@ -203,7 +203,7 @@ export const POST = withApiHandler(
           authorRole: isAdmin ? 'admin' : 'customer',
           authorName: user.name || user.email,
         },
-      });
+      })
     }
 
     // Send email notification based on uploadedByRole
@@ -214,13 +214,11 @@ export const POST = withApiHandler(
         approvalStatus === 'WAITING'
       ) {
         // Admin uploaded a proof for customer approval - notify customer
-        const { FileApprovalEmailService } = await import(
-          '@/lib/email/file-approval-email-service'
-        );
+        const { FileApprovalEmailService } = await import('@/lib/email/file-approval-email-service')
         const orderWithUser = await prisma.order.findUnique({
           where: { id: orderId },
           include: { User: { select: { name: true } } },
-        });
+        })
 
         if (orderWithUser) {
           await FileApprovalEmailService.sendProofReadyNotification(
@@ -236,14 +234,14 @@ export const POST = withApiHandler(
               filename: orderFile.filename,
             },
             data.message
-          );
+          )
 
           logger.info('Proof ready notification sent', {
             orderId,
             fileId: orderFile.id,
             customerEmail: orderWithUser.email,
             requestId: context.requestId,
-          });
+          })
         }
       }
     } catch (emailError) {
@@ -252,7 +250,7 @@ export const POST = withApiHandler(
         fileId: orderFile.id,
         error: emailError instanceof Error ? emailError.message : String(emailError),
         requestId: context.requestId,
-      });
+      })
       // Don't fail the request if email fails
     }
 
@@ -263,9 +261,9 @@ export const POST = withApiHandler(
       fileType: data.fileType,
       userId: user.id,
       requestId: context.requestId,
-    });
+    })
 
-    return createSuccessResponse(orderFile, 201, 'File uploaded successfully');
+    return createSuccessResponse(orderFile, 201, 'File uploaded successfully')
   },
   {
     validateSchema: uploadSchema,
@@ -275,4 +273,4 @@ export const POST = withApiHandler(
       windowMs: 60 * 1000, // 1 minute
     },
   }
-);
+)

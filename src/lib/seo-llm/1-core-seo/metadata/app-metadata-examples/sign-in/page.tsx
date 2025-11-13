@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function LegacySignInPage() {
-  const router = useRouter();
+  const router = useRouter()
 
   useEffect(() => {
     // Redirect to the correct auth route
-    router.replace('/auth/signin');
-  }, [router]);
+    router.replace('/auth/signin')
+  }, [router])
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -18,5 +18,5 @@ export default function LegacySignInPage() {
         <p>Redirecting to sign in...</p>
       </div>
     </div>
-  );
+  )
 }

@@ -1,53 +1,53 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 interface CalculateBaseWeightRequest {
   // Size configuration
-  sizeSelection: 'standard' | 'custom';
-  standardSizeId?: string;
-  customWidth?: number;
-  customHeight?: number;
+  sizeSelection: 'standard' | 'custom'
+  standardSizeId?: string
+  customWidth?: number
+  customHeight?: number
 
   // Quantity configuration
-  quantitySelection: 'standard' | 'custom';
-  standardQuantityId?: string;
-  customQuantity?: number;
+  quantitySelection: 'standard' | 'custom'
+  standardQuantityId?: string
+  customQuantity?: number
 
   // Paper configuration
-  paperStockId: string;
+  paperStockId: string
 }
 
 interface WeightCalculationResult {
-  weight: number;
+  weight: number
   breakdown: {
-    paperWeight: number;
-    size: number;
-    quantity: number;
-    formula: string;
-    calculation: string;
-  };
+    paperWeight: number
+    size: number
+    quantity: number
+    formula: string
+    calculation: string
+  }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const data: CalculateBaseWeightRequest = await request.json();
+    const data: CalculateBaseWeightRequest = await request.json()
 
     // Validate required fields
     if (!data.paperStockId) {
-      return NextResponse.json({ error: 'Paper stock ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Paper stock ID is required' }, { status: 400 })
     }
 
     // Load paper stock data
     const paperStock = await prisma.paperStock.findUnique({
       where: { id: data.paperStockId },
-    });
+    })
 
     if (!paperStock) {
-      return NextResponse.json({ error: 'Paper stock not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Paper stock not found' }, { status: 404 })
     }
 
-    let standardSize = null;
-    let standardQuantity = null;
+    let standardSize = null
+    let standardQuantity = null
 
     // Load size data if standard size selected
     if (data.sizeSelection === 'standard') {
@@ -55,15 +55,15 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           { error: 'Standard size ID is required when using standard size' },
           { status: 400 }
-        );
+        )
       }
 
       standardSize = await prisma.standardSize.findUnique({
         where: { id: data.standardSizeId },
-      });
+      })
 
       if (!standardSize) {
-        return NextResponse.json({ error: 'Standard size not found' }, { status: 404 });
+        return NextResponse.json({ error: 'Standard size not found' }, { status: 404 })
       }
     }
 
@@ -73,23 +73,23 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           { error: 'Standard quantity ID is required when using standard quantity' },
           { status: 400 }
-        );
+        )
       }
 
       standardQuantity = await prisma.standardQuantity.findUnique({
         where: { id: data.standardQuantityId },
-      });
+      })
 
       if (!standardQuantity) {
-        return NextResponse.json({ error: 'Standard quantity not found' }, { status: 404 });
+        return NextResponse.json({ error: 'Standard quantity not found' }, { status: 404 })
       }
     }
 
     // Resolve quantity using same logic as pricing
-    let resolvedQuantity: number;
+    let resolvedQuantity: number
     if (data.quantitySelection === 'custom') {
       if (!data.customQuantity) {
-        return NextResponse.json({ error: 'Custom quantity is required' }, { status: 400 });
+        return NextResponse.json({ error: 'Custom quantity is required' }, { status: 400 })
       }
 
       // Enforce 5000 increment rule for custom quantities above 5000
@@ -99,52 +99,49 @@ export async function POST(request: NextRequest) {
             error: 'Custom quantities above 5000 must be in increments of 5000',
           },
           { status: 400 }
-        );
+        )
       }
 
-      resolvedQuantity = data.customQuantity;
+      resolvedQuantity = data.customQuantity
     } else {
       if (!standardQuantity) {
-        return NextResponse.json({ error: 'Standard quantity data missing' }, { status: 400 });
+        return NextResponse.json({ error: 'Standard quantity data missing' }, { status: 400 })
       }
 
       // For quantities >= 5000, use exact displayed value
       if (standardQuantity.displayValue >= 5000) {
-        resolvedQuantity = standardQuantity.displayValue;
+        resolvedQuantity = standardQuantity.displayValue
       }
       // For quantities < 5000, check for adjustments
       else if (
         standardQuantity.adjustmentValue !== null &&
         standardQuantity.adjustmentValue !== undefined
       ) {
-        resolvedQuantity = standardQuantity.adjustmentValue;
+        resolvedQuantity = standardQuantity.adjustmentValue
       } else {
-        resolvedQuantity = standardQuantity.calculationValue;
+        resolvedQuantity = standardQuantity.calculationValue
       }
     }
 
     // Resolve size using same logic as pricing
-    let resolvedSize: number;
+    let resolvedSize: number
     if (data.sizeSelection === 'custom') {
       if (!data.customWidth || !data.customHeight) {
-        return NextResponse.json(
-          { error: 'Custom width and height are required' },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: 'Custom width and height are required' }, { status: 400 })
       }
-      resolvedSize = data.customWidth * data.customHeight;
+      resolvedSize = data.customWidth * data.customHeight
     } else {
       if (!standardSize) {
-        return NextResponse.json({ error: 'Standard size data missing' }, { status: 400 });
+        return NextResponse.json({ error: 'Standard size data missing' }, { status: 400 })
       }
       // Use pre-calculated value (NOT width × height)
-      resolvedSize = standardSize.preCalculatedValue;
+      resolvedSize = standardSize.preCalculatedValue
     }
 
     // Calculate weight using exact formula: quantity × size × paper_weight
-    const weight = resolvedQuantity * resolvedSize * paperStock.weight;
+    const weight = resolvedQuantity * resolvedSize * paperStock.weight
 
-    const calculation = `${resolvedQuantity} × ${resolvedSize} × ${paperStock.weight} = ${weight}`;
+    const calculation = `${resolvedQuantity} × ${resolvedSize} × ${paperStock.weight} = ${weight}`
 
     const result: WeightCalculationResult = {
       weight,
@@ -155,7 +152,7 @@ export async function POST(request: NextRequest) {
         formula: 'Quantity × Size × Paper Weight',
         calculation,
       },
-    };
+    }
 
     return NextResponse.json({
       success: true,
@@ -186,8 +183,8 @@ export async function POST(request: NextRequest) {
         height: data.customHeight,
         quantity: data.customQuantity,
       },
-    });
+    })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to calculate weight' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to calculate weight' }, { status: 500 })
   }
 }

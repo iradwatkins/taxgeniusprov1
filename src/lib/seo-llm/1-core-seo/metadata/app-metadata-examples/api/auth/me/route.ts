@@ -1,21 +1,21 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { validateRequest } from '@/lib/auth';
+import { type NextRequest, NextResponse } from 'next/server'
+import { validateRequest } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
-  const requestId = Math.random().toString(36).substring(7);
-  const startTime = Date.now();
+  const requestId = Math.random().toString(36).substring(7)
+  const startTime = Date.now()
 
   try {
-    const requestSource = request.headers.get('X-Request-Source') || 'unknown';
-    const userAgent = request.headers.get('User-Agent') || 'unknown';
-    const referer = request.headers.get('Referer') || 'unknown';
+    const requestSource = request.headers.get('X-Request-Source') || 'unknown'
+    const userAgent = request.headers.get('User-Agent') || 'unknown'
+    const referer = request.headers.get('Referer') || 'unknown'
 
     // Get all cookies for debugging
-    const cookieHeader = request.headers.get('Cookie') || '';
+    const cookieHeader = request.headers.get('Cookie') || ''
     const cookies = cookieHeader
       .split(';')
       .map((c) => c.trim())
-      .filter((c) => c.length > 0);
+      .filter((c) => c.length > 0)
 
     //   requestId,
     //   cookies: cookies.slice(0),
@@ -23,9 +23,9 @@ export async function GET(request: NextRequest) {
     //   cookieHeader: cookieHeader.substring(0, 200) + (cookieHeader.length > 200 ? '...' : ''),
     // })
 
-    const { user, session } = await validateRequest();
+    const { user, session } = await validateRequest()
 
-    const responseTime = Date.now() - startTime;
+    const responseTime = Date.now() - startTime
 
     //   requestId,
     //   responseTimeMs: responseTime,
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
             'X-Auth-Status': 'unauthenticated',
           },
         }
-      );
+      )
     }
 
     return NextResponse.json(
@@ -80,9 +80,9 @@ export async function GET(request: NextRequest) {
           'X-Auth-Status': 'authenticated',
         },
       }
-    );
+    )
   } catch (error) {
-    const responseTime = Date.now() - startTime;
+    const responseTime = Date.now() - startTime
     const errorDetails = {
       requestId,
       message: error instanceof Error ? error.message : 'Unknown error',
@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
       stack: error instanceof Error ? error.stack?.split('\n').slice(0, 5).join('\n') : undefined,
       responseTime,
       timestamp: new Date().toISOString(),
-    };
+    }
 
     return NextResponse.json(
       {
@@ -108,6 +108,6 @@ export async function GET(request: NextRequest) {
           'X-Auth-Status': 'error',
         },
       }
-    );
+    )
   }
 }

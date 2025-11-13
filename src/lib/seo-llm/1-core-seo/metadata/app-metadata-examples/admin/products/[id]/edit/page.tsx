@@ -1,66 +1,66 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { ProductImageUpload } from '@/components/admin/product-image-upload';
-import { Checkbox } from '@/components/ui/checkbox';
+} from '@/components/ui/select'
+import { ProductImageUpload } from '@/components/admin/product-image-upload'
+import { Checkbox } from '@/components/ui/checkbox'
 
-import toast from '@/lib/toast';
-import { ArrowLeft, Save, Loader2, Eye } from 'lucide-react';
-import Link from 'next/link';
+import toast from '@/lib/toast'
+import { ArrowLeft, Save, Loader2, Eye } from 'lucide-react'
+import Link from 'next/link'
 
 interface ProductImage {
-  id?: string;
-  imageId?: string; // ID of the underlying Image record
-  url: string;
-  thumbnailUrl?: string;
-  largeUrl?: string;
-  mediumUrl?: string;
-  webpUrl?: string;
-  blurDataUrl?: string;
-  alt?: string;
-  caption?: string;
-  isPrimary: boolean;
-  sortOrder: number;
-  file?: File;
-  uploading?: boolean;
+  id?: string
+  imageId?: string // ID of the underlying Image record
+  url: string
+  thumbnailUrl?: string
+  largeUrl?: string
+  mediumUrl?: string
+  webpUrl?: string
+  blurDataUrl?: string
+  alt?: string
+  caption?: string
+  isPrimary: boolean
+  sortOrder: number
+  file?: File
+  uploading?: boolean
 }
 
 interface EditProductPageProps {
   params: Promise<{
-    id: string;
-  }>;
+    id: string
+  }>
 }
 
 export default async function EditProductPage({ params }: EditProductPageProps) {
-  const { id } = await params;
-  return <EditProductClient id={id} />;
+  const { id } = await params
+  return <EditProductClient id={id} />
 }
 
 function EditProductClient({ id }: { id: string }) {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [loadingProduct, setLoadingProduct] = useState(true);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [paperStockSets, setPaperStockSets] = useState<any[]>([]);
-  const [quantityGroups, setQuantityGroups] = useState<any[]>([]);
-  const [sizeGroups, setSizeGroups] = useState<any[]>([]);
-  const [addOnSets, setAddOnSets] = useState<any[]>([]);
-  const [turnaroundTimeSets, setTurnaroundTimeSets] = useState<any[]>([]);
-  const [designSets, setDesignSets] = useState<any[]>([]);
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [loadingProduct, setLoadingProduct] = useState(true)
+  const [categories, setCategories] = useState<any[]>([])
+  const [paperStockSets, setPaperStockSets] = useState<any[]>([])
+  const [quantityGroups, setQuantityGroups] = useState<any[]>([])
+  const [sizeGroups, setSizeGroups] = useState<any[]>([])
+  const [addOnSets, setAddOnSets] = useState<any[]>([])
+  const [turnaroundTimeSets, setTurnaroundTimeSets] = useState<any[]>([])
+  const [designSets, setDesignSets] = useState<any[]>([])
 
   const [formData, setFormData] = useState({
     // Basic Info
@@ -92,23 +92,23 @@ function EditProductClient({ id }: { id: string }) {
     // Pricing
     basePrice: 0,
     setupFee: 0,
-  });
+  })
 
   useEffect(() => {
-    fetchData();
-    fetchProduct();
-  }, [id]);
+    fetchData()
+    fetchProduct()
+  }, [id])
 
   const fetchProduct = async () => {
     try {
       const res = await fetch(`/api/products/${id}`, {
         credentials: 'include', // CRITICAL: Send auth cookies with request
-      });
-      if (!res.ok) throw new Error('Failed to fetch product');
-      const response = await res.json();
+      })
+      if (!res.ok) throw new Error('Failed to fetch product')
+      const response = await res.json()
 
       // Handle both direct response and wrapped response with data property
-      const data = response.data || response;
+      const data = response.data || response
 
       // Map the product data to form data structure
       const mappedData = {
@@ -170,7 +170,7 @@ function EditProductClient({ id }: { id: string }) {
         // Pricing
         basePrice: data.basePrice || data.BasePrice || 0,
         setupFee: data.setupFee || data.SetupFee || 0,
-      };
+      }
 
       //   selectedPaperStockSet: mappedData.selectedPaperStockSet,
       //   selectedTurnaroundTimeSet: mappedData.selectedTurnaroundTimeSet,
@@ -178,14 +178,14 @@ function EditProductClient({ id }: { id: string }) {
       //   selectedSizeGroup: mappedData.selectedSizeGroup,
       // })
 
-      setFormData(mappedData);
+      setFormData(mappedData)
     } catch (error) {
-      console.error('[Edit Product] Error loading product:', error);
-      toast.error('Failed to load product');
+      console.error('[Edit Product] Error loading product:', error)
+      toast.error('Failed to load product')
     } finally {
-      setLoadingProduct(false);
+      setLoadingProduct(false)
     }
-  };
+  }
 
   const fetchData = async () => {
     try {
@@ -198,63 +198,63 @@ function EditProductClient({ id }: { id: string }) {
           fetch('/api/addon-sets'),
           fetch('/api/turnaround-time-sets'),
           fetch('/api/design-sets'),
-        ]);
+        ])
 
       if (catRes.ok) {
-        const cats = await catRes.json();
-        setCategories(cats);
+        const cats = await catRes.json()
+        setCategories(cats)
       }
       if (paperRes.ok) {
-        const papers = await paperRes.json();
-        setPaperStockSets(papers);
+        const papers = await paperRes.json()
+        setPaperStockSets(papers)
       }
       if (qtyRes.ok) {
-        const qtys = await qtyRes.json();
-        setQuantityGroups(qtys);
+        const qtys = await qtyRes.json()
+        setQuantityGroups(qtys)
       }
       if (sizeRes.ok) {
-        const sizes = await sizeRes.json();
-        setSizeGroups(sizes);
+        const sizes = await sizeRes.json()
+        setSizeGroups(sizes)
       }
       if (addOnRes.ok) {
-        const addons = await addOnRes.json();
-        setAddOnSets(addons);
+        const addons = await addOnRes.json()
+        setAddOnSets(addons)
       }
       if (turnaroundRes.ok) {
-        const turnarounds = await turnaroundRes.json();
-        setTurnaroundTimeSets(turnarounds);
+        const turnarounds = await turnaroundRes.json()
+        setTurnaroundTimeSets(turnarounds)
       }
       if (designRes.ok) {
-        const designs = await designRes.json();
-        setDesignSets(designs);
+        const designs = await designRes.json()
+        setDesignSets(designs)
       }
     } catch (error) {
-      console.error('[Edit Product] Error fetching configuration data:', error);
+      console.error('[Edit Product] Error fetching configuration data:', error)
     }
-  };
+  }
 
   const handleSubmit = async () => {
     if (!formData.name || !formData.sku || !formData.categoryId) {
-      toast.error('Please fill in all required fields');
-      return;
+      toast.error('Please fill in all required fields')
+      return
     }
 
     if (!formData.selectedPaperStockSet) {
-      toast.error('Please select a paper stock set');
-      return;
+      toast.error('Please select a paper stock set')
+      return
     }
 
     if (!formData.selectedQuantityGroup) {
-      toast.error('Please select a quantity group');
-      return;
+      toast.error('Please select a quantity group')
+      return
     }
 
     if (!formData.selectedSizeGroup) {
-      toast.error('Please select a size group');
-      return;
+      toast.error('Please select a size group')
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
     try {
       // Transform form data to match API expectations
       const {
@@ -265,7 +265,7 @@ function EditProductClient({ id }: { id: string }) {
         selectedTurnaroundTimeSet,
         selectedDesignSet,
         ...otherFormData
-      } = formData;
+      } = formData
 
       // FIX BUG #8: Include images in update payload
       const apiData = {
@@ -291,40 +291,40 @@ function EditProductClient({ id }: { id: string }) {
           isPrimary: image.isPrimary !== false && index === 0,
           sortOrder: image.sortOrder ?? index,
         })),
-      };
+      }
 
       const response = await fetch(`/api/products/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(apiData),
         credentials: 'include', // CRITICAL: Send auth cookies with request
-      });
+      })
 
       if (response.ok) {
-        toast.success('Product updated successfully');
-        router.push('/admin/products');
+        toast.success('Product updated successfully')
+        router.push('/admin/products')
       } else {
-        const errorData = await response.json();
-        console.error('[Edit Product] Update failed:', errorData);
-        toast.error(errorData.error || errorData.details || 'Failed to update product');
-        throw new Error(errorData.error || 'Failed to update product');
+        const errorData = await response.json()
+        console.error('[Edit Product] Update failed:', errorData)
+        toast.error(errorData.error || errorData.details || 'Failed to update product')
+        throw new Error(errorData.error || 'Failed to update product')
       }
     } catch (error) {
-      console.error('[Edit Product] Error:', error);
+      console.error('[Edit Product] Error:', error)
       toast.error(
         'Failed to update product: ' + (error instanceof Error ? error.message : 'Unknown error')
-      );
+      )
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   if (loadingProduct) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
-    );
+    )
   }
 
   return (
@@ -413,9 +413,9 @@ function EditProductClient({ id }: { id: string }) {
               onImagesChange={(imagesOrCallback) => {
                 // Handle both array and callback forms
                 if (typeof imagesOrCallback === 'function') {
-                  setFormData((prev) => ({ ...prev, images: imagesOrCallback(prev.images) }));
+                  setFormData((prev) => ({ ...prev, images: imagesOrCallback(prev.images) }))
                 } else {
-                  setFormData({ ...formData, images: imagesOrCallback });
+                  setFormData({ ...formData, images: imagesOrCallback })
                 }
               }}
             />
@@ -483,8 +483,8 @@ function EditProductClient({ id }: { id: string }) {
                 {(() => {
                   const selectedGroup = quantityGroups.find(
                     (g) => g.id === formData.selectedQuantityGroup
-                  );
-                  if (!selectedGroup) return null;
+                  )
+                  if (!selectedGroup) return null
 
                   return (
                     <div>
@@ -505,7 +505,7 @@ function EditProductClient({ id }: { id: string }) {
                         ))}
                       </div>
                     </div>
-                  );
+                  )
                 })()}
               </div>
             )}
@@ -556,8 +556,8 @@ function EditProductClient({ id }: { id: string }) {
                 {(() => {
                   const selectedGroup = paperStockSets.find(
                     (g) => g.id === formData.selectedPaperStockSet
-                  );
-                  if (!selectedGroup) return null;
+                  )
+                  if (!selectedGroup) return null
 
                   return (
                     <div>
@@ -583,7 +583,7 @@ function EditProductClient({ id }: { id: string }) {
                         ))}
                       </div>
                     </div>
-                  );
+                  )
                 })()}
               </div>
             )}
@@ -630,8 +630,8 @@ function EditProductClient({ id }: { id: string }) {
             {formData.selectedSizeGroup && (
               <div className="border rounded-lg p-3 bg-muted/50">
                 {(() => {
-                  const selectedGroup = sizeGroups.find((g) => g.id === formData.selectedSizeGroup);
-                  if (!selectedGroup) return null;
+                  const selectedGroup = sizeGroups.find((g) => g.id === formData.selectedSizeGroup)
+                  if (!selectedGroup) return null
 
                   return (
                     <div>
@@ -659,7 +659,7 @@ function EditProductClient({ id }: { id: string }) {
                         </p>
                       )}
                     </div>
-                  );
+                  )
                 })()}
               </div>
             )}
@@ -710,8 +710,8 @@ function EditProductClient({ id }: { id: string }) {
                 {(() => {
                   const selectedSet = turnaroundTimeSets.find(
                     (s) => s.id === formData.selectedTurnaroundTimeSet
-                  );
-                  if (!selectedSet) return null;
+                  )
+                  if (!selectedSet) return null
 
                   return (
                     <div>
@@ -736,7 +736,7 @@ function EditProductClient({ id }: { id: string }) {
                         ))}
                       </div>
                     </div>
-                  );
+                  )
                 })()}
               </div>
             )}
@@ -786,8 +786,8 @@ function EditProductClient({ id }: { id: string }) {
             {formData.selectedDesignSet && (
               <div className="border rounded-lg p-3 bg-muted/50">
                 {(() => {
-                  const selectedSet = designSets.find((s) => s.id === formData.selectedDesignSet);
-                  if (!selectedSet) return null;
+                  const selectedSet = designSets.find((s) => s.id === formData.selectedDesignSet)
+                  if (!selectedSet) return null
 
                   return (
                     <div>
@@ -811,7 +811,7 @@ function EditProductClient({ id }: { id: string }) {
                         ))}
                       </div>
                     </div>
-                  );
+                  )
                 })()}
               </div>
             )}
@@ -819,5 +819,5 @@ function EditProductClient({ id }: { id: string }) {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

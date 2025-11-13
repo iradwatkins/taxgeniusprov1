@@ -1,7 +1,7 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
-import { randomUUID } from 'crypto';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { z } from 'zod'
+import { randomUUID } from 'crypto'
 
 // Schema for creating/updating a paper stock set
 const paperStockSetSchema = z.object({
@@ -18,7 +18,7 @@ const paperStockSetSchema = z.object({
       })
     )
     .optional(),
-});
+})
 
 // GET - List all paper stock sets
 export async function GET(): Promise<unknown> {
@@ -51,7 +51,7 @@ export async function GET(): Promise<unknown> {
       orderBy: {
         sortOrder: 'asc',
       },
-    });
+    })
 
     // Transform the data to match frontend expectations
     const transformedGroups = groups.map((group) => ({
@@ -64,39 +64,39 @@ export async function GET(): Promise<unknown> {
         paperStock: item.PaperStock,
       })),
       productPaperStockGroups: group.ProductPaperStockSet || [],
-    }));
+    }))
 
-    return NextResponse.json(transformedGroups);
+    return NextResponse.json(transformedGroups)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch paper stock sets' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch paper stock sets' }, { status: 500 })
   }
 }
 
 // POST - Create a new paper stock set
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const validatedData = paperStockSetSchema.parse(body);
+    const body = await request.json()
+    const validatedData = paperStockSetSchema.parse(body)
 
     // Check if name already exists
     const existingGroup = await prisma.paperStockSet.findUnique({
       where: { name: validatedData.name },
-    });
+    })
 
     if (existingGroup) {
       return NextResponse.json(
         { error: 'A paper stock set with this name already exists' },
         { status: 400 }
-      );
+      )
     }
 
     // Ensure at least one paper stock is marked as default
-    const paperStocksWithDefault = validatedData.paperStocks || [];
+    const paperStocksWithDefault = validatedData.paperStocks || []
     if (paperStocksWithDefault.length > 0) {
-      const hasDefault = paperStocksWithDefault.some((stock) => stock.isDefault);
+      const hasDefault = paperStocksWithDefault.some((stock) => stock.isDefault)
       if (!hasDefault) {
         // If no default is set, make the first one default
-        paperStocksWithDefault[0].isDefault = true;
+        paperStocksWithDefault[0].isDefault = true
       }
     }
 
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
         },
         ProductPaperStockSet: true,
       },
-    });
+    })
 
     // Transform the data to match frontend expectations
     const transformedGroup = {
@@ -156,17 +156,17 @@ export async function POST(request: NextRequest) {
         paperStock: item.PaperStock,
       })),
       productPaperStockGroups: group.ProductPaperStockSet || [],
-    };
+    }
 
-    return NextResponse.json(transformedGroup);
+    return NextResponse.json(transformedGroup)
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Validation error', details: error.issues },
         { status: 400 }
-      );
+      )
     }
 
-    return NextResponse.json({ error: 'Failed to create paper stock set' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create paper stock set' }, { status: 500 })
   }
 }

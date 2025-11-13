@@ -1,17 +1,17 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Sun, Moon, Copy, Check, Download, Loader2, ExternalLink } from 'lucide-react';
-import { useTheme } from 'next-themes';
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Sun, Moon, Copy, Check, Download, Loader2, ExternalLink } from 'lucide-react'
+import { useTheme } from 'next-themes'
 
 interface ColorInfo {
-  name: string;
-  cssVar: string;
-  lightValue: string;
-  darkValue: string;
-  description?: string;
+  name: string
+  cssVar: string
+  lightValue: string
+  darkValue: string
+  description?: string
 }
 
 const colorGroups = {
@@ -249,19 +249,19 @@ const colorGroups = {
       description: 'Sidebar focus ring',
     },
   ],
-};
+}
 
 function ColorCard({ color, currentTheme }: { color: ColorInfo; currentTheme: string }) {
-  const [copied, setCopied] = useState(false);
-  const currentValue = currentTheme === 'dark' ? color.darkValue : color.lightValue;
+  const [copied, setCopied] = useState(false)
+  const currentValue = currentTheme === 'dark' ? color.darkValue : color.lightValue
 
   const copyToClipboard = async (text: string) => {
     try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
     } catch (err) {}
-  };
+  }
 
   return (
     <div className="bg-card border border-border rounded-lg p-4 space-y-3 hover:shadow-md transition-all duration-200">
@@ -303,29 +303,29 @@ function ColorCard({ color, currentTheme }: { color: ColorInfo; currentTheme: st
         {color.description && <p className="text-xs text-muted-foreground">{color.description}</p>}
       </div>
     </div>
-  );
+  )
 }
 
 export default function ThemeColors() {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const [importUrl, setImportUrl] = useState('');
-  const [isImporting, setIsImporting] = useState(false);
-  const [importMessage, setImportMessage] = useState('');
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  const [importUrl, setImportUrl] = useState('')
+  const [isImporting, setIsImporting] = useState(false)
+  const [importMessage, setImportMessage] = useState('')
 
   // Ensure component is mounted to avoid hydration issues
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    setMounted(true)
+  }, [])
 
   const handleImportTheme = async () => {
     if (!importUrl.trim()) {
-      setImportMessage('Please enter a theme URL');
-      return;
+      setImportMessage('Please enter a theme URL')
+      return
     }
 
-    setIsImporting(true);
-    setImportMessage('');
+    setIsImporting(true)
+    setImportMessage('')
 
     try {
       const response = await fetch('/api/themes/import', {
@@ -337,33 +337,33 @@ export default function ThemeColors() {
           url: importUrl,
           applyImmediately: true,
         }),
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to import theme');
+        throw new Error(data.error || 'Failed to import theme')
       }
 
-      setImportMessage(`Theme "${data.theme.name}" imported and applied successfully!`);
-      setImportUrl('');
+      setImportMessage(`Theme "${data.theme.name}" imported and applied successfully!`)
+      setImportUrl('')
 
       // Refresh the page to show new colors
       setTimeout(() => {
-        window.location.reload();
-      }, 2000);
+        window.location.reload()
+      }, 2000)
     } catch (error) {
-      setImportMessage(error instanceof Error ? error.message : 'Failed to import theme');
+      setImportMessage(error instanceof Error ? error.message : 'Failed to import theme')
     } finally {
-      setIsImporting(false);
+      setIsImporting(false)
     }
-  };
-
-  if (!mounted) {
-    return null;
   }
 
-  const currentTheme = theme || 'light';
+  if (!mounted) {
+    return null
+  }
+
+  const currentTheme = theme || 'light'
 
   return (
     <div className="min-h-screen bg-background p-6">
@@ -500,5 +500,5 @@ export default function ThemeColors() {
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,13 +1,13 @@
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 
 import {
   Settings,
@@ -29,16 +29,16 @@ import {
   EyeOff,
   Key,
   Zap,
-} from 'lucide-react';
-import { GeneralSettingsForm } from '@/components/admin/settings/general-settings-form';
-import { NotificationSettingsForm } from '@/components/admin/settings/notification-settings-form';
-import { PrintingSettingsForm } from '@/components/admin/settings/printing-settings-form';
-import { PaymentSettingsForm } from '@/components/admin/settings/payment-settings-form';
-import { ShippingSettingsForm } from '@/components/admin/settings/shipping-settings-form';
-import { IntegrationSettingsForm } from '@/components/admin/settings/integration-settings-form';
+} from 'lucide-react'
+import { GeneralSettingsForm } from '@/components/admin/settings/general-settings-form'
+import { NotificationSettingsForm } from '@/components/admin/settings/notification-settings-form'
+import { PrintingSettingsForm } from '@/components/admin/settings/printing-settings-form'
+import { PaymentSettingsForm } from '@/components/admin/settings/payment-settings-form'
+import { ShippingSettingsForm } from '@/components/admin/settings/shipping-settings-form'
+import { IntegrationSettingsForm } from '@/components/admin/settings/integration-settings-form'
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default function SettingsPage() {
   return (
@@ -123,5 +123,5 @@ export default function SettingsPage() {
         </TabsContent>
       </Tabs>
     </div>
-  );
+  )
 }

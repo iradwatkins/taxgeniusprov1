@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
 export async function GET() {
   const robotsTxt = `# https://www.robotstxt.org/robotstxt.html
@@ -143,12 +143,12 @@ Crawl-delay: 10
 
 Sitemap: https://gangrunprinting.com/sitemap.xml
 Sitemap: https://gangrunprinting.com/sitemap-0.xml
-`;
+`
 
   return new NextResponse(robotsTxt, {
     headers: {
       'Content-Type': 'text/plain',
       'Cache-Control': 'public, max-age=86400',
     },
-  });
+  })
 }

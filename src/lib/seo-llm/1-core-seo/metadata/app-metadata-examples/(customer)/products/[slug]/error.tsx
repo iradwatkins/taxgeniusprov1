@@ -1,24 +1,24 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { AlertTriangle, RefreshCw, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import Link from 'next/link';
+import { useEffect } from 'react'
+import { AlertTriangle, RefreshCw, ArrowLeft } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import Link from 'next/link'
 
 export default function ProductError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+  error: Error & { digest?: string }
+  reset: () => void
 }) {
   useEffect(() => {
     // Log the error to an error reporting service
-    console.error('[Product Page Error]:', error);
-    console.error('[Product Page Error Stack]:', error.stack);
-    console.error('[Product Page Error Digest]:', error.digest);
+    console.error('[Product Page Error]:', error)
+    console.error('[Product Page Error Stack]:', error.stack)
+    console.error('[Product Page Error Digest]:', error.digest)
 
     // Report to monitoring service (if configured)
     if (typeof window !== 'undefined' && window.location) {
@@ -28,12 +28,12 @@ export default function ProductError({
         digest: error.digest,
         url: window.location.href,
         timestamp: new Date().toISOString(),
-      };
-      console.error('[Product Page Error Context]:', errorInfo);
+      }
+      console.error('[Product Page Error Context]:', errorInfo)
     }
-  }, [error]);
+  }, [error])
 
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = process.env.NODE_ENV === 'development'
 
   return (
     <div className="container mx-auto px-4 py-16">
@@ -101,5 +101,5 @@ export default function ProductError({
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

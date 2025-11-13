@@ -1,44 +1,44 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { basePriceEngine, type PricingInput } from '@/lib/pricing/base-price-engine';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { basePriceEngine, type PricingInput } from '@/lib/pricing/base-price-engine'
 
 interface CalculateBasePriceRequest {
   // Size configuration
-  sizeSelection: 'standard' | 'custom';
-  standardSizeId?: string;
-  customWidth?: number;
-  customHeight?: number;
+  sizeSelection: 'standard' | 'custom'
+  standardSizeId?: string
+  customWidth?: number
+  customHeight?: number
 
   // Quantity configuration
-  quantitySelection: 'standard' | 'custom';
-  standardQuantityId?: string;
-  customQuantity?: number;
+  quantitySelection: 'standard' | 'custom'
+  standardQuantityId?: string
+  customQuantity?: number
 
   // Paper configuration
-  paperStockId: string;
-  sidesOptionId: string;
+  paperStockId: string
+  sidesOptionId: string
 
   // Product context (for validation)
-  productId?: string;
+  productId?: string
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const data: CalculateBasePriceRequest = await request.json();
+    const data: CalculateBasePriceRequest = await request.json()
 
     // Validate required fields
     if (!data.paperStockId) {
-      return NextResponse.json({ error: 'Paper stock ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Paper stock ID is required' }, { status: 400 })
     }
 
     if (!data.sidesOptionId) {
-      return NextResponse.json({ error: 'Sides option ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Sides option ID is required' }, { status: 400 })
     }
 
     // Load paper stock data
     const paperStock = await prisma.paperStock.findUnique({
       where: { id: data.paperStockId },
-    });
+    })
 
     // Load sides multiplier from PaperStockSides
     const paperStockSides = await prisma.paperStockSides.findUnique({
@@ -48,10 +48,10 @@ export async function POST(request: NextRequest) {
           sidesOptionId: data.sidesOptionId,
         },
       },
-    });
+    })
 
     if (!paperStock) {
-      return NextResponse.json({ error: 'Paper stock not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Paper stock not found' }, { status: 404 })
     }
 
     if (!paperStockSides) {
@@ -60,12 +60,12 @@ export async function POST(request: NextRequest) {
           error: 'Sides configuration not available for this paper stock',
         },
         { status: 404 }
-      );
+      )
     }
 
-    let standardSize = null;
-    let standardQuantity = null;
-    let productConfig = null;
+    let standardSize = null
+    let standardQuantity = null
+    let productConfig = null
 
     // Load size data if standard size selected
     if (data.sizeSelection === 'standard') {
@@ -73,21 +73,21 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           { error: 'Standard size ID is required when using standard size' },
           { status: 400 }
-        );
+        )
       }
 
       // Note: This API still uses StandardSize for backwards compatibility
       // Size group relationships are handled at the product level
       standardSize = await prisma.standardSize.findUnique({
         where: { id: data.standardSizeId },
-      });
+      })
 
       if (!standardSize) {
-        return NextResponse.json({ error: 'Standard size not found' }, { status: 404 });
+        return NextResponse.json({ error: 'Standard size not found' }, { status: 404 })
       }
 
       if (!standardSize.isActive) {
-        return NextResponse.json({ error: 'Selected size is not active' }, { status: 400 });
+        return NextResponse.json({ error: 'Selected size is not active' }, { status: 400 })
       }
     }
 
@@ -97,19 +97,19 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           { error: 'Standard quantity ID is required when using standard quantity' },
           { status: 400 }
-        );
+        )
       }
 
       standardQuantity = await prisma.standardQuantity.findUnique({
         where: { id: data.standardQuantityId },
-      });
+      })
 
       if (!standardQuantity) {
-        return NextResponse.json({ error: 'Standard quantity not found' }, { status: 404 });
+        return NextResponse.json({ error: 'Standard quantity not found' }, { status: 404 })
       }
 
       if (!standardQuantity.isActive) {
-        return NextResponse.json({ error: 'Selected quantity is not active' }, { status: 400 });
+        return NextResponse.json({ error: 'Selected quantity is not active' }, { status: 400 })
       }
     }
 
@@ -117,14 +117,14 @@ export async function POST(request: NextRequest) {
     if (data.productId) {
       productConfig = await prisma.productPricingConfig.findUnique({
         where: { productId: data.productId },
-      });
+      })
 
       // Validate custom options are allowed for this product
       if (data.sizeSelection === 'custom' && productConfig && !productConfig.allowCustomSize) {
         return NextResponse.json(
           { error: 'Custom size is not allowed for this product' },
           { status: 400 }
-        );
+        )
       }
 
       if (
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           { error: 'Custom quantity is not allowed for this product' },
           { status: 400 }
-        );
+        )
       }
 
       // Validate custom dimensions within limits
@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json(
             { error: `Minimum width is ${productConfig.minCustomWidth} inches` },
             { status: 400 }
-          );
+          )
         }
         if (
           data.customWidth &&
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json(
             { error: `Maximum width is ${productConfig.maxCustomWidth} inches` },
             { status: 400 }
-          );
+          )
         }
         if (
           data.customHeight &&
@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json(
             { error: `Minimum height is ${productConfig.minCustomHeight} inches` },
             { status: 400 }
-          );
+          )
         }
         if (
           data.customHeight &&
@@ -178,7 +178,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json(
             { error: `Maximum height is ${productConfig.maxCustomHeight} inches` },
             { status: 400 }
-          );
+          )
         }
       }
 
@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
                 },
               },
               { status: 400 }
-            );
+            )
           }
         }
 
@@ -213,7 +213,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(
               { error: `Minimum quantity is ${productConfig.minCustomQuantity}` },
               { status: 400 }
-            );
+            )
           }
           if (
             data.customQuantity &&
@@ -223,7 +223,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(
               { error: `Maximum quantity is ${productConfig.maxCustomQuantity}` },
               { status: 400 }
-            );
+            )
           }
         }
       }
@@ -240,10 +240,10 @@ export async function POST(request: NextRequest) {
       customQuantity: data.customQuantity,
       basePaperPrice: paperStock.pricePerSqInch,
       sidesMultiplier: paperStockSides.priceMultiplier,
-    };
+    }
 
     // Calculate base price using exact formula
-    const result = basePriceEngine.calculateBasePrice(pricingInput);
+    const result = basePriceEngine.calculateBasePrice(pricingInput)
 
     // If validation failed, return error
     if (!result.validation.isValid) {
@@ -253,7 +253,7 @@ export async function POST(request: NextRequest) {
           details: result.validation.errors,
         },
         { status: 400 }
-      );
+      )
     }
 
     // Return successful calculation
@@ -305,17 +305,17 @@ export async function POST(request: NextRequest) {
             },
           }
         : null,
-    });
+    })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to calculate base price' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to calculate base price' }, { status: 500 })
   }
 }
 
 // GET endpoint to retrieve standard sizes and quantities for a product
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const productId = searchParams.get('productId');
+    const { searchParams } = new URL(request.url)
+    const productId = searchParams.get('productId')
 
     const query: Record<string, unknown> = {
       include: {
@@ -326,29 +326,29 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-    };
+    }
 
     // Get available sizes
     const sizes = await prisma.standardSize.findMany({
       where: { isActive: true },
       orderBy: { sortOrder: 'asc' },
-    });
+    })
 
     // Get available quantities
     const quantities = await prisma.standardQuantity.findMany({
       where: { isActive: true },
       orderBy: { sortOrder: 'asc' },
-    });
+    })
 
-    let productConfig = null;
-    let productSizes = [];
-    let productQuantities = [];
+    let productConfig = null
+    let productSizes = []
+    let productQuantities = []
 
     if (productId) {
       // Get product-specific configuration
       productConfig = await prisma.productPricingConfig.findUnique({
         where: { productId },
-      });
+      })
 
       // Get product-specific sizes
       const productSizeLinks = await prisma.productSize.findMany({
@@ -364,12 +364,12 @@ export async function GET(request: NextRequest) {
             sortOrder: 'asc',
           },
         },
-      });
+      })
 
       productSizes = productSizeLinks.map((link) => ({
         ...link.StandardSize,
         isDefault: link.isDefault,
-      }));
+      }))
 
       // Get product-specific quantity groups
       const productQuantityGroupLinks = await prisma.productQuantityGroup.findMany({
@@ -384,15 +384,15 @@ export async function GET(request: NextRequest) {
             sortOrder: 'asc',
           },
         },
-      });
+      })
 
       // For each quantity group, parse the quantities and return them as individual options
       productQuantities = productQuantityGroupLinks.flatMap((link) => {
-        const group = link.QuantityGroup;
+        const group = link.QuantityGroup
         const valuesList = group.values
           .split(',')
           .map((v: string) => v.trim())
-          .filter((v: string) => v);
+          .filter((v: string) => v)
 
         return valuesList.map((value: string, index: number) => ({
           id: `${group.id}-${index}`, // Create unique ID for each quantity value
@@ -405,8 +405,8 @@ export async function GET(request: NextRequest) {
           groupId: group.id,
           groupName: group.name,
           isCustom: value.toLowerCase() === 'custom',
-        }));
-      });
+        }))
+      })
     }
 
     return NextResponse.json({
@@ -416,8 +416,8 @@ export async function GET(request: NextRequest) {
       productConfig,
       allSizes: sizes,
       allQuantities: quantities,
-    });
+    })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch pricing configuration' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch pricing configuration' }, { status: 500 })
   }
 }

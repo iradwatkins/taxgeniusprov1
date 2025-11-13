@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import {
   ArrowLeft,
   Save,
@@ -14,26 +14,26 @@ import {
   DollarSign,
   Clock,
   FileText,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import toast from '@/lib/toast';
+} from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import toast from '@/lib/toast'
 
 export default function NewVendorPage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     // Basic Information
     name: '',
@@ -64,18 +64,18 @@ export default function NewVendorPage() {
     isActive: true,
     preferredPaymentMethod: 'check',
     notes: '',
-  });
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     // Validate required fields
     if (!formData.name || !formData.companyName || !formData.email) {
-      toast.error('Please fill in all required fields');
-      return;
+      toast.error('Please fill in all required fields')
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
 
     try {
       const response = await fetch('/api/vendors', {
@@ -84,21 +84,21 @@ export default function NewVendorPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
-      });
+      })
 
       if (response.ok) {
-        toast.success('Vendor created successfully');
-        router.push('/admin/vendors');
+        toast.success('Vendor created successfully')
+        router.push('/admin/vendors')
       } else {
-        const error = await response.json();
-        toast.error(error.message || 'Failed to create vendor');
+        const error = await response.json()
+        toast.error(error.message || 'Failed to create vendor')
       }
     } catch (error) {
-      toast.error('An error occurred while creating the vendor');
+      toast.error('An error occurred while creating the vendor')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -432,5 +432,5 @@ export default function NewVendorPage() {
         </Tabs>
       </form>
     </div>
-  );
+  )
 }

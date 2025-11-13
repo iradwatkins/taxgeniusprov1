@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { useState } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { useState } from 'react'
 // Removed react-hot-toast - not in tech stack
-import { ThemeProvider } from '@/components/theme-provider';
-import { PWAInstallPrompt } from '@/components/pwa-install-prompt';
-import { CartProvider } from '@/contexts/cart-context';
-import { SessionKeeper } from '@/components/auth/session-keeper';
+import { ThemeProvider } from '@/components/theme-provider'
+import { PWAInstallPrompt } from '@/components/pwa-install-prompt'
+import { CartProvider } from '@/contexts/cart-context'
+import { SessionKeeper } from '@/components/auth/session-keeper'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -20,7 +20,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           },
         },
       })
-  );
+  )
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -33,5 +33,5 @@ export function Providers({ children }: { children: React.ReactNode }) {
       </ThemeProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
-  );
+  )
 }

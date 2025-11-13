@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { Users, Target, Sparkles, CheckCircle, ArrowRight } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
+import { Users, Target, Sparkles, CheckCircle, ArrowRight } from 'lucide-react'
 
 export default function AboutPage() {
   return (
@@ -173,5 +173,5 @@ export default function AboutPage() {
         </div>
       </section>
     </div>
-  );
+  )
 }

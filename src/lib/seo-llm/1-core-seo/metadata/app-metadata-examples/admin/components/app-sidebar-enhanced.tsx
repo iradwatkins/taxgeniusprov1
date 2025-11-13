@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import * as React from 'react';
+import * as React from 'react'
 import {
   Home,
   ShoppingCart,
@@ -11,13 +11,13 @@ import {
   Palette,
   Settings2,
   Printer,
-} from 'lucide-react';
+} from 'lucide-react'
 
-import { NavMainEnhanced, type NavMainItem } from './nav-main-enhanced';
-import { NavToolbar } from './nav-toolbar';
-import { NavUser } from './nav-user';
-import { TeamSwitcher } from './team-switcher';
-import { ThemeToggle } from '@/components/admin/theme-toggle';
+import { NavMainEnhanced, type NavMainItem } from './nav-main-enhanced'
+import { NavToolbar } from './nav-toolbar'
+import { NavUser } from './nav-user'
+import { TeamSwitcher } from './team-switcher'
+import { ThemeToggle } from '@/components/admin/theme-toggle'
 import {
   Sidebar,
   SidebarContent,
@@ -26,8 +26,8 @@ import {
   SidebarRail,
   SidebarGroup,
   SidebarGroupContent,
-} from '@/components/ui/sidebar';
-import { useNavigationState } from '@/hooks/useNavigationState';
+} from '@/components/ui/sidebar'
+import { useNavigationState } from '@/hooks/useNavigationState'
 
 const navItems: NavMainItem[] = [
   {
@@ -194,13 +194,13 @@ const navItems: NavMainItem[] = [
       },
     ],
   },
-];
+]
 
 const userData = {
   name: 'Ira Watkins',
-  email: 'support@taxgeniuspro.tax',
+  email: 'iradwatkins@gmail.com',
   avatar: '/avatars/admin.jpg',
-};
+}
 
 const teamsData = [
   {
@@ -208,43 +208,38 @@ const teamsData = [
     logo: Printer,
     plan: 'Enterprise',
   },
-];
+]
 
 export function AppSidebarEnhanced({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Get navigation state management
-  const initialState = navItems.reduce(
-    (acc, item) => {
-      acc[item.title] = item.isActive || false;
-      return acc;
-    },
-    {} as Record<string, boolean>
-  );
+  const initialState = navItems.reduce((acc, item) => {
+    acc[item.title] = item.isActive || false
+    return acc
+  }, {} as Record<string, boolean>)
 
-  const { expandAll, collapseAll } = useNavigationState(initialState);
+  const { expandAll, collapseAll } = useNavigationState(initialState)
 
   // Get all expandable section titles
-  const expandableSections = navItems
-    .filter((item) => item.items && item.items.length > 0)
-    .map((item) => item.title);
+  const expandableSections = navItems.filter((item) => item.items && item.items.length > 0).map((item) => item.title)
 
   // Keyboard shortcuts
   React.useEffect(() => {
     const handleKeyboard = (e: KeyboardEvent) => {
       // Cmd+E or Ctrl+E - Expand all
       if ((e.metaKey || e.ctrlKey) && e.key === 'e' && !e.shiftKey) {
-        e.preventDefault();
-        expandAll(expandableSections);
+        e.preventDefault()
+        expandAll(expandableSections)
       }
       // Cmd+Shift+E or Ctrl+Shift+E - Collapse all
       if ((e.metaKey || e.ctrlKey) && e.key === 'e' && e.shiftKey) {
-        e.preventDefault();
-        collapseAll();
+        e.preventDefault()
+        collapseAll()
       }
-    };
+    }
 
-    window.addEventListener('keydown', handleKeyboard);
-    return () => window.removeEventListener('keydown', handleKeyboard);
-  }, [expandAll, collapseAll, expandableSections]);
+    window.addEventListener('keydown', handleKeyboard)
+    return () => window.removeEventListener('keydown', handleKeyboard)
+  }, [expandAll, collapseAll, expandableSections])
 
   return (
     <Sidebar collapsible="icon" variant="sidebar" {...props}>
@@ -269,5 +264,5 @@ export function AppSidebarEnhanced({ ...props }: React.ComponentProps<typeof Sid
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  );
+  )
 }

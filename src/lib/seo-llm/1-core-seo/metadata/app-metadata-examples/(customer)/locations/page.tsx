@@ -1,18 +1,18 @@
-'use client';
+'use client'
 
-import { useState, useMemo, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState, useMemo, useEffect } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 import {
   MapPin,
   Phone,
@@ -25,8 +25,8 @@ import {
   Truck,
   Info,
   Loader2,
-} from 'lucide-react';
-import Link from 'next/link';
+} from 'lucide-react'
+import Link from 'next/link'
 
 // Retail locations data
 const retailLocations = [
@@ -58,34 +58,34 @@ const retailLocations = [
     },
     type: 'retail',
   },
-];
+]
 
 interface AirCargoLocation {
-  id: string;
-  code: string;
-  name: string;
-  carrier: string;
-  operator?: string;
-  address: string;
-  city: string;
-  state: string;
-  zip: string;
-  hours: Record<string, string>;
+  id: string
+  code: string
+  name: string
+  carrier: string
+  operator?: string
+  address: string
+  city: string
+  state: string
+  zip: string
+  hours: Record<string, string>
 }
 
 export default function LocationsPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedState, setSelectedState] = useState('all');
-  const [activeTab, setActiveTab] = useState('retail');
-  const [airCargoLocations, setAirCargoLocations] = useState<AirCargoLocation[]>([]);
-  const [isLoadingAirports, setIsLoadingAirports] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedState, setSelectedState] = useState('all')
+  const [activeTab, setActiveTab] = useState('retail')
+  const [airCargoLocations, setAirCargoLocations] = useState<AirCargoLocation[]>([])
+  const [isLoadingAirports, setIsLoadingAirports] = useState(true)
 
   // Fetch all airports from API
   useEffect(() => {
     const fetchAirports = async () => {
       try {
-        const response = await fetch('/api/airports');
-        const data = await response.json();
+        const response = await fetch('/api/airports')
+        const data = await response.json()
 
         if (data.success && data.airports) {
           // Transform API data to match our component format
@@ -100,27 +100,27 @@ export default function LocationsPage() {
             state: airport.state,
             zip: airport.zip,
             hours: airport.hours,
-          }));
+          }))
 
-          setAirCargoLocations(transformedAirports);
+          setAirCargoLocations(transformedAirports)
         }
       } catch (error) {
-        console.error('Failed to fetch airports:', error);
+        console.error('Failed to fetch airports:', error)
       } finally {
-        setIsLoadingAirports(false);
+        setIsLoadingAirports(false)
       }
-    };
+    }
 
-    fetchAirports();
-  }, []);
+    fetchAirports()
+  }, [])
 
   // Get unique states from all locations
   const states = useMemo(() => {
-    const allStates = new Set<string>();
-    retailLocations.forEach((loc) => allStates.add(loc.state));
-    airCargoLocations.forEach((loc) => allStates.add(loc.state));
-    return Array.from(allStates).sort();
-  }, []);
+    const allStates = new Set<string>()
+    retailLocations.forEach((loc) => allStates.add(loc.state))
+    airCargoLocations.forEach((loc) => allStates.add(loc.state))
+    return Array.from(allStates).sort()
+  }, [])
 
   // Filter locations based on search and state
   const filteredRetailLocations = useMemo(() => {
@@ -130,13 +130,13 @@ export default function LocationsPage() {
         location.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         location.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
         location.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        location.address.toLowerCase().includes(searchQuery.toLowerCase());
+        location.address.toLowerCase().includes(searchQuery.toLowerCase())
 
-      const matchesState = selectedState === 'all' || location.state === selectedState;
+      const matchesState = selectedState === 'all' || location.state === selectedState
 
-      return matchesSearch && matchesState;
-    });
-  }, [searchQuery, selectedState]);
+      return matchesSearch && matchesState
+    })
+  }, [searchQuery, selectedState])
 
   const filteredAirCargoLocations = useMemo(() => {
     return airCargoLocations.filter((location) => {
@@ -146,35 +146,35 @@ export default function LocationsPage() {
         location.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
         location.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
         location.state.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        location.address.toLowerCase().includes(searchQuery.toLowerCase());
+        location.address.toLowerCase().includes(searchQuery.toLowerCase())
 
-      const matchesState = selectedState === 'all' || location.state === selectedState;
+      const matchesState = selectedState === 'all' || location.state === selectedState
 
-      return matchesSearch && matchesState;
-    });
-  }, [searchQuery, selectedState]);
+      return matchesSearch && matchesState
+    })
+  }, [searchQuery, selectedState])
 
   interface LocationData {
-    id: string;
-    name: string;
-    address: string;
-    city: string;
-    state: string;
-    zip: string;
-    code?: string;
-    carrier?: string;
-    operator?: string;
-    hours: Record<string, string | undefined>;
-    phone?: string;
-    type?: string;
+    id: string
+    name: string
+    address: string
+    city: string
+    state: string
+    zip: string
+    code?: string
+    carrier?: string
+    operator?: string
+    hours: Record<string, string | undefined>
+    phone?: string
+    type?: string
   }
 
   const LocationCard = ({
     location,
     type,
   }: {
-    location: LocationData;
-    type: 'retail' | 'cargo';
+    location: LocationData
+    type: 'retail' | 'cargo'
   }) => (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
@@ -252,7 +252,7 @@ export default function LocationsPage() {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -493,5 +493,5 @@ export default function LocationsPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

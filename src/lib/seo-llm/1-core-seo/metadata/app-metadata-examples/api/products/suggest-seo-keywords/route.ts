@@ -14,7 +14,7 @@
  * - Common misspellings
  */
 
-import { type NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server'
 
 // Target industries actually served by GangRun Printing
 const GANGRUN_INDUSTRIES = [
@@ -27,7 +27,7 @@ const GANGRUN_INDUSTRIES = [
   'restaurants',
   'bars',
   'small businesses',
-];
+]
 
 // Top cities for location-based keywords
 const TOP_CITIES = [
@@ -41,7 +41,7 @@ const TOP_CITIES = [
   'San Diego',
   'Dallas',
   'Austin',
-];
+]
 
 // Common product types and their SEO keyword mappings
 const KEYWORD_DATABASE: Record<string, any> = {
@@ -192,38 +192,38 @@ const KEYWORD_DATABASE: Record<string, any> = {
     urgency: ['same day brochure printing', 'next day brochures', 'rush brochures'],
     misspellings: ['broshure', 'brosure', 'brochure print'],
   },
-};
+}
 
 /**
  * Generate SEO keywords for a product
  */
 export async function POST(request: NextRequest) {
   try {
-    const { productName, productCategory, targetCities } = await request.json();
+    const { productName, productCategory, targetCities } = await request.json()
 
     if (!productName) {
-      return NextResponse.json({ error: 'Product name is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Product name is required' }, { status: 400 })
     }
 
     // Normalize product name
-    const normalizedName = productName.toLowerCase().trim();
+    const normalizedName = productName.toLowerCase().trim()
 
     // Find matching keyword data
-    let keywordData = KEYWORD_DATABASE[normalizedName];
+    let keywordData = KEYWORD_DATABASE[normalizedName]
 
     // Try to find partial matches
     if (!keywordData) {
       const partialMatch = Object.keys(KEYWORD_DATABASE).find(
         (key) => normalizedName.includes(key) || key.includes(normalizedName)
-      );
+      )
       if (partialMatch) {
-        keywordData = KEYWORD_DATABASE[partialMatch];
+        keywordData = KEYWORD_DATABASE[partialMatch]
       }
     }
 
     // Generate default keywords if no match found
     if (!keywordData) {
-      keywordData = generateDefaultKeywords(productName);
+      keywordData = generateDefaultKeywords(productName)
     }
 
     // Build comprehensive keyword suggestions
@@ -263,14 +263,14 @@ export async function POST(request: NextRequest) {
       ],
 
       misspellings: keywordData.misspellings || [],
-    };
+    }
 
     // Generate SEO meta suggestions
     const metaSuggestions = {
       title: generateMetaTitle(productName, suggestions),
       description: generateMetaDescription(productName, suggestions),
       altText: generateAltText(productName),
-    };
+    }
 
     // All keywords combined for easy copy-paste
     const allKeywords = [
@@ -278,7 +278,7 @@ export async function POST(request: NextRequest) {
       ...suggestions.longTail.slice(0, 3),
       ...suggestions.industrySpecific.slice(0, 3),
       ...suggestions.locationBased.slice(0, 2),
-    ];
+    ]
 
     return NextResponse.json({
       success: true,
@@ -288,10 +288,10 @@ export async function POST(request: NextRequest) {
       allKeywords, // Flat array for quick use
       estimatedSearchVolume: estimateSearchVolume(suggestions),
       competitionLevel: estimateCompetition(normalizedName),
-    });
+    })
   } catch (error) {
-    console.error('SEO keyword suggestion error:', error);
-    return NextResponse.json({ error: 'Failed to generate keyword suggestions' }, { status: 500 });
+    console.error('SEO keyword suggestion error:', error)
+    return NextResponse.json({ error: 'Failed to generate keyword suggestions' }, { status: 500 })
   }
 }
 
@@ -299,7 +299,7 @@ export async function POST(request: NextRequest) {
  * Generate default keywords for unknown products
  */
 function generateDefaultKeywords(productName: string) {
-  const normalized = productName.toLowerCase();
+  const normalized = productName.toLowerCase()
 
   return {
     baseTerms: [normalized],
@@ -329,66 +329,66 @@ function generateDefaultKeywords(productName: string) {
       `fast ${normalized} printing`,
     ],
     misspellings: [],
-  };
+  }
 }
 
 /**
  * Generate optimized meta title (60 chars max)
  */
 function generateMetaTitle(productName: string, suggestions: any): string {
-  const primary = suggestions.primaryKeywords[0];
-  const capitalizedProduct = productName.charAt(0).toUpperCase() + productName.slice(1);
+  const primary = suggestions.primaryKeywords[0]
+  const capitalizedProduct = productName.charAt(0).toUpperCase() + productName.slice(1)
 
   // Format: "Product Name Printing | Fast Service | GangRun"
-  const title = `${capitalizedProduct} Printing | Fast & Cheap | GangRun`;
+  const title = `${capitalizedProduct} Printing | Fast & Cheap | GangRun`
 
-  return title.length <= 60 ? title : `${capitalizedProduct} Printing | GangRun`;
+  return title.length <= 60 ? title : `${capitalizedProduct} Printing | GangRun`
 }
 
 /**
  * Generate optimized meta description (160 chars max)
  */
 function generateMetaDescription(productName: string, suggestions: any): string {
-  const industry1 = suggestions.industrySpecific[0];
-  const industry2 = suggestions.industrySpecific[1];
+  const industry1 = suggestions.industrySpecific[0]
+  const industry2 = suggestions.industrySpecific[1]
 
-  const description = `Custom ${productName} printing for ${industry1}, ${industry2}, and more. Same-day service available. Premium quality, low prices. Order online in 60 seconds!`;
+  const description = `Custom ${productName} printing for ${industry1}, ${industry2}, and more. Same-day service available. Premium quality, low prices. Order online in 60 seconds!`
 
   if (description.length <= 160) {
-    return description;
+    return description
   }
 
   // Shorter fallback
-  return `Custom ${productName} printing. Same-day service. Premium quality, low prices. Order online now!`;
+  return `Custom ${productName} printing. Same-day service. Premium quality, low prices. Order online now!`
 }
 
 /**
  * Generate image alt text template
  */
 function generateAltText(productName: string): string {
-  return `Professional ${productName} printing - high quality custom ${productName}s - GangRun Printing`;
+  return `Professional ${productName} printing - high quality custom ${productName}s - GangRun Printing`
 }
 
 /**
  * Estimate search volume (rough estimate for UI display)
  */
 function estimateSearchVolume(suggestions: any): string {
-  const keywordCount = Object.values(suggestions).flat().length;
+  const keywordCount = Object.values(suggestions).flat().length
 
-  if (keywordCount > 50) return '10K-50K monthly searches';
-  if (keywordCount > 30) return '5K-10K monthly searches';
-  if (keywordCount > 15) return '1K-5K monthly searches';
-  return '500-1K monthly searches';
+  if (keywordCount > 50) return '10K-50K monthly searches'
+  if (keywordCount > 30) return '5K-10K monthly searches'
+  if (keywordCount > 15) return '1K-5K monthly searches'
+  return '500-1K monthly searches'
 }
 
 /**
  * Estimate competition level
  */
 function estimateCompetition(productName: string): 'Low' | 'Medium' | 'High' {
-  const highCompetition = ['business card', 'flyer', 'brochure', 'poster'];
-  const mediumCompetition = ['postcard', 'banner', 'sign', 'sticker'];
+  const highCompetition = ['business card', 'flyer', 'brochure', 'poster']
+  const mediumCompetition = ['postcard', 'banner', 'sign', 'sticker']
 
-  if (highCompetition.some((term) => productName.includes(term))) return 'High';
-  if (mediumCompetition.some((term) => productName.includes(term))) return 'Medium';
-  return 'Low';
+  if (highCompetition.some((term) => productName.includes(term))) return 'High'
+  if (mediumCompetition.some((term) => productName.includes(term))) return 'Medium'
+  return 'Low'
 }

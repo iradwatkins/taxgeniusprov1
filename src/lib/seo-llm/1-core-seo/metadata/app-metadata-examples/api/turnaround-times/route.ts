@@ -1,8 +1,8 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
-import { createId } from '@paralleldrive/cuid2';
-import { cache } from '@/lib/redis';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { z } from 'zod'
+import { createId } from '@paralleldrive/cuid2'
+import { cache } from 'ioredis'
 
 const createTurnaroundTimeSchema = z.object({
   name: z.string().min(1).max(50),
@@ -18,20 +18,20 @@ const createTurnaroundTimeSchema = z.object({
   restrictedOptions: z.any().optional(),
   sortOrder: z.number().default(0),
   isActive: z.boolean().default(true),
-});
+})
 
-const updateTurnaroundTimeSchema = createTurnaroundTimeSchema.partial();
+const updateTurnaroundTimeSchema = createTurnaroundTimeSchema.partial()
 
 // GET /api/turnaround-times
 export async function GET(): Promise<unknown> {
   try {
     // Cache key for turnaround times
-    const cacheKey = 'turnaround:times:list';
+    const cacheKey = 'turnaround:times:list'
 
     // Try to get from cache first
-    const cached = await cache.get(cacheKey);
+    const cached = await cache.get(cacheKey)
     if (cached) {
-      return NextResponse.json(cached);
+      return NextResponse.json(cached)
     }
 
     const turnaroundTimes = await prisma.turnaroundTime.findMany({
@@ -43,23 +43,23 @@ export async function GET(): Promise<unknown> {
           },
         },
       },
-    });
+    })
 
     // Cache for 1 hour (3600 seconds)
-    await cache.set(cacheKey, turnaroundTimes, 3600);
+    await cache.set(cacheKey, turnaroundTimes, 3600)
 
-    return NextResponse.json(turnaroundTimes);
+    return NextResponse.json(turnaroundTimes)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch turnaround times' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch turnaround times' }, { status: 500 })
   }
 }
 
 // POST /api/turnaround-times
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await request.json()
 
-    const data = createTurnaroundTimeSchema.parse(body);
+    const data = createTurnaroundTimeSchema.parse(body)
 
     const turnaroundTime = await prisma.turnaroundTime.create({
       data: {
@@ -67,9 +67,9 @@ export async function POST(request: NextRequest) {
         ...data,
         updatedAt: new Date(),
       },
-    });
+    })
 
-    return NextResponse.json(turnaroundTime, { status: 201 });
+    return NextResponse.json(turnaroundTime, { status: 201 })
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -81,9 +81,9 @@ export async function POST(request: NextRequest) {
             .join(', '),
         },
         { status: 400 }
-      );
+      )
     }
 
-    return NextResponse.json({ error: 'Failed to create turnaround time' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create turnaround time' }, { status: 500 })
   }
 }

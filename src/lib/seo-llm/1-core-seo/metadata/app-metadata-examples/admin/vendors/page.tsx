@@ -1,12 +1,12 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Plus, Edit, Trash2, Mail, Phone, Globe, Truck, Eye } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { Plus, Edit, Trash2, Mail, Phone, Globe, Truck, Eye } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Table,
   TableBody,
@@ -14,7 +14,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
@@ -22,52 +22,52 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import toast from '@/lib/toast';
-import { Checkbox } from '@/components/ui/checkbox';
+} from '@/components/ui/dialog'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import toast from '@/lib/toast'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface VendorAddress {
-  street: string;
-  city: string;
-  state: string;
-  zip: string;
-  country: string;
+  street: string
+  city: string
+  state: string
+  zip: string
+  country: string
 }
 
 interface Vendor {
-  id: string;
-  name: string;
-  contactEmail: string;
-  orderEmail?: string;
-  phone?: string;
-  website?: string;
-  address?: VendorAddress;
-  supportedCarriers: string[];
-  isActive: boolean;
-  notes?: string;
-  turnaroundDays: number;
-  minimumOrderAmount?: number;
-  shippingCostFormula?: string;
-  n8nWebhookUrl?: string;
+  id: string
+  name: string
+  contactEmail: string
+  orderEmail?: string
+  phone?: string
+  website?: string
+  address?: VendorAddress
+  supportedCarriers: string[]
+  isActive: boolean
+  notes?: string
+  turnaroundDays: number
+  minimumOrderAmount?: number
+  shippingCostFormula?: string
+  n8nWebhookUrl?: string
   _count?: {
-    Order: number;
-    VendorProduct: number;
-    VendorPaperStock: number;
-  };
+    Order: number
+    VendorProduct: number
+    VendorPaperStock: number
+  }
 }
 
-const CARRIER_OPTIONS = ['FEDEX', 'UPS', 'SOUTHWEST_CARGO'];
+const CARRIER_OPTIONS = ['FEDEX', 'UPS', 'SOUTHWEST_CARGO']
 
 export default function VendorsPage() {
-  const [vendors, setVendors] = useState<Vendor[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingVendor, setEditingVendor] = useState<Vendor | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [vendors, setVendors] = useState<Vendor[]>([])
+  const [loading, setLoading] = useState(true)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [editingVendor, setEditingVendor] = useState<Vendor | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
 
   const [formData, setFormData] = useState({
     name: '',
@@ -82,31 +82,31 @@ export default function VendorsPage() {
       country: 'USA',
     },
     isActive: true,
-  });
+  })
 
   useEffect(() => {
-    fetchVendors();
-  }, []);
+    fetchVendors()
+  }, [])
 
   const fetchVendors = async () => {
     try {
-      const response = await fetch('/api/vendors');
+      const response = await fetch('/api/vendors')
       if (response.ok) {
-        const data = await response.json();
-        setVendors(data);
+        const data = await response.json()
+        setVendors(data)
       } else {
-        toast.error('Failed to fetch vendors');
+        toast.error('Failed to fetch vendors')
       }
     } catch (error) {
-      toast.error('Failed to fetch vendors');
+      toast.error('Failed to fetch vendors')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleOpenDialog = (vendor?: Vendor) => {
     if (vendor) {
-      setEditingVendor(vendor);
+      setEditingVendor(vendor)
       setFormData({
         name: vendor.name,
         contactEmail: vendor.contactEmail,
@@ -120,9 +120,9 @@ export default function VendorsPage() {
           country: 'USA',
         },
         isActive: vendor.isActive,
-      });
+      })
     } else {
-      setEditingVendor(null);
+      setEditingVendor(null)
       setFormData({
         name: '',
         contactEmail: '',
@@ -136,64 +136,64 @@ export default function VendorsPage() {
           country: 'USA',
         },
         isActive: true,
-      });
+      })
     }
-    setIsDialogOpen(true);
-  };
+    setIsDialogOpen(true)
+  }
 
   const handleSubmit = async () => {
     try {
-      const url = editingVendor ? '/api/vendors' : '/api/vendors';
-      const method = editingVendor ? 'PUT' : 'POST';
-      const body = editingVendor ? { id: editingVendor.id, ...formData } : formData;
+      const url = editingVendor ? '/api/vendors' : '/api/vendors'
+      const method = editingVendor ? 'PUT' : 'POST'
+      const body = editingVendor ? { id: editingVendor.id, ...formData } : formData
 
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
-      });
+      })
 
       if (response.ok) {
-        toast.success(`Vendor ${editingVendor ? 'updated' : 'created'} successfully`);
-        fetchVendors();
-        setIsDialogOpen(false);
+        toast.success(`Vendor ${editingVendor ? 'updated' : 'created'} successfully`)
+        fetchVendors()
+        setIsDialogOpen(false)
       } else {
-        const error = await response.json();
-        toast.error(error.error || 'Failed to save vendor');
+        const error = await response.json()
+        toast.error(error.error || 'Failed to save vendor')
       }
     } catch (error) {
-      toast.error('Failed to save vendor');
+      toast.error('Failed to save vendor')
     }
-  };
+  }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to deactivate this vendor?')) return;
+    if (!confirm('Are you sure you want to deactivate this vendor?')) return
 
     try {
       const response = await fetch(`/api/vendors?id=${id}`, {
         method: 'DELETE',
-      });
+      })
 
       if (response.ok) {
-        toast.success('Vendor deactivated successfully');
-        fetchVendors();
+        toast.success('Vendor deactivated successfully')
+        fetchVendors()
       } else {
-        const error = await response.json();
-        toast.error(error.error || 'Failed to deactivate vendor');
+        const error = await response.json()
+        toast.error(error.error || 'Failed to deactivate vendor')
       }
     } catch (error) {
-      toast.error('Failed to deactivate vendor');
+      toast.error('Failed to deactivate vendor')
     }
-  };
+  }
 
   const filteredVendors = vendors.filter(
     (vendor) =>
       vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vendor.contactEmail.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  )
 
   if (loading) {
-    return <div className="flex justify-center items-center h-64">Loading...</div>;
+    return <div className="flex justify-center items-center h-64">Loading...</div>
   }
 
   return (
@@ -428,5 +428,5 @@ export default function VendorsPage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }

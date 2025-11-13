@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Plus,
   Edit,
@@ -20,7 +20,7 @@ import {
   ChevronRight,
   Package2,
   Layers,
-} from 'lucide-react';
+} from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -28,7 +28,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
@@ -36,45 +36,45 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import toast from '@/lib/toast';
+} from '@/components/ui/select'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+import toast from '@/lib/toast'
 
 interface QuantityGroup {
-  id: string;
-  name: string;
-  description: string | null;
-  values: string;
-  defaultValue: string;
-  customMin: number | null;
-  customMax: number | null;
-  sortOrder: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-  valuesList?: string[];
-  hasCustomOption?: boolean;
+  id: string
+  name: string
+  description: string | null
+  values: string
+  defaultValue: string
+  customMin: number | null
+  customMax: number | null
+  sortOrder: number
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
+  valuesList?: string[]
+  hasCustomOption?: boolean
   _count: {
-    ProductQuantityGroup: number;
-  };
+    ProductQuantityGroup: number
+  }
 }
 
 export default function QuantitiesPage() {
-  const [groups, setGroups] = useState<QuantityGroup[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [groupToDelete, setGroupToDelete] = useState<QuantityGroup | null>(null);
-  const [editingGroup, setEditingGroup] = useState<QuantityGroup | null>(null);
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
-  const [saving, setSaving] = useState(false);
+  const [groups, setGroups] = useState<QuantityGroup[]>([])
+  const [loading, setLoading] = useState(true)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [groupToDelete, setGroupToDelete] = useState<QuantityGroup | null>(null)
+  const [editingGroup, setEditingGroup] = useState<QuantityGroup | null>(null)
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set())
+  const [saving, setSaving] = useState(false)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -86,95 +86,95 @@ export default function QuantitiesPage() {
     customMax: 100000,
     sortOrder: 0,
     isActive: true,
-  });
+  })
 
   useEffect(() => {
-    fetchGroups();
-  }, []);
+    fetchGroups()
+  }, [])
 
   const fetchGroups = async () => {
     try {
-      setLoading(true);
-      const response = await fetch('/api/quantities');
-      if (!response.ok) throw new Error('Failed to fetch');
-      const data = await response.json();
+      setLoading(true)
+      const response = await fetch('/api/quantities')
+      if (!response.ok) throw new Error('Failed to fetch')
+      const data = await response.json()
 
       // Ensure data is an array
-      const dataArray = Array.isArray(data) ? data : [];
+      const dataArray = Array.isArray(data) ? data : []
 
       // Process groups to add derived properties
       const processedGroups = dataArray.map((group: QuantityGroup) => ({
         ...group,
         valuesList: parseValuesList(group.values || ''),
         hasCustomOption: hasCustomOption(group.values || ''),
-      }));
+      }))
 
-      setGroups(processedGroups);
+      setGroups(processedGroups)
     } catch (error) {
-      toast.error('Failed to fetch quantity groups');
+      toast.error('Failed to fetch quantity groups')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSubmit = async () => {
     try {
-      setSaving(true);
+      setSaving(true)
 
       if (!formData.name || !formData.values || !formData.defaultValue) {
-        toast.error('Name, values, and default value are required');
-        setSaving(false);
-        return;
+        toast.error('Name, values, and default value are required')
+        setSaving(false)
+        return
       }
 
-      const url = editingGroup ? `/api/quantities/${editingGroup.id}` : '/api/quantities';
+      const url = editingGroup ? `/api/quantities/${editingGroup.id}` : '/api/quantities'
 
-      const method = editingGroup ? 'PUT' : 'POST';
+      const method = editingGroup ? 'PUT' : 'POST'
 
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
-      });
+      })
 
       if (response.ok) {
-        toast.success(editingGroup ? 'Group updated successfully' : 'Group created successfully');
-        setDialogOpen(false);
-        resetForm();
-        fetchGroups();
+        toast.success(editingGroup ? 'Group updated successfully' : 'Group created successfully')
+        setDialogOpen(false)
+        resetForm()
+        fetchGroups()
       } else {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to save group');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to save group')
       }
     } catch (error: any) {
-      toast.error(error.message || 'Failed to save group');
+      toast.error(error.message || 'Failed to save group')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   const handleDelete = async () => {
-    if (!groupToDelete) return;
+    if (!groupToDelete) return
 
     try {
       const response = await fetch(`/api/quantities/${groupToDelete.id}`, {
         method: 'DELETE',
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (response.ok) {
-        toast.success('Group deleted successfully');
-        setDeleteDialogOpen(false);
-        setGroupToDelete(null);
-        fetchGroups();
+        toast.success('Group deleted successfully')
+        setDeleteDialogOpen(false)
+        setGroupToDelete(null)
+        fetchGroups()
       } else {
-        throw new Error(data.error || 'Failed to delete group');
+        throw new Error(data.error || 'Failed to delete group')
       }
     } catch (error: any) {
-      toast.error(error.message || 'Failed to delete group');
+      toast.error(error.message || 'Failed to delete group')
     }
-  };
+  }
 
   const resetForm = () => {
     setFormData({
@@ -186,12 +186,12 @@ export default function QuantitiesPage() {
       customMax: 100000,
       sortOrder: 0,
       isActive: true,
-    });
-    setEditingGroup(null);
-  };
+    })
+    setEditingGroup(null)
+  }
 
   const openEditDialog = (group: QuantityGroup) => {
-    setEditingGroup(group);
+    setEditingGroup(group)
     setFormData({
       name: group.name,
       description: group.description || '',
@@ -201,17 +201,17 @@ export default function QuantitiesPage() {
       customMax: group.customMax || 100000,
       sortOrder: group.sortOrder,
       isActive: group.isActive,
-    });
-    setDialogOpen(true);
-  };
+    })
+    setDialogOpen(true)
+  }
 
   const openDeleteDialog = (group: QuantityGroup) => {
-    setGroupToDelete(group);
-    setDeleteDialogOpen(true);
-  };
+    setGroupToDelete(group)
+    setDeleteDialogOpen(true)
+  }
 
   const openDuplicateDialog = (group: QuantityGroup) => {
-    setEditingGroup(null); // Important: clear editing group so it creates a new item
+    setEditingGroup(null) // Important: clear editing group so it creates a new item
     setFormData({
       name: `${group.name} - Copy`,
       description: group.description || '',
@@ -221,32 +221,32 @@ export default function QuantitiesPage() {
       customMax: group.customMax || 100000,
       sortOrder: group.sortOrder,
       isActive: group.isActive,
-    });
-    setDialogOpen(true);
-  };
+    })
+    setDialogOpen(true)
+  }
 
   const toggleGroupExpansion = (groupId: string) => {
-    const newExpanded = new Set(expandedGroups);
+    const newExpanded = new Set(expandedGroups)
     if (newExpanded.has(groupId)) {
-      newExpanded.delete(groupId);
+      newExpanded.delete(groupId)
     } else {
-      newExpanded.add(groupId);
+      newExpanded.add(groupId)
     }
-    setExpandedGroups(newExpanded);
-  };
+    setExpandedGroups(newExpanded)
+  }
 
   const parseValuesList = (values: string) => {
-    if (!values) return [];
+    if (!values) return []
     return values
       .split(',')
       .map((v) => v.trim())
-      .filter((v) => v);
-  };
+      .filter((v) => v)
+  }
 
   const hasCustomOption = (values: string) => {
-    if (!values) return false;
-    return values.toLowerCase().includes('custom');
-  };
+    if (!values) return false
+    return values.toLowerCase().includes('custom')
+  }
 
   return (
     <div className="container mx-auto py-6">
@@ -262,8 +262,8 @@ export default function QuantitiesPage() {
             </div>
             <Button
               onClick={() => {
-                resetForm();
-                setDialogOpen(true);
+                resetForm()
+                setDialogOpen(true)
               }}
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -544,8 +544,8 @@ export default function QuantitiesPage() {
               disabled={saving}
               variant="outline"
               onClick={() => {
-                setDialogOpen(false);
-                resetForm();
+                setDialogOpen(false)
+                resetForm()
               }}
             >
               Cancel
@@ -587,8 +587,8 @@ export default function QuantitiesPage() {
             <Button
               variant="outline"
               onClick={() => {
-                setDeleteDialogOpen(false);
-                setGroupToDelete(null);
+                setDeleteDialogOpen(false)
+                setGroupToDelete(null)
               }}
             >
               Cancel
@@ -600,5 +600,5 @@ export default function QuantitiesPage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }

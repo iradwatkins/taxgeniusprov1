@@ -1,10 +1,10 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { sendEmail } from '@/lib/resend';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { sendEmail } from '@/lib/resend'
+import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
   try {
-    const { orderId, orderNumber } = await request.json();
+    const { orderId, orderNumber } = await request.json()
 
     // Get order details from database
     const order = await prisma.order.findUnique({
@@ -12,17 +12,17 @@ export async function POST(request: NextRequest) {
       include: {
         OrderItem: true,
       },
-    });
+    })
 
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     // Prepare email content
     const itemsList = order.OrderItem.map(
       (item: Record<string, unknown>) =>
         `<li>${item.productName} - Qty: ${item.quantity} - $${(item.price as number).toFixed(2)}</li>`
-    ).join('');
+    ).join('')
 
     const emailHtml = `
       <!DOCTYPE html>
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
         </div>
       </body>
       </html>
-    `;
+    `
 
     // Send email using Resend
     await sendEmail({
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
       subject: `Order Confirmation - ${orderNumber}`,
       html: emailHtml,
       text: `Thank you for your order! Your order number is ${orderNumber}. You can track your order at ${process.env.NEXTAUTH_URL}/account/orders`,
-    });
+    })
 
     // Update order to mark notification as sent
     await prisma.notification.create({
@@ -119,10 +119,10 @@ export async function POST(request: NextRequest) {
         sent: true,
         sentAt: new Date(),
       },
-    });
+    })
 
-    return NextResponse.json({ success: true, message: 'Confirmation email sent' });
+    return NextResponse.json({ success: true, message: 'Confirmation email sent' })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to send confirmation email' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to send confirmation email' }, { status: 500 })
   }
 }

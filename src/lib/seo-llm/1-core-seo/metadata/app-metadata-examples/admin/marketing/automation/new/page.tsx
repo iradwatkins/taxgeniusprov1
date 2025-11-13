@@ -1,12 +1,12 @@
-'use client';
+'use client'
 
-import { useRouter } from 'next/navigation';
-import { WorkflowDesigner } from '@/components/marketing/workflow-designer';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation'
+import { WorkflowDesigner } from '@/components/marketing/workflow-designer'
+import { Button } from '@/components/ui/button'
+import { ArrowLeft } from 'lucide-react'
 
 export default function NewWorkflowPage() {
-  const router = useRouter();
+  const router = useRouter()
 
   const handleSave = async (workflow: Record<string, unknown>) => {
     try {
@@ -14,17 +14,17 @@ export default function NewWorkflowPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(workflow),
-      });
+      })
 
       if (response.ok) {
-        router.push('/admin/marketing/automation');
+        router.push('/admin/marketing/automation')
       }
     } catch (error) {}
-  };
+  }
 
   const handlePreview = (workflow: Record<string, unknown>) => {
     // Implement preview functionality
-  };
+  }
 
   return (
     <div className="h-screen flex flex-col">
@@ -46,5 +46,5 @@ export default function NewWorkflowPage() {
         <WorkflowDesigner onPreview={handlePreview} onSave={handleSave} />
       </div>
     </div>
-  );
+  )
 }

@@ -1,11 +1,11 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { sendEmail } from '@/lib/resend';
-import { getTrackingInfo, formatTrackingNumber, getCarrierName } from '@/lib/tracking';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { sendEmail } from '@/lib/resend'
+import { getTrackingInfo, formatTrackingNumber, getCarrierName } from '@/lib/tracking'
 
 export async function POST(request: NextRequest) {
   try {
-    const { orderId } = await request.json();
+    const { orderId } = await request.json()
 
     // Get order details from database
     const order = await prisma.order.findUnique({
@@ -13,23 +13,23 @@ export async function POST(request: NextRequest) {
       include: {
         OrderItem: true,
       },
-    });
+    })
 
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     if (!order.trackingNumber || !order.carrier) {
-      return NextResponse.json({ error: 'No tracking information available' }, { status: 400 });
+      return NextResponse.json({ error: 'No tracking information available' }, { status: 400 })
     }
 
-    const trackingInfo = getTrackingInfo(order.carrier, order.trackingNumber);
-    const formattedTrackingNumber = formatTrackingNumber(order.carrier, order.trackingNumber);
+    const trackingInfo = getTrackingInfo(order.carrier, order.trackingNumber)
+    const formattedTrackingNumber = formatTrackingNumber(order.carrier, order.trackingNumber)
 
     // Prepare email content
     const itemsList = order.OrderItem.map(
       (item: Record<string, unknown>) => `<li>${item.productName} - Qty: ${item.quantity}</li>`
-    ).join('');
+    ).join('')
 
     const emailHtml = `
       <!DOCTYPE html>
@@ -129,14 +129,14 @@ export async function POST(request: NextRequest) {
         </div>
       </body>
       </html>
-    `;
+    `
 
     await sendEmail({
       to: order.email,
       subject: `Your Order Has Shipped - ${order.referenceNumber || order.orderNumber}`,
       text: `Your order ${order.referenceNumber || order.orderNumber} has shipped! Track your package with ${getCarrierName(order.carrier)}: ${formattedTrackingNumber}. Track at: ${trackingInfo.trackingUrl}`,
       html: emailHtml,
-    });
+    })
 
     // Update order notification
     await prisma.notification.create({
@@ -147,10 +147,10 @@ export async function POST(request: NextRequest) {
         sent: true,
         sentAt: new Date(),
       },
-    });
+    })
 
-    return NextResponse.json({ success: true, message: 'Tracking email sent' });
+    return NextResponse.json({ success: true, message: 'Tracking email sent' })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to send tracking email' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to send tracking email' }, { status: 500 })
   }
 }

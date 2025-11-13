@@ -1,123 +1,123 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, CreditCard, ArrowLeft, CheckCircle } from 'lucide-react';
-import { SquareCardPayment } from '@/components/checkout/square-card-payment';
-import { PayPalButton } from '@/components/checkout/paypal-button';
-import { CashAppQRPayment } from '@/components/checkout/cashapp-qr-payment';
-import { SavedPaymentMethods } from '@/components/checkout/saved-payment-methods';
-import { useCart } from '@/contexts/cart-context';
-import { useUser } from '@/hooks/use-user';
-import toast from '@/lib/toast';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { AlertCircle, CreditCard, ArrowLeft, CheckCircle } from 'lucide-react'
+import { SquareCardPayment } from '@/components/checkout/square-card-payment'
+import { PayPalButton } from '@/components/checkout/paypal-button'
+import { CashAppQRPayment } from '@/components/checkout/cashapp-qr-payment'
+import { SavedPaymentMethods } from '@/components/checkout/saved-payment-methods'
+import { useCart } from '@/contexts/cart-context'
+import { useUser } from '@/hooks/use-user'
+import toast from '@/lib/toast'
 
-type PaymentMethod = 'square' | 'paypal' | 'cashapp' | null;
+type PaymentMethod = 'square' | 'paypal' | 'cashapp' | null
 
 interface PayPalOrderDetails {
-  id: string;
-  status: string;
+  id: string
+  status: string
   payer?: {
     name?: {
-      given_name: string;
-      surname: string;
-    };
-    email_address?: string;
-  };
+      given_name: string
+      surname: string
+    }
+    email_address?: string
+  }
 }
 
 export default function PaymentPage() {
-  const router = useRouter();
-  const { items, subtotal, clearCart, itemCount } = useCart();
-  const { data: session } = useSession(); const user = session?.user;
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(null);
-  const [selectedSavedPaymentMethod, setSelectedSavedPaymentMethod] = useState<any>(null);
-  const [showManualPayment, setShowManualPayment] = useState(false);
-  const [shippingAddress, setShippingAddress] = useState<any>(null);
-  const [shippingMethod, setShippingMethod] = useState<any>(null);
-  const [airportId, setAirportId] = useState<string | undefined>();
-  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter()
+  const { items, subtotal, clearCart, itemCount } = useCart()
+  const { user } = useUser()
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(null)
+  const [selectedSavedPaymentMethod, setSelectedSavedPaymentMethod] = useState<any>(null)
+  const [showManualPayment, setShowManualPayment] = useState(false)
+  const [shippingAddress, setShippingAddress] = useState<any>(null)
+  const [shippingMethod, setShippingMethod] = useState<any>(null)
+  const [airportId, setAirportId] = useState<string | undefined>()
+  const [uploadedFiles, setUploadedFiles] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   // Load order data from session storage
   useEffect(() => {
     const loadOrderData = () => {
       try {
         // Load shipping information from new flow
-        const shippingAddressData = sessionStorage.getItem('checkout_shipping_address');
-        const shippingMethodData = sessionStorage.getItem('checkout_shipping_method');
-        const airportIdData = sessionStorage.getItem('checkout_airport_id');
-        const artworkFiles = sessionStorage.getItem('cart_artwork_files');
+        const shippingAddressData = sessionStorage.getItem('checkout_shipping_address')
+        const shippingMethodData = sessionStorage.getItem('checkout_shipping_method')
+        const airportIdData = sessionStorage.getItem('checkout_airport_id')
+        const artworkFiles = sessionStorage.getItem('cart_artwork_files')
 
         // If no shipping data, redirect back to shipping page
         if (!shippingAddressData || !shippingMethodData) {
-          toast.error('Please complete shipping information first.');
-          router.push('/checkout/shipping');
-          return;
+          toast.error('Please complete shipping information first.')
+          router.push('/checkout/shipping')
+          return
         }
 
         // Parse and set the state
-        const parsedAddress = JSON.parse(shippingAddressData);
-        const parsedMethod = JSON.parse(shippingMethodData);
-        const parsedFiles = artworkFiles ? JSON.parse(artworkFiles) : [];
+        const parsedAddress = JSON.parse(shippingAddressData)
+        const parsedMethod = JSON.parse(shippingMethodData)
+        const parsedFiles = artworkFiles ? JSON.parse(artworkFiles) : []
 
-        setShippingAddress(parsedAddress);
-        setShippingMethod(parsedMethod);
-        setAirportId(airportIdData || undefined);
-        setUploadedFiles(parsedFiles);
-        setIsLoading(false);
+        setShippingAddress(parsedAddress)
+        setShippingMethod(parsedMethod)
+        setAirportId(airportIdData || undefined)
+        setUploadedFiles(parsedFiles)
+        setIsLoading(false)
       } catch (error) {
-        console.error('[Payment] Error loading order data:', error);
-        toast.error('Error loading order data');
-        router.push('/checkout/shipping');
+        console.error('[Payment] Error loading order data:', error)
+        toast.error('Error loading order data')
+        router.push('/checkout/shipping')
       }
-    };
+    }
 
-    loadOrderData();
-  }, [router]);
+    loadOrderData()
+  }, [router])
 
   const handlePaymentSuccess = (result: Record<string, unknown>) => {
     try {
       // Clear cart
-      clearCart();
+      clearCart()
 
       // Clear session storage
-      sessionStorage.removeItem('checkout_shipping_address');
-      sessionStorage.removeItem('checkout_shipping_method');
-      sessionStorage.removeItem('checkout_airport_id');
-      sessionStorage.removeItem('cart_artwork_files');
+      sessionStorage.removeItem('checkout_shipping_address')
+      sessionStorage.removeItem('checkout_shipping_method')
+      sessionStorage.removeItem('checkout_airport_id')
+      sessionStorage.removeItem('cart_artwork_files')
 
-      toast.success('Payment successful!');
+      toast.success('Payment successful!')
 
       // Redirect to success page
-      router.push('/checkout/success');
+      router.push('/checkout/success')
     } catch (error) {
-      console.error('[Payment] Error handling payment success:', error);
-      toast.error('Payment succeeded but order creation failed. Please contact support.');
+      console.error('[Payment] Error handling payment success:', error)
+      toast.error('Payment succeeded but order creation failed. Please contact support.')
     }
-  };
+  }
 
   const handleSavedPaymentMethodSelect = (paymentMethod: any) => {
-    setSelectedSavedPaymentMethod(paymentMethod);
-    setSelectedMethod('square'); // Use Square for saved payment methods
-    setShowManualPayment(false);
-  };
+    setSelectedSavedPaymentMethod(paymentMethod)
+    setSelectedMethod('square') // Use Square for saved payment methods
+    setShowManualPayment(false)
+  }
 
   const handleNewPaymentMethod = () => {
-    setShowManualPayment(true);
-    setSelectedSavedPaymentMethod(null);
-  };
+    setShowManualPayment(true)
+    setSelectedSavedPaymentMethod(null)
+  }
 
   const handlePaymentError = (error: string) => {
-    console.error('[Payment] Payment error:', error);
-    toast.error(error);
-  };
+    console.error('[Payment] Payment error:', error)
+    toast.error(error)
+  }
 
   const handleBackToShipping = () => {
-    router.push('/checkout/shipping');
-  };
+    router.push('/checkout/shipping')
+  }
 
   if (isLoading) {
     return (
@@ -127,7 +127,7 @@ export default function PaymentPage() {
           <p className="text-muted-foreground">Loading payment options...</p>
         </div>
       </div>
-    );
+    )
   }
 
   if (!shippingAddress || !shippingMethod || items.length === 0) {
@@ -140,19 +140,19 @@ export default function PaymentPage() {
           <Button onClick={() => router.push('/checkout/shipping')}>Go to Shipping</Button>
         </div>
       </div>
-    );
+    )
   }
 
-  const shippingCost = shippingMethod.rate.amount;
-  const tax = subtotal * 0.1;
-  const total = subtotal + shippingCost + tax;
+  const shippingCost = shippingMethod.rate.amount
+  const tax = subtotal * 0.1
+  const total = subtotal + shippingCost + tax
 
   // Get Square environment variables
-  const squareAppId = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID;
-  const squareLocationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID;
+  const squareAppId = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID
+  const squareLocationId = process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID
   const squareEnvironment = (process.env.NEXT_PUBLIC_SQUARE_ENVIRONMENT || 'sandbox') as
     | 'sandbox'
-    | 'production';
+    | 'production'
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -390,5 +390,5 @@ export default function PaymentPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

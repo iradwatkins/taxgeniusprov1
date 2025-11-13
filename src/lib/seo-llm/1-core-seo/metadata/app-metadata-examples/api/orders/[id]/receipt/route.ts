@@ -1,9 +1,9 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = params;
+    const { id } = params
 
     // Find order by ID or order number
     const order = await prisma.order.findFirst({
@@ -13,23 +13,23 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       include: {
         OrderItem: true,
       },
-    });
+    })
 
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     // Generate receipt HTML
-    const receiptHtml = generateReceiptHtml(order);
+    const receiptHtml = generateReceiptHtml(order)
 
     return new NextResponse(receiptHtml, {
       headers: {
         'Content-Type': 'text/html',
         'Content-Disposition': `attachment; filename="receipt-${order.orderNumber}.html"`,
       },
-    });
+    })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to generate receipt' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to generate receipt' }, { status: 500 })
   }
 }
 
@@ -45,12 +45,12 @@ function generateReceiptHtml(order: Record<string, any>): string {
         <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">$${((item.price as number) * (item.quantity as number)).toFixed(2)}</td>
       </tr>`
       )
-      ?.join('') || '';
+      ?.join('') || ''
 
   const shippingAddress =
     typeof order.shippingAddress === 'string'
       ? JSON.parse(order.shippingAddress)
-      : order.shippingAddress;
+      : order.shippingAddress
 
   return `
     <!DOCTYPE html>
@@ -214,5 +214,5 @@ function generateReceiptHtml(order: Record<string, any>): string {
       </div>
     </body>
     </html>
-  `;
+  `
 }

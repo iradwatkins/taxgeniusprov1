@@ -1,4 +1,4 @@
-import { type NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server'
 
 /**
  * Cash App Payment Verification Endpoint
@@ -13,8 +13,8 @@ import { type NextRequest, NextResponse } from 'next/server';
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { paymentLink, amount } = body;
+    const body = await request.json()
+    const { paymentLink, amount } = body
 
     // TODO: Implement actual Cash App payment verification
     // For now, return mock success for testing
@@ -32,9 +32,9 @@ export async function POST(request: NextRequest) {
       status: 'completed',
       message: 'Payment verified successfully (mock)',
       timestamp: new Date().toISOString(),
-    });
+    })
   } catch (error) {
-    console.error('[Cash App Verify] Error:', error);
+    console.error('[Cash App Verify] Error:', error)
 
     return NextResponse.json(
       {
@@ -42,6 +42,6 @@ export async function POST(request: NextRequest) {
         error: 'Payment verification failed. Please try again or contact support.',
       },
       { status: 500 }
-    );
+    )
   }
 }

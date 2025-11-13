@@ -1,20 +1,20 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { useState } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Checkbox } from '@/components/ui/checkbox';
+} from '@/components/ui/select'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Send,
   CheckCircle,
@@ -26,8 +26,8 @@ import {
   FileText,
   Calculator,
   Zap,
-} from 'lucide-react';
-import Link from 'next/link';
+} from 'lucide-react'
+import Link from 'next/link'
 
 export default function QuotePage() {
   const [formData, setFormData] = useState({
@@ -45,9 +45,9 @@ export default function QuotePage() {
     finishing: [] as string[],
     message: '',
     files: [] as File[],
-  });
-  const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  })
+  const [loading, setLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
   const departments = [
     { value: 'sales', label: 'Sales - New Projects' },
@@ -57,7 +57,7 @@ export default function QuotePage() {
     { value: 'largeformat', label: 'Large Format Printing' },
     { value: 'packaging', label: 'Packaging & Labels' },
     { value: 'support', label: 'Customer Support' },
-  ];
+  ]
 
   const projectTypes = [
     'Business Cards',
@@ -69,7 +69,7 @@ export default function QuotePage() {
     'Stickers/Labels',
     'Packaging',
     'Other',
-  ];
+  ]
 
   const finishingOptions = [
     { id: 'gloss', label: 'Gloss Coating' },
@@ -80,25 +80,25 @@ export default function QuotePage() {
     { id: 'die', label: 'Die Cutting' },
     { id: 'perforation', label: 'Perforation' },
     { id: 'binding', label: 'Binding' },
-  ];
+  ]
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
 
     // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000))
 
-    setSubmitted(true);
-    setLoading(false);
-  };
+    setSubmitted(true)
+    setLoading(false)
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
-    }));
-  };
+    }))
+  }
 
   const handleFinishingChange = (optionId: string, checked: boolean) => {
     setFormData((prev) => ({
@@ -106,17 +106,17 @@ export default function QuotePage() {
       finishing: checked
         ? [...prev.finishing, optionId]
         : prev.finishing.filter((id) => id !== optionId),
-    }));
-  };
+    }))
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFormData((prev) => ({
         ...prev,
         files: Array.from(e.target.files!),
-      }));
+      }))
     }
-  };
+  }
 
   if (submitted) {
     return (
@@ -147,7 +147,7 @@ export default function QuotePage() {
                     <Button
                       variant="outline"
                       onClick={() => {
-                        setSubmitted(false);
+                        setSubmitted(false)
                         setFormData({
                           department: '',
                           firstName: '',
@@ -163,7 +163,7 @@ export default function QuotePage() {
                           finishing: [],
                           message: '',
                           files: [],
-                        });
+                        })
                       }}
                     >
                       Submit Another Quote
@@ -175,7 +175,7 @@ export default function QuotePage() {
           </Card>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -565,5 +565,5 @@ export default function QuotePage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

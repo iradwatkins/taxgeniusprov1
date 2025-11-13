@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Activity,
   Server,
@@ -14,16 +14,16 @@ import {
   TrendingUp,
   Users,
   DollarSign,
-} from 'lucide-react';
-import { useEffect, useState } from 'react';
+} from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 interface SystemMetrics {
-  uptime: string;
-  responseTime: number;
-  errorRate: number;
-  activeUsers: number;
-  revenue: number;
-  status: 'healthy' | 'warning' | 'critical';
+  uptime: string
+  responseTime: number
+  errorRate: number
+  activeUsers: number
+  revenue: number
+  status: 'healthy' | 'warning' | 'critical'
 }
 
 export default function MonitoringPage() {
@@ -34,25 +34,25 @@ export default function MonitoringPage() {
     activeUsers: 0,
     revenue: 0,
     status: 'healthy',
-  });
+  })
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [cpuUsage, setCpuUsage] = useState(0);
-  const [memoryUsage, setMemoryUsage] = useState(0);
-  const [diskUsage, setDiskUsage] = useState(0);
+  const [isLoading, setIsLoading] = useState(true)
+  const [cpuUsage, setCpuUsage] = useState(0)
+  const [memoryUsage, setMemoryUsage] = useState(0)
+  const [diskUsage, setDiskUsage] = useState(0)
 
   useEffect(() => {
-    fetchMetrics();
+    fetchMetrics()
     // Refresh every 30 seconds
-    const interval = setInterval(fetchMetrics, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    const interval = setInterval(fetchMetrics, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
   async function fetchMetrics() {
     try {
-      const response = await fetch('/api/metrics/system');
+      const response = await fetch('/api/metrics/system')
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json()
         setMetrics({
           uptime: data.uptime,
           responseTime: data.responseTime,
@@ -60,50 +60,50 @@ export default function MonitoringPage() {
           activeUsers: data.activeUsers,
           revenue: data.revenue,
           status: data.status,
-        });
-        setCpuUsage(data.cpu || 0);
-        setMemoryUsage(data.memory || 0);
-        setDiskUsage(data.disk || 0);
+        })
+        setCpuUsage(data.cpu || 0)
+        setMemoryUsage(data.memory || 0)
+        setDiskUsage(data.disk || 0)
       }
     } catch (error) {
-      console.error('Failed to fetch system metrics:', error);
+      console.error('Failed to fetch system metrics:', error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'healthy':
-        return 'text-green-600 bg-green-50';
+        return 'text-green-600 bg-green-50'
       case 'warning':
-        return 'text-yellow-600 bg-yellow-50';
+        return 'text-yellow-600 bg-yellow-50'
       case 'critical':
-        return 'text-red-600 bg-red-50';
+        return 'text-red-600 bg-red-50'
       default:
-        return 'text-gray-600 bg-gray-50';
+        return 'text-gray-600 bg-gray-50'
     }
-  };
+  }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'healthy':
-        return <CheckCircle className="h-4 w-4" />;
+        return <CheckCircle className="h-4 w-4" />
       case 'warning':
-        return <AlertTriangle className="h-4 w-4" />;
+        return <AlertTriangle className="h-4 w-4" />
       case 'critical':
-        return <AlertTriangle className="h-4 w-4" />;
+        return <AlertTriangle className="h-4 w-4" />
       default:
-        return <Clock className="h-4 w-4" />;
+        return <Clock className="h-4 w-4" />
     }
-  };
+  }
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
       </div>
-    );
+    )
   }
 
   return (
@@ -349,5 +349,5 @@ export default function MonitoringPage() {
         </TabsContent>
       </Tabs>
     </div>
-  );
+  )
 }

@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
+import { useEffect } from 'react'
 
 export default function GlobalError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+  error: Error & { digest?: string }
+  reset: () => void
 }) {
   useEffect(() => {
     // Critical: Global errors indicate severe issues
@@ -19,8 +19,8 @@ export default function GlobalError({
       severity: 'critical',
       component: 'global-error-boundary',
       timestamp: new Date().toISOString(),
-    });
-  }, [error]);
+    })
+  }, [error])
 
   return (
     <html>
@@ -77,7 +77,7 @@ export default function GlobalError({
               <button
                 className="flex-1 rounded-lg bg-gray-600 px-4 py-3 text-center font-medium text-white transition-colors hover:bg-gray-700"
                 onClick={() => {
-                  window.location.href = '/';
+                  window.location.href = '/'
                 }}
               >
                 Return Home
@@ -102,5 +102,5 @@ export default function GlobalError({
         </div>
       </body>
     </html>
-  );
+  )
 }

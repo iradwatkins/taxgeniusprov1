@@ -1,15 +1,15 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { validateRequest } from '@/lib/auth';
-import { randomUUID } from 'crypto';
-import { cache } from '@/lib/redis';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { validateRequest } from '@/lib/auth'
+import { randomUUID } from 'crypto'
+import { cache } from 'ioredis'
 
 export async function GET(): Promise<unknown> {
   try {
     // Cache key for paper stocks
-    const cacheKey = 'paper:stocks:list';
-    const cached = await cache.get(cacheKey);
-    if (cached) return NextResponse.json(cached);
+    const cacheKey = 'paper:stocks:list'
+    const cached = await cache.get(cacheKey)
+    if (cached) return NextResponse.json(cached)
 
     const paperStocks = await prisma.paperStock.findMany({
       orderBy: { name: 'asc' },
@@ -26,42 +26,42 @@ export async function GET(): Promise<unknown> {
         },
         PaperStockSetItem: true,
       },
-    });
+    })
 
     // Get all coating and sides options for comparison
-    const allCoatings = await prisma.coatingOption.findMany();
-    const allSides = await prisma.sidesOption.findMany();
+    const allCoatings = await prisma.coatingOption.findMany()
+    const allSides = await prisma.sidesOption.findMany()
 
     // Transform to match the frontend structure
     const transformed = paperStocks.map((stock) => {
       // Map coatings
-      const stockCoatingIds = stock.PaperStockCoating.map((sc) => sc.coatingId);
+      const stockCoatingIds = stock.PaperStockCoating.map((sc) => sc.coatingId)
       const coatings = allCoatings.map((coating) => ({
         id: coating.id,
         label: coating.name,
         enabled: stockCoatingIds.includes(coating.id),
-      }));
+      }))
 
       // Map sides options
-      const stockSidesMap = new Map(stock.PaperStockSides.map((ss) => [ss.sidesOptionId, ss]));
+      const stockSidesMap = new Map(stock.PaperStockSides.map((ss) => [ss.sidesOptionId, ss]))
       const sidesOptions = allSides.map((side) => {
-        const stockSide = stockSidesMap.get(side.id);
+        const stockSide = stockSidesMap.get(side.id)
         return {
           id: side.id,
           label: side.name,
           enabled: stockSide?.isEnabled || false,
           multiplier: stockSide ? Number(stockSide.priceMultiplier) : 1.0,
-        };
-      });
+        }
+      })
 
       // Find defaults
       const defaultCoating =
         stock.PaperStockCoating.find((c) => c.isDefault)?.coatingId ||
         coatings.find((c) => c.enabled)?.id ||
         allCoatings[0]?.id ||
-        '';
+        ''
 
-      const defaultSides = sidesOptions.find((s) => s.enabled)?.id || allSides[0]?.id || '';
+      const defaultSides = sidesOptions.find((s) => s.enabled)?.id || allSides[0]?.id || ''
 
       return {
         id: stock.id,
@@ -84,26 +84,26 @@ export async function GET(): Promise<unknown> {
           sidesOption: ps.SidesOption, // Transform PascalCase to camelCase for frontend
         })),
         productsCount: stock.PaperStockSetItem.length,
-      };
-    });
+      }
+    })
 
     // Cache for 1 hour (3600 seconds)
-    await cache.set(cacheKey, transformed, 3600);
+    await cache.set(cacheKey, transformed, 3600)
 
-    return NextResponse.json(transformed);
+    return NextResponse.json(transformed)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch paper stocks' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch paper stocks' }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { user, session } = await validateRequest();
+    const { user, session } = await validateRequest()
     if (!user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized - Admin access required' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized - Admin access required' }, { status: 401 })
     }
 
-    const body = await request.json();
+    const body = await request.json()
     const {
       name,
       weight,
@@ -115,25 +115,25 @@ export async function POST(request: NextRequest) {
       vendorPricePerSqInch,
       markupType,
       markupValue,
-    } = body;
+    } = body
 
     if (!name) {
-      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Name is required' }, { status: 400 })
     }
 
     // Calculate final pricePerSqInch and profitMargin if vendor price is provided
-    let finalPricePerSqInch = pricePerSqInch || 0;
-    let profitMargin = null;
+    let finalPricePerSqInch = pricePerSqInch || 0
+    let profitMargin = null
 
     if (vendorPricePerSqInch && markupValue !== null && markupValue !== undefined) {
       if (markupType === 'PERCENTAGE') {
         // Markup is a percentage (e.g., 100 for 100%)
-        finalPricePerSqInch = vendorPricePerSqInch * (1 + markupValue / 100);
+        finalPricePerSqInch = vendorPricePerSqInch * (1 + markupValue / 100)
       } else {
         // Markup is a flat dollar amount (e.g., 1.00)
-        finalPricePerSqInch = vendorPricePerSqInch + markupValue;
+        finalPricePerSqInch = vendorPricePerSqInch + markupValue
       }
-      profitMargin = finalPricePerSqInch - vendorPricePerSqInch;
+      profitMargin = finalPricePerSqInch - vendorPricePerSqInch
     }
 
     // Create the paper stock with relationships
@@ -178,17 +178,17 @@ export async function POST(request: NextRequest) {
           include: { SidesOption: true },
         },
       },
-    });
+    })
 
-    return NextResponse.json(paperStock, { status: 201 });
+    return NextResponse.json(paperStock, { status: 201 })
   } catch (error) {
     if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
       return NextResponse.json(
         { error: 'A paper stock with this name already exists' },
         { status: 400 }
-      );
+      )
     }
 
-    return NextResponse.json({ error: 'Failed to create paper stock' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create paper stock' }, { status: 500 })
   }
 }

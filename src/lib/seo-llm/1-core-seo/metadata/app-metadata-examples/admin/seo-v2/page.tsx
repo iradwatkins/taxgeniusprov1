@@ -1,26 +1,26 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Copy, ExternalLink, CheckCircle2 } from 'lucide-react';
-import toast from '@/lib/toast';
+import { useState } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Copy, ExternalLink, CheckCircle2 } from 'lucide-react'
+import toast from '@/lib/toast'
 
 export default function SEOPage() {
-  const [copied, setCopied] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null)
 
-  const sitemapUrl = 'https://gangrunprinting.com/sitemap.xml';
-  const robotsUrl = 'https://gangrunprinting.com/robots.txt';
-  const chatgptFeedUrl = 'https://gangrunprinting.com/feeds/chatgpt-products.json';
+  const sitemapUrl = 'https://gangrunprinting.com/sitemap.xml'
+  const robotsUrl = 'https://gangrunprinting.com/robots.txt'
+  const chatgptFeedUrl = 'https://gangrunprinting.com/feeds/chatgpt-products.json'
 
   const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(label);
-    toast.success(`${label} copied to clipboard`);
-    setTimeout(() => setCopied(null), 2000);
-  };
+    navigator.clipboard.writeText(text)
+    setCopied(label)
+    toast.success(`${label} copied to clipboard`)
+    setTimeout(() => setCopied(null), 2000)
+  }
 
   const searchEngineLinks = [
     {
@@ -51,7 +51,7 @@ export default function SEOPage() {
       description: 'Submit to Baidu (Chinese search engine)',
       color: 'bg-blue-600',
     },
-  ];
+  ]
 
   const seoTools = [
     {
@@ -74,7 +74,7 @@ export default function SEOPage() {
       url: `https://search.google.com/test/mobile-friendly?url=https://gangrunprinting.com`,
       description: 'Check mobile compatibility',
     },
-  ];
+  ]
 
   return (
     <div className="p-8">
@@ -356,5 +356,5 @@ export default function SEOPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

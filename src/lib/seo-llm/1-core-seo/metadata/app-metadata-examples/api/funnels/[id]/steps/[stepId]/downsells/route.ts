@@ -1,13 +1,13 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { validateRequest } from '@/lib/auth';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { validateRequest } from '@/lib/auth'
 
 export async function POST(request: NextRequest, { params }: { params: { stepId: string } }) {
-  const { user } = await validateRequest();
+  const { user } = await validateRequest()
   if (!user || user.role !== 'ADMIN')
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const body = await request.json();
+  const body = await request.json()
   const downsell = await prisma.downsell.create({
     data: {
       id: 'downsell-' + Date.now(),
@@ -19,6 +19,6 @@ export async function POST(request: NextRequest, { params }: { params: { stepId:
       discountValue: body.discountValue,
       isActive: true,
     },
-  });
-  return NextResponse.json(downsell, { status: 201 });
+  })
+  return NextResponse.json(downsell, { status: 201 })
 }

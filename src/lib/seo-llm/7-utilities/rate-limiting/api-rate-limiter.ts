@@ -14,22 +14,21 @@
  * - Per-service rate limits
  */
 
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import axiosRetry from 'axios-retry';
-import { logger } from '@/lib/logger';
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
+import axiosRetry from 'axios-retry'
 
 export interface RateLimitConfig {
-  maxRequests: number; // Max requests per window
-  windowMs: number; // Time window in milliseconds
-  maxRetries: number; // Max retry attempts
-  baseDelay: number; // Initial retry delay (ms)
-  maxDelay: number; // Maximum retry delay (ms)
+  maxRequests: number // Max requests per window
+  windowMs: number // Time window in milliseconds
+  maxRetries: number // Max retry attempts
+  baseDelay: number // Initial retry delay (ms)
+  maxDelay: number // Maximum retry delay (ms)
 }
 
 export interface ServiceConfig {
-  ollama: RateLimitConfig;
-  openai: RateLimitConfig;
-  google: RateLimitConfig;
+  ollama: RateLimitConfig
+  openai: RateLimitConfig
+  google: RateLimitConfig
 }
 
 const DEFAULT_CONFIGS: ServiceConfig = {
@@ -54,62 +53,62 @@ const DEFAULT_CONFIGS: ServiceConfig = {
     baseDelay: 2000,
     maxDelay: 30000,
   },
-};
+}
 
 class TokenBucket {
-  private tokens: number;
-  private lastRefill: number;
+  private tokens: number
+  private lastRefill: number
 
   constructor(
     private maxTokens: number,
     private refillRate: number // tokens per millisecond
   ) {
-    this.tokens = maxTokens;
-    this.lastRefill = Date.now();
+    this.tokens = maxTokens
+    this.lastRefill = Date.now()
   }
 
   async consume(tokens: number = 1): Promise<boolean> {
-    this.refill();
+    this.refill()
 
     if (this.tokens >= tokens) {
-      this.tokens -= tokens;
-      return true;
+      this.tokens -= tokens
+      return true
     }
 
     // Wait for tokens to become available
-    const waitTime = ((tokens - this.tokens) / this.refillRate) * 1000;
-    await this.sleep(waitTime);
-    return this.consume(tokens);
+    const waitTime = ((tokens - this.tokens) / this.refillRate) * 1000
+    await this.sleep(waitTime)
+    return this.consume(tokens)
   }
 
   private refill(): void {
-    const now = Date.now();
-    const elapsed = now - this.lastRefill;
-    const tokensToAdd = elapsed * this.refillRate;
+    const now = Date.now()
+    const elapsed = now - this.lastRefill
+    const tokensToAdd = elapsed * this.refillRate
 
-    this.tokens = Math.min(this.maxTokens, this.tokens + tokensToAdd);
-    this.lastRefill = now;
+    this.tokens = Math.min(this.maxTokens, this.tokens + tokensToAdd)
+    this.lastRefill = now
   }
 
   private sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms))
   }
 }
 
 export class APIRateLimiter {
-  private buckets: Map<string, TokenBucket> = new Map();
-  private configs: ServiceConfig;
+  private buckets: Map<string, TokenBucket> = new Map()
+  private configs: ServiceConfig
 
   constructor(configs?: Partial<ServiceConfig>) {
     this.configs = {
       ...DEFAULT_CONFIGS,
       ...configs,
-    };
+    }
 
     // Initialize token buckets
     for (const [service, config] of Object.entries(this.configs)) {
-      const refillRate = config.maxRequests / config.windowMs;
-      this.buckets.set(service, new TokenBucket(config.maxRequests, refillRate));
+      const refillRate = config.maxRequests / config.windowMs
+      this.buckets.set(service, new TokenBucket(config.maxRequests, refillRate))
     }
   }
 
@@ -121,14 +120,14 @@ export class APIRateLimiter {
     operation: () => Promise<T>,
     context?: string
   ): Promise<T> {
-    const config = this.configs[service];
-    const bucket = this.buckets.get(service)!;
+    const config = this.configs[service]
+    const bucket = this.buckets.get(service)!
 
     // Wait for rate limit token
-    await bucket.consume(1);
+    await bucket.consume(1)
 
     // Execute with retry logic
-    return this.retryWithBackoff(operation, config, context || service);
+    return this.retryWithBackoff(operation, config, context || service)
   }
 
   /**
@@ -141,29 +140,29 @@ export class APIRateLimiter {
     attempt: number = 1
   ): Promise<T> {
     try {
-      return await operation();
+      return await operation()
     } catch (error: any) {
       // Check if retryable
       if (!this.isRetryableError(error)) {
-        throw error;
+        throw error
       }
 
       // Check if max retries exceeded
       if (attempt >= config.maxRetries) {
-        console.error(`[RateLimit] Max retries exceeded for ${context}`);
-        throw new Error(`Max retries (${config.maxRetries}) exceeded: ${error.message}`);
+        console.error(`[RateLimit] Max retries exceeded for ${context}`)
+        throw new Error(`Max retries (${config.maxRetries}) exceeded: ${error.message}`)
       }
 
       // Calculate backoff with jitter
-      const delay = this.calculateBackoff(attempt, config.baseDelay, config.maxDelay);
+      const delay = this.calculateBackoff(attempt, config.baseDelay, config.maxDelay)
 
       console.warn(
         `[RateLimit] ${context} failed (attempt ${attempt}/${config.maxRetries}), ` +
           `retrying in ${delay}ms...`
-      );
+      )
 
-      await this.sleep(delay);
-      return this.retryWithBackoff(operation, config, context, attempt + 1);
+      await this.sleep(delay)
+      return this.retryWithBackoff(operation, config, context, attempt + 1)
     }
   }
 
@@ -171,9 +170,9 @@ export class APIRateLimiter {
    * Calculate exponential backoff with jitter
    */
   private calculateBackoff(attempt: number, baseDelay: number, maxDelay: number): number {
-    const exponentialDelay = Math.min(baseDelay * Math.pow(2, attempt - 1), maxDelay);
-    const jitter = Math.random() * 0.3 * exponentialDelay; // ±30% jitter
-    return Math.floor(exponentialDelay + jitter);
+    const exponentialDelay = Math.min(baseDelay * Math.pow(2, attempt - 1), maxDelay)
+    const jitter = Math.random() * 0.3 * exponentialDelay // ±30% jitter
+    return Math.floor(exponentialDelay + jitter)
   }
 
   /**
@@ -182,43 +181,43 @@ export class APIRateLimiter {
   private isRetryableError(error: any): boolean {
     // Network errors
     if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT') {
-      return true;
+      return true
     }
 
     // HTTP status codes that should be retried
-    const retryableStatus = [408, 429, 500, 502, 503, 504];
+    const retryableStatus = [408, 429, 500, 502, 503, 504]
     if (error.response?.status && retryableStatus.includes(error.response.status)) {
-      return true;
+      return true
     }
 
     // Rate limit errors
     if (error.message?.includes('rate limit') || error.message?.includes('too many requests')) {
-      return true;
+      return true
     }
 
-    return false;
+    return false
   }
 
   private sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
   /**
    * Get current rate limit status
    */
   getStatus(service: keyof ServiceConfig): {
-    maxRequests: number;
-    windowMs: number;
-    availableTokens: number;
+    maxRequests: number
+    windowMs: number
+    availableTokens: number
   } {
-    const config = this.configs[service];
-    const bucket = this.buckets.get(service)!;
+    const config = this.configs[service]
+    const bucket = this.buckets.get(service)!
 
     return {
       maxRequests: config.maxRequests,
       windowMs: config.windowMs,
       availableTokens: Math.floor((bucket as any).tokens),
-    };
+    }
   }
 }
 
@@ -228,49 +227,49 @@ export class APIRateLimiter {
 export function createRateLimitedAxios(service: keyof ServiceConfig): AxiosInstance {
   const instance = axios.create({
     timeout: 60000, // 60 seconds
-  });
+  })
 
-  const config = DEFAULT_CONFIGS[service];
+  const config = DEFAULT_CONFIGS[service]
 
   axiosRetry(instance, {
     retries: config.maxRetries,
     retryDelay: (retryCount) => {
-      return Math.min(config.baseDelay * Math.pow(2, retryCount - 1), config.maxDelay);
+      return Math.min(config.baseDelay * Math.pow(2, retryCount - 1), config.maxDelay)
     },
     retryCondition: (error) => {
       return (
         axiosRetry.isNetworkOrIdempotentRequestError(error) ||
         error.response?.status === 429 ||
         error.response?.status === 503
-      );
+      )
     },
     onRetry: (retryCount, error, requestConfig) => {
-      logger.info(
+      console.log(
         `[Axios] Retry ${retryCount}/${config.maxRetries} for ${requestConfig.url}: ${error.message}`
-      );
+      )
     },
-  });
+  })
 
-  return instance;
+  return instance
 }
 
 /**
  * Singleton instance
  */
-let rateLimiterInstance: APIRateLimiter | null = null;
+let rateLimiterInstance: APIRateLimiter | null = null
 
 export function getRateLimiter(configs?: Partial<ServiceConfig>): APIRateLimiter {
   if (!rateLimiterInstance) {
-    rateLimiterInstance = new APIRateLimiter(configs);
+    rateLimiterInstance = new APIRateLimiter(configs)
   }
-  return rateLimiterInstance;
+  return rateLimiterInstance
 }
 
 /**
  * Example usage with Ollama
  */
 export async function rateLimitedOllamaExample() {
-  const limiter = getRateLimiter();
+  const limiter = getRateLimiter()
 
   const response = await limiter.execute(
     'ollama',
@@ -282,21 +281,21 @@ export async function rateLimitedOllamaExample() {
           model: 'qwen2.5:32b',
           prompt: 'Hello world',
         }),
-      });
-      return result.json();
+      })
+      return result.json()
     },
     'ollama-generation'
-  );
+  )
 
-  return response;
+  return response
 }
 
 /**
  * Example usage with OpenAI
  */
 export async function rateLimitedOpenAIExample() {
-  const limiter = getRateLimiter();
-  const axios = createRateLimitedAxios('openai');
+  const limiter = getRateLimiter()
+  const axios = createRateLimitedAxios('openai')
 
   const response = await limiter.execute(
     'openai',
@@ -312,10 +311,10 @@ export async function rateLimitedOpenAIExample() {
             Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
           },
         }
-      );
+      )
     },
     'openai-translation'
-  );
+  )
 
-  return response.data;
+  return response.data
 }

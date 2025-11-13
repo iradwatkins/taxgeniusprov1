@@ -1,17 +1,17 @@
-import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
-import Script from 'next/script';
-import './globals.css';
+import type { Metadata, Viewport } from 'next'
+import { Inter } from 'next/font/google'
+import Script from 'next/script'
+import './globals.css'
 
 // Force all routes to be dynamic to fix build issue
-export { dynamic, dynamicParams, revalidate } from './force-dynamic';
-import { Providers } from './providers';
-import { InstallPrompt } from '@/components/pwa/install-prompt';
-import { OfflineIndicator } from '@/components/pwa/offline-indicator';
-import GoogleAnalytics from '@/components/GoogleAnalytics';
+export { dynamic, dynamicParams, revalidate } from './force-dynamic'
+import { Providers } from './providers'
+import { InstallPrompt } from '@/components/pwa/install-prompt'
+import { OfflineIndicator } from '@/components/pwa/offline-indicator'
+import GoogleAnalytics from '@/components/GoogleAnalytics'
 // Performance monitor temporarily disabled to fix signin page issues
 // import { ErrorBoundary } from '@/components/error-boundary'
-import { ThemeInjector } from '@/components/theme/theme-injector';
+import { ThemeInjector } from '@/components/theme/theme-injector'
 // import { ErrorHandler } from '@/components/error-handler' // TEMPORARILY DISABLED TO FIX WEBPACK ERROR
 
 const inter = Inter({
@@ -19,7 +19,7 @@ const inter = Inter({
   weight: ['400', '500', '600', '700'], // Only load needed weights for optimal performance
   variable: '--font-sans',
   display: 'swap', // Prevents font preload warnings and improves performance
-});
+})
 
 export const metadata: Metadata = {
   title: 'GangRun Printing - Professional Print Services',
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
       'msvalidate.01': '19980A99065099539727B74085BF9DB9',
     },
   },
-};
+}
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -41,14 +41,14 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   viewportFit: 'cover',
-};
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // Use environment-specific Square SDK URL
   const squareSdkUrl =
     process.env.NEXT_PUBLIC_SQUARE_ENVIRONMENT === 'production'
       ? 'https://web.squarecdn.com/v1/square.js'
-      : 'https://sandbox.web.squarecdn.com/v1/square.js';
+      : 'https://sandbox.web.squarecdn.com/v1/square.js'
 
   return (
     <html suppressHydrationWarning lang="en">
@@ -74,5 +74,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <InstallPrompt />
       </body>
     </html>
-  );
+  )
 }

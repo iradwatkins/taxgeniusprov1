@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
+import { useEffect } from 'react'
 
 export default function Error({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+  error: Error & { digest?: string }
+  reset: () => void
 }) {
   useEffect(() => {
     // Log error to console instead of Sentry for now
@@ -17,8 +17,8 @@ export default function Error({
       digest: error.digest,
       component: 'app-error-boundary',
       timestamp: new Date().toISOString(),
-    });
-  }, [error]);
+    })
+  }, [error])
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 px-4">
@@ -74,5 +74,5 @@ export default function Error({
         )}
       </div>
     </div>
-  );
+  )
 }

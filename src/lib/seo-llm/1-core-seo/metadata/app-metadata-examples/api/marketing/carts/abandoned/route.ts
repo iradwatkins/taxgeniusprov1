@@ -1,5 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 /**
  * GET /api/marketing/carts/abandoned
@@ -16,18 +16,18 @@ import { prisma } from '@/lib/prisma';
  */
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const minHours = parseInt(searchParams.get('minHours') || '3', 10);
-    const maxHours = parseInt(searchParams.get('maxHours') || '72', 10);
-    const minValue = parseInt(searchParams.get('minValue') || '0', 10);
+    const { searchParams } = new URL(req.url)
+    const minHours = parseInt(searchParams.get('minHours') || '3', 10)
+    const maxHours = parseInt(searchParams.get('maxHours') || '72', 10)
+    const minValue = parseInt(searchParams.get('minValue') || '0', 10)
     const maxValue = searchParams.get('maxValue')
       ? parseInt(searchParams.get('maxValue')!, 10)
-      : undefined;
-    const limit = parseInt(searchParams.get('limit') || '50', 10);
+      : undefined
+    const limit = parseInt(searchParams.get('limit') || '50', 10)
 
-    const now = new Date();
-    const minActivityDate = new Date(now.getTime() - maxHours * 60 * 60 * 1000);
-    const maxActivityDate = new Date(now.getTime() - minHours * 60 * 60 * 1000);
+    const now = new Date()
+    const minActivityDate = new Date(now.getTime() - maxHours * 60 * 60 * 1000)
+    const maxActivityDate = new Date(now.getTime() - minHours * 60 * 60 * 1000)
 
     // Build where clause
     const where: any = {
@@ -43,11 +43,11 @@ export async function GET(req: NextRequest) {
       email: {
         not: null,
       },
-    };
+    }
 
     // Add max value filter if specified (for tiered campaigns)
     if (maxValue !== undefined) {
-      where.total.lte = maxValue;
+      where.total.lte = maxValue
     }
 
     // Fetch abandoned carts
@@ -66,10 +66,10 @@ export async function GET(req: NextRequest) {
           },
         },
       },
-    });
+    })
 
     // Mark carts as abandoned (so they don't get fetched again)
-    const cartIds = abandonedCarts.map((cart) => cart.id);
+    const cartIds = abandonedCarts.map((cart) => cart.id)
     if (cartIds.length > 0) {
       await prisma.cartSession.updateMany({
         where: {
@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
           abandoned: true,
           abandonedAt: now,
         },
-      });
+      })
     }
 
     // Calculate hours since last activity for each cart
@@ -91,7 +91,7 @@ export async function GET(req: NextRequest) {
         (now.getTime() - new Date(cart.lastActivity).getTime()) / (1000 * 60 * 60)
       ),
       items: cart.items as any[], // Cast JSON to array
-    }));
+    }))
 
     return NextResponse.json({
       success: true,
@@ -103,10 +103,10 @@ export async function GET(req: NextRequest) {
         minValue,
         maxValue,
       },
-    });
+    })
   } catch (error) {
-    console.error('[API] Fetch abandoned carts error:', error);
-    return NextResponse.json({ error: 'Failed to fetch abandoned carts' }, { status: 500 });
+    console.error('[API] Fetch abandoned carts error:', error)
+    return NextResponse.json({ error: 'Failed to fetch abandoned carts' }, { status: 500 })
   }
 }
 
@@ -117,10 +117,10 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
-    const { sessionId } = await req.json();
+    const { sessionId } = await req.json()
 
     if (!sessionId) {
-      return NextResponse.json({ error: 'Missing sessionId' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing sessionId' }, { status: 400 })
     }
 
     const cart = await prisma.cartSession.update({
@@ -129,14 +129,14 @@ export async function POST(req: NextRequest) {
         recovered: true,
         recoveredAt: new Date(),
       },
-    });
+    })
 
     return NextResponse.json({
       success: true,
       cart,
-    });
+    })
   } catch (error) {
-    console.error('[API] Mark cart recovered error:', error);
-    return NextResponse.json({ error: 'Failed to mark cart as recovered' }, { status: 500 });
+    console.error('[API] Mark cart recovered error:', error)
+    return NextResponse.json({ error: 'Failed to mark cart as recovered' }, { status: 500 })
   }
 }

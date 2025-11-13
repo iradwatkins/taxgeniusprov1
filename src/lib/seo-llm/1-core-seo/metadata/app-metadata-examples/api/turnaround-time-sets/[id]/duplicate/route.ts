@@ -1,11 +1,11 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { createId } from '@paralleldrive/cuid2';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { createId } from '@paralleldrive/cuid2'
 
 // POST /api/turnaround-time-sets/[id]/duplicate
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = await params;
+    const { id } = await params
 
     // Fetch the original turnaround time set with items
     const original = await prisma.turnaroundTimeSet.findUnique({
@@ -20,10 +20,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           },
         },
       },
-    });
+    })
 
     if (!original) {
-      return NextResponse.json({ error: 'Turnaround time set not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Turnaround time set not found' }, { status: 404 })
     }
 
     // Get count of existing copies to generate a unique name
@@ -33,10 +33,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           startsWith: `${original.name} (Copy`,
         },
       },
-    });
+    })
 
-    const copyNumber = existingCopies + 1;
-    const newName = `${original.name} (Copy ${copyNumber})`;
+    const copyNumber = existingCopies + 1
+    const newName = `${original.name} (Copy ${copyNumber})`
 
     // Create the duplicated turnaround time set with items using transaction
     const duplicate = await prisma.$transaction(async (tx) => {
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           isActive: false, // Start as inactive to prevent conflicts
           updatedAt: new Date(),
         },
-      });
+      })
 
       // Copy all turnaround time set items
       if (original.TurnaroundTimeSetItem.length > 0) {
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             priceOverride: item.priceOverride,
             updatedAt: new Date(),
           })),
-        });
+        })
       }
 
       // Return the complete duplicated turnaround time set
@@ -80,14 +80,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             },
           },
         },
-      });
-    });
+      })
+    })
 
     return NextResponse.json({
       message: 'Turnaround time set duplicated successfully',
       TurnaroundTimeSet: duplicate,
-    });
+    })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to duplicate turnaround time set' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to duplicate turnaround time set' }, { status: 500 })
   }
 }

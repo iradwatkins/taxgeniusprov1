@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 const recentOrders = [
   {
@@ -36,7 +36,7 @@ const recentOrders = [
     product: 'T-Shirts',
     amount: '$1,299.00',
   },
-];
+]
 
 export function RecentOrders() {
   return (
@@ -60,5 +60,5 @@ export function RecentOrders() {
         </div>
       ))}
     </div>
-  );
+  )
 }

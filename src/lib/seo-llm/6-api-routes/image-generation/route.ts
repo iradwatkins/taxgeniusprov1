@@ -6,7 +6,7 @@
  */
 
 import { type NextRequest, NextResponse } from 'next/server'
-import { GoogleAIImageGenerator } from '@/lib/image-generation'
+import { GoogleAIImageGenerator } from '@/lib/seo-llm/2-llm-integrations/google-imagen/google-ai-client'
 import { S3Client, PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3'
 
 const s3Client = new S3Client({

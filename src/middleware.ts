@@ -63,6 +63,7 @@ const isPublicRoute = (pathname: string): boolean => {
     '/book-appointment', // Appointment booking - NO LOGIN REQUIRED
     '/apply', // General application page
     '/join-team', // Tax preparer recruitment landing page (PUBLIC)
+    '/careers', // Careers/recruitment landing pages (PUBLIC)
     '/training', // Tax preparation training course page (PUBLIC)
     '/home-preview', // Consumer homepage preview (PUBLIC)
     '/preparer', // Tax preparer pages (application, info)

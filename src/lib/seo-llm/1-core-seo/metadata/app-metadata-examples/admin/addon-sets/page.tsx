@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 import {
   Plus,
   Edit,
@@ -12,14 +12,14 @@ import {
   Copy,
   ArrowUp,
   ArrowDown,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Checkbox } from '@/components/ui/checkbox';
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Table,
   TableBody,
@@ -27,7 +27,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
@@ -35,16 +35,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import toast from '@/lib/toast';
+} from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import toast from '@/lib/toast'
 import {
   DndContext,
   closestCenter,
@@ -53,57 +53,57 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
-} from '@dnd-kit/core';
+} from '@dnd-kit/core'
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+} from '@dnd-kit/sortable'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 interface AddOn {
-  id: string;
-  name: string;
-  description: string | null;
-  pricingModel: string;
-  configuration: any;
-  isActive: boolean;
+  id: string
+  name: string
+  description: string | null
+  pricingModel: string
+  configuration: any
+  isActive: boolean
 }
 
 interface AddOnSetItem {
-  id: string;
-  addOnId: string;
-  displayPosition: 'ABOVE_DROPDOWN' | 'IN_DROPDOWN' | 'BELOW_DROPDOWN';
-  isDefault: boolean;
-  sortOrder: number;
-  addOn: AddOn;
+  id: string
+  addOnId: string
+  displayPosition: 'ABOVE_DROPDOWN' | 'IN_DROPDOWN' | 'BELOW_DROPDOWN'
+  isDefault: boolean
+  sortOrder: number
+  addOn: AddOn
 }
 
 interface AddOnSet {
-  id: string;
-  name: string;
-  description: string | null;
-  sortOrder: number;
-  isActive: boolean;
-  addOnSetItems: AddOnSetItem[];
+  id: string
+  name: string
+  description: string | null
+  sortOrder: number
+  isActive: boolean
+  addOnSetItems: AddOnSetItem[]
   _count: {
-    addOnSetItems: number;
-    productAddOnSets: number;
-  };
+    addOnSetItems: number
+    productAddOnSets: number
+  }
 }
 
 function SortableItem({ id, children }: { id: string; children: React.ReactNode }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
-  });
+  })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-  };
+  }
 
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
@@ -112,96 +112,96 @@ function SortableItem({ id, children }: { id: string; children: React.ReactNode 
         <GripVertical className="h-4 w-4 text-gray-400" />
       </div>
     </div>
-  );
+  )
 }
 
 export default function AddOnSetsPage() {
-  const [addOnSets, setAddOnSets] = useState<AddOnSet[]>([]);
-  const [addOns, setAddOns] = useState<AddOn[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showDialog, setShowDialog] = useState(false);
-  const [editingSet, setEditingSet] = useState<AddOnSet | null>(null);
-  const [expandedSet, setExpandedSet] = useState<string | null>(null);
+  const [addOnSets, setAddOnSets] = useState<AddOnSet[]>([])
+  const [addOns, setAddOns] = useState<AddOn[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showDialog, setShowDialog] = useState(false)
+  const [editingSet, setEditingSet] = useState<AddOnSet | null>(null)
+  const [expandedSet, setExpandedSet] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-  });
+  })
   const [selectedAddOns, setSelectedAddOns] = useState<{
     [key: string]: {
-      displayPosition: 'ABOVE_DROPDOWN' | 'IN_DROPDOWN' | 'BELOW_DROPDOWN';
-      isDefault: boolean;
-    };
-  }>({});
+      displayPosition: 'ABOVE_DROPDOWN' | 'IN_DROPDOWN' | 'BELOW_DROPDOWN'
+      isDefault: boolean
+    }
+  }>({})
 
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
-  );
+  )
 
   useEffect(() => {
-    fetchAddOnSets();
-    fetchAddOns();
-  }, []);
+    fetchAddOnSets()
+    fetchAddOns()
+  }, [])
 
   const fetchAddOnSets = async () => {
     try {
-      const response = await fetch('/api/addon-sets?include=items');
+      const response = await fetch('/api/addon-sets?include=items')
       if (response.ok) {
-        const data = await response.json();
-        setAddOnSets(data);
+        const data = await response.json()
+        setAddOnSets(data)
       } else {
-        toast.error('Failed to fetch addon sets');
+        toast.error('Failed to fetch addon sets')
       }
     } catch (error) {
-      toast.error('Failed to fetch addon sets');
+      toast.error('Failed to fetch addon sets')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const fetchAddOns = async () => {
     try {
-      const response = await fetch('/api/add-ons');
+      const response = await fetch('/api/add-ons')
       if (response.ok) {
-        const result = await response.json();
+        const result = await response.json()
         // The API returns { data: [...] } structure
-        const addonsArray = result.data || result;
-        setAddOns(addonsArray.filter((addon: AddOn) => addon.isActive));
+        const addonsArray = result.data || result
+        setAddOns(addonsArray.filter((addon: AddOn) => addon.isActive))
       } else {
-        toast.error('Failed to fetch addons');
+        toast.error('Failed to fetch addons')
       }
     } catch (error) {
-      toast.error('Failed to fetch addons');
+      toast.error('Failed to fetch addons')
     }
-  };
+  }
 
   const handleCreateSet = () => {
-    setEditingSet(null);
-    setFormData({ name: '', description: '' });
-    setSelectedAddOns({});
-    setShowDialog(true);
-  };
+    setEditingSet(null)
+    setFormData({ name: '', description: '' })
+    setSelectedAddOns({})
+    setShowDialog(true)
+  }
 
   const handleEditSet = (set: AddOnSet) => {
-    setEditingSet(set);
+    setEditingSet(set)
     setFormData({
       name: set.name,
       description: set.description || '',
-    });
+    })
 
     // Populate selected addons
-    const selectedData: typeof selectedAddOns = {};
+    const selectedData: typeof selectedAddOns = {}
     set.addOnSetItems.forEach((item) => {
       selectedData[item.addOnId] = {
         displayPosition: item.displayPosition,
         isDefault: item.isDefault,
-      };
-    });
-    setSelectedAddOns(selectedData);
-    setShowDialog(true);
-  };
+      }
+    })
+    setSelectedAddOns(selectedData)
+    setShowDialog(true)
+  }
 
   const handleSaveSet = async () => {
     try {
@@ -210,10 +210,10 @@ export default function AddOnSetsPage() {
         displayPosition: config.displayPosition,
         isDefault: config.isDefault,
         sortOrder: index,
-      }));
+      }))
 
-      const url = editingSet ? `/api/addon-sets/${editingSet.id}` : '/api/addon-sets';
-      const method = editingSet ? 'PUT' : 'POST';
+      const url = editingSet ? `/api/addon-sets/${editingSet.id}` : '/api/addon-sets'
+      const method = editingSet ? 'PUT' : 'POST'
 
       const response = await fetch(url, {
         method,
@@ -223,28 +223,28 @@ export default function AddOnSetsPage() {
           addOnItems: editingSet ? addOnItems : undefined,
           addOnIds: !editingSet ? Object.keys(selectedAddOns) : undefined,
         }),
-      });
+      })
 
       if (response.ok) {
-        toast.success(editingSet ? 'Addon set updated' : 'Addon set created');
-        setShowDialog(false);
-        fetchAddOnSets();
+        toast.success(editingSet ? 'Addon set updated' : 'Addon set created')
+        setShowDialog(false)
+        fetchAddOnSets()
       } else {
-        const error = await response.json();
-        toast.error(error.error || 'Failed to save addon set');
+        const error = await response.json()
+        toast.error(error.error || 'Failed to save addon set')
       }
     } catch (error) {
-      toast.error('Failed to save addon set');
+      toast.error('Failed to save addon set')
     }
-  };
+  }
 
   const handleDeleteSet = async (set: AddOnSet) => {
     // Show warning if addon set is in use
     if (set._count.productAddOnSets > 0) {
-      const confirmMessage = `"${set.name}" is currently used by ${set._count.productAddOnSets} product(s).\n\nDeleting this will remove it from all products.\n\nAre you sure you want to continue?`;
-      if (!confirm(confirmMessage)) return;
+      const confirmMessage = `"${set.name}" is currently used by ${set._count.productAddOnSets} product(s).\n\nDeleting this will remove it from all products.\n\nAre you sure you want to continue?`
+      if (!confirm(confirmMessage)) return
     } else {
-      if (!confirm(`Are you sure you want to delete "${set.name}"?`)) return;
+      if (!confirm(`Are you sure you want to delete "${set.name}"?`)) return
     }
 
     try {
@@ -254,57 +254,57 @@ export default function AddOnSetsPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ force: true }), // Force delete even if in use
-      });
+      })
 
       if (response.ok) {
-        toast.success('Addon set deleted successfully');
-        fetchAddOnSets();
+        toast.success('Addon set deleted successfully')
+        fetchAddOnSets()
       } else {
-        const error = await response.json();
-        toast.error(error.error || 'Failed to delete addon set');
+        const error = await response.json()
+        toast.error(error.error || 'Failed to delete addon set')
       }
     } catch (error) {
-      toast.error('Failed to delete addon set');
+      toast.error('Failed to delete addon set')
     }
-  };
+  }
 
   const handleCloneSet = async (set: AddOnSet) => {
-    const newName = prompt(`Enter name for cloned addon set:`, `${set.name} - Copy`);
-    if (!newName) return;
+    const newName = prompt(`Enter name for cloned addon set:`, `${set.name} - Copy`)
+    if (!newName) return
 
     try {
       const response = await fetch(`/api/addon-sets/${set.id}/clone`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newName }),
-      });
+      })
 
       if (response.ok) {
-        toast.success('Addon set cloned');
-        fetchAddOnSets();
+        toast.success('Addon set cloned')
+        fetchAddOnSets()
       } else {
-        const error = await response.json();
-        toast.error(error.error || 'Failed to clone addon set');
+        const error = await response.json()
+        toast.error(error.error || 'Failed to clone addon set')
       }
     } catch (error) {
-      toast.error('Failed to clone addon set');
+      toast.error('Failed to clone addon set')
     }
-  };
+  }
 
   const handleToggleAddOn = (addOnId: string) => {
     setSelectedAddOns((prev) => {
-      const newSelected = { ...prev };
+      const newSelected = { ...prev }
       if (newSelected[addOnId]) {
-        delete newSelected[addOnId];
+        delete newSelected[addOnId]
       } else {
         newSelected[addOnId] = {
           displayPosition: 'IN_DROPDOWN',
           isDefault: false,
-        };
+        }
       }
-      return newSelected;
-    });
-  };
+      return newSelected
+    })
+  }
 
   const handleAddOnConfigChange = (
     addOnId: string,
@@ -317,28 +317,28 @@ export default function AddOnSetsPage() {
         ...prev[addOnId],
         [field]: value,
       },
-    }));
-  };
+    }))
+  }
 
   const getDisplayPositionBadge = (position: string) => {
     const colors = {
       ABOVE_DROPDOWN: 'bg-green-100 text-green-800',
       IN_DROPDOWN: 'bg-blue-100 text-blue-800',
       BELOW_DROPDOWN: 'bg-orange-100 text-orange-800',
-    };
+    }
 
     const labels = {
       ABOVE_DROPDOWN: 'Above',
       IN_DROPDOWN: 'In Dropdown',
       BELOW_DROPDOWN: 'Below',
-    };
+    }
 
     return (
       <Badge className={colors[position as keyof typeof colors]}>
         {labels[position as keyof typeof labels]}
       </Badge>
-    );
-  };
+    )
+  }
 
   if (loading) {
     return (
@@ -348,7 +348,7 @@ export default function AddOnSetsPage() {
           <div className="h-32 bg-gray-200 rounded"></div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -603,5 +603,5 @@ export default function AddOnSetsPage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }

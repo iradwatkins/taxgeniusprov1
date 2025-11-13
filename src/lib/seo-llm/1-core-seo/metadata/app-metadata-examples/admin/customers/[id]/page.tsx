@@ -1,21 +1,21 @@
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import { prisma } from '@/lib/prisma'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Separator } from '@/components/ui/separator'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 import {
   ArrowLeft,
   User,
@@ -44,10 +44,10 @@ import {
   XCircle,
   Truck,
   Printer,
-} from 'lucide-react';
-import { BrokerDiscountButton } from '@/components/admin/broker-discount-button';
-import { BrokerDiscountDisplay } from '@/components/admin/broker-discount-display';
-import { EditCustomerButton } from '@/components/admin/edit-customer-button';
+} from 'lucide-react'
+import { BrokerDiscountButton } from '@/components/admin/broker-discount-button'
+import { BrokerDiscountDisplay } from '@/components/admin/broker-discount-display'
+import { EditCustomerButton } from '@/components/admin/edit-customer-button'
 import {
   Table,
   TableBody,
@@ -55,11 +55,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 // Status configuration (matching orders page)
 const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
@@ -103,7 +103,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: any }> 
     color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
     icon: AlertCircle,
   },
-};
+}
 
 // Broker tier configuration
 const brokerTiers = [
@@ -112,7 +112,7 @@ const brokerTiers = [
   { value: 'SILVER', label: 'Silver Broker', discount: 10 },
   { value: 'GOLD', label: 'Gold Broker', discount: 15 },
   { value: 'PLATINUM', label: 'Platinum Broker', discount: 20 },
-];
+]
 
 async function getCustomer(id: string) {
   const customer = await prisma.user.findUnique({
@@ -126,9 +126,9 @@ async function getCustomer(id: string) {
         take: 10,
       },
     },
-  });
+  })
 
-  return customer;
+  return customer
 }
 
 async function getCustomerStats(customerId: string) {
@@ -139,15 +139,15 @@ async function getCustomerStats(customerId: string) {
         notIn: ['CANCELLED', 'REFUNDED'],
       },
     },
-  });
+  })
 
-  const totalSpent = orders.reduce((sum, order) => sum + order.total, 0);
-  const averageOrderValue = orders.length > 0 ? totalSpent / orders.length : 0;
-  const lastOrderDate = orders.length > 0 ? orders[0].createdAt : null;
+  const totalSpent = orders.reduce((sum, order) => sum + order.total, 0)
+  const averageOrderValue = orders.length > 0 ? totalSpent / orders.length : 0
+  const lastOrderDate = orders.length > 0 ? orders[0].createdAt : null
 
   // Get monthly order trend (last 6 months)
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const sixMonthsAgo = new Date()
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
 
   const recentOrders = await prisma.order.findMany({
     where: {
@@ -156,7 +156,7 @@ async function getCustomerStats(customerId: string) {
       status: { notIn: ['CANCELLED', 'REFUNDED'] },
     },
     orderBy: { createdAt: 'asc' },
-  });
+  })
 
   // Group by month
   const monthlyOrders = recentOrders.reduce(
@@ -164,16 +164,16 @@ async function getCustomerStats(customerId: string) {
       const month = new Date(order.createdAt).toLocaleDateString('en-US', {
         month: 'short',
         year: 'numeric',
-      });
+      })
       if (!acc[month]) {
-        acc[month] = { count: 0, revenue: 0 };
+        acc[month] = { count: 0, revenue: 0 }
       }
-      acc[month].count++;
-      acc[month].revenue += order.total;
-      return acc;
+      acc[month].count++
+      acc[month].revenue += order.total
+      return acc
     },
     {} as Record<string, { count: number; revenue: number }>
-  );
+  )
 
   return {
     totalOrders: orders.length,
@@ -181,12 +181,12 @@ async function getCustomerStats(customerId: string) {
     averageOrderValue: averageOrderValue / 100,
     lastOrderDate,
     monthlyOrders,
-  };
+  }
 }
 
 // Generate activity timeline
 function getActivityTimeline(customer: any) {
-  const activities: any[] = [];
+  const activities: any[] = []
 
   // Account created
   activities.push({
@@ -195,7 +195,7 @@ function getActivityTimeline(customer: any) {
     title: 'Account created',
     description: 'Customer joined the platform',
     date: customer.createdAt,
-  });
+  })
 
   // Email verified
   if (customer.emailVerified) {
@@ -205,7 +205,7 @@ function getActivityTimeline(customer: any) {
       title: 'Email verified',
       description: 'Customer verified their email address',
       date: customer.emailVerified,
-    });
+    })
   }
 
   // Orders
@@ -217,30 +217,30 @@ function getActivityTimeline(customer: any) {
       description: `${order.OrderItem.length} items - $${(order.total / 100).toFixed(2)}`,
       date: order.createdAt,
       link: `/admin/orders/${order.id}`,
-    });
-  });
+    })
+  })
 
   // Sort by date (newest first)
-  return activities.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  return activities.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 }
 
 export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const customer = await getCustomer(id);
+  const { id } = await params
+  const customer = await getCustomer(id)
 
   if (!customer || customer.role !== 'CUSTOMER') {
-    notFound();
+    notFound()
   }
 
-  const stats = await getCustomerStats(customer.id);
-  const activities = getActivityTimeline(customer);
+  const stats = await getCustomerStats(customer.id)
+  const activities = getActivityTimeline(customer)
 
   // Determine customer tags based on behavior
-  const tags: any[] = [];
-  if (stats.totalOrders === 0) tags.push({ label: 'New Customer', color: 'outline' });
-  if (stats.totalOrders > 10) tags.push({ label: 'Loyal Customer', color: 'default' });
-  if (stats.totalSpent > 1000) tags.push({ label: 'High Value', color: 'default' });
-  if (stats.totalSpent > 5000) tags.push({ label: 'VIP', color: 'default' });
+  const tags: any[] = []
+  if (stats.totalOrders === 0) tags.push({ label: 'New Customer', color: 'outline' })
+  if (stats.totalOrders > 10) tags.push({ label: 'Loyal Customer', color: 'default' })
+  if (stats.totalSpent > 1000) tags.push({ label: 'High Value', color: 'default' })
+  if (stats.totalSpent > 5000) tags.push({ label: 'VIP', color: 'default' })
 
   return (
     <div className="space-y-6">
@@ -334,8 +334,8 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                         <TableBody>
                           {customer.Order.map((order) => {
                             const status =
-                              statusConfig[order.status] || statusConfig.PENDING_PAYMENT;
-                            const StatusIcon = status.icon;
+                              statusConfig[order.status] || statusConfig.PENDING_PAYMENT
+                            const StatusIcon = status.icon
 
                             return (
                               <TableRow key={order.id}>
@@ -378,7 +378,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                                   ${(order.total / 100).toFixed(2)}
                                 </TableCell>
                               </TableRow>
-                            );
+                            )
                           })}
                         </TableBody>
                       </Table>
@@ -398,7 +398,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                 <CardContent>
                   <div className="space-y-4">
                     {activities.slice(0, 20).map((activity, index) => {
-                      const ActivityIcon = activity.icon;
+                      const ActivityIcon = activity.icon
                       return (
                         <div key={index} className="flex gap-3">
                           <div className="relative flex flex-col items-center">
@@ -434,7 +434,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                             </p>
                           </div>
                         </div>
-                      );
+                      )
                     })}
                   </div>
                 </CardContent>
@@ -674,5 +674,5 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         </div>
       </div>
     </div>
-  );
+  )
 }

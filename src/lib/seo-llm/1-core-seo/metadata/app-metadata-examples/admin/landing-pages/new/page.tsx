@@ -1,39 +1,39 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Save, Loader2, Sparkles } from 'lucide-react';
-import toast from '@/lib/toast';
+} from '@/components/ui/select'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import { ArrowLeft, Save, Loader2, Sparkles } from 'lucide-react'
+import toast from '@/lib/toast'
 
 interface ConfigOption {
-  id: string;
-  name: string;
+  id: string
+  name: string
 }
 
 export default function NewLandingPageSetPage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [loadingConfig, setLoadingConfig] = useState(true);
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [loadingConfig, setLoadingConfig] = useState(true)
 
   // Configuration options
-  const [paperStockSets, setPaperStockSets] = useState<ConfigOption[]>([]);
-  const [quantityGroups, setQuantityGroups] = useState<ConfigOption[]>([]);
-  const [sizeGroups, setSizeGroups] = useState<ConfigOption[]>([]);
-  const [addOnSets, setAddOnSets] = useState<ConfigOption[]>([]);
-  const [turnaroundTimeSets, setTurnaroundTimeSets] = useState<ConfigOption[]>([]);
+  const [paperStockSets, setPaperStockSets] = useState<ConfigOption[]>([])
+  const [quantityGroups, setQuantityGroups] = useState<ConfigOption[]>([])
+  const [sizeGroups, setSizeGroups] = useState<ConfigOption[]>([])
+  const [addOnSets, setAddOnSets] = useState<ConfigOption[]>([])
+  const [turnaroundTimeSets, setTurnaroundTimeSets] = useState<ConfigOption[]>([])
 
   // Form data
   const [formData, setFormData] = useState({
@@ -59,38 +59,38 @@ export default function NewLandingPageSetPage() {
     discountEnabled: false,
     discountPercent: 0,
     chatWidgetEnabled: true,
-  });
+  })
 
   useEffect(() => {
-    fetchConfiguration();
-  }, []);
+    fetchConfiguration()
+  }, [])
 
   const fetchConfiguration = async () => {
     try {
-      setLoadingConfig(true);
+      setLoadingConfig(true)
       const [paperRes, qtyRes, sizeRes, addonRes, timeRes] = await Promise.all([
         fetch('/api/paper-stock-sets?isActive=true'),
         fetch('/api/quantity-groups?isActive=true'),
         fetch('/api/size-groups?isActive=true'),
         fetch('/api/addon-sets?isActive=true'),
         fetch('/api/turnaround-time-sets?isActive=true'),
-      ]);
+      ])
 
-      if (paperRes.ok) setPaperStockSets(await paperRes.json());
-      if (qtyRes.ok) setQuantityGroups(await qtyRes.json());
-      if (sizeRes.ok) setSizeGroups(await sizeRes.json());
-      if (addonRes.ok) setAddOnSets(await addonRes.json());
-      if (timeRes.ok) setTurnaroundTimeSets(await timeRes.json());
+      if (paperRes.ok) setPaperStockSets(await paperRes.json())
+      if (qtyRes.ok) setQuantityGroups(await qtyRes.json())
+      if (sizeRes.ok) setSizeGroups(await sizeRes.json())
+      if (addonRes.ok) setAddOnSets(await addonRes.json())
+      if (timeRes.ok) setTurnaroundTimeSets(await timeRes.json())
     } catch (error) {
-      console.error('Error fetching configuration:', error);
-      toast.error('Failed to load product configuration');
+      console.error('Error fetching configuration:', error)
+      toast.error('Failed to load product configuration')
     } finally {
-      setLoadingConfig(false);
+      setLoadingConfig(false)
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     // Validate required fields
     if (
@@ -99,33 +99,33 @@ export default function NewLandingPageSetPage() {
       !formData.quantityGroupId ||
       !formData.sizeGroupId
     ) {
-      toast.error('Please fill in all required fields');
-      return;
+      toast.error('Please fill in all required fields')
+      return
     }
 
     try {
-      setLoading(true);
+      setLoading(true)
       const response = await fetch('/api/landing-page-sets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
-      });
+      })
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create landing page set');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to create landing page set')
       }
 
-      const result = await response.json();
-      toast.success('Landing page set created successfully!');
-      router.push(`/admin/landing-pages/${result.id}`);
+      const result = await response.json()
+      toast.success('Landing page set created successfully!')
+      router.push(`/admin/landing-pages/${result.id}`)
     } catch (error) {
-      console.error('Error creating landing page set:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to create landing page set');
+      console.error('Error creating landing page set:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to create landing page set')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const insertVariable = (
     field: 'titleTemplate' | 'metaDescTemplate' | 'h1Template' | 'contentTemplate',
@@ -134,8 +134,8 @@ export default function NewLandingPageSetPage() {
     setFormData((prev) => ({
       ...prev,
       [field]: prev[field] + ` ${variable}`,
-    }));
-  };
+    }))
+  }
 
   const variables = [
     '[CITY]',
@@ -146,7 +146,7 @@ export default function NewLandingPageSetPage() {
     '[LANDMARK]',
     '[EVENT]',
     '[BUSINESS_COUNT]',
-  ];
+  ]
 
   if (loadingConfig) {
     return (
@@ -155,7 +155,7 @@ export default function NewLandingPageSetPage() {
           <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -449,5 +449,5 @@ export default function NewLandingPageSetPage() {
         </Button>
       </div>
     </form>
-  );
+  )
 }

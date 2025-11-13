@@ -1,16 +1,16 @@
-import { notFound, redirect } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
-import { ProofApprovalInterface } from '@/components/customer/proof-approval-interface';
+import { notFound, redirect } from 'next/navigation'
+import { prisma } from '@/lib/prisma'
+import { ProofApprovalInterface } from '@/components/customer/proof-approval-interface'
 
 interface PageProps {
   params: Promise<{
-    orderId: string;
-    fileId: string;
-  }>;
+    orderId: string
+    fileId: string
+  }>
   searchParams: Promise<{
-    action?: 'approve' | 'reject';
-    token?: string;
-  }>;
+    action?: 'approve' | 'reject'
+    token?: string
+  }>
 }
 
 async function getProofData(orderId: string, fileId: string) {
@@ -23,10 +23,10 @@ async function getProofData(orderId: string, fileId: string) {
           select: { name: true, email: true },
         },
       },
-    });
+    })
 
     if (!order) {
-      return null;
+      return null
     }
 
     const file = await prisma.orderFile.findUnique({
@@ -41,42 +41,42 @@ async function getProofData(orderId: string, fileId: string) {
           take: 10,
         },
       },
-    });
+    })
 
     if (!file) {
-      return null;
+      return null
     }
 
     // Only allow approval for admin proofs that are waiting
     if (file.fileType !== 'ADMIN_PROOF' || file.approvalStatus !== 'WAITING') {
-      return null;
+      return null
     }
 
     return {
       order,
       file,
-    };
+    }
   } catch (error) {
-    console.error('Error fetching proof data:', error);
-    return null;
+    console.error('Error fetching proof data:', error)
+    return null
   }
 }
 
 export default async function ProofApprovalPage({ params, searchParams }: PageProps) {
-  const { orderId, fileId } = await params;
-  const { action } = await searchParams;
+  const { orderId, fileId } = await params
+  const { action } = await searchParams
 
-  const proofData = await getProofData(orderId, fileId);
+  const proofData = await getProofData(orderId, fileId)
 
   if (!proofData) {
-    notFound();
+    notFound()
   }
 
-  const { order, file } = proofData;
+  const { order, file } = proofData
 
   // If the file has already been approved or rejected, redirect to completion page
   if (file.approvalStatus !== 'WAITING') {
-    redirect(`/proof-approval/${orderId}/${fileId}/complete?status=${file.approvalStatus}`);
+    redirect(`/proof-approval/${orderId}/${fileId}/complete?status=${file.approvalStatus}`)
   }
 
   return (
@@ -129,25 +129,25 @@ export default async function ProofApprovalPage({ params, searchParams }: PagePr
         />
       </div>
     </div>
-  );
+  )
 }
 
 // Generate metadata for better SEO and social sharing
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ orderId: string; fileId: string }>;
+  params: Promise<{ orderId: string; fileId: string }>
 }) {
-  const { orderId } = await params;
+  const { orderId } = await params
 
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     select: { orderNumber: true },
-  });
+  })
 
   return {
     title: `Proof Approval - Order ${order?.orderNumber || orderId} | GangRun Printing`,
     description: 'Review and approve your proof before we begin production.',
     robots: 'noindex, nofollow', // Private customer pages shouldn't be indexed
-  };
+  }
 }

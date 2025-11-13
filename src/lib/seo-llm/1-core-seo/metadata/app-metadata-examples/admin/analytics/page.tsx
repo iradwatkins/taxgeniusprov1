@@ -1,8 +1,8 @@
-import { Suspense } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Suspense } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
   CalendarDays,
   DollarSign,
@@ -12,52 +12,52 @@ import {
   BarChart3,
   Download,
   Filter,
-} from 'lucide-react';
-import { AnalyticsService, type DateRange } from '@/lib/admin/analytics';
-import { RevenueChart } from '@/components/admin/analytics/revenue-chart';
-import { OrderStatusChart } from '@/components/admin/analytics/order-status-chart';
-import { CustomerInsightsChart } from '@/components/admin/analytics/customer-insights-chart';
-import { ProductPerformanceChart } from '@/components/admin/analytics/product-performance-chart';
-import { TopCustomersTable } from '@/components/admin/analytics/top-customers-table';
-import { TopProductsTable } from '@/components/admin/analytics/top-products-table';
+} from 'lucide-react'
+import { AnalyticsService, type DateRange } from '@/lib/admin/analytics'
+import { RevenueChart } from '@/components/admin/analytics/revenue-chart'
+import { OrderStatusChart } from '@/components/admin/analytics/order-status-chart'
+import { CustomerInsightsChart } from '@/components/admin/analytics/customer-insights-chart'
+import { ProductPerformanceChart } from '@/components/admin/analytics/product-performance-chart'
+import { TopCustomersTable } from '@/components/admin/analytics/top-customers-table'
+import { TopProductsTable } from '@/components/admin/analytics/top-products-table'
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 interface AnalyticsPageProps {
   searchParams: {
-    period?: string;
-  };
+    period?: string
+  }
 }
 
 async function getAnalyticsData(period: string = '30d') {
-  const now = new Date();
-  let dateRange: DateRange;
+  const now = new Date()
+  let dateRange: DateRange
 
   switch (period) {
     case '7d':
       dateRange = {
         from: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
         to: now,
-      };
-      break;
+      }
+      break
     case '90d':
       dateRange = {
         from: new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000),
         to: now,
-      };
-      break;
+      }
+      break
     case '1y':
       dateRange = {
         from: new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000),
         to: now,
-      };
-      break;
+      }
+      break
     default: // 30d
       dateRange = {
         from: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
         to: now,
-      };
+      }
   }
 
   try {
@@ -66,7 +66,7 @@ async function getAnalyticsData(period: string = '30d') {
       AnalyticsService.getChartData(dateRange),
       AnalyticsService.getTopCustomers(dateRange),
       AnalyticsService.getOrderStatusBreakdown(dateRange),
-    ]);
+    ])
 
     return {
       metrics,
@@ -74,7 +74,7 @@ async function getAnalyticsData(period: string = '30d') {
       topCustomers,
       orderStatus,
       period,
-    };
+    }
   } catch (error) {
     return {
       metrics: null,
@@ -83,7 +83,7 @@ async function getAnalyticsData(period: string = '30d') {
       orderStatus: [],
       period,
       error: 'Failed to load analytics data',
-    };
+    }
   }
 }
 
@@ -91,11 +91,11 @@ function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-  }).format(amount);
+  }).format(amount)
 }
 
 function formatPercent(value: number): string {
-  return `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
+  return `${value > 0 ? '+' : ''}${value.toFixed(1)}%`
 }
 
 function MetricCard({
@@ -105,11 +105,11 @@ function MetricCard({
   icon,
   subtitle,
 }: {
-  title: string;
-  value: string;
-  change?: number;
-  icon: React.ReactNode;
-  subtitle?: string;
+  title: string
+  value: string
+  change?: number
+  icon: React.ReactNode
+  subtitle?: string
 }) {
   return (
     <Card>
@@ -130,12 +130,12 @@ function MetricCard({
         {subtitle && <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>}
       </CardContent>
     </Card>
-  );
+  )
 }
 
 export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps) {
-  const period = searchParams.period || '30d';
-  const data = await getAnalyticsData(period);
+  const period = searchParams.period || '30d'
+  const data = await getAnalyticsData(period)
 
   if (data.error) {
     return (
@@ -159,10 +159,10 @@ export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
-  const { metrics, chartData, topCustomers, orderStatus } = data;
+  const { metrics, chartData, topCustomers, orderStatus } = data
 
   if (!metrics) {
     return (
@@ -173,7 +173,7 @@ export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps
           <p className="text-muted-foreground">No data available for the selected period</p>
         </div>
       </div>
-    );
+    )
   }
 
   const periodLabels = {
@@ -181,7 +181,7 @@ export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps
     '30d': 'Last 30 days',
     '90d': 'Last 90 days',
     '1y': 'Last year',
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -503,5 +503,5 @@ export default async function AnalyticsPage({ searchParams }: AnalyticsPageProps
         </TabsContent>
       </Tabs>
     </div>
-  );
+  )
 }

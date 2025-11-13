@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Separator } from '@/components/ui/separator'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import {
   ArrowLeft,
   Send,
@@ -21,22 +21,22 @@ import {
   AlertCircle,
   Plus,
   X,
-} from 'lucide-react';
-import Link from 'next/link';
+} from 'lucide-react'
+import Link from 'next/link'
 import {
   CustomerSelector,
   type Customer,
   type NewCustomerData,
-} from '@/components/admin/orders/customer-selector';
-import { AddressForm, type AddressFormData } from '@/components/admin/orders/address-form';
-import { toast } from 'sonner';
+} from '@/components/admin/orders/customer-selector'
+import { AddressForm, type AddressFormData } from '@/components/admin/orders/address-form'
+import { toast } from 'sonner'
 
 export default function CreateOrderPage() {
-  const router = useRouter();
+  const router = useRouter()
 
   // Customer state
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-  const [newCustomer, setNewCustomer] = useState<NewCustomerData | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+  const [newCustomer, setNewCustomer] = useState<NewCustomerData | null>(null)
 
   // Shipping address state
   const [shippingAddress, setShippingAddress] = useState<AddressFormData>({
@@ -49,10 +49,10 @@ export default function CreateOrderPage() {
     zipCode: '',
     country: 'United States',
     phone: '',
-  });
+  })
 
   // Billing address state
-  const [useSameAddress, setUseSameAddress] = useState(true);
+  const [useSameAddress, setUseSameAddress] = useState(true)
   const [billingAddress, setBillingAddress] = useState<AddressFormData>({
     name: '',
     company: '',
@@ -63,42 +63,42 @@ export default function CreateOrderPage() {
     zipCode: '',
     country: 'United States',
     phone: '',
-  });
+  })
 
   // Order items state (simplified for now)
   const [orderItems, setOrderItems] = useState<
     Array<{
-      id: string;
-      productName: string;
-      productSku: string;
-      quantity: number;
-      price: number;
+      id: string
+      productName: string
+      productSku: string
+      quantity: number
+      price: number
     }>
-  >([]);
+  >([])
 
   // Order notes
-  const [adminNotes, setAdminNotes] = useState('');
-  const [customerNotes, setCustomerNotes] = useState('');
+  const [adminNotes, setAdminNotes] = useState('')
+  const [customerNotes, setCustomerNotes] = useState('')
 
   // Payment terms
-  const [paymentDueDays, setPaymentDueDays] = useState(30);
-  const [customMessage, setCustomMessage] = useState('');
+  const [paymentDueDays, setPaymentDueDays] = useState(30)
+  const [customMessage, setCustomMessage] = useState('')
 
   // Loading states
-  const [isSendingInvoice, setIsSendingInvoice] = useState(false);
-  const [isTakingPayment, setIsTakingPayment] = useState(false);
+  const [isSendingInvoice, setIsSendingInvoice] = useState(false)
+  const [isTakingPayment, setIsTakingPayment] = useState(false)
 
   // Calculate order totals
-  const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = 0; // Will be calculated based on address
-  const tax = Math.round(subtotal * 0.0875); // 8.75% tax (example)
-  const total = subtotal + shipping + tax;
+  const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const shipping = 0 // Will be calculated based on address
+  const tax = Math.round(subtotal * 0.0875) // 8.75% tax (example)
+  const total = subtotal + shipping + tax
 
   // Validation
   const isValid = () => {
     if (!selectedCustomer && !newCustomer) {
-      toast.error('Please select or create a customer');
-      return false;
+      toast.error('Please select or create a customer')
+      return false
     }
     if (
       !shippingAddress.name ||
@@ -107,20 +107,20 @@ export default function CreateOrderPage() {
       !shippingAddress.state ||
       !shippingAddress.zipCode
     ) {
-      toast.error('Please complete the shipping address');
-      return false;
+      toast.error('Please complete the shipping address')
+      return false
     }
     if (orderItems.length === 0) {
-      toast.error('Please add at least one product');
-      return false;
+      toast.error('Please add at least one product')
+      return false
     }
-    return true;
-  };
+    return true
+  }
 
   const handleSendInvoice = async () => {
-    if (!isValid()) return;
+    if (!isValid()) return
 
-    setIsSendingInvoice(true);
+    setIsSendingInvoice(true)
     try {
       const response = await fetch('/api/admin/orders/create', {
         method: 'POST',
@@ -136,28 +136,28 @@ export default function CreateOrderPage() {
           customMessage,
           sendInvoice: true,
         }),
-      });
+      })
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create order');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to create order')
       }
 
-      const { order } = await response.json();
-      toast.success(`Invoice ${order.invoiceNumber} sent successfully`);
-      router.push(`/admin/orders/${order.id}`);
+      const { order } = await response.json()
+      toast.success(`Invoice ${order.invoiceNumber} sent successfully`)
+      router.push(`/admin/orders/${order.id}`)
     } catch (error) {
-      console.error('Error sending invoice:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to send invoice');
+      console.error('Error sending invoice:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to send invoice')
     } finally {
-      setIsSendingInvoice(false);
+      setIsSendingInvoice(false)
     }
-  };
+  }
 
   const handleTakePayment = async () => {
-    if (!isValid()) return;
+    if (!isValid()) return
 
-    setIsTakingPayment(true);
+    setIsTakingPayment(true)
     try {
       const response = await fetch('/api/admin/orders/create', {
         method: 'POST',
@@ -171,23 +171,23 @@ export default function CreateOrderPage() {
           customerNotes,
           takePayment: true,
         }),
-      });
+      })
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create order');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to create order')
       }
 
-      const { order } = await response.json();
-      toast.success('Order created successfully');
-      router.push(`/admin/orders/${order.id}`);
+      const { order } = await response.json()
+      toast.success('Order created successfully')
+      router.push(`/admin/orders/${order.id}`)
     } catch (error) {
-      console.error('Error creating order:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to create order');
+      console.error('Error creating order:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to create order')
     } finally {
-      setIsTakingPayment(false);
+      setIsTakingPayment(false)
     }
-  };
+  }
 
   return (
     <div className="space-y-6 pb-16">
@@ -473,5 +473,5 @@ export default function CreateOrderPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function SentryExamplePage() {
   const triggerError = () => {
     // This will trigger a Sentry error
     // @ts-ignore - Intentionally calling undefined function
-    myUndefinedFunction();
-  };
+    myUndefinedFunction()
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -49,5 +49,5 @@ export default function SentryExamplePage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

@@ -1,17 +1,17 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { validateRequest } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { validateRequest } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
 // Store active connections
-const connections = new Map<string, ReadableStreamDefaultController>();
+const connections = new Map<string, ReadableStreamDefaultController>()
 
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ): Promise<Response> {
   try {
-    const { id: orderId } = await context.params;
-    const { user, session } = await validateRequest();
+    const { id: orderId } = await context.params
+    const { user, session } = await validateRequest()
 
     // Verify user has access to this order
     const order = await prisma.order.findUnique({
@@ -21,29 +21,29 @@ export async function GET(
         email: true,
         status: true,
       },
-    });
+    })
 
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     // Check authorization
-    const isOwner = order.email === session?.user?.email;
-    const isAdmin = (session?.user as any)?.role === 'ADMIN';
+    const isOwner = order.email === session?.user?.email
+    const isAdmin = (session?.user as any)?.role === 'ADMIN'
 
     if (!isOwner && !isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Create SSE stream
     const stream = new ReadableStream({
       start(controller) {
         // Store connection
-        const connectionId = `${orderId}-${Date.now()}`;
-        connections.set(connectionId, controller);
+        const connectionId = `${orderId}-${Date.now()}`
+        connections.set(connectionId, controller)
 
         // Send initial connection message
-        const encoder = new TextEncoder();
+        const encoder = new TextEncoder()
         controller.enqueue(
           encoder.encode(
             `data: ${JSON.stringify({
@@ -52,7 +52,7 @@ export async function GET(
               currentStatus: order.status,
             })}\n\n`
           )
-        );
+        )
 
         // Set up polling for order updates
         const interval = setInterval(async () => {
@@ -69,7 +69,7 @@ export async function GET(
                   take: 5,
                 },
               },
-            });
+            })
 
             if (updatedOrder) {
               controller.enqueue(
@@ -87,19 +87,19 @@ export async function GET(
                     pendingNotifications: updatedOrder.notifications.length,
                   })}\n\n`
                 )
-              );
+              )
             }
           } catch (error) {}
-        }, 5000); // Poll every 5 seconds
+        }, 5000) // Poll every 5 seconds
 
         // Clean up on close
         request.signal.addEventListener('abort', () => {
-          clearInterval(interval);
-          connections.delete(connectionId);
-          controller.close();
-        });
+          clearInterval(interval)
+          connections.delete(connectionId)
+          controller.close()
+        })
       },
-    });
+    })
 
     return new NextResponse(stream, {
       headers: {
@@ -108,8 +108,8 @@ export async function GET(
         Connection: 'keep-alive',
         'X-Accel-Buffering': 'no', // Disable Nginx buffering
       },
-    });
+    })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to establish SSE connection' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to establish SSE connection' }, { status: 500 })
   }
 }

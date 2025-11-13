@@ -5,38 +5,38 @@
  * using patterns from top performers
  */
 
-import { prisma } from '@/lib/prisma';
-import { ollamaClient } from './ollama-client';
-import { type WinnerPattern } from './winner-analyzer';
-import { type PerformanceMetrics } from './performance-analyzer';
-import { type DecisionOption } from './telegram-notifier';
+import { prisma } from '@/lib/prisma'
+import { ollamaClient } from './ollama-client'
+import { type WinnerPattern } from './winner-analyzer'
+import { type PerformanceMetrics } from './performance-analyzer'
+import { type DecisionOption } from './telegram-notifier'
 
 export interface ImprovementPlan {
-  pageId: string;
-  city: string;
-  currentScore: number;
-  targetScore: number;
-  options: DecisionOption[];
+  pageId: string
+  city: string
+  currentScore: number
+  targetScore: number
+  options: DecisionOption[]
 }
 
 /**
  * Generate improvement options for a loser page
  */
 export async function generateImprovementOptions(params: {
-  loserPage: PerformanceMetrics;
-  winnerPattern: WinnerPattern;
-  campaignId: string;
+  loserPage: PerformanceMetrics
+  winnerPattern: WinnerPattern
+  campaignId: string
 }): Promise<ImprovementPlan> {
   try {
-    const { loserPage, winnerPattern, campaignId } = params;
+    const { loserPage, winnerPattern, campaignId } = params
 
     // Get current page content
     const currentPage = await prisma.cityLandingPage.findUnique({
       where: { id: loserPage.pageId },
-    });
+    })
 
     if (!currentPage) {
-      throw new Error('Page not found');
+      throw new Error('Page not found')
     }
 
     // Generate 3 improvement options (A, B, C)
@@ -44,7 +44,7 @@ export async function generateImprovementOptions(params: {
       currentPage,
       winnerPattern,
       currentScore: loserPage.performanceScore,
-    });
+    })
 
     return {
       pageId: loserPage.pageId,
@@ -52,10 +52,10 @@ export async function generateImprovementOptions(params: {
       currentScore: loserPage.performanceScore,
       targetScore: Math.min(100, loserPage.performanceScore + 30),
       options,
-    };
+    }
   } catch (error) {
-    console.error('[Loser Improver] Error generating options:', error);
-    throw error;
+    console.error('[Loser Improver] Error generating options:', error)
+    throw error
   }
 }
 
@@ -63,11 +63,11 @@ export async function generateImprovementOptions(params: {
  * Generate 3 improvement options using AI
  */
 async function generateOptions(params: {
-  currentPage: any;
-  winnerPattern: WinnerPattern;
-  currentScore: number;
+  currentPage: any
+  winnerPattern: WinnerPattern
+  currentScore: number
 }): Promise<DecisionOption[]> {
-  const { currentPage, winnerPattern, currentScore } = params;
+  const { currentPage, winnerPattern, currentScore } = params
 
   // Prepare data for AI analysis
   const prompt = `You are an SEO expert analyzing underperforming landing pages.
@@ -111,17 +111,17 @@ OUTPUT FORMAT (JSON only):
   "optionC": { ... }
 }
 
-Generate the options now (JSON only):`;
+Generate the options now (JSON only):`
 
   try {
     const response = await ollamaClient.generateJSON<{
-      optionA: any;
-      optionB: any;
-      optionC: any;
+      optionA: any
+      optionB: any
+      optionC: any
     }>({
       prompt,
       temperature: 0.4,
-    });
+    })
 
     // Transform AI response into DecisionOption format
     return [
@@ -149,12 +149,12 @@ Generate the options now (JSON only):`;
         confidence: response.optionC.confidence,
         estimatedImpact: response.optionC.estimatedImpact,
       },
-    ];
+    ]
   } catch (error) {
-    console.error('[Loser Improver] AI generation error:', error);
+    console.error('[Loser Improver] AI generation error:', error)
 
     // Fallback to template-based options
-    return getFallbackOptions(currentPage, winnerPattern);
+    return getFallbackOptions(currentPage, winnerPattern)
   }
 }
 
@@ -199,99 +199,99 @@ function getFallbackOptions(currentPage: any, winnerPattern: WinnerPattern): Dec
       confidence: 55,
       estimatedImpact: '+30-40 performance points',
     },
-  ];
+  ]
 }
 
 /**
  * Execute improvement based on selected option
  */
 export async function executeImprovement(params: {
-  pageId: string;
-  selectedOption: 'A' | 'B' | 'C';
-  winnerPattern: WinnerPattern;
+  pageId: string
+  selectedOption: 'A' | 'B' | 'C'
+  winnerPattern: WinnerPattern
 }): Promise<{ success: boolean; changes?: string[] }> {
   try {
-    const { pageId, selectedOption, winnerPattern } = params;
+    const { pageId, selectedOption, winnerPattern } = params
 
     const page = await prisma.cityLandingPage.findUnique({
       where: { id: pageId },
-    });
+    })
 
     if (!page) {
-      throw new Error('Page not found');
+      throw new Error('Page not found')
     }
 
-    let changes: string[] = [];
+    let changes: string[] = []
 
     switch (selectedOption) {
       case 'A':
         // Conservative: Update structure only
-        changes = await applyConservativeChanges(page, winnerPattern);
-        break;
+        changes = await applyConservativeChanges(page, winnerPattern)
+        break
 
       case 'B':
         // Moderate: Rewrite intro + benefits
-        changes = await applyModerateChanges(page, winnerPattern);
-        break;
+        changes = await applyModerateChanges(page, winnerPattern)
+        break
 
       case 'C':
         // Aggressive: Complete regeneration
-        changes = await applyAggressiveChanges(page, winnerPattern);
-        break;
+        changes = await applyAggressiveChanges(page, winnerPattern)
+        break
     }
 
     return {
       success: true,
       changes,
-    };
+    }
   } catch (error) {
-    console.error('[Loser Improver] Execution error:', error);
-    return { success: false };
+    console.error('[Loser Improver] Execution error:', error)
+    return { success: false }
   }
 }
 
 async function applyConservativeChanges(page: any, pattern: WinnerPattern): Promise<string[]> {
-  const changes: string[] = [];
+  const changes: string[] = []
 
   // Update title format if needed
   if (page.title && !page.title.includes('$')) {
-    const newTitle = `${page.title} | Fast Turnaround | $${page.revenue || '179'}`;
+    const newTitle = `${page.title} | Fast Turnaround | $${page.revenue || '179'}`
     await prisma.cityLandingPage.update({
       where: { id: page.id },
       data: { title: newTitle },
-    });
-    changes.push('Updated title format to match winners');
+    })
+    changes.push('Updated title format to match winners')
   }
 
   // Add more FAQs if below threshold
-  const currentFaqCount = Array.isArray(page.faqSchema) ? page.faqSchema.length : 0;
+  const currentFaqCount = Array.isArray(page.faqSchema) ? page.faqSchema.length : 0
   if (currentFaqCount < pattern.contentStructure.faqCount) {
-    changes.push(`Need to add ${pattern.contentStructure.faqCount - currentFaqCount} more FAQs`);
+    changes.push(`Need to add ${pattern.contentStructure.faqCount - currentFaqCount} more FAQs`)
   }
 
-  return changes;
+  return changes
 }
 
 async function applyModerateChanges(page: any, pattern: WinnerPattern): Promise<string[]> {
-  const changes: string[] = [];
+  const changes: string[] = []
 
   // This would regenerate intro and benefits
   // Implementation depends on your content generation system
-  changes.push('Regenerated intro using winner pattern');
-  changes.push('Regenerated benefits section');
-  changes.push('Added CTA placements');
+  changes.push('Regenerated intro using winner pattern')
+  changes.push('Regenerated benefits section')
+  changes.push('Added CTA placements')
 
-  return changes;
+  return changes
 }
 
 async function applyAggressiveChanges(page: any, pattern: WinnerPattern): Promise<string[]> {
-  const changes: string[] = [];
+  const changes: string[] = []
 
   // This would completely regenerate the page
-  changes.push('Complete page regeneration initiated');
-  changes.push('All content sections rewritten');
-  changes.push('Schema markup updated');
-  changes.push('Images regenerated');
+  changes.push('Complete page regeneration initiated')
+  changes.push('All content sections rewritten')
+  changes.push('Schema markup updated')
+  changes.push('Images regenerated')
 
-  return changes;
+  return changes
 }

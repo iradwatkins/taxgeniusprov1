@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import AccountWrapper from '@/components/account/account-wrapper';
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import AccountWrapper from '@/components/account/account-wrapper'
 
 export default function AccountDetailsPage() {
   // TODO: Replace with Lucia auth when implemented
@@ -14,7 +14,7 @@ export default function AccountDetailsPage() {
     lastName: '',
     email: '',
     phone: '',
-  });
+  })
 
   useEffect(() => {
     // TODO: Fetch user data from Lucia auth
@@ -23,13 +23,13 @@ export default function AccountDetailsPage() {
       lastName: 'Doe',
       email: 'user@example.com',
       phone: '',
-    });
-  }, []);
+    })
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     // TODO: Update user profile with Lucia auth
-  };
+  }
 
   return (
     <AccountWrapper>
@@ -103,5 +103,5 @@ export default function AccountDetailsPage() {
         </Card>
       </div>
     </AccountWrapper>
-  );
+  )
 }

@@ -1,8 +1,8 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-import { generateRequestId } from '@/lib/api-response';
-import { getShippingRegistry } from '@/lib/shipping/module-registry';
-import { cache } from '@/lib/redis';
+import { type NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { generateRequestId } from '@/lib/api-response'
+import { getShippingRegistry } from '@/lib/shipping/module-registry'
+import { cache } from 'ioredis'
 
 // Request validation schema
 const RateRequestSchema = z.object({
@@ -41,7 +41,7 @@ const RateRequestSchema = z.object({
     )
     .optional(),
   providers: z.array(z.enum(['fedex', 'southwest-cargo'])).optional(), // Made optional - will use all enabled if not specified
-});
+})
 
 // Default origin (Gang Run Printing warehouse)
 const DEFAULT_ORIGIN = {
@@ -51,20 +51,20 @@ const DEFAULT_ORIGIN = {
   zipCode: '60173',
   country: 'US',
   isResidential: false,
-};
+}
 
 export async function POST(request: NextRequest) {
-  const requestId = generateRequestId();
+  const requestId = generateRequestId()
 
   try {
-    const body = await request.json();
+    const body = await request.json()
 
     // Log the incoming request for debugging
 
-    const validation = RateRequestSchema.safeParse(body);
+    const validation = RateRequestSchema.safeParse(body)
 
     if (!validation.success) {
-      console.error('[Shipping API] Validation failed:', validation.error.issues);
+      console.error('[Shipping API] Validation failed:', validation.error.issues)
       return NextResponse.json(
         {
           error: 'Invalid request',
@@ -72,37 +72,37 @@ export async function POST(request: NextRequest) {
           requestId,
         },
         { status: 400 }
-      );
+      )
     }
 
-    const { destination, package: pkg, packages, providers: requestedProviders } = validation.data;
+    const { destination, package: pkg, packages, providers: requestedProviders } = validation.data
 
     // Build packages array (support single package or multiple)
-    const packagesToShip = packages || (pkg ? [pkg] : [{ weight: 1 }]); // Default to 1 lb if neither provided
+    const packagesToShip = packages || (pkg ? [pkg] : [{ weight: 1 }]) // Default to 1 lb if neither provided
 
     // Create cache key based on key parameters
-    const totalWeight = packagesToShip.reduce((sum, p) => sum + p.weight, 0);
-    const cacheKey = `shipping:rates:${destination.zipCode}:${destination.state}:${totalWeight}:${requestedProviders?.join(',') || 'all'}`;
+    const totalWeight = packagesToShip.reduce((sum, p) => sum + p.weight, 0)
+    const cacheKey = `shipping:rates:${destination.zipCode}:${destination.state}:${totalWeight}:${requestedProviders?.join(',') || 'all'}`
 
     // Check cache first (5-minute TTL for shipping rates)
-    const cached = await cache.get(cacheKey);
+    const cached = await cache.get(cacheKey)
     if (cached) {
       return NextResponse.json({
         ...cached,
         cached: true,
         requestId,
-      });
+      })
     }
 
     // Get shipping registry
-    const registry = getShippingRegistry();
+    const registry = getShippingRegistry()
 
     // Determine which modules to use
-    let modulesToUse = registry.getEnabledModules();
+    let modulesToUse = registry.getEnabledModules()
 
     // Filter by requested providers if specified
     if (requestedProviders && requestedProviders.length > 0) {
-      modulesToUse = modulesToUse.filter((module) => requestedProviders.includes(module.id));
+      modulesToUse = modulesToUse.filter((module) => requestedProviders.includes(module.id))
     }
 
     // Build destination address
@@ -113,11 +113,11 @@ export async function POST(request: NextRequest) {
       zipCode: destination.zipCode,
       country: destination.countryCode,
       isResidential: destination.isResidential,
-    };
+    }
 
     // Collect rates from all enabled modules
-    const allRates = [];
-    const errors: Record<string, string> = {};
+    const allRates = []
+    const errors: Record<string, string> = {}
 
     for (const module of modulesToUse) {
       try {
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
             weight: p.weight,
             dimensions: p.dimensions,
           }))
-        );
+        )
 
         // Transform to API response format
         moduleRates.forEach((rate) => {
@@ -151,19 +151,19 @@ export async function POST(request: NextRequest) {
               guaranteed: rate.isGuaranteed,
               date: rate.deliveryDate?.toISOString(),
             },
-          });
-        });
+          })
+        })
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error(`[Shipping API] ${module.name} error:`, errorMessage);
-        errors[module.id] = errorMessage;
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        console.error(`[Shipping API] ${module.name} error:`, errorMessage)
+        errors[module.id] = errorMessage
         // Continue with other providers
       }
     }
 
     // Sort rates by price (ascending) and limit to top 3 cheapest options
-    const sortedRates = allRates.sort((a, b) => a.rate.amount - b.rate.amount);
-    const top3Rates = sortedRates.slice(0, 3);
+    const sortedRates = allRates.sort((a, b) => a.rate.amount - b.rate.amount)
+    const top3Rates = sortedRates.slice(0, 3)
 
     const responseData = {
       success: true,
@@ -178,17 +178,17 @@ export async function POST(request: NextRequest) {
         totalRatesFound: allRates.length,
         displayingTopRates: top3Rates.length,
       },
-    };
+    }
 
     // Cache for 5 minutes (300 seconds) - shipping rates change more frequently
-    await cache.set(cacheKey, responseData, 300);
+    await cache.set(cacheKey, responseData, 300)
 
     return NextResponse.json({
       ...responseData,
       requestId,
-    });
+    })
   } catch (error) {
-    console.error('Shipping rate error:', error);
+    console.error('Shipping rate error:', error)
     return NextResponse.json(
       {
         error: 'Failed to calculate shipping rates',
@@ -196,6 +196,6 @@ export async function POST(request: NextRequest) {
         requestId,
       },
       { status: 500 }
-    );
+    )
   }
 }

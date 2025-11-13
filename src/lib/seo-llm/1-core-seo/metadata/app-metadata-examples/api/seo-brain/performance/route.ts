@@ -6,22 +6,22 @@
  * Get performance metrics for a campaign
  */
 
-import { type NextRequest, NextResponse } from 'next/server';
-import { validateRequest } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { validateRequest } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest) {
   try {
-    const { user } = await validateRequest();
+    const { user } = await validateRequest()
     if (!user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const searchParams = request.nextUrl.searchParams;
-    const campaignId = searchParams.get('campaignId');
+    const searchParams = request.nextUrl.searchParams
+    const campaignId = searchParams.get('campaignId')
 
     if (!campaignId) {
-      return NextResponse.json({ error: 'campaignId required' }, { status: 400 });
+      return NextResponse.json({ error: 'campaignId required' }, { status: 400 })
     }
 
     // Get all city pages for this campaign
@@ -33,12 +33,12 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: { revenue: 'desc' },
-    });
+    })
 
     // Calculate metrics
-    const totalViews = cityPages.reduce((sum, page) => sum + page.views, 0);
-    const totalConversions = cityPages.reduce((sum, page) => sum + page._count.orders, 0);
-    const totalRevenue = cityPages.reduce((sum, page) => sum + page.revenue.toNumber(), 0);
+    const totalViews = cityPages.reduce((sum, page) => sum + page.views, 0)
+    const totalConversions = cityPages.reduce((sum, page) => sum + page._count.orders, 0)
+    const totalRevenue = cityPages.reduce((sum, page) => sum + page.revenue.toNumber(), 0)
 
     // Top 10 performers
     const topPerformers = cityPages.slice(0, 10).map((page) => ({
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
       conversions: page._count.orders,
       revenue: page.revenue.toNumber(),
       conversionRate: page.conversionRate?.toNumber() || 0,
-    }));
+    }))
 
     // Bottom 10 performers
     const bottomPerformers = cityPages
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
         conversions: page._count.orders,
         revenue: page.revenue.toNumber(),
         conversionRate: page.conversionRate?.toNumber() || 0,
-      }));
+      }))
 
     return NextResponse.json({
       success: true,
@@ -72,9 +72,9 @@ export async function GET(request: NextRequest) {
       },
       topPerformers,
       bottomPerformers,
-    });
+    })
   } catch (error) {
-    console.error('[SEO Brain API] Performance error:', error);
-    return NextResponse.json({ error: 'Failed to fetch performance' }, { status: 500 });
+    console.error('[SEO Brain API] Performance error:', error)
+    return NextResponse.json({ error: 'Failed to fetch performance' }, { status: 500 })
   }
 }

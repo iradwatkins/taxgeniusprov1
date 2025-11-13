@@ -1,14 +1,14 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { validateRequest } from '@/lib/auth';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { validateRequest } from '@/lib/auth'
 
 // POST /api/funnels/[id]/duplicate - Duplicate funnel
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { user } = await validateRequest();
+    const { user } = await validateRequest()
 
     if (!user || user.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get original funnel with all steps
@@ -25,18 +25,18 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
           },
         },
       },
-    });
+    })
 
     if (!originalFunnel) {
-      return NextResponse.json({ error: 'Funnel not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Funnel not found' }, { status: 404 })
     }
 
     // Verify ownership
     if (originalFunnel.userId !== user.id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const timestamp = Date.now();
+    const timestamp = Date.now()
 
     // Create duplicate funnel
     const duplicatedFunnel = await prisma.funnel.create({
@@ -127,11 +127,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
           })),
         },
       },
-    });
+    })
 
-    return NextResponse.json(duplicatedFunnel, { status: 201 });
+    return NextResponse.json(duplicatedFunnel, { status: 201 })
   } catch (error) {
-    console.error('API Error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('API Error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

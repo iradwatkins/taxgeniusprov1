@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-import { use, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, Save, Plus, Trash2, GripVertical } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { use, useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft, Save, Plus, Trash2, GripVertical } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/components/ui/badge'
 
-import { Checkbox } from '@/components/ui/checkbox';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Table,
   TableBody,
@@ -18,70 +18,70 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import toast from '@/lib/toast';
+} from '@/components/ui/table'
+import toast from '@/lib/toast'
 
 interface PaperStock {
-  id: string;
-  name: string;
-  basePrice: number;
-  shippingWeight: number;
-  isActive: boolean;
+  id: string
+  name: string
+  basePrice: number
+  shippingWeight: number
+  isActive: boolean
   coatings: Array<{
-    id: string;
-    label: string;
-    enabled: boolean;
-  }>;
+    id: string
+    label: string
+    enabled: boolean
+  }>
   sidesOptions: Array<{
-    id: string;
-    label: string;
-    enabled: boolean;
-    multiplier: number;
-  }>;
-  defaultCoating: string;
-  defaultSides: string;
+    id: string
+    label: string
+    enabled: boolean
+    multiplier: number
+  }>
+  defaultCoating: string
+  defaultSides: string
 }
 
 interface Size {
-  id: string;
-  displayName: string;
-  width: number;
-  height: number;
-  squareInches: number;
+  id: string
+  displayName: string
+  width: number
+  height: number
+  squareInches: number
 }
 
 interface Quantity {
-  id: string;
-  value: number;
-  isDefault: boolean;
+  id: string
+  value: number
+  isDefault: boolean
 }
 
 interface ProductConfig {
-  id: string;
-  name: string;
-  sku: string;
-  selectedPaperStocks: string[];
-  selectedSizes: string[];
-  selectedQuantities: string[];
-  defaultPaperStock: string;
-  defaultSize: string;
-  defaultQuantity: string;
+  id: string
+  name: string
+  sku: string
+  selectedPaperStocks: string[]
+  selectedSizes: string[]
+  selectedQuantities: string[]
+  defaultPaperStock: string
+  defaultSize: string
+  defaultQuantity: string
 }
 
 export default function ConfigureProductPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const { id } = use(params)
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
-  const [product, setProduct] = useState<ProductConfig | null>(null);
-  const [availablePaperStocks, setAvailablePaperStocks] = useState<PaperStock[]>([]);
-  const [availableSizes, setAvailableSizes] = useState<Size[]>([]);
-  const [availableQuantities, setAvailableQuantities] = useState<Quantity[]>([]);
+  const [product, setProduct] = useState<ProductConfig | null>(null)
+  const [availablePaperStocks, setAvailablePaperStocks] = useState<PaperStock[]>([])
+  const [availableSizes, setAvailableSizes] = useState<Size[]>([])
+  const [availableQuantities, setAvailableQuantities] = useState<Quantity[]>([])
 
   useEffect(() => {
-    fetchProductData();
-  }, [id]);
+    fetchProductData()
+  }, [id])
 
   const fetchProductData = async () => {
     try {
@@ -96,21 +96,21 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
         defaultPaperStock: '',
         defaultSize: '1',
         defaultQuantity: '3',
-      };
+      }
 
       // Load paper stocks from API
-      const res = await fetch('/api/paper-stocks');
+      const res = await fetch('/api/paper-stocks')
       if (res.ok) {
-        const paperStocks: PaperStock[] = await res.json();
+        const paperStocks: PaperStock[] = await res.json()
 
         // Only show active paper stocks
-        const activePaperStocks = paperStocks.filter((ps) => ps.isActive);
-        setAvailablePaperStocks(activePaperStocks);
+        const activePaperStocks = paperStocks.filter((ps) => ps.isActive)
+        setAvailablePaperStocks(activePaperStocks)
 
         // Set selected paper stocks if any
         if (activePaperStocks.length > 0) {
-          mockProduct.selectedPaperStocks = activePaperStocks.map((ps) => ps.id);
-          mockProduct.defaultPaperStock = activePaperStocks[0].id;
+          mockProduct.selectedPaperStocks = activePaperStocks.map((ps) => ps.id)
+          mockProduct.defaultPaperStock = activePaperStocks[0].id
         }
       }
 
@@ -120,7 +120,7 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
         { id: '3', displayName: '8.5x11', width: 8.5, height: 11, squareInches: 93.5 },
         { id: '4', displayName: '8.5x14', width: 8.5, height: 14, squareInches: 119 },
         { id: '5', displayName: '11x17', width: 11, height: 17, squareInches: 187 },
-      ];
+      ]
 
       const mockQuantities: Quantity[] = [
         { id: '1', value: 100, isDefault: false },
@@ -129,22 +129,22 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
         { id: '4', value: 1000, isDefault: false },
         { id: '5', value: 2500, isDefault: false },
         { id: '6', value: 5000, isDefault: false },
-      ];
+      ]
 
-      setProduct(mockProduct);
-      setAvailableSizes(mockSizes);
-      setAvailableQuantities(mockQuantities);
+      setProduct(mockProduct)
+      setAvailableSizes(mockSizes)
+      setAvailableQuantities(mockQuantities)
     } catch (error) {
-      toast.error('Failed to load product configuration');
+      toast.error('Failed to load product configuration')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handlePaperStockToggle = (paperStockId: string) => {
-    if (!product) return;
+    if (!product) return
 
-    const isSelected = product.selectedPaperStocks.includes(paperStockId);
+    const isSelected = product.selectedPaperStocks.includes(paperStockId)
     if (isSelected) {
       // Remove if it's not the only one selected
       if (product.selectedPaperStocks.length > 1) {
@@ -155,9 +155,9 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
             product.defaultPaperStock === paperStockId
               ? product.selectedPaperStocks.find((id) => id !== paperStockId) || ''
               : product.defaultPaperStock,
-        });
+        })
       } else {
-        toast.error('At least one material type must be selected');
+        toast.error('At least one material type must be selected')
       }
     } else {
       // Add
@@ -166,14 +166,14 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
         selectedPaperStocks: [...product.selectedPaperStocks, paperStockId],
         defaultPaperStock:
           product.selectedPaperStocks.length === 0 ? paperStockId : product.defaultPaperStock,
-      });
+      })
     }
-  };
+  }
 
   const handleSizeToggle = (sizeId: string) => {
-    if (!product) return;
+    if (!product) return
 
-    const isSelected = product.selectedSizes.includes(sizeId);
+    const isSelected = product.selectedSizes.includes(sizeId)
     if (isSelected) {
       if (product.selectedSizes.length > 1) {
         setProduct({
@@ -183,23 +183,23 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
             product.defaultSize === sizeId
               ? product.selectedSizes.find((id) => id !== sizeId) || ''
               : product.defaultSize,
-        });
+        })
       } else {
-        toast.error('At least one size must be selected');
+        toast.error('At least one size must be selected')
       }
     } else {
       setProduct({
         ...product,
         selectedSizes: [...product.selectedSizes, sizeId],
         defaultSize: product.selectedSizes.length === 0 ? sizeId : product.defaultSize,
-      });
+      })
     }
-  };
+  }
 
   const handleQuantityToggle = (qtyId: string) => {
-    if (!product) return;
+    if (!product) return
 
-    const isSelected = product.selectedQuantities.includes(qtyId);
+    const isSelected = product.selectedQuantities.includes(qtyId)
     if (isSelected) {
       if (product.selectedQuantities.length > 1) {
         setProduct({
@@ -209,51 +209,51 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
             product.defaultQuantity === qtyId
               ? product.selectedQuantities.find((id) => id !== qtyId) || ''
               : product.defaultQuantity,
-        });
+        })
       } else {
-        toast.error('At least one quantity must be selected');
+        toast.error('At least one quantity must be selected')
       }
     } else {
       setProduct({
         ...product,
         selectedQuantities: [...product.selectedQuantities, qtyId],
         defaultQuantity: product.selectedQuantities.length === 0 ? qtyId : product.defaultQuantity,
-      });
+      })
     }
-  };
+  }
 
   const handleSetDefault = (type: 'paperStock' | 'size' | 'quantity', id: string) => {
-    if (!product) return;
+    if (!product) return
 
     if (type === 'paperStock') {
-      setProduct({ ...product, defaultPaperStock: id });
+      setProduct({ ...product, defaultPaperStock: id })
     } else if (type === 'size') {
-      setProduct({ ...product, defaultSize: id });
+      setProduct({ ...product, defaultSize: id })
     } else {
-      setProduct({ ...product, defaultQuantity: id });
+      setProduct({ ...product, defaultQuantity: id })
     }
-  };
+  }
 
   const handleSave = async () => {
-    setSaving(true);
+    setSaving(true)
     try {
       // Would save to API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success('Product configuration saved');
-      router.push('/admin/products');
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      toast.success('Product configuration saved')
+      router.push('/admin/products')
     } catch (error) {
-      toast.error('Failed to save configuration');
+      toast.error('Failed to save configuration')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   if (loading || !product) {
     return (
       <div className="flex items-center justify-center py-12">
         <p className="text-muted-foreground">Loading product configuration...</p>
       </div>
-    );
+    )
   }
 
   return (
@@ -319,9 +319,9 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
                   </TableHeader>
                   <TableBody>
                     {availablePaperStocks.map((paperStock) => {
-                      const isSelected = product.selectedPaperStocks.includes(paperStock.id);
-                      const isDefault = product.defaultPaperStock === paperStock.id;
-                      const samplePrice = (paperStock.basePrice * 24 * 500).toFixed(2);
+                      const isSelected = product.selectedPaperStocks.includes(paperStock.id)
+                      const isDefault = product.defaultPaperStock === paperStock.id
+                      const samplePrice = (paperStock.basePrice * 24 * 500).toFixed(2)
 
                       return (
                         <TableRow key={paperStock.id}>
@@ -360,7 +360,7 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
                               ))}
                           </TableCell>
                         </TableRow>
-                      );
+                      )
                     })}
                   </TableBody>
                 </Table>
@@ -388,8 +388,8 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
                 </TableHeader>
                 <TableBody>
                   {availableSizes.map((size) => {
-                    const isSelected = product.selectedSizes.includes(size.id);
-                    const isDefault = product.defaultSize === size.id;
+                    const isSelected = product.selectedSizes.includes(size.id)
+                    const isDefault = product.defaultSize === size.id
 
                     return (
                       <TableRow key={size.id}>
@@ -419,7 +419,7 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
                             ))}
                         </TableCell>
                       </TableRow>
-                    );
+                    )
                   })}
                 </TableBody>
               </Table>
@@ -446,8 +446,8 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
                 </TableHeader>
                 <TableBody>
                   {availableQuantities.map((qty) => {
-                    const isSelected = product.selectedQuantities.includes(qty.id);
-                    const isDefault = product.defaultQuantity === qty.id;
+                    const isSelected = product.selectedQuantities.includes(qty.id)
+                    const isDefault = product.defaultQuantity === qty.id
 
                     return (
                       <TableRow key={qty.id}>
@@ -473,7 +473,7 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
                             ))}
                         </TableCell>
                       </TableRow>
-                    );
+                    )
                   })}
                 </TableBody>
               </Table>
@@ -492,7 +492,7 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
             <p className="text-sm font-medium mb-2">Selected Paper Stocks:</p>
             <div className="flex flex-wrap gap-2">
               {product.selectedPaperStocks.map((id) => {
-                const paperStock = availablePaperStocks.find((ps) => ps.id === id);
+                const paperStock = availablePaperStocks.find((ps) => ps.id === id)
                 return paperStock ? (
                   <Badge
                     key={id}
@@ -501,7 +501,7 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
                     {paperStock.name}
                     {id === product.defaultPaperStock && ' (Default)'}
                   </Badge>
-                ) : null;
+                ) : null
               })}
             </div>
           </div>
@@ -510,13 +510,13 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
             <p className="text-sm font-medium mb-2">Selected Sizes:</p>
             <div className="flex flex-wrap gap-2">
               {product.selectedSizes.map((id) => {
-                const size = availableSizes.find((s) => s.id === id);
+                const size = availableSizes.find((s) => s.id === id)
                 return size ? (
                   <Badge key={id} variant={id === product.defaultSize ? 'default' : 'secondary'}>
                     {size.displayName}
                     {id === product.defaultSize && ' (Default)'}
                   </Badge>
-                ) : null;
+                ) : null
               })}
             </div>
           </div>
@@ -525,7 +525,7 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
             <p className="text-sm font-medium mb-2">Selected Quantities:</p>
             <div className="flex flex-wrap gap-2">
               {product.selectedQuantities.map((id) => {
-                const qty = availableQuantities.find((q) => q.id === id);
+                const qty = availableQuantities.find((q) => q.id === id)
                 return qty ? (
                   <Badge
                     key={id}
@@ -534,12 +534,12 @@ export default function ConfigureProductPage({ params }: { params: Promise<{ id:
                     {qty.value.toLocaleString()}
                     {id === product.defaultQuantity && ' (Default)'}
                   </Badge>
-                ) : null;
+                ) : null
               })}
             </div>
           </div>
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

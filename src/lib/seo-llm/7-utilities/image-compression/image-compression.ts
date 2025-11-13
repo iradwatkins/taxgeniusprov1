@@ -11,8 +11,7 @@
  * - Retry logic with more aggressive compression
  */
 
-import sharp from 'sharp';
-import { logger } from '@/lib/logger';
+import sharp from 'sharp'
 
 // ============================================================================
 // CONSTANTS
@@ -25,19 +24,19 @@ export const API_LIMITS = {
   GOOGLE_IMAGEN: 20 * 1024 * 1024, // 20 MB for Imagen API (safe limit)
   OPENAI: 20 * 1024 * 1024, // 20 MB for GPT-4 Vision
   GENERAL: 10 * 1024 * 1024, // 10 MB general purpose
-} as const;
+} as const
 
 /** Maximum base64 size in bytes (default: 10 MB) */
-export const MAX_BASE64_SIZE = API_LIMITS.GENERAL;
+export const MAX_BASE64_SIZE = API_LIMITS.GENERAL
 
 /** Maximum image dimension (width or height) */
-export const MAX_DIMENSION = 1920;
+export const MAX_DIMENSION = 1920
 
 /** Initial quality for JPEG/PNG compression */
-export const INITIAL_QUALITY = 80;
+export const INITIAL_QUALITY = 80
 
 /** Minimum quality threshold (don't go below this) */
-export const MIN_QUALITY = 30;
+export const MIN_QUALITY = 30
 
 // ============================================================================
 // TYPES
@@ -45,48 +44,48 @@ export const MIN_QUALITY = 30;
 
 export interface CompressionOptions {
   /** Maximum dimension (width or height) - default 1920px */
-  maxDimension?: number;
+  maxDimension?: number
 
   /** Initial quality (1-100) - default 80 */
-  initialQuality?: number;
+  initialQuality?: number
 
   /** Minimum quality threshold - default 30 */
-  minQuality?: number;
+  minQuality?: number
 
   /** Maximum base64 size in bytes - default 10 MB */
-  maxBase64Size?: number;
+  maxBase64Size?: number
 
   /** Enable aggressive compression mode */
-  aggressive?: boolean;
+  aggressive?: boolean
 
   /** Target API (uses predefined size limits) - overrides maxBase64Size */
-  targetAPI?: 'anthropic' | 'google-gemini' | 'google-imagen' | 'openai' | 'general';
+  targetAPI?: 'anthropic' | 'google-gemini' | 'google-imagen' | 'openai' | 'general'
 }
 
 export interface CompressionResult {
   /** Compressed image buffer */
-  buffer: Buffer;
+  buffer: Buffer
 
   /** Base64 encoded string */
-  base64: string;
+  base64: string
 
   /** Final size in bytes */
-  sizeBytes: number;
+  sizeBytes: number
 
   /** Size in MB (formatted) */
-  sizeMB: string;
+  sizeMB: string
 
   /** Quality used for final compression */
-  finalQuality: number;
+  finalQuality: number
 
   /** Dimensions of final image */
   dimensions: {
-    width: number;
-    height: number;
-  };
+    width: number
+    height: number
+  }
 
   /** Whether compression was needed */
-  wasCompressed: boolean;
+  wasCompressed: boolean
 }
 
 // ============================================================================
@@ -102,7 +101,7 @@ export interface CompressionResult {
  *
  * @example
  * const result = await compressImageForAPI(imageBuffer);
- * logger.info(`Compressed to ${result.sizeMB}`);
+ * console.log(`Compressed to ${result.sizeMB}`);
  * // Use result.base64 in API call
  *
  * @throws Error if image cannot be compressed below size limit
@@ -112,25 +111,25 @@ export async function compressImageForAPI(
   options: CompressionOptions = {}
 ): Promise<CompressionResult> {
   // Determine size limit based on target API (if specified)
-  let sizeLimit = options.maxBase64Size || MAX_BASE64_SIZE;
+  let sizeLimit = options.maxBase64Size || MAX_BASE64_SIZE
 
   if (options.targetAPI) {
     switch (options.targetAPI) {
       case 'anthropic':
-        sizeLimit = API_LIMITS.ANTHROPIC;
-        break;
+        sizeLimit = API_LIMITS.ANTHROPIC
+        break
       case 'google-gemini':
-        sizeLimit = API_LIMITS.GOOGLE_GEMINI;
-        break;
+        sizeLimit = API_LIMITS.GOOGLE_GEMINI
+        break
       case 'google-imagen':
-        sizeLimit = API_LIMITS.GOOGLE_IMAGEN;
-        break;
+        sizeLimit = API_LIMITS.GOOGLE_IMAGEN
+        break
       case 'openai':
-        sizeLimit = API_LIMITS.OPENAI;
-        break;
+        sizeLimit = API_LIMITS.OPENAI
+        break
       case 'general':
-        sizeLimit = API_LIMITS.GENERAL;
-        break;
+        sizeLimit = API_LIMITS.GENERAL
+        break
     }
   }
 
@@ -140,32 +139,32 @@ export async function compressImageForAPI(
     minQuality = MIN_QUALITY,
     maxBase64Size = sizeLimit,
     aggressive = false,
-  } = options;
+  } = options
 
   // Convert input to buffer if it's a base64 string or file path
-  let buffer: Buffer;
+  let buffer: Buffer
   if (typeof input === 'string') {
     if (input.startsWith('data:')) {
       // Base64 data URI
-      const base64Data = input.split(',')[1];
-      buffer = Buffer.from(base64Data, 'base64');
+      const base64Data = input.split(',')[1]
+      buffer = Buffer.from(base64Data, 'base64')
     } else if (input.startsWith('/') || input.match(/^[A-Za-z]:\\/)) {
       // File path
-      const fs = await import('fs/promises');
-      buffer = await fs.readFile(input);
+      const fs = await import('fs/promises')
+      buffer = await fs.readFile(input)
     } else {
       // Plain base64 string
-      buffer = Buffer.from(input, 'base64');
+      buffer = Buffer.from(input, 'base64')
     }
   } else {
-    buffer = input;
+    buffer = input
   }
 
   // Get original metadata
-  const image = sharp(buffer);
-  const metadata = await image.metadata();
-  const originalWidth = metadata.width || 0;
-  const originalHeight = metadata.height || 0;
+  const image = sharp(buffer)
+  const metadata = await image.metadata()
+  const originalWidth = metadata.width || 0
+  const originalHeight = metadata.height || 0
 
   /*
     `📊 Original image: ${originalWidth}x${originalHeight}, ${(buffer.length / 1024 / 1024).toFixed(2)} MB`
@@ -173,45 +172,45 @@ export async function compressImageForAPI(
   */
 
   // Check if resizing is needed
-  const needsResize = originalWidth > maxDimension || originalHeight > maxDimension;
+  const needsResize = originalWidth > maxDimension || originalHeight > maxDimension
 
   // Calculate new dimensions while maintaining aspect ratio
-  let targetWidth = originalWidth;
-  let targetHeight = originalHeight;
+  let targetWidth = originalWidth
+  let targetHeight = originalHeight
 
   if (needsResize) {
-    const aspectRatio = originalWidth / originalHeight;
+    const aspectRatio = originalWidth / originalHeight
     if (originalWidth > originalHeight) {
-      targetWidth = maxDimension;
-      targetHeight = Math.round(maxDimension / aspectRatio);
+      targetWidth = maxDimension
+      targetHeight = Math.round(maxDimension / aspectRatio)
     } else {
-      targetHeight = maxDimension;
-      targetWidth = Math.round(maxDimension * aspectRatio);
+      targetHeight = maxDimension
+      targetWidth = Math.round(maxDimension * aspectRatio)
     }
   }
 
   // Determine format and compression strategy
-  const format = metadata.format || 'jpeg';
-  const isJPEG = format === 'jpeg' || format === 'jpg';
-  const isPNG = format === 'png';
+  const format = metadata.format || 'jpeg'
+  const isJPEG = format === 'jpeg' || format === 'jpg'
+  const isPNG = format === 'png'
 
   // Try progressive quality reduction until size is acceptable
-  let quality = aggressive ? Math.floor(initialQuality * 0.7) : initialQuality;
-  let compressedBuffer: Buffer | null = null;
-  let attempts = 0;
-  const maxAttempts = 10;
+  let quality = aggressive ? Math.floor(initialQuality * 0.7) : initialQuality
+  let compressedBuffer: Buffer | null = null
+  let attempts = 0
+  const maxAttempts = 10
 
   while (attempts < maxAttempts && quality >= minQuality) {
-    attempts++;
+    attempts++
 
-    let processedImage = sharp(buffer);
+    let processedImage = sharp(buffer)
 
     // Resize if needed
     if (needsResize) {
       processedImage = processedImage.resize(targetWidth, targetHeight, {
         fit: 'inside',
         withoutEnlargement: true,
-      });
+      })
     }
 
     // Apply format-specific compression
@@ -220,25 +219,25 @@ export async function compressImageForAPI(
         quality,
         progressive: true,
         mozjpeg: true, // Use mozjpeg for better compression
-      });
+      })
     } else if (isPNG) {
       processedImage = processedImage.png({
         quality,
         compressionLevel: 9,
         progressive: true,
-      });
+      })
     } else {
       // Convert other formats to JPEG for better compression
       processedImage = processedImage.jpeg({
         quality,
         progressive: true,
         mozjpeg: true,
-      });
+      })
     }
 
-    compressedBuffer = await processedImage.toBuffer();
-    const base64 = compressedBuffer.toString('base64');
-    const base64Size = Buffer.byteLength(base64, 'utf8');
+    compressedBuffer = await processedImage.toBuffer()
+    const base64 = compressedBuffer.toString('base64')
+    const base64Size = Buffer.byteLength(base64, 'utf8')
 
     /*
       `🔄 Attempt ${attempts}: Quality ${quality}%, Size: ${(base64Size / 1024 / 1024).toFixed(2)} MB`
@@ -247,7 +246,7 @@ export async function compressImageForAPI(
 
     if (base64Size <= maxBase64Size) {
       // Success! Size is acceptable
-      const finalMetadata = await sharp(compressedBuffer).metadata();
+      const finalMetadata = await sharp(compressedBuffer).metadata()
 
       return {
         buffer: compressedBuffer,
@@ -260,11 +259,11 @@ export async function compressImageForAPI(
           height: finalMetadata.height || targetHeight,
         },
         wasCompressed: quality < initialQuality || needsResize,
-      };
+      }
     }
 
     // Reduce quality for next attempt
-    quality -= 10;
+    quality -= 10
   }
 
   // If we get here, we couldn't compress enough
@@ -272,7 +271,7 @@ export async function compressImageForAPI(
     `Unable to compress image below ${(maxBase64Size / 1024 / 1024).toFixed(2)} MB. ` +
       `Final size: ${compressedBuffer ? (compressedBuffer.length / 1024 / 1024).toFixed(2) : 'unknown'} MB. ` +
       `Try using a smaller source image or increasing maxBase64Size.`
-  );
+  )
 }
 
 /**
@@ -283,8 +282,8 @@ export async function compressImageForAPI(
  * @returns true if size is acceptable
  */
 export function validateBase64Size(base64: string, maxSize = MAX_BASE64_SIZE): boolean {
-  const sizeBytes = Buffer.byteLength(base64, 'utf8');
-  return sizeBytes <= maxSize;
+  const sizeBytes = Buffer.byteLength(base64, 'utf8')
+  return sizeBytes <= maxSize
 }
 
 /**
@@ -294,7 +293,7 @@ export function validateBase64Size(base64: string, maxSize = MAX_BASE64_SIZE): b
  * @returns Size in bytes
  */
 export function getBase64Size(base64: string): number {
-  return Buffer.byteLength(base64, 'utf8');
+  return Buffer.byteLength(base64, 'utf8')
 }
 
 /**
@@ -304,9 +303,9 @@ export function getBase64Size(base64: string): number {
  * @returns Formatted string (e.g., "2.45 MB")
  */
 export function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
-  return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`
+  return `${(bytes / 1024 / 1024).toFixed(2)} MB`
 }
 
 // ============================================================================
@@ -334,7 +333,7 @@ export async function compressWithRetry(
 ): Promise<CompressionResult> {
   try {
     // First attempt: Normal compression
-    return await compressImageForAPI(input, options);
+    return await compressImageForAPI(input, options)
   } catch (error) {
     // Second attempt: Aggressive compression
     return await compressImageForAPI(input, {
@@ -342,6 +341,6 @@ export async function compressWithRetry(
       aggressive: true,
       initialQuality: 60,
       minQuality: 20,
-    });
+    })
   }
 }

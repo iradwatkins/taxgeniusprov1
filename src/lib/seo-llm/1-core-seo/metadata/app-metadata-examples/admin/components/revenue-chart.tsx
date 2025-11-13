@@ -1,33 +1,33 @@
-'use client';
+'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface ChartData {
-  labels: string[];
+  labels: string[]
   datasets: {
-    label: string;
-    data: number[];
-    borderColor?: string;
-    backgroundColor?: string;
-  }[];
+    label: string
+    data: number[]
+    borderColor?: string
+    backgroundColor?: string
+  }[]
 }
 
 export function RevenueChart({ data }: { data?: ChartData }) {
-  if (!data) return null;
+  if (!data) return null
 
-  const maxValue = Math.max(...(data.datasets[0]?.data || [1]));
-  const points = data.labels.length;
+  const maxValue = Math.max(...(data.datasets[0]?.data || [1]))
+  const points = data.labels.length
 
   // Create SVG path for line chart
   const createPath = (dataset: number[]) => {
     return dataset
       .map((value, index) => {
-        const x = (index / (points - 1)) * 100;
-        const y = 100 - (value / maxValue) * 100;
-        return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
+        const x = (index / (points - 1)) * 100
+        const y = 100 - (value / maxValue) * 100
+        return `${index === 0 ? 'M' : 'L'} ${x} ${y}`
       })
-      .join(' ');
-  };
+      .join(' ')
+  }
 
   return (
     <Card>
@@ -53,8 +53,8 @@ export function RevenueChart({ data }: { data?: ChartData }) {
                 />
                 {/* Data points */}
                 {dataset.data.map((value, index) => {
-                  const x = (index / (points - 1)) * 100;
-                  const y = 100 - (value / maxValue) * 100;
+                  const x = (index / (points - 1)) * 100
+                  const y = 100 - (value / maxValue) * 100
                   return (
                     <circle
                       key={index}
@@ -63,7 +63,7 @@ export function RevenueChart({ data }: { data?: ChartData }) {
                       fill={dataset.borderColor || '#3b82f6'}
                       r="1"
                     />
-                  );
+                  )
                 })}
               </g>
             ))}
@@ -85,5 +85,5 @@ export function RevenueChart({ data }: { data?: ChartData }) {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

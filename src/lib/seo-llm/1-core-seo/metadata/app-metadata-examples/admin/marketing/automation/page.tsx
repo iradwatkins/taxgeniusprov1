@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
@@ -20,13 +20,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu'
 import {
   Zap,
   Plus,
@@ -39,91 +39,91 @@ import {
   BarChart3,
   Users,
   Clock,
-} from 'lucide-react';
+} from 'lucide-react'
 
 interface Workflow {
-  id: string;
-  name: string;
-  description: string | null;
-  isActive: boolean;
-  trigger: Record<string, unknown>;
-  steps: Record<string, unknown>[];
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  name: string
+  description: string | null
+  isActive: boolean
+  trigger: Record<string, unknown>
+  steps: Record<string, unknown>[]
+  createdAt: string
+  updatedAt: string
   segment?: {
-    id: string;
-    name: string;
-  };
+    id: string
+    name: string
+  }
   _count?: {
-    executions: number;
-  };
+    executions: number
+  }
 }
 
 export default function AutomationPage() {
-  const router = useRouter();
-  const [workflows, setWorkflows] = useState<Workflow[]>([]);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter()
+  const [workflows, setWorkflows] = useState<Workflow[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchWorkflows();
-  }, []);
+    fetchWorkflows()
+  }, [])
 
   const fetchWorkflows = async () => {
     try {
-      const response = await fetch('/api/marketing/workflows');
+      const response = await fetch('/api/marketing/workflows')
       if (response.ok) {
-        const data = await response.json();
-        setWorkflows(data);
+        const data = await response.json()
+        setWorkflows(data)
       }
     } catch (error) {
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleToggleWorkflow = async (workflowId: string, isActive: boolean) => {
     try {
       const endpoint = isActive
         ? `/api/marketing/workflows/${workflowId}/deactivate`
-        : `/api/marketing/workflows/${workflowId}/activate`;
+        : `/api/marketing/workflows/${workflowId}/activate`
 
-      const response = await fetch(endpoint, { method: 'POST' });
+      const response = await fetch(endpoint, { method: 'POST' })
 
       if (response.ok) {
-        fetchWorkflows(); // Refresh the list
+        fetchWorkflows() // Refresh the list
       }
     } catch (error) {}
-  };
+  }
 
   const handleDeleteWorkflow = async (workflowId: string) => {
-    if (!confirm('Are you sure you want to delete this workflow?')) return;
+    if (!confirm('Are you sure you want to delete this workflow?')) return
 
     try {
       const response = await fetch(`/api/marketing/workflows/${workflowId}`, {
         method: 'DELETE',
-      });
+      })
 
       if (response.ok) {
-        setWorkflows((prev) => prev.filter((w) => w.id !== workflowId));
+        setWorkflows((prev) => prev.filter((w) => w.id !== workflowId))
       }
     } catch (error) {}
-  };
+  }
 
   const getTriggerLabel = (trigger: Record<string, unknown>) => {
     switch (trigger.type) {
       case 'event':
-        return `Event: ${typeof trigger.event === 'string' ? trigger.event.replace(/_/g, ' ') : 'Unknown'}`;
+        return `Event: ${typeof trigger.event === 'string' ? trigger.event.replace(/_/g, ' ') : 'Unknown'}`
       case 'schedule':
-        return `Schedule: ${(trigger.schedule as any)?.type || 'Unknown'}`;
+        return `Schedule: ${(trigger.schedule as any)?.type || 'Unknown'}`
       case 'condition':
-        return `Condition: ${(trigger.condition as any)?.field || 'Unknown'}`;
+        return `Condition: ${(trigger.condition as any)?.field || 'Unknown'}`
       default:
-        return 'Unknown trigger';
+        return 'Unknown trigger'
     }
-  };
+  }
 
   if (loading) {
-    return <div className="p-6">Loading automation workflows...</div>;
+    return <div className="p-6">Loading automation workflows...</div>
   }
 
   return (
@@ -384,5 +384,5 @@ export default function AutomationPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

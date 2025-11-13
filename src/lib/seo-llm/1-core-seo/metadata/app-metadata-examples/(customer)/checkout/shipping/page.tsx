@@ -1,77 +1,77 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { useCart } from '@/contexts/cart-context';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { useCart } from '@/contexts/cart-context'
 import {
   ShippingAddressForm,
   type ShippingAddress,
-} from '@/components/checkout/shipping-address-form';
+} from '@/components/checkout/shipping-address-form'
 import {
   ShippingMethodSelector,
   type ShippingRate,
-} from '@/components/checkout/shipping-method-selector';
-import { AirportSelector } from '@/components/checkout/airport-selector';
-import { SavedAddresses } from '@/components/checkout/saved-addresses';
-import { useUser } from '@/hooks/use-user';
-import toast from '@/lib/toast';
-import Link from 'next/link';
+} from '@/components/checkout/shipping-method-selector'
+import { AirportSelector } from '@/components/checkout/airport-selector'
+import { SavedAddresses } from '@/components/checkout/saved-addresses'
+import { useUser } from '@/hooks/use-user'
+import toast from '@/lib/toast'
+import Link from 'next/link'
 
 export default function ShippingPage() {
-  const router = useRouter();
-  const { items, subtotal, itemCount } = useCart();
-  const { data: session } = useSession(); const user = session?.user;
+  const router = useRouter()
+  const { items, subtotal, itemCount } = useCart()
+  const { user } = useUser()
 
   const [shippingAddress, setShippingAddress] = useState<Partial<ShippingAddress>>({
     country: 'US',
-  });
-  const [showManualForm, setShowManualForm] = useState(false);
-  const [shouldSaveAddress, setShouldSaveAddress] = useState(false);
-  const [selectedShippingMethod, setSelectedShippingMethod] = useState<ShippingRate | undefined>();
-  const [selectedAirportId, setSelectedAirportId] = useState<string | undefined>();
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isProcessing, setIsProcessing] = useState(false);
+  })
+  const [showManualForm, setShowManualForm] = useState(false)
+  const [shouldSaveAddress, setShouldSaveAddress] = useState(false)
+  const [selectedShippingMethod, setSelectedShippingMethod] = useState<ShippingRate | undefined>()
+  const [selectedAirportId, setSelectedAirportId] = useState<string | undefined>()
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isProcessing, setIsProcessing] = useState(false)
 
   // Redirect if cart is empty
   useEffect(() => {
     if (items.length === 0) {
-      router.push('/checkout');
+      router.push('/checkout')
     }
-  }, [items, router]);
+  }, [items, router])
 
   // Load previously entered shipping data from sessionStorage (if customer navigates back)
   useEffect(() => {
     const loadSavedData = () => {
       try {
-        const savedAddress = sessionStorage.getItem('checkout_shipping_address');
-        const savedMethod = sessionStorage.getItem('checkout_shipping_method');
-        const savedAirport = sessionStorage.getItem('checkout_airport_id');
+        const savedAddress = sessionStorage.getItem('checkout_shipping_address')
+        const savedMethod = sessionStorage.getItem('checkout_shipping_method')
+        const savedAirport = sessionStorage.getItem('checkout_airport_id')
 
         if (savedAddress) {
-          const parsed = JSON.parse(savedAddress);
-          setShippingAddress(parsed);
+          const parsed = JSON.parse(savedAddress)
+          setShippingAddress(parsed)
         }
 
         if (savedMethod) {
-          const parsed = JSON.parse(savedMethod);
-          setSelectedShippingMethod(parsed);
+          const parsed = JSON.parse(savedMethod)
+          setSelectedShippingMethod(parsed)
         }
 
         if (savedAirport) {
-          setSelectedAirportId(savedAirport);
+          setSelectedAirportId(savedAirport)
         }
       } catch (error) {
-        console.error('[Shipping] Error loading saved data:', error);
+        console.error('[Shipping] Error loading saved data:', error)
         // Don't show error to user - just start fresh
       }
-    };
+    }
 
-    loadSavedData();
-  }, []); // Run only once on mount
+    loadSavedData()
+  }, []) // Run only once on mount
 
   // ============================================================================
   // 🚨 WEIGHT CALCULATION: Send cart items to backend for accurate calculation
@@ -87,7 +87,7 @@ export default function ShippingPage() {
     height: item.dimensions?.height || 2, // Default business card height
     paperStockId: item.options.paperStockId,
     paperStockWeight: item.paperStockWeight,
-  }));
+  }))
 
   const handleSavedAddressSelect = (address: any) => {
     setShippingAddress({
@@ -102,59 +102,59 @@ export default function ShippingPage() {
       state: address.state,
       zipCode: address.zipCode,
       country: address.country || 'US',
-    });
-    setShowManualForm(true);
-    setErrors({}); // Clear any previous errors
-  };
+    })
+    setShowManualForm(true)
+    setErrors({}) // Clear any previous errors
+  }
 
   const handleNewAddress = () => {
-    setShowManualForm(true);
-  };
+    setShowManualForm(true)
+  }
 
   const validateAddress = (): boolean => {
-    const newErrors: Record<string, string> = {};
+    const newErrors: Record<string, string> = {}
 
-    if (!shippingAddress.firstName) newErrors.firstName = 'First name is required';
-    if (!shippingAddress.lastName) newErrors.lastName = 'Last name is required';
-    if (!shippingAddress.email) newErrors.email = 'Email is required';
-    if (!shippingAddress.phone) newErrors.phone = 'Phone is required';
-    if (!shippingAddress.street) newErrors.street = 'Street address is required';
-    if (!shippingAddress.city) newErrors.city = 'City is required';
-    if (!shippingAddress.state) newErrors.state = 'State is required';
-    if (!shippingAddress.zipCode) newErrors.zipCode = 'ZIP code is required';
+    if (!shippingAddress.firstName) newErrors.firstName = 'First name is required'
+    if (!shippingAddress.lastName) newErrors.lastName = 'Last name is required'
+    if (!shippingAddress.email) newErrors.email = 'Email is required'
+    if (!shippingAddress.phone) newErrors.phone = 'Phone is required'
+    if (!shippingAddress.street) newErrors.street = 'Street address is required'
+    if (!shippingAddress.city) newErrors.city = 'City is required'
+    if (!shippingAddress.state) newErrors.state = 'State is required'
+    if (!shippingAddress.zipCode) newErrors.zipCode = 'ZIP code is required'
 
     // Email format validation
     if (shippingAddress.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(shippingAddress.email)) {
-      newErrors.email = 'Invalid email format';
+      newErrors.email = 'Invalid email format'
     }
 
     // ZIP code format validation
     if (shippingAddress.zipCode && !/^\d{5}(-\d{4})?$/.test(shippingAddress.zipCode)) {
-      newErrors.zipCode = 'Invalid ZIP code format';
+      newErrors.zipCode = 'Invalid ZIP code format'
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleContinueToPayment = async () => {
     if (!validateAddress()) {
-      toast.error('Please fill in all required fields');
-      return;
+      toast.error('Please fill in all required fields')
+      return
     }
 
     if (!selectedShippingMethod) {
-      toast.error('Please select a shipping method');
-      return;
+      toast.error('Please select a shipping method')
+      return
     }
 
     // Check if Southwest Cargo selected but no airport chosen
     if (selectedShippingMethod.carrier === 'SOUTHWEST_CARGO' && !selectedAirportId) {
-      toast.error('Please select a pickup airport for Southwest Cargo');
-      return;
+      toast.error('Please select a pickup airport for Southwest Cargo')
+      return
     }
 
-    setIsProcessing(true);
+    setIsProcessing(true)
 
     try {
       // Save address if user requested it
@@ -175,36 +175,36 @@ export default function ShippingPage() {
             phone: shippingAddress.phone,
             isDefault: false,
           }),
-        });
-        toast.success('Address saved to your account');
+        })
+        toast.success('Address saved to your account')
       }
 
       // Store shipping information in sessionStorage
-      sessionStorage.setItem('checkout_shipping_address', JSON.stringify(shippingAddress));
-      sessionStorage.setItem('checkout_shipping_method', JSON.stringify(selectedShippingMethod));
+      sessionStorage.setItem('checkout_shipping_address', JSON.stringify(shippingAddress))
+      sessionStorage.setItem('checkout_shipping_method', JSON.stringify(selectedShippingMethod))
       if (selectedAirportId) {
-        sessionStorage.setItem('checkout_airport_id', selectedAirportId);
+        sessionStorage.setItem('checkout_airport_id', selectedAirportId)
       }
 
       // Navigate to payment page
-      router.push('/checkout/payment');
+      router.push('/checkout/payment')
     } catch (error) {
-      console.error('Error saving address:', error);
-      toast.error('Failed to save address, but continuing to payment');
+      console.error('Error saving address:', error)
+      toast.error('Failed to save address, but continuing to payment')
       // Continue to payment even if saving address fails
-      router.push('/checkout/payment');
+      router.push('/checkout/payment')
     } finally {
-      setIsProcessing(false);
+      setIsProcessing(false)
     }
-  };
-
-  if (items.length === 0) {
-    return null; // Will redirect
   }
 
-  const shippingCost = selectedShippingMethod?.rate.amount || 0;
-  const tax = subtotal * 0.1; // 10% tax rate
-  const total = subtotal + shippingCost + tax;
+  if (items.length === 0) {
+    return null // Will redirect
+  }
+
+  const shippingCost = selectedShippingMethod?.rate.amount || 0
+  const tax = subtotal * 0.1 // 10% tax rate
+  const total = subtotal + shippingCost + tax
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -330,5 +330,5 @@ export default function ShippingPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
 import {
   Table,
   TableBody,
@@ -12,7 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
@@ -20,22 +20,22 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+} from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu'
 import {
   Target,
   Plus,
@@ -47,24 +47,24 @@ import {
   Edit,
   Trash2,
   BarChart3,
-} from 'lucide-react';
+} from 'lucide-react'
 
 interface Segment {
-  id: string;
-  name: string;
-  description: string | null;
-  count: number;
-  isActive: boolean;
-  isDynamic: boolean;
-  lastUpdated: string;
-  createdAt: string;
+  id: string
+  name: string
+  description: string | null
+  count: number
+  isActive: boolean
+  isDynamic: boolean
+  lastUpdated: string
+  createdAt: string
 }
 
 interface SegmentRule {
-  field: string;
-  operator: string;
-  value: any;
-  type: 'user' | 'order' | 'custom';
+  field: string
+  operator: string
+  value: any
+  type: 'user' | 'order' | 'custom'
 }
 
 const FIELD_OPTIONS = [
@@ -80,7 +80,7 @@ const FIELD_OPTIONS = [
   { value: 'lastOrderDate', label: 'Days Since Last Order', type: 'order' },
   { value: 'rfmScore', label: 'RFM Score', type: 'custom' },
   { value: 'engagementScore', label: 'Engagement Score', type: 'custom' },
-];
+]
 
 const OPERATOR_OPTIONS = [
   { value: 'equals', label: 'Equals' },
@@ -91,38 +91,38 @@ const OPERATOR_OPTIONS = [
   { value: 'in', label: 'In' },
   { value: 'not_in', label: 'Not In' },
   { value: 'between', label: 'Between' },
-];
+]
 
 export default function SegmentsPage() {
-  const [segments, setSegments] = useState<Segment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [segments, setSegments] = useState<Segment[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [newSegment, setNewSegment] = useState<{
-    name: string;
-    description: string;
-    rules: SegmentRule[];
+    name: string
+    description: string
+    rules: SegmentRule[]
   }>({
     name: '',
     description: '',
     rules: [{ field: '', operator: '', value: '', type: 'user' }],
-  });
+  })
 
   useEffect(() => {
-    fetchSegments();
-  }, []);
+    fetchSegments()
+  }, [])
 
   const fetchSegments = async () => {
     try {
-      const response = await fetch('/api/marketing/segments');
+      const response = await fetch('/api/marketing/segments')
       if (response.ok) {
-        const data = await response.json();
-        setSegments(data);
+        const data = await response.json()
+        setSegments(data)
       }
     } catch (error) {
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleCreateSegment = async () => {
     try {
@@ -139,70 +139,70 @@ export default function SegmentsPage() {
             },
           ],
         }),
-      });
+      })
 
       if (response.ok) {
-        const segment = await response.json();
-        setSegments((prev) => [segment, ...prev]);
-        setShowCreateDialog(false);
+        const segment = await response.json()
+        setSegments((prev) => [segment, ...prev])
+        setShowCreateDialog(false)
         setNewSegment({
           name: '',
           description: '',
           rules: [{ field: '', operator: '', value: '', type: 'user' }],
-        });
+        })
       }
     } catch (error) {}
-  };
+  }
 
   const handleRefreshSegment = async (segmentId: string) => {
     try {
       const response = await fetch(`/api/marketing/segments/${segmentId}/refresh`, {
         method: 'POST',
-      });
+      })
 
       if (response.ok) {
-        fetchSegments(); // Refresh the list
+        fetchSegments() // Refresh the list
       }
     } catch (error) {}
-  };
+  }
 
   const handleDeleteSegment = async (segmentId: string) => {
-    if (!confirm('Are you sure you want to delete this segment?')) return;
+    if (!confirm('Are you sure you want to delete this segment?')) return
 
     try {
       const response = await fetch(`/api/marketing/segments/${segmentId}`, {
         method: 'DELETE',
-      });
+      })
 
       if (response.ok) {
-        setSegments((prev) => prev.filter((s) => s.id !== segmentId));
+        setSegments((prev) => prev.filter((s) => s.id !== segmentId))
       }
     } catch (error) {}
-  };
+  }
 
   const addRule = () => {
     setNewSegment((prev) => ({
       ...prev,
       rules: [...prev.rules, { field: '', operator: '', value: '', type: 'user' }],
-    }));
-  };
+    }))
+  }
 
   const updateRule = (index: number, updates: Partial<SegmentRule>) => {
     setNewSegment((prev) => ({
       ...prev,
       rules: prev.rules.map((rule, i) => (i === index ? { ...rule, ...updates } : rule)),
-    }));
-  };
+    }))
+  }
 
   const removeRule = (index: number) => {
     setNewSegment((prev) => ({
       ...prev,
       rules: prev.rules.filter((_, i) => i !== index),
-    }));
-  };
+    }))
+  }
 
   if (loading) {
-    return <div className="p-6">Loading segments...</div>;
+    return <div className="p-6">Loading segments...</div>
   }
 
   return (
@@ -263,8 +263,8 @@ export default function SegmentsPage() {
                         <Select
                           value={rule.field}
                           onValueChange={(value) => {
-                            const field = FIELD_OPTIONS.find((f) => f.value === value);
-                            updateRule(index, { field: value, type: field?.type as any });
+                            const field = FIELD_OPTIONS.find((f) => f.value === value)
+                            updateRule(index, { field: value, type: field?.type as any })
                           }}
                         >
                           <SelectTrigger>
@@ -505,5 +505,5 @@ export default function SegmentsPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

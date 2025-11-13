@@ -1,6 +1,6 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { validateRequest } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { validateRequest } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
 /**
  * Re-Order API Endpoint
@@ -13,12 +13,12 @@ import { prisma } from '@/lib/prisma';
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     // Authenticate user
-    const { user } = await validateRequest();
+    const { user } = await validateRequest()
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { id } = await params;
+    const { id } = await params
 
     // Fetch original order with all related data
     const order = await prisma.order.findUnique({
@@ -38,10 +38,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
           },
         },
       },
-    });
+    })
 
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     // Block re-ordering cancelled/refunded orders
@@ -49,14 +49,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json(
         { error: 'Cannot reorder a cancelled or refunded order' },
         { status: 400 }
-      );
+      )
     }
 
     // Process each order item to check availability and get current data
     const items = await Promise.all(
       order.OrderItem.map(async (orderItem) => {
         // Parse options from JSON
-        const options = (orderItem.options as Record<string, any>) || {};
+        const options = (orderItem.options as Record<string, any>) || {}
 
         // Try to find the product by SKU first, then by name
         const product = await prisma.product.findFirst({
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
               },
             },
           },
-        });
+        })
 
         // Product availability check
         if (!product) {
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             originalPrice: orderItem.price,
             available: false,
             reason: 'Product no longer available',
-          };
+          }
         }
 
         // Build re-order item data
@@ -116,16 +116,16 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
             price: addon.calculatedPrice,
             configuration: addon.configuration,
           })),
-        };
+        }
       })
-    );
+    )
 
     // Calculate totals
-    const availableItems = items.filter((item) => item.available);
+    const availableItems = items.filter((item) => item.available)
     const currentTotal = availableItems.reduce(
       (sum, item) => sum + (item.currentPrice ?? 0) * item.quantity,
       0
-    );
+    )
 
     return NextResponse.json({
       success: true,
@@ -144,9 +144,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         originalTotal: order.total,
         priceChanged: Math.abs(currentTotal - order.total) > 0.01,
       },
-    });
+    })
   } catch (error) {
-    console.error('Error processing reorder:', error);
-    return NextResponse.json({ error: 'Failed to process reorder' }, { status: 500 });
+    console.error('Error processing reorder:', error)
+    return NextResponse.json({ error: 'Failed to process reorder' }, { status: 500 })
   }
 }

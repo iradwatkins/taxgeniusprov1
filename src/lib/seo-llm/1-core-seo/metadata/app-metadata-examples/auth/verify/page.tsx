@@ -1,54 +1,54 @@
-import { Suspense } from 'react';
-import Link from 'next/link';
+import { Suspense } from 'react'
+import Link from 'next/link'
 
 function getErrorTitle(errorCode: string): string {
   switch (errorCode) {
     case 'TOKEN_NOT_FOUND':
-      return 'Magic Link Invalid';
+      return 'Magic Link Invalid'
     case 'TOKEN_EXPIRED':
-      return 'Magic Link Expired';
+      return 'Magic Link Expired'
     case 'INVALID_TOKEN_FORMAT':
     case 'INVALID_EMAIL_FORMAT':
-      return 'Magic Link Corrupted';
+      return 'Magic Link Corrupted'
     case 'USER_CREATION_FAILED':
-      return 'Account Error';
+      return 'Account Error'
     case 'SESSION_CREATION_FAILED':
-      return 'Authentication Error';
+      return 'Authentication Error'
     case 'missing_params':
-      return 'Invalid Link';
+      return 'Invalid Link'
     default:
-      return 'Invalid or Expired Link';
+      return 'Invalid or Expired Link'
   }
 }
 
 function getErrorMessage(errorCode: string): string {
   switch (errorCode) {
     case 'TOKEN_NOT_FOUND':
-      return 'This magic link is invalid or has already been used. Please request a new one.';
+      return 'This magic link is invalid or has already been used. Please request a new one.'
     case 'TOKEN_EXPIRED':
-      return 'This magic link has expired. Please request a new one.';
+      return 'This magic link has expired. Please request a new one.'
     case 'INVALID_TOKEN_FORMAT':
     case 'INVALID_EMAIL_FORMAT':
-      return 'This magic link appears to be corrupted. Please request a new one.';
+      return 'This magic link appears to be corrupted. Please request a new one.'
     case 'USER_CREATION_FAILED':
-      return 'There was a problem with your account. Please try again or contact support.';
+      return 'There was a problem with your account. Please try again or contact support.'
     case 'SESSION_CREATION_FAILED':
-      return 'Authentication succeeded but failed to create session. Please try signing in again.';
+      return 'Authentication succeeded but failed to create session. Please try signing in again.'
     case 'missing_params':
-      return 'The magic link is missing required information. Please request a new one.';
+      return 'The magic link is missing required information. Please request a new one.'
     default:
-      return 'The magic link has expired or is invalid. Please request a new one.';
+      return 'The magic link has expired or is invalid. Please request a new one.'
   }
 }
 
 interface VerifyPageProps {
   searchParams: Promise<{
-    error?: string;
-  }>;
+    error?: string
+  }>
 }
 
 async function VerifyContent({ searchParams }: VerifyPageProps) {
-  const { error } = await searchParams;
+  const { error } = await searchParams
 
   if (!error) {
     // If no error, show loading/processing state (shouldn't normally reach here)
@@ -59,11 +59,11 @@ async function VerifyContent({ searchParams }: VerifyPageProps) {
           <p className="text-gray-600">Processing magic link...</p>
         </div>
       </div>
-    );
+    )
   }
 
-  const errorTitle = getErrorTitle(error);
-  const errorMessage = getErrorMessage(error);
+  const errorTitle = getErrorTitle(error)
+  const errorMessage = getErrorMessage(error)
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -78,7 +78,7 @@ async function VerifyContent({ searchParams }: VerifyPageProps) {
         </Link>
       </div>
     </div>
-  );
+  )
 }
 
 export default async function VerifyPage({ searchParams }: VerifyPageProps) {
@@ -95,5 +95,5 @@ export default async function VerifyPage({ searchParams }: VerifyPageProps) {
     >
       <VerifyContent searchParams={searchParams} />
     </Suspense>
-  );
+  )
 }

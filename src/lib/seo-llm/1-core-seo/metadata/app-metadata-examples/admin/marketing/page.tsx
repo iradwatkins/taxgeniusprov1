@@ -1,12 +1,12 @@
-'use client';
+'use client'
 
-import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Mail, Zap, Users, BarChart3, Send } from 'lucide-react';
+import { useRouter } from 'next/navigation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Mail, Zap, Users, BarChart3, Send } from 'lucide-react'
 
 export default function MarketingOverviewPage() {
-  const router = useRouter();
+  const router = useRouter()
 
   const features = [
     {
@@ -49,7 +49,7 @@ export default function MarketingOverviewPage() {
       color: 'text-pink-600',
       bgColor: 'bg-pink-50',
     },
-  ];
+  ]
 
   return (
     <div className="space-y-6">
@@ -62,7 +62,7 @@ export default function MarketingOverviewPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {features.map((feature) => {
-          const Icon = feature.icon;
+          const Icon = feature.icon
           return (
             <Card
               key={feature.href}
@@ -84,7 +84,7 @@ export default function MarketingOverviewPage() {
                 </Button>
               </CardContent>
             </Card>
-          );
+          )
         })}
       </div>
 
@@ -116,5 +116,5 @@ export default function MarketingOverviewPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

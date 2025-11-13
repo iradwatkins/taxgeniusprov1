@@ -1,17 +1,17 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { requireAuth, handleAuthError } from '@/lib/auth/api-helpers';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { requireAuth, handleAuthError } from '@/lib/auth/api-helpers'
 
 // Re-order functionality - creates a new cart from previous order
 export async function POST(request: NextRequest) {
   try {
-    const { user } = await requireAuth();
+    const { user } = await requireAuth()
 
-    const body = await request.json();
-    const { orderId } = body;
+    const body = await request.json()
+    const { orderId } = body
 
     if (!orderId) {
-      return NextResponse.json({ error: 'Order ID is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Order ID is required' }, { status: 400 })
     }
 
     // Get the original order with all details
@@ -29,15 +29,15 @@ export async function POST(request: NextRequest) {
         },
         File: true,
       },
-    });
+    })
 
     if (!originalOrder) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     // Check if user owns the order or is admin
     if (user.role !== 'ADMIN' && originalOrder.userId !== user.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Build re-order data structure
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       billingAddress: originalOrder.billingAddress,
       originalOrderId: originalOrder.id,
       originalOrderNumber: originalOrder.referenceNumber,
-    };
+    }
 
     // Return the re-order data for the frontend to pre-populate forms
     return NextResponse.json({
@@ -73,27 +73,27 @@ export async function POST(request: NextRequest) {
       reorderData,
       message:
         'Order data loaded. Please review and update any necessary information before placing the new order.',
-    });
+    })
   } catch (error) {
     // Handle auth errors
     if (
       (error as any)?.name === 'AuthenticationError' ||
       (error as any)?.name === 'AuthorizationError'
     ) {
-      return handleAuthError(error);
+      return handleAuthError(error)
     }
-    return NextResponse.json({ error: 'Failed to prepare re-order' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to prepare re-order' }, { status: 500 })
   }
 }
 
 // Get re-orderable items for a user
 export async function GET(request: NextRequest) {
   try {
-    const { user } = await requireAuth();
+    const { user } = await requireAuth()
 
     // Get user's delivered orders from the last year
-    const oneYearAgo = new Date();
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    const oneYearAgo = new Date()
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
 
     const orders = await prisma.order.findMany({
       where: {
@@ -118,19 +118,19 @@ export async function GET(request: NextRequest) {
       },
       orderBy: { createdAt: 'desc' },
       take: 20, // Limit to last 20 delivered orders
-    });
+    })
 
     return NextResponse.json({
       reorderableOrders: orders,
-    });
+    })
   } catch (error) {
     // Handle auth errors
     if (
       (error as any)?.name === 'AuthenticationError' ||
       (error as any)?.name === 'AuthorizationError'
     ) {
-      return handleAuthError(error);
+      return handleAuthError(error)
     }
-    return NextResponse.json({ error: 'Failed to fetch re-orderable orders' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch re-orderable orders' }, { status: 500 })
   }
 }

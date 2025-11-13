@@ -1,19 +1,18 @@
-import { Metadata } from 'next';
+import { Metadata } from 'next'
 
-const SITE_NAME = 'Tax Genius Pro';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://taxgeniuspro.tax';
+const SITE_NAME = 'GangRun Printing'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://gangrunprinting.com'
 const DEFAULT_DESCRIPTION =
-  'Professional tax preparation and filing services. Expert tax preparers, guaranteed accuracy, maximum refunds. Personal and business tax services available nationwide.';
+  'Professional printing services for business cards, flyers, brochures, and more. High quality, fast turnaround, competitive prices.'
 
 export interface PageMetadata {
-  title: string;
-  description?: string;
-  keywords?: string[];
-  image?: string;
-  url?: string;
-  type?: 'website' | 'article' | 'product' | 'product.group';
-  noindex?: boolean;
-  locale?: 'en' | 'es'; // Add locale support for hreflang tags
+  title: string
+  description?: string
+  keywords?: string[]
+  image?: string
+  url?: string
+  type?: 'website' | 'article' | 'product' | 'product.group'
+  noindex?: boolean
 }
 
 /**
@@ -27,18 +26,10 @@ export function generateMetadata({
   url,
   type = 'website',
   noindex = false,
-  locale = 'en',
 }: PageMetadata): Metadata {
-  const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
-
-  // Build URL with locale support
-  const urlPath = url || '';
-  const fullUrl = `${SITE_URL}/${locale}${urlPath}`;
-  const ogImage = image || `${SITE_URL}/og-image.png`;
-
-  // Generate language alternates for hreflang tags
-  const enUrl = `${SITE_URL}/en${urlPath}`;
-  const esUrl = `${SITE_URL}/es${urlPath}`;
+  const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`
+  const fullUrl = url ? `${SITE_URL}${url}` : SITE_URL
+  const ogImage = image || `${SITE_URL}/og-image.png`
 
   return {
     title: fullTitle,
@@ -55,7 +46,6 @@ export function generateMetadata({
       description,
       url: fullUrl,
       siteName: SITE_NAME,
-      locale: locale === 'en' ? 'en_US' : 'es_ES',
       images: [
         {
           url: ogImage,
@@ -74,92 +64,86 @@ export function generateMetadata({
     },
     alternates: {
       canonical: fullUrl,
-      languages: {
-        'en': enUrl,
-        'es': esUrl,
-        'x-default': enUrl, // Default to English for unknown locales
-      },
     },
-  };
+  }
 }
 
 /**
- * Generate metadata for tax service pages
+ * Generate metadata for category pages
  */
-export function generateTaxServiceMetadata(
-  serviceName: string,
-  serviceSlug: string,
+export function generateCategoryMetadata(
+  categoryName: string,
+  categorySlug: string,
   description?: string,
   metaTitle?: string,
   keywords?: string[],
   imageUrl?: string
 ): Metadata {
-  const title = metaTitle || `${serviceName} | Tax Genius Pro`;
+  const title = metaTitle || `${categoryName} Printing Services`
   const desc =
     description ||
-    `Expert ${serviceName.toLowerCase()} services. IRS-certified tax professionals, guaranteed accuracy, maximum refunds. Get started today!`;
+    `High-quality ${categoryName.toLowerCase()} printing. Fast turnaround, competitive prices. Order online today!`
 
   return generateMetadata({
     title,
     description: desc,
     keywords: keywords || [
-      serviceName.toLowerCase(),
-      `${serviceName.toLowerCase()} services`,
-      'tax preparation',
-      'tax filing',
-      'tax professional',
+      categoryName.toLowerCase(),
+      `${categoryName.toLowerCase()} printing`,
+      'online printing',
+      'custom printing',
     ],
     image: imageUrl,
-    url: `/services/${serviceSlug}`,
-    type: 'website',
-  });
+    url: `/category/${categorySlug}`,
+    type: 'product.group',
+  })
 }
 
 /**
- * Generate metadata for location pages
+ * Generate metadata for product pages
  */
-export function generateLocationMetadata(
-  cityName: string,
-  stateName: string,
-  stateAbbrev: string,
+export function generateProductMetadata(
+  productName: string,
+  productSlug: string,
   description?: string,
+  price?: number,
+  categoryName?: string,
   imageUrl?: string
 ): Metadata {
-  const title = `Tax Preparation in ${cityName}, ${stateAbbrev} | Tax Genius Pro`;
+  const title = `${productName}${categoryName ? ` - ${categoryName}` : ''}`
   const desc =
     description ||
-    `Professional tax preparation services in ${cityName}, ${stateName}. Expert tax preparers, maximum refunds, IRS-certified. Personal and business tax filing available.`;
+    `Order custom ${productName.toLowerCase()} online. High quality printing, fast delivery.`
 
   return generateMetadata({
     title,
     description: desc,
     keywords: [
-      `tax preparation ${cityName}`,
-      `tax services ${cityName}`,
-      `${cityName} tax preparer`,
-      `tax filing ${cityName} ${stateAbbrev}`,
-      'professional tax services',
-      'tax expert near me',
-    ],
+      productName.toLowerCase(),
+      `${productName.toLowerCase()} printing`,
+      categoryName?.toLowerCase() || '',
+      'custom printing',
+      'online printing',
+    ].filter(Boolean),
     image: imageUrl,
-    url: `/locations/${cityName.toLowerCase().replace(/\s+/g, '-')}-${stateAbbrev.toLowerCase()}`,
-    type: 'website',
-  });
+    url: `/products/${productSlug}`,
+    type: 'product',
+  })
 }
 
 /**
  * Generate title template for consistent page titles
  */
 export function createTitleTemplate(template: string): string {
-  return template.replace('%s', SITE_NAME);
+  return template.replace('%s', SITE_NAME)
 }
 
 /**
  * Truncate text to specified length (for meta descriptions)
  */
 export function truncateText(text: string, maxLength: number = 160): string {
-  if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength - 3).trim() + '...';
+  if (text.length <= maxLength) return text
+  return text.substring(0, maxLength - 3).trim() + '...'
 }
 
 /**
@@ -173,7 +157,7 @@ export function generateKeywords(mainKeyword: string, additionalKeywords: string
     `${mainKeyword} online`,
     'printing services',
     'online printing',
-  ];
+  ]
 
-  return [...new Set([...base, ...additionalKeywords])];
+  return [...new Set([...base, ...additionalKeywords])]
 }

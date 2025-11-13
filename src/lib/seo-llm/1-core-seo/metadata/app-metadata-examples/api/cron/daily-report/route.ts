@@ -1,24 +1,24 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { N8NWorkflows } from '@/lib/n8n';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { N8NWorkflows } from '@/lib/n8n'
 
 // Daily report cron job - runs at midnight
 export async function GET(request: NextRequest) {
   try {
     // Verify cron secret if configured
-    const authHeader = request.headers.get('authorization');
+    const authHeader = request.headers.get('authorization')
     if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
 
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
 
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterday = new Date(today)
+    yesterday.setDate(yesterday.getDate() - 1)
 
     // Gather daily statistics
     const [
@@ -114,13 +114,13 @@ export async function GET(request: NextRequest) {
           },
         },
       }),
-    ]);
+    ])
 
     // Calculate revenue
-    const todaysRevenue = todaysOrders.reduce((sum, order) => sum + order.total, 0) / 100;
-    const yesterdaysRevenue = yesterdaysOrders.reduce((sum, order) => sum + order.total, 0) / 100;
+    const todaysRevenue = todaysOrders.reduce((sum, order) => sum + order.total, 0) / 100
+    const yesterdaysRevenue = yesterdaysOrders.reduce((sum, order) => sum + order.total, 0) / 100
     const revenueChange =
-      yesterdaysRevenue > 0 ? ((todaysRevenue - yesterdaysRevenue) / yesterdaysRevenue) * 100 : 0;
+      yesterdaysRevenue > 0 ? ((todaysRevenue - yesterdaysRevenue) / yesterdaysRevenue) * 100 : 0
 
     // Find orders with issues
     const ordersWithIssues = await prisma.order.findMany({
@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
         status: true,
         adminNotes: true,
       },
-    });
+    })
 
     // Top products today
     const productStats = todaysOrders.reduce(
@@ -158,19 +158,19 @@ export async function GET(request: NextRequest) {
               name: item.productName,
               quantity: 0,
               revenue: 0,
-            };
+            }
           }
-          acc[item.productName].quantity += item.quantity;
-          acc[item.productName].revenue += (item.price * item.quantity) / 100;
-        });
-        return acc;
+          acc[item.productName].quantity += item.quantity
+          acc[item.productName].revenue += (item.price * item.quantity) / 100
+        })
+        return acc
       },
       {} as Record<string, any>
-    );
+    )
 
     const topProducts = Object.values(productStats)
       .sort((a, b) => b.revenue - a.revenue)
-      .slice(0, 5);
+      .slice(0, 5)
 
     // Prepare report data
     const reportData = {
@@ -191,11 +191,11 @@ export async function GET(request: NextRequest) {
         status: order.status,
         notes: order.adminNotes,
       })),
-    };
+    }
 
     // Trigger N8N daily report workflow
     try {
-      await N8NWorkflows.generateDailyReport();
+      await N8NWorkflows.generateDailyReport()
     } catch (n8nError) {}
 
     // Log report
@@ -203,8 +203,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       report: reportData,
-    });
+    })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to generate daily report' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to generate daily report' }, { status: 500 })
   }
 }

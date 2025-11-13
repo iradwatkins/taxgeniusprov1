@@ -1,22 +1,28 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { id } = params;
+    const { id } = params
 
     // Find order by ID or order number
     const order = await prisma.order.findFirst({
       where: {
-        OR: [{ id }, { orderNumber: id }],
+        OR: [
+          { id },
+          { orderNumber: id },
+        ],
       },
       include: {
         OrderItem: true,
       },
-    });
+    })
 
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     // Return only public order information
@@ -38,10 +44,13 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         price: item.price,
         options: item.options,
       })),
-    };
+    }
 
-    return NextResponse.json(publicOrderData);
+    return NextResponse.json(publicOrderData)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch order data' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch order data' },
+      { status: 500 }
+    )
   }
 }

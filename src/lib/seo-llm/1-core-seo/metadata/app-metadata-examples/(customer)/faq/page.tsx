@@ -4,11 +4,11 @@
  * Central hub for all FAQ categories
  */
 
-import type { Metadata } from 'next';
-import { FAQPage } from '@/components/seo/FAQSchema';
-import { generalFAQs } from '@/data/faqs/general';
-import Link from 'next/link';
-import { CreditCard, FileText, HelpCircle, Truck, Clock, CheckCircle } from 'lucide-react';
+import type { Metadata } from 'next'
+import { FAQPage } from '@/components/seo/FAQSchema'
+import { generalFAQs } from '@/data/faqs/general'
+import Link from 'next/link'
+import { CreditCard, FileText, HelpCircle, Truck, Clock, CheckCircle } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Printing FAQ - Frequently Asked Questions | GangRun Printing',
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     'Find answers to common questions about our printing services, turnaround times, file requirements, shipping, and more. Expert guidance for all your printing needs.',
   keywords:
     'printing FAQ, gang run printing questions, print turnaround time, file requirements, printing help',
-};
+}
 
 const faqCategories = [
   {
@@ -61,7 +61,7 @@ const faqCategories = [
     icon: Clock,
     count: 'Coming soon',
   },
-];
+]
 
 export default function FAQIndexPage() {
   return (
@@ -85,7 +85,7 @@ export default function FAQIndexPage() {
         <h2 className="text-2xl font-bold text-gray-900 mb-8">Browse by Category</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {faqCategories.map((category) => {
-            const Icon = category.icon;
+            const Icon = category.icon
             return (
               <Link
                 key={category.href}
@@ -105,7 +105,7 @@ export default function FAQIndexPage() {
                   </div>
                 </div>
               </Link>
-            );
+            )
           })}
         </div>
       </div>
@@ -145,5 +145,5 @@ export default function FAQIndexPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

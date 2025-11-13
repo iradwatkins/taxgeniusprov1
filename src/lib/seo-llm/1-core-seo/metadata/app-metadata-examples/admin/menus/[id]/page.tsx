@@ -1,14 +1,14 @@
-import { redirect } from 'next/navigation';
-import { validateRequest } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { notFound } from 'next/navigation';
-import MenuBuilderClient from '@/components/admin/menu-builder-client';
+import { redirect } from 'next/navigation'
+import { validateRequest } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import { notFound } from 'next/navigation'
+import MenuBuilderClient from '@/components/admin/menu-builder-client'
 
 export default async function MenuEditPage({ params }: { params: { id: string } }) {
-  const { user } = await validateRequest();
+  const { user } = await validateRequest()
 
   if (!user || user.role !== 'ADMIN') {
-    redirect('/admin/login');
+    redirect('/admin/login')
   }
 
   const menu = await prisma.menu.findUnique({
@@ -37,10 +37,10 @@ export default async function MenuEditPage({ params }: { params: { id: string } 
         },
       },
     },
-  });
+  })
 
   if (!menu) {
-    notFound();
+    notFound()
   }
 
   // Fetch categories and products for the item picker
@@ -52,7 +52,7 @@ export default async function MenuEditPage({ params }: { params: { id: string } 
       name: true,
       slug: true,
     },
-  });
+  })
 
   const products = await prisma.product.findMany({
     where: { isActive: true },
@@ -64,7 +64,13 @@ export default async function MenuEditPage({ params }: { params: { id: string } 
       categoryId: true,
     },
     take: 100, // Limit to first 100 for performance
-  });
+  })
 
-  return <MenuBuilderClient menu={menu} categories={categories} products={products} />;
+  return (
+    <MenuBuilderClient
+      menu={menu}
+      categories={categories}
+      products={products}
+    />
+  )
 }

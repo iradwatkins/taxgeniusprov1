@@ -1,12 +1,12 @@
-'use client';
+'use client'
 
-import { ChevronsDownUp, ChevronsUpDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ChevronsDownUp, ChevronsUpDown } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 export interface NavToolbarProps {
-  onExpandAll: () => void;
-  onCollapseAll: () => void;
+  onExpandAll: () => void
+  onCollapseAll: () => void
 }
 
 export function NavToolbar({ onExpandAll, onCollapseAll }: NavToolbarProps) {
@@ -50,5 +50,5 @@ export function NavToolbar({ onExpandAll, onCollapseAll }: NavToolbarProps) {
         </Tooltip>
       </div>
     </TooltipProvider>
-  );
+  )
 }

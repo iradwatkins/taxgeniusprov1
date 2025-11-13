@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useState } from 'react'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion';
+} from '@/components/ui/accordion'
 import {
   Search,
   HelpCircle,
@@ -20,7 +20,7 @@ import {
   MessageSquare,
   Phone,
   Mail,
-} from 'lucide-react';
+} from 'lucide-react'
 
 const faqs = [
   {
@@ -111,15 +111,15 @@ const faqs = [
       },
     ],
   },
-];
+]
 
 export default function HelpCenterPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
   const filteredFaqs = selectedCategory
     ? faqs.filter((cat) => cat.category === selectedCategory)
-    : faqs;
+    : faqs
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -153,7 +153,7 @@ export default function HelpCenterPage() {
           <div className="max-w-5xl mx-auto">
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {faqs.map((category) => {
-                const Icon = category.icon;
+                const Icon = category.icon
                 return (
                   <Card
                     key={category.category}
@@ -172,7 +172,7 @@ export default function HelpCenterPage() {
                       </p>
                     </CardContent>
                   </Card>
-                );
+                )
               })}
             </div>
           </div>
@@ -253,5 +253,5 @@ export default function HelpCenterPage() {
         </div>
       </section>
     </div>
-  );
+  )
 }

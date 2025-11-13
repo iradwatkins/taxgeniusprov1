@@ -1308,6 +1308,10 @@ export class EmailService {
         });
         preparerName = preparer?.profile?.firstName || 'Tax Preparer';
       }
+
+      // Determine recipientName based on locale for personalized greeting
+      const recipientName = locale === 'es' ? 'Ale' : 'Ray';
+
       // Include locale in dashboard URL for proper language routing
       const localePrefix = locale === 'es' ? '/es' : '/en';
       const dashboardUrl = `${this.appUrl}${localePrefix}/dashboard/tax-preparer/leads`;
@@ -1380,6 +1384,7 @@ export class EmailService {
           attributionMethod: leadData.attributionMethod,
           // Locale for translations
           locale: locale || 'en',
+          recipientName,
         }),
       });
 

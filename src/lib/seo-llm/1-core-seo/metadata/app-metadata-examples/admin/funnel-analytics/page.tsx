@@ -1,6 +1,6 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { StatsCard } from '@/components/admin/stats-cards';
-import { prisma } from '@/lib/prisma';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { StatsCard } from '@/components/admin/stats-cards'
+import { prisma } from '@/lib/prisma'
 import {
   Users,
   Eye,
@@ -12,34 +12,34 @@ import {
   Smartphone,
   Tablet,
   Target,
-} from 'lucide-react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+} from 'lucide-react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 interface FunnelAnalyticsPageProps {
   searchParams: {
-    funnelId?: string;
-    period?: string;
-  };
+    funnelId?: string
+    period?: string
+  }
 }
 
 async function getFunnelAnalyticsData(funnelId?: string, period: string = '30d') {
   // Calculate date range
-  const endDate = new Date();
-  const startDate = new Date();
+  const endDate = new Date()
+  const startDate = new Date()
 
   switch (period) {
     case '7d':
-      startDate.setDate(startDate.getDate() - 7);
-      break;
+      startDate.setDate(startDate.getDate() - 7)
+      break
     case '90d':
-      startDate.setDate(startDate.getDate() - 90);
-      break;
+      startDate.setDate(startDate.getDate() - 90)
+      break
     default: // 30d
-      startDate.setDate(startDate.getDate() - 30);
+      startDate.setDate(startDate.getDate() - 30)
   }
 
   // Get all funnels for selector
@@ -53,10 +53,10 @@ async function getFunnelAnalyticsData(funnelId?: string, period: string = '30d')
     orderBy: {
       createdAt: 'desc',
     },
-  });
+  })
 
   // If no funnelId provided, use first funnel
-  const selectedFunnelId = funnelId || funnels[0]?.id;
+  const selectedFunnelId = funnelId || funnels[0]?.id
 
   if (!selectedFunnelId) {
     return {
@@ -67,7 +67,7 @@ async function getFunnelAnalyticsData(funnelId?: string, period: string = '30d')
       deviceBreakdown: null,
       sourceBreakdown: null,
       period,
-    };
+    }
   }
 
   // Get selected funnel with steps
@@ -78,7 +78,7 @@ async function getFunnelAnalyticsData(funnelId?: string, period: string = '30d')
         orderBy: { position: 'asc' },
       },
     },
-  });
+  })
 
   // Get funnel-level analytics
   const funnelAnalytics = await prisma.funnelAnalytics.findMany({
@@ -91,7 +91,7 @@ async function getFunnelAnalyticsData(funnelId?: string, period: string = '30d')
       },
     },
     orderBy: { date: 'desc' },
-  });
+  })
 
   // Get step-level analytics
   const stepAnalytics = await prisma.funnelAnalytics.findMany({
@@ -111,48 +111,48 @@ async function getFunnelAnalyticsData(funnelId?: string, period: string = '30d')
         },
       },
     },
-  });
+  })
 
   // Aggregate funnel metrics
-  const totalViews = funnelAnalytics.reduce((sum, a) => sum + a.views, 0);
-  const totalUniqueVisitors = funnelAnalytics.reduce((sum, a) => sum + a.uniqueVisitors, 0);
-  const totalConversions = funnelAnalytics.reduce((sum, a) => sum + a.conversions, 0);
-  const totalRevenue = funnelAnalytics.reduce((sum, a) => sum + a.revenue, 0);
+  const totalViews = funnelAnalytics.reduce((sum, a) => sum + a.views, 0)
+  const totalUniqueVisitors = funnelAnalytics.reduce((sum, a) => sum + a.uniqueVisitors, 0)
+  const totalConversions = funnelAnalytics.reduce((sum, a) => sum + a.conversions, 0)
+  const totalRevenue = funnelAnalytics.reduce((sum, a) => sum + a.revenue, 0)
 
   const conversionRate =
-    totalUniqueVisitors > 0 ? (totalConversions / totalUniqueVisitors) * 100 : 0;
+    totalUniqueVisitors > 0 ? (totalConversions / totalUniqueVisitors) * 100 : 0
 
   // Aggregate device data from all funnel analytics
-  const deviceTotals = { desktop: 0, mobile: 0, tablet: 0 };
+  const deviceTotals = { desktop: 0, mobile: 0, tablet: 0 }
   funnelAnalytics.forEach((analytics) => {
     if (analytics.deviceData && typeof analytics.deviceData === 'object') {
-      const data = analytics.deviceData as { desktop?: number; mobile?: number; tablet?: number };
-      deviceTotals.desktop += data.desktop || 0;
-      deviceTotals.mobile += data.mobile || 0;
-      deviceTotals.tablet += data.tablet || 0;
+      const data = analytics.deviceData as { desktop?: number; mobile?: number; tablet?: number }
+      deviceTotals.desktop += data.desktop || 0
+      deviceTotals.mobile += data.mobile || 0
+      deviceTotals.tablet += data.tablet || 0
     }
-  });
+  })
 
   // Aggregate UTM source data
-  const sourceMap = new Map<string, number>();
+  const sourceMap = new Map<string, number>()
   funnelAnalytics.forEach((analytics) => {
     if (analytics.sourceData && typeof analytics.sourceData === 'object') {
       const data = analytics.sourceData as {
-        utmSources?: string[];
-        utmMediums?: string[];
-        utmCampaigns?: string[];
-      };
+        utmSources?: string[]
+        utmMediums?: string[]
+        utmCampaigns?: string[]
+      }
       data.utmSources?.forEach((source) => {
-        sourceMap.set(source, (sourceMap.get(source) || 0) + 1);
-      });
+        sourceMap.set(source, (sourceMap.get(source) || 0) + 1)
+      })
     }
-  });
+  })
 
   // Aggregate step-level metrics by step ID
   const stepMetricsMap = new Map<
     string,
     { name: string; position: number; views: number; uniqueVisitors: number }
-  >();
+  >()
 
   stepAnalytics.forEach((analytics) => {
     const existing = stepMetricsMap.get(analytics.funnelStepId!) || {
@@ -160,13 +160,13 @@ async function getFunnelAnalyticsData(funnelId?: string, period: string = '30d')
       position: analytics.FunnelStep?.position || 0,
       views: 0,
       uniqueVisitors: 0,
-    };
+    }
     stepMetricsMap.set(analytics.funnelStepId!, {
       ...existing,
       views: existing.views + analytics.views,
       uniqueVisitors: existing.uniqueVisitors + analytics.uniqueVisitors,
-    });
-  });
+    })
+  })
 
   // Convert to array and sort by position
   const stepMetrics = Array.from(stepMetricsMap.entries())
@@ -174,29 +174,29 @@ async function getFunnelAnalyticsData(funnelId?: string, period: string = '30d')
       stepId,
       ...data,
     }))
-    .sort((a, b) => a.position - b.position);
+    .sort((a, b) => a.position - b.position)
 
   // Calculate conversion rates between steps
   const stepsWithConversion = stepMetrics.map((step, index) => {
-    const nextStep = stepMetrics[index + 1];
+    const nextStep = stepMetrics[index + 1]
     const conversionToNext = nextStep
       ? step.uniqueVisitors > 0
         ? ((nextStep.uniqueVisitors / step.uniqueVisitors) * 100).toFixed(1)
         : '0.0'
-      : null;
+      : null
 
     const dropOffRate = nextStep
       ? step.uniqueVisitors > 0
         ? (((step.uniqueVisitors - nextStep.uniqueVisitors) / step.uniqueVisitors) * 100).toFixed(1)
         : '0.0'
-      : null;
+      : null
 
     return {
       ...step,
       conversionToNext,
       dropOffRate,
-    };
-  });
+    }
+  })
 
   return {
     funnels,
@@ -214,11 +214,11 @@ async function getFunnelAnalyticsData(funnelId?: string, period: string = '30d')
       .map(([source, count]) => ({ source, count }))
       .sort((a, b) => b.count - a.count),
     period,
-  };
+  }
 }
 
 export default async function FunnelAnalyticsPage({ searchParams }: FunnelAnalyticsPageProps) {
-  const data = await getFunnelAnalyticsData(searchParams.funnelId, searchParams.period);
+  const data = await getFunnelAnalyticsData(searchParams.funnelId, searchParams.period)
 
   if (!data.selectedFunnel) {
     return (
@@ -243,17 +243,17 @@ export default async function FunnelAnalyticsPage({ searchParams }: FunnelAnalyt
           </CardContent>
         </Card>
       </div>
-    );
+    )
   }
 
   const periodLabels = {
     '7d': 'Last 7 days',
     '30d': 'Last 30 days',
     '90d': 'Last 90 days',
-  };
+  }
 
   const totalDeviceViews =
-    data.deviceBreakdown!.desktop + data.deviceBreakdown!.mobile + data.deviceBreakdown!.tablet;
+    data.deviceBreakdown!.desktop + data.deviceBreakdown!.mobile + data.deviceBreakdown!.tablet
 
   return (
     <div className="space-y-6">
@@ -362,7 +362,7 @@ export default async function FunnelAnalyticsPage({ searchParams }: FunnelAnalyt
                   ? 100
                   : data.steps[0].uniqueVisitors > 0
                     ? (step.uniqueVisitors / data.steps[0].uniqueVisitors) * 100
-                    : 0;
+                    : 0
 
               return (
                 <div key={step.stepId} className="space-y-2">
@@ -421,7 +421,7 @@ export default async function FunnelAnalyticsPage({ searchParams }: FunnelAnalyt
                     </div>
                   )}
                 </div>
-              );
+              )
             })}
           </div>
         </CardContent>
@@ -519,5 +519,5 @@ export default async function FunnelAnalyticsPage({ searchParams }: FunnelAnalyt
         </Card>
       </div>
     </div>
-  );
+  )
 }

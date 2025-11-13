@@ -1,24 +1,24 @@
-'use client';
+'use client'
 
-import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Save, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect, use } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft, Save, Trash2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
+import { Badge } from '@/components/ui/badge'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import Link from 'next/link';
-import toast from '@/lib/toast';
+} from '@/components/ui/select'
+import Link from 'next/link'
+import toast from '@/lib/toast'
 
 // Common Lucide icons for order statuses
 const ICON_OPTIONS = [
@@ -39,7 +39,7 @@ const ICON_OPTIONS = [
   'Zap',
   'Shield',
   'Star',
-];
+]
 
 // Tailwind color options
 const COLOR_OPTIONS = [
@@ -52,7 +52,7 @@ const COLOR_OPTIONS = [
   { label: 'Indigo', value: 'indigo' },
   { label: 'Purple', value: 'purple' },
   { label: 'Pink', value: 'pink' },
-];
+]
 
 // Badge color presets
 const BADGE_COLOR_OPTIONS = [
@@ -84,35 +84,35 @@ const BADGE_COLOR_OPTIONS = [
     label: 'Purple (Process)',
     value: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400',
   },
-];
+]
 
 interface OrderStatus {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  icon: string;
-  color: string;
-  badgeColor: string;
-  isPaid: boolean;
-  isCore: boolean;
-  includeInReports: boolean;
-  allowDownloads: boolean;
-  sortOrder: number;
-  isActive: boolean;
-  sendEmailOnEnter: boolean;
-  emailTemplateId: string | null;
-  orderCount: number;
-  canDelete: boolean;
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  icon: string
+  color: string
+  badgeColor: string
+  isPaid: boolean
+  isCore: boolean
+  includeInReports: boolean
+  allowDownloads: boolean
+  sortOrder: number
+  isActive: boolean
+  sendEmailOnEnter: boolean
+  emailTemplateId: string | null
+  orderCount: number
+  canDelete: boolean
 }
 
 export default function EditOrderStatusPage({ params }: { params: Promise<{ id: string }> }) {
-  const router = useRouter();
-  const resolvedParams = use(params);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [status, setStatus] = useState<OrderStatus | null>(null);
+  const router = useRouter()
+  const resolvedParams = use(params)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [status, setStatus] = useState<OrderStatus | null>(null)
 
   const [formData, setFormData] = useState({
     name: '',
@@ -128,18 +128,18 @@ export default function EditOrderStatusPage({ params }: { params: Promise<{ id: 
     sendEmailOnEnter: false,
     emailTemplateId: '',
     isActive: true,
-  });
+  })
 
   useEffect(() => {
-    fetchStatus();
-  }, [resolvedParams.id]);
+    fetchStatus()
+  }, [resolvedParams.id])
 
   const fetchStatus = async () => {
     try {
-      const response = await fetch(`/api/admin/order-statuses/${resolvedParams.id}`);
+      const response = await fetch(`/api/admin/order-statuses/${resolvedParams.id}`)
       if (response.ok) {
-        const data: OrderStatus = await response.json();
-        setStatus(data);
+        const data: OrderStatus = await response.json()
+        setStatus(data)
         setFormData({
           name: data.name,
           slug: data.slug,
@@ -154,22 +154,22 @@ export default function EditOrderStatusPage({ params }: { params: Promise<{ id: 
           sendEmailOnEnter: data.sendEmailOnEnter,
           emailTemplateId: data.emailTemplateId || '',
           isActive: data.isActive,
-        });
+        })
       } else {
-        toast.error('Failed to load status');
-        router.push('/admin/settings/order-statuses');
+        toast.error('Failed to load status')
+        router.push('/admin/settings/order-statuses')
       }
     } catch (error) {
-      toast.error('Failed to load status');
-      router.push('/admin/settings/order-statuses');
+      toast.error('Failed to load status')
+      router.push('/admin/settings/order-statuses')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
+    e.preventDefault()
+    setSaving(true)
 
     try {
       const response = await fetch(`/api/admin/order-statuses/${resolvedParams.id}`, {
@@ -179,69 +179,69 @@ export default function EditOrderStatusPage({ params }: { params: Promise<{ id: 
           ...formData,
           emailTemplateId: formData.emailTemplateId || null,
         }),
-      });
+      })
 
       if (response.ok) {
-        toast.success('Status updated successfully');
-        router.push('/admin/settings/order-statuses');
+        toast.success('Status updated successfully')
+        router.push('/admin/settings/order-statuses')
       } else {
-        const error = await response.json();
-        toast.error(error.error || 'Failed to update status');
+        const error = await response.json()
+        toast.error(error.error || 'Failed to update status')
       }
     } catch (error) {
-      toast.error('Failed to update status');
+      toast.error('Failed to update status')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   const handleDelete = async () => {
-    if (!status) return;
+    if (!status) return
 
     if (status.isCore) {
-      toast.error('Cannot delete core system statuses');
-      return;
+      toast.error('Cannot delete core system statuses')
+      return
     }
 
     if (status.orderCount > 0) {
       toast.error(
         `Cannot delete status with ${status.orderCount} active orders. Please reassign orders first.`
-      );
-      return;
+      )
+      return
     }
 
     if (
       !confirm(`Are you sure you want to delete "${status.name}"? This action cannot be undone.`)
     ) {
-      return;
+      return
     }
 
-    setDeleting(true);
+    setDeleting(true)
     try {
       const response = await fetch(`/api/admin/order-statuses/${resolvedParams.id}`, {
         method: 'DELETE',
-      });
+      })
 
       if (response.ok) {
-        toast.success('Status deleted successfully');
-        router.push('/admin/settings/order-statuses');
+        toast.success('Status deleted successfully')
+        router.push('/admin/settings/order-statuses')
       } else {
-        const error = await response.json();
-        toast.error(error.error || 'Failed to delete status');
+        const error = await response.json()
+        toast.error(error.error || 'Failed to delete status')
       }
     } catch (error) {
-      toast.error('Failed to delete status');
+      toast.error('Failed to delete status')
     } finally {
-      setDeleting(false);
+      setDeleting(false)
     }
-  };
+  }
 
   if (loading) {
     return (
       <div className="flex h-96 items-center justify-center">
         <p className="text-muted-foreground">Loading status...</p>
       </div>
-    );
+    )
   }
 
   if (!status) {
@@ -249,11 +249,11 @@ export default function EditOrderStatusPage({ params }: { params: Promise<{ id: 
       <div className="flex h-96 items-center justify-center">
         <p className="text-muted-foreground">Status not found</p>
       </div>
-    );
+    )
   }
 
-  const isCore = status.isCore;
-  const canDelete = !status.isCore && status.orderCount === 0;
+  const isCore = status.isCore
+  const canDelete = !status.isCore && status.orderCount === 0
 
   return (
     <div className="space-y-6">
@@ -550,5 +550,5 @@ export default function EditOrderStatusPage({ params }: { params: Promise<{ id: 
         </div>
       </form>
     </div>
-  );
+  )
 }

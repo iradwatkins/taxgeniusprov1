@@ -1,13 +1,13 @@
-import { redirect } from 'next/navigation';
-import { validateRequest } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import FeaturedProductsManager from '@/components/admin/featured-products-manager';
+import { redirect } from 'next/navigation'
+import { validateRequest } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import FeaturedProductsManager from '@/components/admin/featured-products-manager'
 
 export default async function FeaturedProductsPage() {
-  const { user } = await validateRequest();
+  const { user } = await validateRequest()
 
   if (!user || user.role !== 'ADMIN') {
-    redirect('/admin/login');
+    redirect('/admin/login')
   }
 
   const featuredProducts = await prisma.featuredProductSelection.findMany({
@@ -22,7 +22,7 @@ export default async function FeaturedProductsPage() {
       },
     },
     orderBy: { sortOrder: 'asc' },
-  });
+  })
 
   const allProducts = await prisma.product.findMany({
     where: { isActive: true },
@@ -33,7 +33,7 @@ export default async function FeaturedProductsPage() {
       },
     },
     orderBy: { name: 'asc' },
-  });
+  })
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -44,7 +44,10 @@ export default async function FeaturedProductsPage() {
         </p>
       </div>
 
-      <FeaturedProductsManager featuredProducts={featuredProducts} allProducts={allProducts} />
+      <FeaturedProductsManager
+        featuredProducts={featuredProducts}
+        allProducts={allProducts}
+      />
     </div>
-  );
+  )
 }

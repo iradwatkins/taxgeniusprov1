@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import { AdminAuthWrapper } from '@/components/admin/admin-auth-wrapper';
-import { AdminHeader } from '@/components/admin/header';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { AdminAuthWrapper } from '@/components/admin/admin-auth-wrapper'
+import { AdminHeader } from '@/components/admin/header'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 
-import { AppSidebarEnhanced as AppSidebar } from './components/app-sidebar-enhanced';
+import { AppSidebarEnhanced as AppSidebar } from './components/app-sidebar-enhanced'
 
 export default function GangRunAdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -21,5 +21,5 @@ export default function GangRunAdminLayout({ children }: { children: React.React
         </div>
       </SidebarProvider>
     </AdminAuthWrapper>
-  );
+  )
 }

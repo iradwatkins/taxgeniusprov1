@@ -1,18 +1,18 @@
-import { type Metadata } from 'next';
-import { validateRequest } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { SEOGenerationDashboard } from '@/components/admin/seo/SEOGenerationDashboard';
+import { type Metadata } from 'next'
+import { validateRequest } from '@/lib/auth'
+import { redirect } from 'next/navigation'
+import { SEOGenerationDashboard } from '@/components/admin/seo/SEOGenerationDashboard'
 
 export const metadata: Metadata = {
   title: 'SEO Content Generation | Admin',
   description: 'Generate AI-powered SEO content for product pages',
-};
+}
 
 export default async function SEOGeneratePage() {
-  const { user } = await validateRequest();
+  const { user } = await validateRequest()
 
   if (!user || user.role !== 'ADMIN') {
-    redirect('/login');
+    redirect('/login')
   }
 
   return (
@@ -26,5 +26,5 @@ export default async function SEOGeneratePage() {
 
       <SEOGenerationDashboard />
     </div>
-  );
+  )
 }

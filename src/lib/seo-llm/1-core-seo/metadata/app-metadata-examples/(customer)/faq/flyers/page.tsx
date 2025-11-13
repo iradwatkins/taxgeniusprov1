@@ -4,10 +4,10 @@
  * SEO-optimized FAQ page with schema markup
  */
 
-import type { Metadata } from 'next';
-import { FAQPage } from '@/components/seo/FAQSchema';
-import { flyerFAQs } from '@/data/faqs/flyers';
-import Link from 'next/link';
+import type { Metadata } from 'next'
+import { FAQPage } from '@/components/seo/FAQSchema'
+import { flyerFAQs } from '@/data/faqs/flyers'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Flyer Printing FAQ - Common Questions Answered | GangRun Printing',
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     'Find answers to common questions about flyer printing: sizes, paper weight, turnaround times, file formats, and more. Expert advice from GangRun Printing.',
   keywords:
     'flyer printing FAQ, flyer sizes, flyer paper weight, flyer turnaround time, promotional flyer printing',
-};
+}
 
 export default function FlyerFAQPage() {
   return (
@@ -93,5 +93,5 @@ export default function FlyerFAQPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

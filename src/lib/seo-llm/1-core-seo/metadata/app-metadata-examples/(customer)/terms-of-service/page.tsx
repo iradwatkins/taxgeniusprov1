@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function TermsOfServicePage() {
   return (
@@ -182,5 +182,5 @@ export default function TermsOfServicePage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,11 +1,11 @@
-import { prisma } from '@/lib/prisma';
-import { validateRequest } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Package, ShoppingCart, CheckCircle } from 'lucide-react';
-import Link from 'next/link';
-import AccountWrapper from '@/components/account/account-wrapper';
+import { prisma } from '@/lib/prisma'
+import { validateRequest } from '@/lib/auth'
+import { redirect } from 'next/navigation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Package, ShoppingCart, CheckCircle } from 'lucide-react'
+import Link from 'next/link'
+import AccountWrapper from '@/components/account/account-wrapper'
 
 async function getUserDashboardData(userId: string) {
   // Get user details
@@ -17,7 +17,7 @@ async function getUserDashboardData(userId: string) {
       createdAt: true,
       role: true,
     },
-  });
+  })
 
   // Get order statistics
   const [totalOrders, inProgressOrders, completedOrders, recentOrders] = await Promise.all([
@@ -52,7 +52,7 @@ async function getUserDashboardData(userId: string) {
         OrderItem: true,
       },
     }),
-  ]);
+  ])
 
   return {
     user,
@@ -60,17 +60,17 @@ async function getUserDashboardData(userId: string) {
     inProgressOrders,
     completedOrders,
     recentOrders,
-  };
+  }
 }
 
 export default async function DashboardPage() {
-  const { user, session } = await validateRequest();
+  const { user, session } = await validateRequest()
 
   if (!user?.id) {
-    redirect('/sign-in');
+    redirect('/sign-in')
   }
 
-  const dashboardData = await getUserDashboardData(user.id);
+  const dashboardData = await getUserDashboardData(user.id)
 
   return (
     <AccountWrapper>
@@ -264,5 +264,5 @@ export default async function DashboardPage() {
         </div>
       </div>
     </AccountWrapper>
-  );
+  )
 }

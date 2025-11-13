@@ -1,17 +1,17 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/components/ui/badge'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+} from '@/components/ui/select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   BarChart3,
   TrendingUp,
@@ -24,56 +24,56 @@ import {
   Target,
   Zap,
   MessageSquare,
-} from 'lucide-react';
+} from 'lucide-react'
 
 interface AnalyticsData {
   campaigns: {
-    total: number;
-    sent: number;
-    active: number;
-    deliveryRate: number;
-    openRate: number;
-    clickRate: number;
-  };
+    total: number
+    sent: number
+    active: number
+    deliveryRate: number
+    openRate: number
+    clickRate: number
+  }
   workflows: {
-    total: number;
-    active: number;
-    executions: number;
-    completionRate: number;
-  };
+    total: number
+    active: number
+    executions: number
+    completionRate: number
+  }
   segments: {
-    total: number;
-    customers: number;
-  };
+    total: number
+    customers: number
+  }
   performance: {
-    revenue: number;
-    orders: number;
-    avgOrderValue: number;
-    conversionRate: number;
-  };
+    revenue: number
+    orders: number
+    avgOrderValue: number
+    conversionRate: number
+  }
   trends: {
-    period: string;
-    campaigns: number[];
-    opens: number[];
-    clicks: number[];
-    revenue: number[];
-  };
+    period: string
+    campaigns: number[]
+    opens: number[]
+    clicks: number[]
+    revenue: number[]
+  }
 }
 
 export default function MarketingAnalyticsPage() {
-  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [dateRange, setDateRange] = useState('30d');
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [dateRange, setDateRange] = useState('30d')
 
   useEffect(() => {
-    fetchAnalytics();
-  }, [dateRange]);
+    fetchAnalytics()
+  }, [dateRange])
 
   const fetchAnalytics = async () => {
     try {
-      const response = await fetch(`/api/marketing/analytics?dateRange=${dateRange}`);
+      const response = await fetch(`/api/marketing/analytics?dateRange=${dateRange}`)
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json()
         // Set real data from API
         setAnalytics({
           campaigns: data.campaigns,
@@ -87,32 +87,32 @@ export default function MarketingAnalyticsPage() {
             clicks: [],
             revenue: [],
           },
-        });
+        })
       }
     } catch (error) {
-      console.error('Failed to fetch marketing analytics:', error);
+      console.error('Failed to fetch marketing analytics:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-    }).format(amount);
-  };
+    }).format(amount)
+  }
 
   const formatPercent = (value: number) => {
-    return `${value.toFixed(1)}%`;
-  };
+    return `${value.toFixed(1)}%`
+  }
 
   if (loading) {
-    return <div className="p-6">Loading analytics...</div>;
+    return <div className="p-6">Loading analytics...</div>
   }
 
   if (!analytics) {
-    return <div className="p-6">Error loading analytics data</div>;
+    return <div className="p-6">Error loading analytics data</div>
   }
 
   return (
@@ -552,5 +552,5 @@ export default function MarketingAnalyticsPage() {
         </TabsContent>
       </Tabs>
     </div>
-  );
+  )
 }

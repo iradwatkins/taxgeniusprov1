@@ -33,6 +33,7 @@ interface AffiliateApplicationNotificationProps {
   bondedPreparerId?: string | null;
   leadId: string;
   locale?: Locale;
+  recipientName?: string;
 }
 
 export function AffiliateApplicationNotification({
@@ -49,6 +50,7 @@ export function AffiliateApplicationNotification({
   bondedPreparerId,
   leadId,
   locale = 'en',
+  recipientName = 'there',
 }: AffiliateApplicationNotificationProps) {
   const hasSocialMedia = socialMedia && Object.values(socialMedia).some((v) => v);
 
@@ -69,6 +71,15 @@ export function AffiliateApplicationNotification({
           </Section>
 
           <Section style={content}>
+            <Text style={greetingText}>
+              {locale === 'es' ? `Hola ${recipientName},` : `Hello ${recipientName},`}
+            </Text>
+            <Text style={greetingSubtext}>
+              {locale === 'es'
+                ? 'Este es un formulario de preparación de impuestos del sitio web.'
+                : 'This is a Tax Preparation form from the website.'}
+            </Text>
+
             <Section style={urgentBanner}>
               <Text style={urgentText}>
                 {t(trans.urgentBanner, locale)}
@@ -77,7 +88,7 @@ export function AffiliateApplicationNotification({
 
             <Heading style={h2}>
               {firstName} {lastName}
-              {bondedPreparerId && <Text style={bondingBadge}>{t(trans.bondingBadge, locale)}</Text>}
+              {bondedPreparerId && <span style={bondingBadge}>{t(trans.bondingBadge, locale)}</span>}
             </Heading>
 
             <Section style={highlightBox}>
@@ -312,6 +323,21 @@ const content = {
   border: '1px solid #e0e0e0',
   borderTop: 'none',
   borderRadius: '0 0 10px 10px',
+};
+
+const greetingText = {
+  color: '#1f2937',
+  fontSize: '18px',
+  fontWeight: 'bold',
+  marginBottom: '8px',
+  marginTop: '0',
+};
+
+const greetingSubtext = {
+  color: '#6b7280',
+  fontSize: '15px',
+  marginBottom: '20px',
+  marginTop: '0',
 };
 
 const h2 = {

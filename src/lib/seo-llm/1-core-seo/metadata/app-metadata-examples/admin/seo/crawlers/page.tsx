@@ -5,20 +5,20 @@
  * Accessible from Admin → Analytics → Crawler Activity
  */
 
-import { CrawlerActivityDashboard } from '@/components/admin/seo/CrawlerActivityDashboard';
-import { validateRequest } from '@/lib/auth';
-import { redirect } from 'next/navigation';
+import { CrawlerActivityDashboard } from '@/components/admin/seo/CrawlerActivityDashboard'
+import { validateRequest } from '@/lib/auth'
+import { redirect } from 'next/navigation'
 
 export const metadata = {
   title: 'Crawler Activity | Admin Dashboard',
   description: 'Track which search engines and AI bots are crawling your site',
-};
+}
 
 export default async function CrawlerActivityPage() {
-  const { user } = await validateRequest();
+  const { user } = await validateRequest()
 
   if (!user || user.role !== 'ADMIN') {
-    redirect('/sign-in');
+    redirect('/sign-in')
   }
 
   return (
@@ -32,5 +32,5 @@ export default async function CrawlerActivityPage() {
 
       <CrawlerActivityDashboard />
     </div>
-  );
+  )
 }

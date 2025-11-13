@@ -8,8 +8,33 @@ interface CountdownTimerProps {
 }
 
 export default function CountdownTimer({ targetDate, className = '' }: CountdownTimerProps) {
+  const getTargetDate = () => {
+    if (targetDate) {
+      return targetDate;
+    }
+
+    // Check if we have a stored first visit time
+    if (typeof window !== 'undefined') {
+      const storedFirstVisit = localStorage.getItem('taxgenius_first_visit');
+
+      if (storedFirstVisit) {
+        // Use existing first visit time + 3 days
+        const firstVisit = new Date(parseInt(storedFirstVisit));
+        return new Date(firstVisit.getTime() + 3 * 24 * 60 * 60 * 1000);
+      } else {
+        // First time visitor - store current time and set 3-day deadline
+        const now = Date.now();
+        localStorage.setItem('taxgenius_first_visit', now.toString());
+        return new Date(now + 3 * 24 * 60 * 60 * 1000);
+      }
+    }
+
+    // Fallback for SSR
+    return new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+  };
+
   const calculateTimeLeft = () => {
-    const target = targetDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
+    const target = getTargetDate();
     const difference = +target - +new Date();
 
     let timeLeft = {
@@ -26,6 +51,13 @@ export default function CountdownTimer({ targetDate, className = '' }: Countdown
         minutes: Math.floor((difference / 1000 / 60) % 60),
         seconds: Math.floor((difference / 1000) % 60),
       };
+    } else {
+      // Timer expired - reset for another 3 days
+      if (typeof window !== 'undefined') {
+        const now = Date.now();
+        localStorage.setItem('taxgenius_first_visit', now.toString());
+        return calculateTimeLeft(); // Recalculate with new deadline
+      }
     }
 
     return timeLeft;

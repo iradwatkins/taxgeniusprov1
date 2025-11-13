@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useState } from 'react'
+import Link from 'next/link'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   MapPin,
   Phone,
@@ -17,7 +17,7 @@ import {
   Building,
   MessageSquare,
   CheckCircle,
-} from 'lucide-react';
+} from 'lucide-react'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -27,19 +27,19 @@ export default function ContactPage() {
     company: '',
     subject: '',
     message: '',
-  });
-  const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  })
+  const [loading, setLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
 
     // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500))
 
-    setSubmitted(true);
-    setLoading(false);
+    setSubmitted(true)
+    setLoading(false)
 
     // Reset form after 3 seconds
     setTimeout(() => {
@@ -50,17 +50,17 @@ export default function ContactPage() {
         company: '',
         subject: '',
         message: '',
-      });
-      setSubmitted(false);
-    }, 3000);
-  };
+      })
+      setSubmitted(false)
+    }, 3000)
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
-    }));
-  };
+    }))
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -356,5 +356,5 @@ export default function ContactPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

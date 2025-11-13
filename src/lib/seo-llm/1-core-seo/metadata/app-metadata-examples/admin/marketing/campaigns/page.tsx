@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
 import {
   Table,
   TableBody,
@@ -13,14 +13,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -28,15 +28,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
+} from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu'
 import {
   Mail,
   MessageSquare,
@@ -52,26 +52,26 @@ import {
   BarChart3,
   Eye,
   Edit,
-} from 'lucide-react';
+} from 'lucide-react'
 
 interface Campaign {
-  id: string;
-  name: string;
-  type: 'EMAIL' | 'SMS' | 'PUSH';
-  status: 'DRAFT' | 'SCHEDULED' | 'SENDING' | 'SENT' | 'PAUSED' | 'CANCELLED';
-  subject?: string;
-  segmentId?: string;
-  scheduledAt?: string;
-  sentAt?: string;
-  createdAt: string;
+  id: string
+  name: string
+  type: 'EMAIL' | 'SMS' | 'PUSH'
+  status: 'DRAFT' | 'SCHEDULED' | 'SENDING' | 'SENT' | 'PAUSED' | 'CANCELLED'
+  subject?: string
+  segmentId?: string
+  scheduledAt?: string
+  sentAt?: string
+  createdAt: string
   segment?: {
-    id: string;
-    name: string;
-    count: number;
-  };
+    id: string
+    name: string
+    count: number
+  }
   _count?: {
-    sends: number;
-  };
+    sends: number
+  }
 }
 
 const STATUS_COLORS = {
@@ -81,23 +81,23 @@ const STATUS_COLORS = {
   SENT: 'bg-green-100 text-green-800',
   PAUSED: 'bg-orange-100 text-orange-800',
   CANCELLED: 'bg-red-100 text-red-800',
-};
+}
 
 const TYPE_ICONS = {
   EMAIL: Mail,
   SMS: MessageSquare,
   PUSH: Mail,
-};
+}
 
 export default function CampaignsPage() {
-  const router = useRouter();
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [segments, setSegments] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const router = useRouter()
+  const [campaigns, setCampaigns] = useState<Campaign[]>([])
+  const [segments, setSegments] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [typeFilter, setTypeFilter] = useState<string>('all')
+  const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [newCampaign, setNewCampaign] = useState({
     name: '',
     type: 'EMAIL' as const,
@@ -105,35 +105,35 @@ export default function CampaignsPage() {
     previewText: '',
     segmentId: '',
     content: { type: 'html', html: '' },
-  });
+  })
 
   useEffect(() => {
-    fetchCampaigns();
-    fetchSegments();
-  }, []);
+    fetchCampaigns()
+    fetchSegments()
+  }, [])
 
   const fetchCampaigns = async () => {
     try {
-      const response = await fetch('/api/marketing/campaigns');
+      const response = await fetch('/api/marketing/campaigns')
       if (response.ok) {
-        const data = await response.json();
-        setCampaigns(data.campaigns || []);
+        const data = await response.json()
+        setCampaigns(data.campaigns || [])
       }
     } catch (error) {
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const fetchSegments = async () => {
     try {
-      const response = await fetch('/api/marketing/segments');
+      const response = await fetch('/api/marketing/segments')
       if (response.ok) {
-        const data = await response.json();
-        setSegments(data);
+        const data = await response.json()
+        setSegments(data)
       }
     } catch (error) {}
-  };
+  }
 
   const handleCreateCampaign = async () => {
     try {
@@ -141,12 +141,12 @@ export default function CampaignsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newCampaign),
-      });
+      })
 
       if (response.ok) {
-        const campaign = await response.json();
-        setCampaigns((prev) => [campaign, ...prev]);
-        setShowCreateDialog(false);
+        const campaign = await response.json()
+        setCampaigns((prev) => [campaign, ...prev])
+        setShowCreateDialog(false)
         setNewCampaign({
           name: '',
           type: 'EMAIL',
@@ -154,54 +154,54 @@ export default function CampaignsPage() {
           previewText: '',
           segmentId: '',
           content: { type: 'html', html: '' },
-        });
+        })
 
         // Navigate to email builder if it's an email campaign
         if (campaign.type === 'EMAIL') {
-          router.push(`/admin/marketing/email-builder?campaignId=${campaign.id}`);
+          router.push(`/admin/marketing/email-builder?campaignId=${campaign.id}`)
         }
       }
     } catch (error) {}
-  };
+  }
 
   const handleSendCampaign = async (campaignId: string) => {
     try {
       const response = await fetch(`/api/marketing/campaigns/${campaignId}/send`, {
         method: 'POST',
-      });
+      })
 
       if (response.ok) {
-        fetchCampaigns(); // Refresh the list
+        fetchCampaigns() // Refresh the list
       }
     } catch (error) {}
-  };
+  }
 
   const handleDeleteCampaign = async (campaignId: string) => {
-    if (!confirm('Are you sure you want to delete this campaign?')) return;
+    if (!confirm('Are you sure you want to delete this campaign?')) return
 
     try {
       const response = await fetch(`/api/marketing/campaigns/${campaignId}`, {
         method: 'DELETE',
-      });
+      })
 
       if (response.ok) {
-        setCampaigns((prev) => prev.filter((c) => c.id !== campaignId));
+        setCampaigns((prev) => prev.filter((c) => c.id !== campaignId))
       }
     } catch (error) {}
-  };
+  }
 
   const filteredCampaigns = campaigns.filter((campaign) => {
     const matchesSearch =
       campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      campaign.subject?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || campaign.status === statusFilter;
-    const matchesType = typeFilter === 'all' || campaign.type === typeFilter;
+      campaign.subject?.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesStatus = statusFilter === 'all' || campaign.status === statusFilter
+    const matchesType = typeFilter === 'all' || campaign.type === typeFilter
 
-    return matchesSearch && matchesStatus && matchesType;
-  });
+    return matchesSearch && matchesStatus && matchesType
+  })
 
   if (loading) {
-    return <div className="p-6">Loading campaigns...</div>;
+    return <div className="p-6">Loading campaigns...</div>
   }
 
   return (
@@ -389,7 +389,7 @@ export default function CampaignsPage() {
                 </TableRow>
               ) : (
                 filteredCampaigns.map((campaign) => {
-                  const TypeIcon = TYPE_ICONS[campaign.type];
+                  const TypeIcon = TYPE_ICONS[campaign.type]
 
                   return (
                     <TableRow key={campaign.id}>
@@ -478,7 +478,7 @@ export default function CampaignsPage() {
                         </DropdownMenu>
                       </TableCell>
                     </TableRow>
-                  );
+                  )
                 })
               )}
             </TableBody>
@@ -486,5 +486,5 @@ export default function CampaignsPage() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

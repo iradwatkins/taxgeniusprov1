@@ -1,7 +1,7 @@
-'use client';
+'use client'
 
 export default function EmailBuilderTestPage() {
-  console.log('TEST PAGE RENDERING');
+  console.log('TEST PAGE RENDERING')
 
   return (
     <div className="p-6">
@@ -11,5 +11,5 @@ export default function EmailBuilderTestPage() {
         <p>Check the console for "TEST PAGE RENDERING"</p>
       </div>
     </div>
-  );
+  )
 }

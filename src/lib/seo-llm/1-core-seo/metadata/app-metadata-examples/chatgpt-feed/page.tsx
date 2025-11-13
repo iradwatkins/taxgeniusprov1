@@ -1,15 +1,15 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ExternalLink } from 'lucide-react';
-import { CopyButton } from './copy-button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { ExternalLink } from 'lucide-react'
+import { CopyButton } from './copy-button'
 
 export const metadata = {
   title: 'ChatGPT Shopping Feed - GangRun Printing',
   description: 'Submit GangRun Printing products to ChatGPT Shopping for AI-powered commerce',
-};
+}
 
 export default function ChatGPTFeedPage() {
-  const feedUrl = 'https://gangrunprinting.com/feeds/chatgpt-products.json';
+  const feedUrl = 'https://gangrunprinting.com/feeds/chatgpt-products.json'
 
   return (
     <div className="container mx-auto px-4 py-16 max-w-4xl">
@@ -158,5 +158,5 @@ export default function ChatGPTFeedPage() {
         </p>
       </div>
     </div>
-  );
+  )
 }

@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function TestColorsRedirect() {
-  const router = useRouter();
+  const router = useRouter()
 
   useEffect(() => {
     // Redirect to the new theme colors page
-    router.replace('/admin/theme-colors');
-  }, [router]);
+    router.replace('/admin/theme-colors')
+  }, [router])
 
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -18,5 +18,5 @@ export default function TestColorsRedirect() {
         <p className="text-gray-600">Redirecting to Theme Colors...</p>
       </div>
     </div>
-  );
+  )
 }

@@ -1,9 +1,9 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = params;
+    const { id } = params
 
     // Get full airport details by ID
     const airport = await prisma.airport.findUnique({
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         zip: true,
         hours: true,
       },
-    });
+    })
 
     if (!airport) {
       return NextResponse.json(
@@ -32,13 +32,13 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
           error: 'Airport not found',
         },
         { status: 404 }
-      );
+      )
     }
 
     return NextResponse.json({
       success: true,
       airport,
-    });
+    })
   } catch (error) {
     return NextResponse.json(
       {
@@ -46,6 +46,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         error: 'Failed to fetch airport details',
       },
       { status: 500 }
-    );
+    )
   }
 }

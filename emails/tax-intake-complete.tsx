@@ -66,6 +66,7 @@ interface TaxIntakeCompleteProps {
   attributionMethod?: string;
   // Locale for translations
   locale?: Locale;
+  recipientName?: string;
 }
 
 export function TaxIntakeComplete(props: TaxIntakeCompleteProps) {
@@ -106,6 +107,7 @@ export function TaxIntakeComplete(props: TaxIntakeCompleteProps) {
     source,
     referrerUsername,
     locale = 'en',
+    recipientName = 'there',
   } = props;
 
   // Get translated filing status
@@ -154,9 +156,13 @@ export function TaxIntakeComplete(props: TaxIntakeCompleteProps) {
 
           <Section style={content}>
             <Text style={greeting}>
-              {t(taxIntakeTranslations.greeting, locale).replace('{name}', preparerName)}
+              {locale === 'es' ? `Hola ${recipientName},` : `Hello ${recipientName},`}
             </Text>
-            <Text style={subtext}>{t(taxIntakeTranslations.subtext, locale)}</Text>
+            <Text style={subtext}>
+              {locale === 'es'
+                ? 'Este es un formulario de preparación de impuestos del sitio web.'
+                : 'This is a Tax Preparation form from the website.'}
+            </Text>
 
             {/* Contact Info */}
             <Section style={primaryBox}>

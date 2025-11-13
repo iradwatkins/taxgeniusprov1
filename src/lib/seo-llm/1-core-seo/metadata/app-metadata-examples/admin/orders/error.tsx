@@ -1,20 +1,20 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { AlertTriangle, RefreshCw } from 'lucide-react'
 
 export default function OrdersError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+  error: Error & { digest?: string }
+  reset: () => void
 }) {
   useEffect(() => {
     // Log the error to console for debugging
-  }, [error]);
+  }, [error])
 
   return (
     <div className="space-y-8">
@@ -49,5 +49,5 @@ export default function OrdersError({
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

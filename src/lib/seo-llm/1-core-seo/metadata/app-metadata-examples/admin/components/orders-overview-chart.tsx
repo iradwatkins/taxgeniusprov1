@@ -1,19 +1,19 @@
-'use client';
+'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface ChartData {
-  labels: string[];
+  labels: string[]
   datasets: {
-    label: string;
-    data: number[];
-    backgroundColor: string;
-  }[];
+    label: string
+    data: number[]
+    backgroundColor: string
+  }[]
 }
 
 export function OrdersOverviewChart({ data }: { data?: ChartData }) {
   // Simple bar chart implementation using CSS
-  const maxValue = Math.max(...(data?.datasets[0]?.data || [1]));
+  const maxValue = Math.max(...(data?.datasets[0]?.data || [1]))
 
   return (
     <Card>
@@ -23,8 +23,8 @@ export function OrdersOverviewChart({ data }: { data?: ChartData }) {
       <CardContent>
         <div className="h-64 flex items-end justify-between gap-2 px-4">
           {data?.labels.map((label, index) => {
-            const value = data.datasets[0]?.data[index] || 0;
-            const height = (value / maxValue) * 100;
+            const value = data.datasets[0]?.data[index] || 0
+            const height = (value / maxValue) * 100
 
             return (
               <div key={label} className="flex-1 flex flex-col items-center">
@@ -41,10 +41,10 @@ export function OrdersOverviewChart({ data }: { data?: ChartData }) {
                 </div>
                 <span className="text-xs mt-2 text-center">{label}</span>
               </div>
-            );
+            )
           })}
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

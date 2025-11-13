@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useEffect, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Users,
   UserPlus,
@@ -18,45 +18,45 @@ import {
   Calendar,
   Mail,
   Phone,
-} from 'lucide-react';
-import { StaffTable } from '@/components/admin/staff/staff-table';
-import { RolePermissionsTable } from '@/components/admin/staff/role-permissions-table';
+} from 'lucide-react'
+import { StaffTable } from '@/components/admin/staff/staff-table'
+import { RolePermissionsTable } from '@/components/admin/staff/role-permissions-table'
 
-import { AddStaffDialog } from '@/components/admin/staff/add-staff-dialog';
+import { AddStaffDialog } from '@/components/admin/staff/add-staff-dialog'
 
 interface StaffMember {
-  id: string;
-  name: string | null;
-  email: string;
-  role: string;
-  emailVerified: Date | null;
-  createdAt: Date;
-  lastLoginAt: Date | null;
-  isActive: boolean;
-  permissions: string[];
+  id: string
+  name: string | null
+  email: string
+  role: string
+  emailVerified: Date | null
+  createdAt: Date
+  lastLoginAt: Date | null
+  isActive: boolean
+  permissions: string[]
 }
 
 interface StaffData {
-  staff: StaffMember[];
+  staff: StaffMember[]
   roles: Array<{
-    name: string;
-    count: number;
-    permissions: string[];
-  }>;
+    name: string
+    count: number
+    permissions: string[]
+  }>
   stats: {
-    total: number;
-    active: number;
-    pending: number;
-    admins: number;
-  };
+    total: number
+    active: number
+    pending: number
+    admins: number
+  }
   recentActivity: Array<{
-    id: string;
-    userId: string;
-    userName: string;
-    action: string;
-    timestamp: Date;
-    details: string;
-  }>;
+    id: string
+    userId: string
+    userName: string
+    action: string
+    timestamp: Date
+    details: string
+  }>
 }
 
 function getPermissionsForRole(role: string): string[] {
@@ -74,14 +74,14 @@ function getPermissionsForRole(role: string): string[] {
     ],
     STAFF: ['View Users', 'Manage Products', 'Manage Orders', 'View Analytics', 'Customer Support'],
     CUSTOMER: ['View Products', 'Place Orders', 'View Order History'],
-  };
+  }
 
-  return permissions[role] || [];
+  return permissions[role] || []
 }
 
 function StaffPageContent() {
-  const searchParams = useSearchParams();
-  const currentTab = searchParams.get('tab') || 'members';
+  const searchParams = useSearchParams()
+  const currentTab = searchParams.get('tab') || 'members'
 
   const [data, setData] = useState<StaffData>({
     staff: [],
@@ -91,17 +91,17 @@ function StaffPageContent() {
     ],
     stats: { total: 0, active: 0, pending: 0, admins: 0 },
     recentActivity: [],
-  });
-  const [loading, setLoading] = useState(true);
+  })
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function fetchData() {
       try {
-        setLoading(true);
-        const response = await fetch('/api/staff');
+        setLoading(true)
+        const response = await fetch('/api/staff')
         if (response.ok) {
-          const staffData = await response.json();
-          setData(staffData);
+          const staffData = await response.json()
+          setData(staffData)
         } else {
           // Use mock data if API fails
           setData({
@@ -133,24 +133,24 @@ function StaffPageContent() {
                 details: 'Successfully logged in',
               },
             ],
-          });
+          })
         }
       } catch (error) {
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     }
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
   const formatDate = (date: Date | null) => {
-    if (!date) return 'Never';
+    if (!date) return 'Never'
     return new Date(date).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
-    });
-  };
+    })
+  }
 
   const formatDateTime = (date: Date) => {
     return new Date(date).toLocaleString('en-US', {
@@ -158,15 +158,15 @@ function StaffPageContent() {
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    });
-  };
+    })
+  }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
       </div>
-    );
+    )
   }
 
   return (
@@ -355,7 +355,7 @@ function StaffPageContent() {
         </TabsContent>
       </Tabs>
     </div>
-  );
+  )
 }
 
 export default function StaffPage() {
@@ -369,5 +369,5 @@ export default function StaffPage() {
     >
       <StaffPageContent />
     </Suspense>
-  );
+  )
 }

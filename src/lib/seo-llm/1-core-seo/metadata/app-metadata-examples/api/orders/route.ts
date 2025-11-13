@@ -1,19 +1,19 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { validateRequest } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { validateRequest } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest) {
   try {
-    const { user, session } = await validateRequest();
+    const { user, session } = await validateRequest()
 
-    const searchParams = request.nextUrl.searchParams;
-    const orderNumber = searchParams.get('orderNumber');
-    const email = searchParams.get('email');
+    const searchParams = request.nextUrl.searchParams
+    const orderNumber = searchParams.get('orderNumber')
+    const email = searchParams.get('email')
 
     // Pagination parameters
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = Math.min(parseInt(searchParams.get('limit') || '25', 10), 100); // Max 100 items per page
-    const skip = (page - 1) * limit;
+    const page = parseInt(searchParams.get('page') || '1', 10)
+    const limit = Math.min(parseInt(searchParams.get('limit') || '25', 10), 100) // Max 100 items per page
+    const skip = (page - 1) * limit
 
     if (orderNumber) {
       // Search by order number
@@ -26,18 +26,18 @@ export async function GET(request: NextRequest) {
             orderBy: { createdAt: 'desc' },
           },
         },
-      });
+      })
 
       if (!order) {
-        return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+        return NextResponse.json({ error: 'Order not found' }, { status: 404 })
       }
 
       // Check authorization
       if (!user || (order.email !== user.email && user.role !== 'ADMIN')) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
 
-      return NextResponse.json(order);
+      return NextResponse.json(order)
     }
 
     if (email) {
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
           skip,
           take: limit,
         }),
-      ]);
+      ])
 
       return NextResponse.json({
         orders,
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
           hasNextPage: page < Math.ceil(totalCount / limit),
           hasPreviousPage: page > 1,
         },
-      });
+      })
     }
 
     // Admin: Get all orders with pagination
@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
           skip,
           take: limit,
         }),
-      ]);
+      ])
 
       return NextResponse.json({
         orders,
@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
           hasNextPage: page < Math.ceil(totalCount / limit),
           hasPreviousPage: page > 1,
         },
-      });
+      })
     }
 
     // User: Get their orders with pagination
@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
           skip,
           take: limit,
         }),
-      ]);
+      ])
 
       return NextResponse.json({
         orders,
@@ -132,25 +132,25 @@ export async function GET(request: NextRequest) {
           hasNextPage: page < Math.ceil(totalCount / limit),
           hasPreviousPage: page > 1,
         },
-      });
+      })
     }
 
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { user, session } = await validateRequest();
-    const body = await request.json();
+    const { user, session } = await validateRequest()
+    const body = await request.json()
 
-    const { email, phone, items, files, subtotal, tax, shipping, total, shippingAddress } = body;
+    const { email, phone, items, files, subtotal, tax, shipping, total, shippingAddress } = body
 
     // Generate order number
-    const orderCount = await prisma.order.count();
-    const orderNumber = `GRP-${String(orderCount + 1).padStart(5, '0')}`;
+    const orderCount = await prisma.order.count()
+    const orderNumber = `GRP-${String(orderCount + 1).padStart(5, '0')}`
 
     // Create order
     const order = await prisma.order.create({
@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
         File: true,
         StatusHistory: true,
       },
-    });
+    })
 
     // Send confirmation email
     try {
@@ -216,7 +216,7 @@ export async function POST(request: NextRequest) {
           orderNumber: order.orderNumber,
           customerEmail: order.email,
         }),
-      });
+      })
     } catch (emailError) {
       // Don't fail the order creation if email fails
     }
@@ -231,13 +231,13 @@ export async function POST(request: NextRequest) {
           amount: order.total,
           customerEmail: order.email,
         }),
-      });
+      })
     } catch (paymentError) {
       // Payment can be retried later
     }
 
-    return NextResponse.json(order, { status: 201 });
+    return NextResponse.json(order, { status: 201 })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
   }
 }

@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import * as React from 'react';
+import * as React from 'react'
 import {
   AudioWaveform,
   BookOpen,
@@ -32,13 +32,13 @@ import {
   Settings,
   Wrench,
   Search,
-} from 'lucide-react';
+} from 'lucide-react'
 
-import { NavMain } from './nav-main';
+import { NavMain } from './nav-main'
 
-import { NavUser } from './nav-user';
-import { TeamSwitcher } from './team-switcher';
-import { ThemeToggle } from '@/components/admin/theme-toggle';
+import { NavUser } from './nav-user'
+import { TeamSwitcher } from './team-switcher'
+import { ThemeToggle } from '@/components/admin/theme-toggle'
 import {
   Sidebar,
   SidebarContent,
@@ -47,12 +47,12 @@ import {
   SidebarRail,
   SidebarGroup,
   SidebarGroupContent,
-} from '@/components/ui/sidebar';
+} from '@/components/ui/sidebar'
 
 const data = {
   user: {
     name: 'Ira Watkins',
-    email: 'support@taxgeniuspro.tax',
+    email: 'iradwatkins@gmail.com',
     avatar: '/avatars/admin.jpg',
   },
   teams: [
@@ -228,7 +228,7 @@ const data = {
       ],
     },
   ],
-};
+}
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -252,5 +252,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  );
+  )
 }

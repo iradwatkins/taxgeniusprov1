@@ -1,29 +1,29 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { ShoppingBag, Trash2, ArrowRight, Upload, Edit } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { useCart } from '@/contexts/cart-context';
-import { CartItemImages } from '@/components/cart/cart-item-images';
-import { FileThumbnails } from '@/components/product/FileThumbnails';
-import { ArtworkUpload } from '@/components/product/ArtworkUpload';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import toast from '@/lib/toast';
+import { useState } from 'react'
+import { ShoppingBag, Trash2, ArrowRight, Upload, Edit } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { useCart } from '@/contexts/cart-context'
+import { CartItemImages } from '@/components/cart/cart-item-images'
+import { FileThumbnails } from '@/components/product/FileThumbnails'
+import { ArtworkUpload } from '@/components/product/ArtworkUpload'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import toast from '@/lib/toast'
 
 interface UploadedFile {
-  id: string;
-  file: File;
-  preview?: string;
-  status: 'uploading' | 'success' | 'error';
-  progress?: number;
-  url?: string;
+  id: string
+  file: File
+  preview?: string
+  status: 'uploading' | 'success' | 'error'
+  progress?: number
+  url?: string
 }
 
 export default function CartPage() {
-  const router = useRouter();
+  const router = useRouter()
   const {
     items,
     updateQuantity,
@@ -34,20 +34,20 @@ export default function CartPage() {
     tax,
     shipping,
     total,
-  } = useCart();
+  } = useCart()
 
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
 
   const handleFilesChange = (files: UploadedFile[]) => {
-    setUploadedFiles(files);
+    setUploadedFiles(files)
     // Store in sessionStorage for checkout
-    sessionStorage.setItem('cart_artwork_files', JSON.stringify(files));
-  };
+    sessionStorage.setItem('cart_artwork_files', JSON.stringify(files))
+  }
 
   const handleContinueToPayment = () => {
     if (items.length === 0) {
-      toast.error('Your cart is empty');
-      return;
+      toast.error('Your cart is empty')
+      return
     }
 
     // Store cart data in session storage for payment page
@@ -57,17 +57,17 @@ export default function CartPage() {
       tax,
       shipping,
       total,
-    };
-    sessionStorage.setItem('checkout_cart_data', JSON.stringify(checkoutData));
+    }
+    sessionStorage.setItem('checkout_cart_data', JSON.stringify(checkoutData))
 
     // Store uploaded files
     if (uploadedFiles.length > 0) {
-      sessionStorage.setItem('cart_artwork_files', JSON.stringify(uploadedFiles));
+      sessionStorage.setItem('cart_artwork_files', JSON.stringify(uploadedFiles))
     }
 
     // Navigate to payment page
-    router.push('/checkout/payment');
-  };
+    router.push('/checkout/payment')
+  }
 
   // Empty cart state
   if (items.length === 0) {
@@ -84,7 +84,7 @@ export default function CartPage() {
           </Button>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -266,5 +266,5 @@ export default function CartPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

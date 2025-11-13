@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
+import { useState } from 'react'
 import {
   Search,
   Package,
@@ -10,35 +10,35 @@ import {
   FileText,
   Upload,
   AlertCircle,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Label } from '@/components/ui/label';
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Label } from '@/components/ui/label'
 
 interface OrderStatus {
-  status: string;
-  timestamp: string;
-  description: string;
-  completed: boolean;
+  status: string
+  timestamp: string
+  description: string
+  completed: boolean
 }
 
 interface Order {
-  orderNumber: string;
-  status: string;
-  email: string;
-  createdAt: string;
-  estimatedDelivery: string;
+  orderNumber: string
+  status: string
+  email: string
+  createdAt: string
+  estimatedDelivery: string
   items: {
-    name: string;
-    quantity: number;
-    price: string;
-  }[];
-  timeline: OrderStatus[];
-  trackingNumber?: string;
-  carrier?: string;
+    name: string
+    quantity: number
+    price: string
+  }[]
+  timeline: OrderStatus[]
+  trackingNumber?: string
+  carrier?: string
 }
 
 const statusIcons: Record<string, any> = {
@@ -48,7 +48,7 @@ const statusIcons: Record<string, any> = {
   'Quality Check': Search,
   Shipped: Truck,
   Delivered: Package,
-};
+}
 
 const statusColors: Record<string, string> = {
   pending_payment: 'bg-yellow-100 text-yellow-800',
@@ -59,42 +59,42 @@ const statusColors: Record<string, string> = {
   packaging: 'bg-pink-100 text-pink-800',
   shipped: 'bg-cyan-100 text-cyan-800',
   delivered: 'bg-green-100 text-green-800',
-};
+}
 
 export default function TrackOrderPage() {
-  const [searchValue, setSearchValue] = useState('');
-  const [order, setOrder] = useState<Order | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [hasIssue, setHasIssue] = useState(false); // Simulate order with issue
+  const [searchValue, setSearchValue] = useState('')
+  const [order, setOrder] = useState<Order | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  const [hasIssue, setHasIssue] = useState(false) // Simulate order with issue
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setUploadedFile(e.target.files[0]);
+      setUploadedFile(e.target.files[0])
     }
-  };
+  }
 
   const handleSubmitNewFile = () => {
     if (uploadedFile) {
       // Simulate file submission
 
-      alert("New file submitted successfully! We'll review it and update your order.");
-      setUploadedFile(null);
+      alert("New file submitted successfully! We'll review it and update your order.")
+      setUploadedFile(null)
     }
-  };
+  }
 
   const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+    e.preventDefault()
+    setError('')
 
     if (!searchValue.trim()) {
-      setError('Please enter an order number or email');
-      return;
+      setError('Please enter an order number or email')
+      return
     }
 
     // Navigate to the detailed tracking page
-    window.location.href = `/track/${searchValue.trim().toUpperCase()}`;
+    window.location.href = `/track/${searchValue.trim().toUpperCase()}`
 
     /* Original simulation code (kept for reference)
     setLoading(true)
@@ -161,7 +161,7 @@ export default function TrackOrderPage() {
       }
       setLoading(false)
     }, 1000) */
-  };
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -276,7 +276,7 @@ export default function TrackOrderPage() {
               <CardContent>
                 <div className="space-y-4">
                   {order.timeline.map((step, index) => {
-                    const Icon = statusIcons[step.status] || Package;
+                    const Icon = statusIcons[step.status] || Package
                     return (
                       <div key={index} className="flex gap-4">
                         <div className="relative flex flex-col items-center">
@@ -309,7 +309,7 @@ export default function TrackOrderPage() {
                           )}
                         </div>
                       </div>
-                    );
+                    )
                   })}
                 </div>
               </CardContent>
@@ -381,5 +381,5 @@ export default function TrackOrderPage() {
         )}
       </div>
     </div>
-  );
+  )
 }

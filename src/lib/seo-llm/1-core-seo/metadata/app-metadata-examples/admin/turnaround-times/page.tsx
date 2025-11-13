@@ -1,17 +1,17 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -19,7 +19,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
@@ -28,44 +28,44 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
+} from '@/components/ui/dialog'
+import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
 
-import { Plus, Edit, Trash2, Clock, Copy } from 'lucide-react';
-import toast from '@/lib/toast';
+import { Plus, Edit, Trash2, Clock, Copy } from 'lucide-react'
+import toast from '@/lib/toast'
 
 interface TurnaroundTime {
-  id: string;
-  name: string;
-  displayName: string;
-  description?: string;
-  daysMin: number;
-  daysMax?: number;
-  pricingModel: 'FLAT' | 'PERCENTAGE' | 'PER_UNIT' | 'CUSTOM';
-  basePrice: number;
-  priceMultiplier: number;
-  requiresNoCoating: boolean;
-  restrictedCoatings: string[];
-  sortOrder: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  name: string
+  displayName: string
+  description?: string
+  daysMin: number
+  daysMax?: number
+  pricingModel: 'FLAT' | 'PERCENTAGE' | 'PER_UNIT' | 'CUSTOM'
+  basePrice: number
+  priceMultiplier: number
+  requiresNoCoating: boolean
+  restrictedCoatings: string[]
+  sortOrder: number
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 interface TurnaroundTimeFormData {
-  name: string;
-  displayName: string;
-  description: string;
-  daysMin: number;
-  daysMax: number | null;
-  pricingModel: 'FLAT' | 'PERCENTAGE' | 'PER_UNIT' | 'CUSTOM';
-  basePrice: number;
-  priceMultiplier: number;
-  requiresNoCoating: boolean;
-  restrictedCoatings: string[];
-  sortOrder: number;
-  isActive: boolean;
+  name: string
+  displayName: string
+  description: string
+  daysMin: number
+  daysMax: number | null
+  pricingModel: 'FLAT' | 'PERCENTAGE' | 'PER_UNIT' | 'CUSTOM'
+  basePrice: number
+  priceMultiplier: number
+  requiresNoCoating: boolean
+  restrictedCoatings: string[]
+  sortOrder: number
+  isActive: boolean
 }
 
 const defaultFormData: TurnaroundTimeFormData = {
@@ -81,64 +81,64 @@ const defaultFormData: TurnaroundTimeFormData = {
   restrictedCoatings: [],
   sortOrder: 0,
   isActive: true,
-};
+}
 
 export default function TurnaroundTimesPage() {
-  const [turnaroundTimes, setTurnaroundTimes] = useState<TurnaroundTime[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<TurnaroundTime | null>(null);
-  const [formData, setFormData] = useState<TurnaroundTimeFormData>(defaultFormData);
+  const [turnaroundTimes, setTurnaroundTimes] = useState<TurnaroundTime[]>([])
+  const [loading, setLoading] = useState(true)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editingItem, setEditingItem] = useState<TurnaroundTime | null>(null)
+  const [formData, setFormData] = useState<TurnaroundTimeFormData>(defaultFormData)
 
   // Fetch turnaround times
   useEffect(() => {
-    fetchTurnaroundTimes();
-  }, []);
+    fetchTurnaroundTimes()
+  }, [])
 
   const fetchTurnaroundTimes = async () => {
     try {
-      setLoading(true);
-      const response = await fetch('/api/turnaround-times');
-      if (!response.ok) throw new Error('Failed to fetch turnaround times');
-      const data = await response.json();
-      setTurnaroundTimes(data);
+      setLoading(true)
+      const response = await fetch('/api/turnaround-times')
+      if (!response.ok) throw new Error('Failed to fetch turnaround times')
+      const data = await response.json()
+      setTurnaroundTimes(data)
     } catch (error) {
-      toast.error('Failed to load turnaround times');
+      toast.error('Failed to load turnaround times')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     try {
-      const url = editingItem ? `/api/turnaround-times/${editingItem.id}` : '/api/turnaround-times';
-      const method = editingItem ? 'PUT' : 'POST';
+      const url = editingItem ? `/api/turnaround-times/${editingItem.id}` : '/api/turnaround-times'
+      const method = editingItem ? 'PUT' : 'POST'
 
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
-      });
+      })
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to save turnaround time');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to save turnaround time')
       }
 
-      toast.success(editingItem ? 'Turnaround time updated' : 'Turnaround time created');
-      setDialogOpen(false);
-      setEditingItem(null);
-      setFormData(defaultFormData);
-      fetchTurnaroundTimes();
+      toast.success(editingItem ? 'Turnaround time updated' : 'Turnaround time created')
+      setDialogOpen(false)
+      setEditingItem(null)
+      setFormData(defaultFormData)
+      fetchTurnaroundTimes()
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to save turnaround time');
+      toast.error(error instanceof Error ? error.message : 'Failed to save turnaround time')
     }
-  };
+  }
 
   const handleEdit = (item: TurnaroundTime) => {
-    setEditingItem(item);
+    setEditingItem(item)
     setFormData({
       name: item.name,
       displayName: item.displayName,
@@ -152,69 +152,69 @@ export default function TurnaroundTimesPage() {
       restrictedCoatings: item.restrictedCoatings,
       sortOrder: item.sortOrder,
       isActive: item.isActive,
-    });
-    setDialogOpen(true);
-  };
+    })
+    setDialogOpen(true)
+  }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this turnaround time?')) return;
+    if (!confirm('Are you sure you want to delete this turnaround time?')) return
 
     try {
       const response = await fetch(`/api/turnaround-times/${id}`, {
         method: 'DELETE',
-      });
+      })
 
-      if (!response.ok) throw new Error('Failed to delete turnaround time');
+      if (!response.ok) throw new Error('Failed to delete turnaround time')
 
-      toast.success('Turnaround time deleted');
-      fetchTurnaroundTimes();
+      toast.success('Turnaround time deleted')
+      fetchTurnaroundTimes()
     } catch (error) {
-      toast.error('Failed to delete turnaround time');
+      toast.error('Failed to delete turnaround time')
     }
-  };
+  }
 
   const handleDuplicate = async (item: TurnaroundTime) => {
     try {
       const response = await fetch(`/api/turnaround-times/${item.id}/duplicate`, {
         method: 'POST',
-      });
+      })
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to duplicate turnaround time');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to duplicate turnaround time')
       }
 
-      toast.success('Turnaround time duplicated');
-      fetchTurnaroundTimes();
+      toast.success('Turnaround time duplicated')
+      fetchTurnaroundTimes()
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to duplicate turnaround time');
+      toast.error(error instanceof Error ? error.message : 'Failed to duplicate turnaround time')
     }
-  };
+  }
 
   const openCreateDialog = () => {
-    setEditingItem(null);
-    setFormData(defaultFormData);
-    setDialogOpen(true);
-  };
+    setEditingItem(null)
+    setFormData(defaultFormData)
+    setDialogOpen(true)
+  }
 
   const formatDaysRange = (daysMin: number, daysMax?: number) => {
-    if (daysMin === 0) return 'Same Day';
-    if (!daysMax || daysMin === daysMax) return `${daysMin} day${daysMin !== 1 ? 's' : ''}`;
-    return `${daysMin}-${daysMax} days`;
-  };
+    if (daysMin === 0) return 'Same Day'
+    if (!daysMax || daysMin === daysMax) return `${daysMin} day${daysMin !== 1 ? 's' : ''}`
+    return `${daysMin}-${daysMax} days`
+  }
 
   const getPricingDisplay = (pricingModel: string, basePrice: number, priceMultiplier: number) => {
     switch (pricingModel) {
       case 'FLAT':
-        return `+$${basePrice.toFixed(2)}`;
+        return `+$${basePrice.toFixed(2)}`
       case 'PERCENTAGE':
-        return `${(priceMultiplier * 100).toFixed(0)}%`;
+        return `${(priceMultiplier * 100).toFixed(0)}%`
       case 'PER_UNIT':
-        return `+$${basePrice.toFixed(2)}/unit`;
+        return `+$${basePrice.toFixed(2)}/unit`
       default:
-        return 'Custom';
+        return 'Custom'
     }
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -476,5 +476,5 @@ export default function TurnaroundTimesPage() {
         </Table>
       </div>
     </div>
-  );
+  )
 }

@@ -5,36 +5,36 @@
  * Critical: This endpoint must verify webhook signatures for security.
  */
 
-import { type NextRequest, NextResponse } from 'next/server';
-import { OrderService } from '@/lib/services/order-service';
-import { prisma } from '@/lib/prisma';
-import crypto from 'crypto';
+import { type NextRequest, NextResponse } from 'next/server'
+import { OrderService } from '@/lib/services/order-service'
+import { prisma } from '@/lib/prisma'
+import crypto from 'crypto'
 
-const SQUARE_WEBHOOK_SIGNATURE_KEY = process.env.SQUARE_WEBHOOK_SIGNATURE_KEY || '';
-const SQUARE_WEBHOOK_URL = process.env.SQUARE_WEBHOOK_URL || '';
+const SQUARE_WEBHOOK_SIGNATURE_KEY = process.env.SQUARE_WEBHOOK_SIGNATURE_KEY || ''
+const SQUARE_WEBHOOK_URL = process.env.SQUARE_WEBHOOK_URL || ''
 
 interface SquareWebhookEvent {
-  merchant_id: string;
-  type: string;
-  event_id: string;
-  created_at: string;
+  merchant_id: string
+  type: string
+  event_id: string
+  created_at: string
   data: {
-    type: string;
-    id: string;
+    type: string
+    id: string
     object: {
       payment?: {
-        id: string;
+        id: string
         amount_money: {
-          amount: number;
-          currency: string;
-        };
-        status: string;
-        order_id?: string;
-        receipt_url?: string;
-        reference_id?: string; // This should be our orderNumber
-      };
-    };
-  };
+          amount: number
+          currency: string
+        }
+        status: string
+        order_id?: string
+        receipt_url?: string
+        reference_id?: string // This should be our orderNumber
+      }
+    }
+  }
 }
 
 /**
@@ -45,35 +45,35 @@ interface SquareWebhookEvent {
 export async function POST(request: NextRequest) {
   try {
     // Get raw body for signature verification
-    const rawBody = await request.text();
-    const signature = request.headers.get('x-square-hmacsha256-signature') || '';
+    const rawBody = await request.text()
+    const signature = request.headers.get('x-square-hmacsha256-signature') || ''
 
     // Verify webhook signature
     if (!verifySquareSignature(rawBody, signature)) {
-      console.error('[Square Webhook] Invalid signature');
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
+      console.error('[Square Webhook] Invalid signature')
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
     }
 
     // Parse webhook event
-    const event: SquareWebhookEvent = JSON.parse(rawBody);
+    const event: SquareWebhookEvent = JSON.parse(rawBody)
 
     // Handle different event types
     switch (event.type) {
       case 'payment.created':
-        await handlePaymentCreated(event);
-        break;
+        await handlePaymentCreated(event)
+        break
 
       case 'payment.updated':
-        await handlePaymentUpdated(event);
-        break;
+        await handlePaymentUpdated(event)
+        break
 
       default:
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('[Square Webhook] Error:', error);
-    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
+    console.error('[Square Webhook] Error:', error)
+    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 })
   }
 }
 
@@ -81,53 +81,53 @@ export async function POST(request: NextRequest) {
  * Handle payment.created event
  */
 async function handlePaymentCreated(event: SquareWebhookEvent): Promise<void> {
-  const payment = event.data.object.payment;
+  const payment = event.data.object.payment
 
   if (!payment) {
-    console.error('[Square Webhook] No payment object in event');
-    return;
+    console.error('[Square Webhook] No payment object in event')
+    return
   }
 
-  const { id: paymentId, amount_money, status, reference_id } = payment;
+  const { id: paymentId, amount_money, status, reference_id } = payment
 
   // Only process completed payments
   if (status !== 'COMPLETED') {
-    return;
+    return
   }
 
   if (!reference_id) {
-    console.error('[Square Webhook] No reference_id (orderNumber) in payment');
-    return;
+    console.error('[Square Webhook] No reference_id (orderNumber) in payment')
+    return
   }
 
   // Find order by orderNumber
   const order = await prisma.order.findUnique({
     where: { orderNumber: reference_id },
-  });
+  })
 
   if (!order) {
-    console.error(`[Square Webhook] Order not found: ${reference_id}`);
-    return;
+    console.error(`[Square Webhook] Order not found: ${reference_id}`)
+    return
   }
 
   // Prevent duplicate processing
   if (order.status !== 'PENDING_PAYMENT') {
-    return;
+    return
   }
 
   // Verify amount matches
-  const paidAmount = amount_money.amount / 100; // Convert cents to dollars
+  const paidAmount = amount_money.amount / 100 // Convert cents to dollars
   if (Math.abs(paidAmount - order.total) > 0.01) {
-    console.error(`[Square Webhook] Amount mismatch: Paid ${paidAmount}, Expected ${order.total}`);
+    console.error(`[Square Webhook] Amount mismatch: Paid ${paidAmount}, Expected ${order.total}`)
     // Still process but log the discrepancy
   }
 
   // Process payment via OrderService
   try {
-    await OrderService.processPayment(order.id, paymentId, paidAmount);
+    await OrderService.processPayment(order.id, paymentId, paidAmount)
   } catch (error) {
-    console.error(`[Square Webhook] Failed to process payment:`, error);
-    throw error;
+    console.error(`[Square Webhook] Failed to process payment:`, error)
+    throw error
   }
 }
 
@@ -135,35 +135,35 @@ async function handlePaymentCreated(event: SquareWebhookEvent): Promise<void> {
  * Handle payment.updated event
  */
 async function handlePaymentUpdated(event: SquareWebhookEvent): Promise<void> {
-  const payment = event.data.object.payment;
+  const payment = event.data.object.payment
 
   if (!payment) {
-    return;
+    return
   }
 
-  const { id: paymentId, status, reference_id } = payment;
+  const { id: paymentId, status, reference_id } = payment
 
   if (!reference_id) {
-    return;
+    return
   }
 
   const order = await prisma.order.findUnique({
     where: { orderNumber: reference_id },
-  });
+  })
 
   if (!order) {
-    return;
+    return
   }
 
   // Handle payment failures
   if (status === 'FAILED' || status === 'CANCELED') {
-    await handlePaymentFailed(order.id, status);
+    await handlePaymentFailed(order.id, status)
   }
 
   // Handle payment completion (if it wasn't completed on creation)
   if (status === 'COMPLETED' && order.status === 'PENDING_PAYMENT') {
-    const paidAmount = payment.amount_money.amount / 100;
-    await OrderService.processPayment(order.id, paymentId, paidAmount);
+    const paidAmount = payment.amount_money.amount / 100
+    await OrderService.processPayment(order.id, paymentId, paidAmount)
   }
 }
 
@@ -184,7 +184,7 @@ async function handlePaymentFailed(orderId: string, reason: string): Promise<voi
         },
       },
     },
-  });
+  })
 
   // TODO: Send payment failed email
 }
@@ -197,25 +197,25 @@ async function handlePaymentFailed(orderId: string, reason: string): Promise<voi
  */
 function verifySquareSignature(body: string, signature: string): boolean {
   if (!SQUARE_WEBHOOK_SIGNATURE_KEY) {
-    console.warn('[Square Webhook] No signature key configured - SKIPPING VERIFICATION');
-    return true; // In development, allow without signature
+    console.warn('[Square Webhook] No signature key configured - SKIPPING VERIFICATION')
+    return true // In development, allow without signature
   }
 
   try {
     // Combine webhook URL + body
-    const payload = SQUARE_WEBHOOK_URL + body;
+    const payload = SQUARE_WEBHOOK_URL + body
 
     // Calculate HMAC
     const hmac = crypto
       .createHmac('sha256', SQUARE_WEBHOOK_SIGNATURE_KEY)
       .update(payload)
-      .digest('base64');
+      .digest('base64')
 
     // Compare signatures (timing-safe)
-    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(hmac));
+    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(hmac))
   } catch (error) {
-    console.error('[Square Webhook] Signature verification error:', error);
-    return false;
+    console.error('[Square Webhook] Signature verification error:', error)
+    return false
   }
 }
 
@@ -229,5 +229,5 @@ export async function GET() {
     service: 'Square Payment Webhook',
     status: 'active',
     configured: !!SQUARE_WEBHOOK_SIGNATURE_KEY,
-  });
+  })
 }

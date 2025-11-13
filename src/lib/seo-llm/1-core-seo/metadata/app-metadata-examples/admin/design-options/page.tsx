@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { Plus, Edit, Trash2, Search, Save, Palette } from 'lucide-react';
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
+import { Plus, Edit, Trash2, Search, Save, Palette } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -16,7 +16,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
@@ -24,48 +24,48 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import toast from '@/lib/toast';
+} from '@/components/ui/select'
+import toast from '@/lib/toast'
 
 interface DesignOption {
-  id: string;
-  name: string;
-  code: string;
-  description: string | null;
-  tooltipText: string | null;
-  pricingType: 'FREE' | 'FLAT' | 'SIDE_BASED';
-  requiresSideSelection: boolean;
-  sideOnePrice: number | null;
-  sideTwoPrice: number | null;
-  basePrice: number;
-  sortOrder: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  name: string
+  code: string
+  description: string | null
+  tooltipText: string | null
+  pricingType: 'FREE' | 'FLAT' | 'SIDE_BASED'
+  requiresSideSelection: boolean
+  sideOnePrice: number | null
+  sideTwoPrice: number | null
+  basePrice: number
+  sortOrder: number
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 const pricingTypeLabels = {
   FREE: 'Free',
   FLAT: 'Flat Fee',
   SIDE_BASED: 'Side-Based Pricing',
-};
+}
 
 export default function DesignOptionsPage() {
-  const [options, setOptions] = useState<DesignOption[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [optionToDelete, setOptionToDelete] = useState<DesignOption | null>(null);
-  const [editingOption, setEditingOption] = useState<DesignOption | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [saving, setSaving] = useState(false);
+  const [options, setOptions] = useState<DesignOption[]>([])
+  const [loading, setLoading] = useState(true)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [optionToDelete, setOptionToDelete] = useState<DesignOption | null>(null)
+  const [editingOption, setEditingOption] = useState<DesignOption | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [saving, setSaving] = useState(false)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -80,33 +80,33 @@ export default function DesignOptionsPage() {
     basePrice: 0,
     sortOrder: 0,
     isActive: true,
-  });
+  })
 
   useEffect(() => {
-    fetchOptions();
-  }, []);
+    fetchOptions()
+  }, [])
 
   const fetchOptions = async () => {
     try {
-      setLoading(true);
-      const response = await fetch('/api/design-options');
-      if (!response.ok) throw new Error('Failed to fetch');
-      const data = await response.json();
-      setOptions(Array.isArray(data) ? data : []);
+      setLoading(true)
+      const response = await fetch('/api/design-options')
+      if (!response.ok) throw new Error('Failed to fetch')
+      const data = await response.json()
+      setOptions(Array.isArray(data) ? data : [])
     } catch (error) {
-      toast.error('Failed to fetch design options');
-      setOptions([]);
+      toast.error('Failed to fetch design options')
+      setOptions([])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSubmit = async () => {
     try {
-      setSaving(true);
+      setSaving(true)
 
-      const url = editingOption ? `/api/design-options/${editingOption.id}` : '/api/design-options';
-      const method = editingOption ? 'PUT' : 'POST';
+      const url = editingOption ? `/api/design-options/${editingOption.id}` : '/api/design-options'
+      const method = editingOption ? 'PUT' : 'POST'
 
       const response = await fetch(url, {
         method,
@@ -124,49 +124,49 @@ export default function DesignOptionsPage() {
           sortOrder: formData.sortOrder,
           isActive: formData.isActive,
         }),
-      });
+      })
 
       if (response.ok) {
         toast.success(
           editingOption
             ? 'Design option updated successfully'
             : 'Design option created successfully'
-        );
-        setDialogOpen(false);
-        resetForm();
-        fetchOptions();
+        )
+        setDialogOpen(false)
+        resetForm()
+        fetchOptions()
       } else {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to save design option');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to save design option')
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to save design option');
+      toast.error(error instanceof Error ? error.message : 'Failed to save design option')
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   const handleDelete = async () => {
-    if (!optionToDelete) return;
+    if (!optionToDelete) return
 
     try {
       const response = await fetch(`/api/design-options/${optionToDelete.id}`, {
         method: 'DELETE',
-      });
+      })
 
       if (response.ok) {
-        toast.success('Design option deleted successfully');
-        setDeleteDialogOpen(false);
-        setOptionToDelete(null);
-        fetchOptions();
+        toast.success('Design option deleted successfully')
+        setDeleteDialogOpen(false)
+        setOptionToDelete(null)
+        fetchOptions()
       } else {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete design option');
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to delete design option')
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to delete design option');
+      toast.error(error instanceof Error ? error.message : 'Failed to delete design option')
     }
-  };
+  }
 
   const handleToggleActive = async (option: DesignOption) => {
     try {
@@ -174,20 +174,20 @@ export default function DesignOptionsPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isActive: !option.isActive }),
-      });
+      })
 
       if (response.ok) {
         toast.success(
           `Design option ${!option.isActive ? 'activated' : 'deactivated'} successfully`
-        );
-        fetchOptions();
+        )
+        fetchOptions()
       } else {
-        throw new Error('Failed to update design option status');
+        throw new Error('Failed to update design option status')
       }
     } catch (error) {
-      toast.error('Failed to update design option status');
+      toast.error('Failed to update design option status')
     }
-  };
+  }
 
   const resetForm = () => {
     setFormData({
@@ -202,12 +202,12 @@ export default function DesignOptionsPage() {
       basePrice: 0,
       sortOrder: 0,
       isActive: true,
-    });
-    setEditingOption(null);
-  };
+    })
+    setEditingOption(null)
+  }
 
   const openEditDialog = (option: DesignOption) => {
-    setEditingOption(option);
+    setEditingOption(option)
     setFormData({
       name: option.name,
       code: option.code,
@@ -220,14 +220,14 @@ export default function DesignOptionsPage() {
       basePrice: option.basePrice,
       sortOrder: option.sortOrder,
       isActive: option.isActive,
-    });
-    setDialogOpen(true);
-  };
+    })
+    setDialogOpen(true)
+  }
 
   const openDeleteDialog = (option: DesignOption) => {
-    setOptionToDelete(option);
-    setDeleteDialogOpen(true);
-  };
+    setOptionToDelete(option)
+    setDeleteDialogOpen(true)
+  }
 
   const filteredOptions = Array.isArray(options)
     ? options.filter(
@@ -236,20 +236,20 @@ export default function DesignOptionsPage() {
           option.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
           option.description?.toLowerCase().includes(searchTerm.toLowerCase())
       )
-    : [];
+    : []
 
   const formatPriceDisplay = (option: DesignOption) => {
     switch (option.pricingType) {
       case 'FREE':
-        return 'Free';
+        return 'Free'
       case 'FLAT':
-        return `$${option.basePrice.toFixed(2)}`;
+        return `$${option.basePrice.toFixed(2)}`
       case 'SIDE_BASED':
-        return `One: $${option.sideOnePrice?.toFixed(2) || '0.00'} | Two: $${option.sideTwoPrice?.toFixed(2) || '0.00'}`;
+        return `One: $${option.sideOnePrice?.toFixed(2) || '0.00'} | Two: $${option.sideTwoPrice?.toFixed(2) || '0.00'}`
       default:
-        return '-';
+        return '-'
     }
-  };
+  }
 
   return (
     <div className="container mx-auto py-6">
@@ -262,8 +262,8 @@ export default function DesignOptionsPage() {
             </div>
             <Button
               onClick={() => {
-                resetForm();
-                setDialogOpen(true);
+                resetForm()
+                setDialogOpen(true)
               }}
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -543,8 +543,8 @@ export default function DesignOptionsPage() {
               disabled={saving}
               variant="outline"
               onClick={() => {
-                setDialogOpen(false);
-                resetForm();
+                setDialogOpen(false)
+                resetForm()
               }}
             >
               Cancel
@@ -580,8 +580,8 @@ export default function DesignOptionsPage() {
             <Button
               variant="outline"
               onClick={() => {
-                setDeleteDialogOpen(false);
-                setOptionToDelete(null);
+                setDeleteDialogOpen(false)
+                setOptionToDelete(null)
               }}
             >
               Cancel
@@ -593,5 +593,5 @@ export default function DesignOptionsPage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }

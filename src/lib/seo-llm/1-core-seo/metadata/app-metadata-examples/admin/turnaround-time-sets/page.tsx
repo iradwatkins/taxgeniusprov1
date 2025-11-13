@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 import {
   Plus,
   Edit,
@@ -10,14 +10,14 @@ import {
   ChevronRight,
   Eye,
   Copy,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Checkbox } from '@/components/ui/checkbox';
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Table,
   TableBody,
@@ -25,7 +25,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
@@ -33,16 +33,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import toast from '@/lib/toast';
+} from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import toast from '@/lib/toast'
 import {
   DndContext,
   closestCenter,
@@ -51,43 +51,43 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
-} from '@dnd-kit/core';
+} from '@dnd-kit/core'
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+} from '@dnd-kit/sortable'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 interface TurnaroundTime {
-  id: string;
-  name: string;
-  displayName: string;
-  daysMin: number;
-  daysMax: number | null;
-  priceMultiplier: number;
-  basePrice: number;
-  isActive: boolean;
+  id: string
+  name: string
+  displayName: string
+  daysMin: number
+  daysMax: number | null
+  priceMultiplier: number
+  basePrice: number
+  isActive: boolean
 }
 
 interface TurnaroundTimeSetItem {
-  id: string;
-  turnaroundTimeId: string;
-  TurnaroundTime: TurnaroundTime;
-  isDefault: boolean;
-  sortOrder: number;
-  priceOverride?: number;
+  id: string
+  turnaroundTimeId: string
+  TurnaroundTime: TurnaroundTime
+  isDefault: boolean
+  sortOrder: number
+  priceOverride?: number
 }
 
 interface TurnaroundTimeSet {
-  id: string;
-  name: string;
-  description: string | null;
-  isActive: boolean;
-  sortOrder: number;
-  TurnaroundTimeSetItem: TurnaroundTimeSetItem[];
+  id: string
+  name: string
+  description: string | null
+  isActive: boolean
+  sortOrder: number
+  TurnaroundTimeSetItem: TurnaroundTimeSetItem[]
 }
 
 function SortableSetItem({
@@ -97,21 +97,21 @@ function SortableSetItem({
   onSetDefault,
   onUpdatePriceOverride,
 }: {
-  item: TurnaroundTimeSetItem;
-  onToggle: () => void;
-  onRemove: () => void;
-  onSetDefault: () => void;
-  onUpdatePriceOverride: (price: number | null) => void;
+  item: TurnaroundTimeSetItem
+  onToggle: () => void
+  onRemove: () => void
+  onSetDefault: () => void
+  onUpdatePriceOverride: (price: number | null) => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
-  });
+  })
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-  };
+  }
 
   return (
     <div
@@ -158,67 +158,67 @@ function SortableSetItem({
         </Button>
       </div>
     </div>
-  );
+  )
 }
 
 export default function TurnaroundTimeSetsPage() {
-  const [sets, setSets] = useState<TurnaroundTimeSet[]>([]);
-  const [turnaroundTimes, setTurnaroundTimes] = useState<TurnaroundTime[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showDialog, setShowDialog] = useState(false);
-  const [editingSet, setEditingSet] = useState<TurnaroundTimeSet | null>(null);
-  const [expandedSets, setExpandedSets] = useState<Set<string>>(new Set());
+  const [sets, setSets] = useState<TurnaroundTimeSet[]>([])
+  const [turnaroundTimes, setTurnaroundTimes] = useState<TurnaroundTime[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showDialog, setShowDialog] = useState(false)
+  const [editingSet, setEditingSet] = useState<TurnaroundTimeSet | null>(null)
+  const [expandedSets, setExpandedSets] = useState<Set<string>>(new Set())
 
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     isActive: true,
     selectedTurnaroundTimes: [] as string[],
-  });
+  })
 
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
-  );
+  )
 
   useEffect(() => {
-    fetchSets();
-    fetchTurnaroundTimes();
-  }, []);
+    fetchSets()
+    fetchTurnaroundTimes()
+  }, [])
 
   const fetchSets = async () => {
     try {
-      const response = await fetch('/api/turnaround-time-sets');
-      if (!response.ok) throw new Error('Failed to fetch sets');
-      const data = await response.json();
-      setSets(Array.isArray(data) ? data : []);
+      const response = await fetch('/api/turnaround-time-sets')
+      if (!response.ok) throw new Error('Failed to fetch sets')
+      const data = await response.json()
+      setSets(Array.isArray(data) ? data : [])
     } catch (error) {
-      toast.error('Failed to load turnaround time sets');
+      toast.error('Failed to load turnaround time sets')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const fetchTurnaroundTimes = async () => {
     try {
-      const response = await fetch('/api/turnaround-times');
-      if (!response.ok) throw new Error('Failed to fetch turnaround times');
-      const data = await response.json();
-      setTurnaroundTimes(Array.isArray(data) ? data : []);
+      const response = await fetch('/api/turnaround-times')
+      if (!response.ok) throw new Error('Failed to fetch turnaround times')
+      const data = await response.json()
+      setTurnaroundTimes(Array.isArray(data) ? data : [])
     } catch (error) {
-      toast.error('Failed to load turnaround times');
+      toast.error('Failed to load turnaround times')
     }
-  };
+  }
 
   const handleSave = async () => {
     try {
       const url = editingSet
         ? `/api/turnaround-time-sets/${editingSet.id}`
-        : '/api/turnaround-time-sets';
+        : '/api/turnaround-time-sets'
 
-      const method = editingSet ? 'PUT' : 'POST';
+      const method = editingSet ? 'PUT' : 'POST'
 
       const response = await fetch(url, {
         method,
@@ -229,52 +229,52 @@ export default function TurnaroundTimeSetsPage() {
           isActive: formData.isActive,
           turnaroundTimeIds: formData.selectedTurnaroundTimes,
         }),
-      });
+      })
 
-      if (!response.ok) throw new Error('Failed to save set');
+      if (!response.ok) throw new Error('Failed to save set')
 
-      toast.success(editingSet ? 'Set updated successfully' : 'Set created successfully');
-      setShowDialog(false);
-      fetchSets();
-      resetForm();
+      toast.success(editingSet ? 'Set updated successfully' : 'Set created successfully')
+      setShowDialog(false)
+      fetchSets()
+      resetForm()
     } catch (error) {
-      toast.error('Failed to save turnaround time set');
+      toast.error('Failed to save turnaround time set')
     }
-  };
+  }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this set?')) return;
+    if (!confirm('Are you sure you want to delete this set?')) return
 
     try {
       const response = await fetch(`/api/turnaround-time-sets/${id}`, {
         method: 'DELETE',
-      });
+      })
 
-      if (!response.ok) throw new Error('Failed to delete set');
+      if (!response.ok) throw new Error('Failed to delete set')
 
-      toast.success('Set deleted successfully');
-      fetchSets();
+      toast.success('Set deleted successfully')
+      fetchSets()
     } catch (error) {
-      toast.error('Failed to delete turnaround time set');
+      toast.error('Failed to delete turnaround time set')
     }
-  };
+  }
 
   const handleDragEnd = async (event: DragEndEvent, setId: string) => {
-    const { active, over } = event;
+    const { active, over } = event
 
-    if (!over || active.id === over.id) return;
+    if (!over || active.id === over.id) return
 
-    const set = sets.find((s) => s.id === setId);
-    if (!set) return;
+    const set = sets.find((s) => s.id === setId)
+    if (!set) return
 
-    const items = set.TurnaroundTimeSetItem || [];
-    const oldIndex = items.findIndex((item) => item.id === active.id);
-    const newIndex = items.findIndex((item) => item.id === over.id);
+    const items = set.TurnaroundTimeSetItem || []
+    const oldIndex = items.findIndex((item) => item.id === active.id)
+    const newIndex = items.findIndex((item) => item.id === over.id)
 
-    const newItems = arrayMove(items, oldIndex, newIndex);
+    const newItems = arrayMove(items, oldIndex, newIndex)
 
     // Update local state immediately
-    setSets(sets.map((s) => (s.id === setId ? { ...s, TurnaroundTimeSetItem: newItems } : s)));
+    setSets(sets.map((s) => (s.id === setId ? { ...s, TurnaroundTimeSetItem: newItems } : s)))
 
     // Save to backend
     try {
@@ -284,14 +284,14 @@ export default function TurnaroundTimeSetsPage() {
         body: JSON.stringify({
           itemIds: newItems.map((item) => item.id),
         }),
-      });
+      })
 
-      if (!response.ok) throw new Error('Failed to reorder items');
+      if (!response.ok) throw new Error('Failed to reorder items')
     } catch (error) {
-      toast.error('Failed to save order');
-      fetchSets(); // Revert on error
+      toast.error('Failed to save order')
+      fetchSets() // Revert on error
     }
-  };
+  }
 
   const handleDuplicate = async (set: TurnaroundTimeSet) => {
     try {
@@ -304,28 +304,28 @@ export default function TurnaroundTimeSetsPage() {
           isActive: set.isActive,
           turnaroundTimeIds: (set.TurnaroundTimeSetItem || []).map((item) => item.turnaroundTimeId),
         }),
-      });
+      })
 
-      if (!response.ok) throw new Error('Failed to duplicate set');
+      if (!response.ok) throw new Error('Failed to duplicate set')
 
-      toast.success('Set duplicated successfully');
-      fetchSets();
+      toast.success('Set duplicated successfully')
+      fetchSets()
     } catch (error) {
-      toast.error('Failed to duplicate turnaround time set');
+      toast.error('Failed to duplicate turnaround time set')
     }
-  };
+  }
 
   const toggleExpanded = (setId: string) => {
     setExpandedSets((prev) => {
-      const newSet = new Set(prev);
+      const newSet = new Set(prev)
       if (newSet.has(setId)) {
-        newSet.delete(setId);
+        newSet.delete(setId)
       } else {
-        newSet.add(setId);
+        newSet.add(setId)
       }
-      return newSet;
-    });
-  };
+      return newSet
+    })
+  }
 
   const resetForm = () => {
     setFormData({
@@ -333,12 +333,12 @@ export default function TurnaroundTimeSetsPage() {
       description: '',
       isActive: true,
       selectedTurnaroundTimes: [],
-    });
-    setEditingSet(null);
-  };
+    })
+    setEditingSet(null)
+  }
 
   const openEditDialog = (set: TurnaroundTimeSet) => {
-    setEditingSet(set);
+    setEditingSet(set)
     setFormData({
       name: set.name,
       description: set.description || '',
@@ -346,9 +346,9 @@ export default function TurnaroundTimeSetsPage() {
       selectedTurnaroundTimes: (set.TurnaroundTimeSetItem || []).map(
         (item) => item.turnaroundTimeId
       ),
-    });
-    setShowDialog(true);
-  };
+    })
+    setShowDialog(true)
+  }
 
   return (
     <div className="space-y-6">
@@ -506,14 +506,14 @@ export default function TurnaroundTimeSetsPage() {
                           setFormData({
                             ...formData,
                             selectedTurnaroundTimes: [...formData.selectedTurnaroundTimes, tt.id],
-                          });
+                          })
                         } else {
                           setFormData({
                             ...formData,
                             selectedTurnaroundTimes: formData.selectedTurnaroundTimes.filter(
                               (id) => id !== tt.id
                             ),
-                          });
+                          })
                         }
                       }}
                     />
@@ -540,5 +540,5 @@ export default function TurnaroundTimeSetsPage() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }

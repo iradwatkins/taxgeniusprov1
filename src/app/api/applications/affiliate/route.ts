@@ -261,8 +261,8 @@ ${attributionResult.attribution.referrerUsername ? `- Referrer: ${attributionRes
 
     // Queue notifications (async, non-blocking)
     await Promise.allSettled([
-      queueAdminNotification(lead, bondedPreparerId),
-      queueConfirmationEmail(lead),
+      queueAdminNotification(lead, bondedPreparerId, locale),
+      queueConfirmationEmail(lead, locale),
       bondedPreparerId ? queuePreparerNotification(bondedPreparerId, lead) : Promise.resolve(),
     ]);
 
@@ -294,7 +294,7 @@ ${attributionResult.attribution.referrerUsername ? `- Referrer: ${attributionRes
 
 // ============ Notification Functions ============
 
-async function queueAdminNotification(lead: any, bondedPreparerId: string | null) {
+async function queueAdminNotification(lead: any, bondedPreparerId: string | null, locale?: string) {
   try {
     // Check if Resend is configured
     if (!process.env.RESEND_API_KEY) {
@@ -369,11 +369,17 @@ async function queueAdminNotification(lead: any, bondedPreparerId: string | null
           bondedPreparerId,
           leadId: lead.id,
           locale: (locale as 'en' | 'es') || 'en',
+          recipientName: recipients.recipientName,
         }),
       });
 
       if (notifyError) {
-        logger.error(`Failed to send hiring team notification to ${hiringEmail}`, notifyError);
+        logger.error(`Failed to send hiring team notification to ${hiringEmail}`, {
+          error: notifyError,
+          message: notifyError.message,
+          name: notifyError.name,
+          leadId: lead.id,
+        });
       } else {
         logger.info(`Hiring team notification sent to ${hiringEmail}`, {
           emailId: notifyData?.id,
@@ -381,12 +387,17 @@ async function queueAdminNotification(lead: any, bondedPreparerId: string | null
         });
       }
     }
-  } catch (error) {
-    logger.error('Error sending admin notification', { error, leadId: lead.id });
+  } catch (error: any) {
+    logger.error('Error sending admin notification', {
+      error: error.message || String(error),
+      stack: error.stack,
+      name: error.name,
+      leadId: lead.id,
+    });
   }
 }
 
-async function queueConfirmationEmail(lead: any) {
+async function queueConfirmationEmail(lead: any, locale?: string) {
   try {
     // Check if Resend is configured
     if (!process.env.RESEND_API_KEY) {
@@ -424,15 +435,25 @@ async function queueConfirmationEmail(lead: any) {
     });
 
     if (confirmError) {
-      logger.error('Failed to send applicant confirmation email', confirmError);
+      logger.error('Failed to send applicant confirmation email', {
+        error: confirmError,
+        message: confirmError.message,
+        name: confirmError.name,
+        leadId: lead.id,
+      });
     } else {
       logger.info('Applicant confirmation email sent', {
         emailId: confirmData?.id,
         leadId: lead.id,
       });
     }
-  } catch (error) {
-    logger.error('Error sending confirmation email', { error, leadId: lead.id });
+  } catch (error: any) {
+    logger.error('Error sending confirmation email', {
+      error: error.message || String(error),
+      stack: error.stack,
+      name: error.name,
+      leadId: lead.id,
+    });
   }
 }
 

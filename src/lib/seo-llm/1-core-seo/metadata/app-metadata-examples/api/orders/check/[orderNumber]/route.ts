@@ -1,12 +1,12 @@
-import { type NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { type NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest, { params }: { params: { orderNumber: string } }) {
   try {
-    const { orderNumber } = params;
+    const { orderNumber } = params
 
     if (!orderNumber) {
-      return NextResponse.json({ error: 'Order number is required' }, { status: 400 });
+      return NextResponse.json({ error: 'Order number is required' }, { status: 400 })
     }
 
     // Check if order exists in database
@@ -23,10 +23,10 @@ export async function GET(request: NextRequest, { params }: { params: { orderNum
         createdAt: true,
         paidAt: true,
       },
-    });
+    })
 
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
     return NextResponse.json({
@@ -41,9 +41,9 @@ export async function GET(request: NextRequest, { params }: { params: { orderNum
         paidAt: order.paidAt,
         isVisible: true,
       },
-    });
+    })
   } catch (error) {
-    console.error('Order check error:', error);
-    return NextResponse.json({ error: 'Failed to check order' }, { status: 500 });
+    console.error('Order check error:', error)
+    return NextResponse.json({ error: 'Failed to check order' }, { status: 500 })
   }
 }
