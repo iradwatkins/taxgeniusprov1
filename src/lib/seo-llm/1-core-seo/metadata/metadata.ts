@@ -1,9 +1,10 @@
 import { Metadata } from 'next'
+import { headers } from 'next/headers'
 
-const SITE_NAME = 'GangRun Printing'
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://gangrunprinting.com'
+const SITE_NAME = 'Tax Genius Pro'
+const SITE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://taxgeniuspro.tax'
 const DEFAULT_DESCRIPTION =
-  'Professional printing services for business cards, flyers, brochures, and more. High quality, fast turnaround, competitive prices.'
+  'Professional tax preparation and management services. Expert tax filing, planning, and IRS resolution.'
 
 export interface PageMetadata {
   title: string
@@ -13,6 +14,21 @@ export interface PageMetadata {
   url?: string
   type?: 'website' | 'article' | 'product' | 'product.group'
   noindex?: boolean
+  locale?: string
+}
+
+/**
+ * Get the current locale from headers or use default
+ */
+function getLocaleFromHeaders(): string {
+  try {
+    const headersList = headers()
+    const pathname = headersList.get('x-pathname') || ''
+    if (pathname.startsWith('/es')) return 'es'
+    return 'en'
+  } catch {
+    return 'en'
+  }
 }
 
 /**
@@ -26,10 +42,17 @@ export function generateMetadata({
   url,
   type = 'website',
   noindex = false,
+  locale,
 }: PageMetadata): Metadata {
   const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`
   const fullUrl = url ? `${SITE_URL}${url}` : SITE_URL
-  const ogImage = image || `${SITE_URL}/og-image.png`
+
+  // Determine locale - use provided locale, or try to get from headers, or default to 'en'
+  const currentLocale = locale || getLocaleFromHeaders()
+
+  // Use locale-specific OG image if no custom image is provided
+  const defaultOgImage = currentLocale === 'es' ? '/og-image-es.jpg' : '/og-image-en.jpg'
+  const ogImage = image ? `${SITE_URL}${image}` : `${SITE_URL}${defaultOgImage}`
 
   return {
     title: fullTitle,
@@ -54,6 +77,7 @@ export function generateMetadata({
           alt: title,
         },
       ],
+      locale: currentLocale === 'es' ? 'es_ES' : 'en_US',
       type,
     },
     twitter: {
